@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/messages.schema.json",
   "title": "Play AC Online messages file",
-  "description": "Lines a script or another mod can use, by key. A script reads its own with message(\"key\"), another mod's with message(\"author.mod:key\"). This file cannot carry a $schema key (every key is a line): point your editor at messages.schema.json in its settings instead. From api 2, content.messages may name a folder of <lang>.json files instead (en.json required; de, es, fr, it), each by these rules, a translation holding only keys en.json has. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
+  "description": "Lines a script or another mod can use, by key. A script reads its own with message(\"key\") and another mod's with message(\"author.mod:key\"). This file cannot carry a $schema key, because every key is a line. Point your editor at messages.schema.json in its settings instead. content.messages may name a folder of <lang>.json files instead (en, de, es, fr, it). en.json is required. Each file follows these rules, and a translation holds only keys that en.json has. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
   "type": "object",
   "maxProperties": 256,
   "propertyNames": {
@@ -11,6 +11,6 @@
   "additionalProperties": {
     "type": "string",
     "minLength": 1,
-    "description": "1 to 400 UTF-8 bytes. Lines wrap at 24 characters, 4 lines a page."
+    "description": "1 to 400 UTF-8 bytes. Lines wrap by width, not by a count of characters. A row holds 180 pixels of the game's font, which is about 24 letters. Narrow letters like i and l take less room, and wide ones like W and m take more. A page holds 4 rows."
   }
 }

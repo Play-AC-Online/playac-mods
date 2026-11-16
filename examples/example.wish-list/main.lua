@@ -3,17 +3,20 @@
 -- Each day about two villagers in five make a wish, picked from the date and
 -- the villager's id, so it is the same all day. The first talk states it. Pick
 -- up a matching item and the next talk thanks you and counts a friendship
--- streak, kept in the store. A wish the day ends on breaks that streak.
+-- streak. A wish the day ends on breaks that streak.
+--
+-- Everything is kept in store.player, so each resident of the town has their
+-- own wishes and their own streaks.
 --
 -- Handlers only return data: nothing here changes the game. The reward is the
--- story and the streak. The talk handler returns nil unless it has something
--- to say, so other mods' villagers still get their turn.
+-- story and the streak. The villager_talked handler returns nil unless it has
+-- something to say, so other mods' villagers still get their turn.
 
 local WISHERS, OF = 2, 5   -- WISHERS in OF villagers wish on a given day
 local KEEP = 48            -- villagers' streaks kept; the least recent drop off
 
 -- What can be wished for. Each kind is a set of item numbers that grant it.
--- Only things the player PICKS UP from the ground count: item_picked does not
+-- Only things the player PICKS UP from the ground count: item_picked_up does not
 -- fire for a bug or fish caught, or anything dug up or bought.
 local KINDS = {
   shell = { lo = 0x2514, hi = 0x251B },   -- ITM_SHELL0..ITM_SHELL7
@@ -42,7 +45,7 @@ end
 
 -- ── the store, never allowed to stop the script ──
 local function save(key, value)
-  local ok, err = pcall(store.set, key, value)
+  local ok, err = pcall(store.player.set, key, value)
   if not ok then log("not saved: " .. tostring(err)) end
 end
 
@@ -54,7 +57,8 @@ local function clock_key()
 end
 
 -- A stable number from the day and a villager (splitmix64's finish; Lua
--- integers wrap at 64 bits, which is what it wants).
+-- integers wrap at 64 bits, which is what it wants). Not rng(): whether a
+-- villager wishes today must be the same answer every time they are asked.
 local function mix(a, b)
   local h = a * 0x100000001B3 ~ b
   h = (h ~ (h >> 30)) * 0xBF58476D1CE4E5B9
@@ -79,14 +83,14 @@ end
 
 -- A villager's friendship record: "streak,total,missed".
 local function record(id)
-  local s, t, m = string.match(store.get("v" .. id) or "", "^(%d+),(%d+),(%d)$")
+  local s, t, m = string.match(store.player.get("v" .. id) or "", "^(%d+),(%d+),(%d)$")
   return { streak = tonumber(s) or 0, total = tonumber(t) or 0, missed = m == "1" }
 end
 
 local function put_record(id, r)
   -- most recent first; past KEEP villagers the oldest record is dropped
   local ids = { tostring(id) }
-  for v in string.gmatch(store.get("ids") or "", "%d+") do
+  for v in string.gmatch(store.player.get("ids") or "", "%d+") do
     if v ~= ids[1] then
       if #ids < KEEP then ids[#ids + 1] = v else save("v" .. v, nil) end
     end
@@ -116,15 +120,16 @@ end
 
 -- ── what a villager wishes for ──
 local function wish_for(id, key)
-  local h = mix(key, id)
-  if h % OF >= WISHERS then return nil, h end
+  if mix(key, id) % OF >= WISHERS then return nil end
   local kinds = { "shell", "fruit", "bells" }
-  local seen = store.get("fruit") or 0
+  local seen = store.player.get("fruit") or 0
   for i, item in ipairs(FRUIT_ORDER) do
     if seen & (1 << i) ~= 0 then kinds[#kinds + 1] = FRUIT_BITS[item] end
   end
   if (key // 100) % 100 == 11 then kinds[#kinds + 1] = "mushroom" end
-  return kinds[(h >> 8) % #kinds + 1], h
+  -- Which wish is rng(): it is saved the moment it is stated, so it cannot
+  -- change afterwards.
+  return kinds[rng(#kinds)]
 end
 
 -- ── lines ──
@@ -141,28 +146,29 @@ local function say(key, name, kind, streak)
   return (string.gsub(text, "%s+$", ""))
 end
 
-local function thanks_key(r, h)
+local function thanks_key(r)
   local s = r.streak
   if s == 3 or s == 5 or s == 10 then return "streak" .. s end
   if s >= 20 and s % 10 == 0 then return "streakbig" end
   if r.total == 1 then return "first" end
   if s == 1 then return "fresh" end -- a streak that broke and starts again
-  return "thanks" .. ((h >> 16) % 4 + 1)
+  return "thanks" .. rng(4)
 end
 
--- ── this town's wishes ──
--- `store` is kept per town and no town is loaded while this file first runs,
--- so today's wishes are read at the first event in a town, and again when the
--- player is in another town (store.town() changes).
-local town = false
+-- ── this player's wishes in this town ──
+-- store.player is kept per town and per player, and no town is loaded while
+-- this file first runs, so today's wishes are read at the first event in a
+-- town, and again when the town or the player changes.
+local whose = false
 local function fresh()
-  local t = store.town()
-  if t == town then return end
-  town = t
+  local p = game.player()
+  local who = tostring(store.town()) .. "/" .. tostring(p and p.id)
+  if who == whose then return end
+  whose = who
   day, entries, order = 0, {}, {}
   clock = clock_key()
-  day = store.get("day") or 0
-  for id, w, s in string.gmatch(store.get("open") or "", "(%d+)=(%a+):(%d)") do
+  day = store.player.get("day") or 0
+  for id, w, s in string.gmatch(store.player.get("open") or "", "(%d+)=(%a+):(%d)") do
     id = tonumber(id)
     if KINDS[w] and not entries[id] then
       entries[id] = { w = w, s = tonumber(s) }
@@ -173,56 +179,58 @@ local function fresh()
 end
 
 -- ── handlers ──
-on("day_start", function(date)
+on("day_started", function(e)
   fresh()
-  roll(key_of(date.year, date.month, date.day))
+  roll(key_of(e.year, e.month, e.day))
 end)
 
-on("talk", function(npc)
+on("villager_talked", function(e)
   fresh()
   local key = today()
-  local e = entries[npc.id]
-  if not e then
-    local kind, h = wish_for(npc.id, key)
+  local id, name = e.villager.id, e.villager.name
+  local wish = entries[id]
+  if not wish then
+    local kind = wish_for(id, key)
     if not kind then return nil end
-    entries[npc.id] = { w = kind, s = 1 }
-    order[#order + 1] = npc.id
+    entries[id] = { w = kind, s = 1 }
+    order[#order + 1] = id
     save_day()
-    log(npc.name .. " wishes for: " .. kind)
-    local r = record(npc.id)
+    log(name .. " wishes for: " .. kind)
+    local r = record(id)
     if r.missed then
       r.missed = false
-      put_record(npc.id, r)
-      return say("again", npc.name, kind)
+      put_record(id, r)
+      return say("again", name, kind)
     end
-    return say("wish" .. ((h >> 16) % 5 + 1), npc.name, kind)
+    return say("wish" .. rng(5), name, kind)
   end
-  if e.s ~= 2 then return nil end -- told already, or thanked already: let someone else talk
-  e.s = 3
+  if wish.s ~= 2 then return nil end -- told already, or thanked already: let someone else talk
+  wish.s = 3
   save_day()
-  local r = record(npc.id)
-  return say(thanks_key(r, mix(key, npc.id)), npc.name, e.w, r.streak)
+  local r = record(id)
+  return say(thanks_key(r), name, wish.w, r.streak)
 end)
 
-on("item_picked", function(item)
+on("item_picked_up", function(e)
   fresh()
   today()
+  local item = e.item
   local bit
   for i, f in ipairs(FRUIT_ORDER) do if f == item then bit = 1 << i end end
   if bit then
-    local seen = store.get("fruit") or 0
+    local seen = store.player.get("fruit") or 0
     if seen & bit == 0 then save("fruit", seen | bit) end
   end
   -- one item grants one wish: the earliest one told that it matches
   for _, id in ipairs(order) do
-    local e = entries[id]
-    if e.s == 1 and grants(e.w, item) then
-      e.s = 2
+    local wish = entries[id]
+    if wish.s == 1 and grants(wish.w, item) then
+      wish.s = 2
       local r = record(id)
       r.streak, r.total = r.streak + 1, r.total + 1
       put_record(id, r)
       save_day()
-      log("granted a wish (" .. e.w .. "), streak " .. r.streak)
+      log("granted a wish (" .. wish.w .. "), streak " .. r.streak)
       return
     end
   end

@@ -109,7 +109,7 @@ export async function signIn(api, version, io) {
     body: JSON.stringify({ client: `${CLIENT}/${version}` }),
   });
   const s = await jsonOf(start);
-  if (!start.ok) throw new Error(`sign-in did not start: ${said(s, start.status)}`);
+  if (!start.ok) throw new Error(`The sign-in did not start. The site said: ${said(s, start.status)}`);
   print('');
   print(`  Open ${s.verification_uri} and enter the code ${s.user_code}`);
   print(`  (or open ${s.verification_uri_complete})`);
@@ -126,7 +126,7 @@ export async function signIn(api, version, io) {
     const b = await jsonOf(r);
     if (r.ok && b.access_token) {
       const account = accountOf(b);
-      if (account === null) throw new Error('the sign-in did not say which account approved it, so nothing was uploaded; run publish again');
+      if (account === null) throw new Error('The sign-in did not say which account approved it, so nothing was uploaded. Run publish again.');
       const t = { token: b.access_token, expiresIn: Number(b.expires_in) || 3600 };
       if (account) {
         t.account = account;
@@ -136,11 +136,11 @@ export async function signIn(api, version, io) {
     }
     if (b.error === 'authorization_pending') continue;
     if (b.error === 'slow_down') { interval += 5000; continue; }
-    if (b.error === 'access_denied') throw new Error('the sign-in was denied on the site');
+    if (b.error === 'access_denied') throw new Error('The sign-in was denied on the site.');
     if (b.error === 'expired_token') break;
-    throw new Error(`sign-in failed: ${said(b, r.status)}`);
+    throw new Error(`The sign-in failed. The site said: ${said(b, r.status)}`);
   }
-  throw new Error('the code expired before it was approved; run publish again');
+  throw new Error('The code expired before it was approved. Run publish again.');
 }
 
 /* A token for api: the saved one, or a new sign-in (saved unless noSave). */
@@ -153,7 +153,7 @@ async function signedIn(api, version, io = {}, { noSave = false, fresh = false }
   const print = io.print || console.log;
   const saved = fresh ? null : savedSignIn(api);
   if (saved) {
-    if (saved.account) print(`Signed in as ${saved.account} (saved sign-in; playac-mod logout to switch).`);
+    if (saved.account) print(`Signed in as ${saved.account}, from the saved sign-in. Run "playac-mod logout" to switch accounts.`);
     return { token: saved.token, saved: true };
   }
   const t = await signIn(api, version, io);
@@ -171,7 +171,7 @@ export async function withToken(api, version, fn, io = {}, { noSave = false } = 
     if (e.status !== 401) throw e;
     forgetToken(api);
     if (!first.saved) throw e;
-    (io.print || console.log)('The saved sign-in has ended (signed out on the site?): sign in again.');
+    (io.print || console.log)('The saved sign-in has ended. Sign in again.');
     const again = await signedIn(api, version, io, { noSave, fresh: true });
     try {
       return await fn(again.token);
@@ -185,11 +185,11 @@ export async function withToken(api, version, fn, io = {}, { noSave = false } = 
 /* The upload refusal, said plainly. The routes answer {error, detail}. */
 export function uploadRefusal(status, body) {
   const code = body.error || body.code;
-  if (code === 'publisher_terms') return 'confirm your age and accept the mod rules once on the site (Settings, Mods, Share a mod), then publish again';
-  if (code === 'version_exists') return 'this version is already uploaded: raise "version" in mod.json';
-  if (code === 'not_owner') return 'another player already uploaded a mod with this id: pick a different "id"';
-  if (code === 'screenshot_required') return `add a screenshot: --shot <file.png>, or PNG/JPEG files in ${SHOT_DIR} (for --github: in the repo)`;
-  if (code === 'changelog_required') return 'say what this version changes: --changelog "<line>", or a section for this version in CHANGELOG.md';
+  if (code === 'publisher_terms') return 'Confirm your age and accept the mod rules once on the site, under Settings, Mods, Share a mod. Then publish again.';
+  if (code === 'version_exists') return 'This version is already uploaded. Raise "version" in mod.json.';
+  if (code === 'not_owner') return 'Another player already uploaded a mod with this id. Pick a different "id".';
+  if (code === 'screenshot_required') return `Add a screenshot with --shot <file.png>, or put PNG or JPEG files in ${SHOT_DIR}. For --github, commit them to the repo.`;
+  if (code === 'changelog_required') return 'Say what this version changes with --changelog "<line>", or add a section for this version to CHANGELOG.md.';
   return said(body, status);
 }
 
@@ -209,6 +209,12 @@ export const MAX_CHANGELOG = 300;
  * uploaded (checked here before the sign-in, not by the registry after). */
 export const MIN_SHOT_SIDE = 200;
 export const MAX_SHOT_SIDE = 4096;
+/* Backend mods.MaxScreenshotPixels: at most a 4K screen of pixels, whatever
+ * the sides (a 4096x4096 picture is refused). */
+export const MAX_SHOT_PIXELS = 3840 * 2160;
+/* Backend mods.MaxProgressiveShotPixels: a progressive JPEG costs the server
+ * about five times a standard one to read, so it is held to 1920x1080. */
+export const MAX_PROGRESSIVE_SHOT_PIXELS = 1920 * 1080;
 
 /* A PNG's or JPEG's size from its header, or null. */
 export function imageSize(b, type) {
@@ -252,6 +258,41 @@ export function changelogSection(md, version) {
   return s;
 }
 
+/* What else the registry refuses a screenshot for, from its header: 'deep'
+ * for a PNG with 16 bit samples (IHDR bit depth), 'progressive' for a
+ * progressive JPEG (its start-of-frame marker is C2, C6, CA or CE), else ''. */
+export function imageKind(b, type) {
+  if (type === 'image/png') return b.length > 24 && b[24] === 16 ? 'deep' : '';
+  let i = 2;
+  while (i + 3 < b.length) {
+    if (b[i] !== 0xff) return '';
+    const m = b[i + 1];
+    if (m === 0xff) { i++; continue; }
+    if (m === 0xd8 || m === 0x01 || (m >= 0xd0 && m <= 0xd7)) { i += 2; continue; }
+    if (m === 0xc2 || m === 0xc6 || m === 0xca || m === 0xce) return 'progressive';
+    if (m === 0xc0 || m === 0xc1 || m === 0xc3 || m === 0xda || m === 0xd9) return '';
+    i += 2 + b.readUInt16BE(i + 2);
+  }
+  return '';
+}
+
+/* Why the registry would refuse a screenshot of this size and kind, or ''.
+ * The same rules as the backend's decodeShot, said before the sign-in. */
+export function shotProblem(size, kind) {
+  if (!size) return '';
+  if (Math.min(size.w, size.h) < MIN_SHOT_SIDE || Math.max(size.w, size.h) > MAX_SHOT_SIDE) {
+    return `is ${size.w}x${size.h}. A screenshot's sides must be ${MIN_SHOT_SIDE} to ${MAX_SHOT_SIDE} pixels. Take it at the game's own size.`;
+  }
+  if (size.w * size.h > MAX_SHOT_PIXELS) {
+    return `is ${size.w}x${size.h}. A screenshot is at most a 4K screen of pixels (3840 by 2160). Make it smaller.`;
+  }
+  if (kind === 'deep') return 'is a 16 bit PNG. Save it as an ordinary 8 bit PNG or a JPEG.';
+  if (kind === 'progressive' && size.w * size.h > MAX_PROGRESSIVE_SHOT_PIXELS) {
+    return `is a progressive JPEG of ${size.w}x${size.h}. One larger than 1920 by 1080 is refused. Save it as a standard (baseline) JPEG or a PNG, or make it smaller.`;
+  }
+  return '';
+}
+
 /* A PNG starts with its 8-byte signature and an IHDR; a JPEG with FF D8 FF. */
 export function shotBytesOk(b, type) {
   if (type === 'image/png') return b.length > 33 && [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every((v, i) => b[i] === v);
@@ -272,21 +313,19 @@ export function listingFor(folder, version, { shots = [], changelog = '' } = {})
     files = names.slice(0, MAX_SHOTS).map((n) => path.join(dir, n));
   }
   if (!files.length) {
-    throw new Error(`add a screenshot of the mod in the game: --shot <file.png>, or put PNG/JPEG files in ${SHOT_DIR}${path.sep}`);
+    throw new Error(`A shared version needs 1 to ${MAX_SHOTS} screenshots of the mod in the game, and there are none yet. Put PNG or JPEG files in ${SHOT_DIR}${path.sep}, or name one with --shot <file.png>. Nothing was sent. "playac-mod publish --help" lists everything sharing needs.`);
   }
-  if (files.length > MAX_SHOTS) throw new Error(`at most ${MAX_SHOTS} screenshots`);
+  if (files.length > MAX_SHOTS) throw new Error(`Send at most ${MAX_SHOTS} screenshots.`);
   const out = files.map((f) => {
     const type = shotType(f);
-    if (!type) throw new Error(`${f} is not a PNG or a JPEG`);
+    if (!type) throw new Error(`${f} is not a PNG or a JPEG.`);
     const bytes = fs.readFileSync(f);
-    if (bytes.length > MAX_SHOT_BYTES) throw new Error(`${f} is larger than 2 MiB`);
+    if (bytes.length > MAX_SHOT_BYTES) throw new Error(`${f} is larger than 2 MB.`);
     /* the bytes, not the name: an empty or renamed file is refused here, not
      * after the sign-in by the registry */
-    if (!shotBytesOk(bytes, type)) throw new Error(`${f} is not a ${type === 'image/png' ? 'PNG' : 'JPEG'} picture (empty, cut short or another kind of file)`);
-    const size = imageSize(bytes, type);
-    if (size && (Math.min(size.w, size.h) < MIN_SHOT_SIDE || Math.max(size.w, size.h) > MAX_SHOT_SIDE)) {
-      throw new Error(`${f} is ${size.w}x${size.h}: a screenshot's sides must be ${MIN_SHOT_SIDE} to ${MAX_SHOT_SIDE} pixels (take it at the game's own size)`);
-    }
+    if (!shotBytesOk(bytes, type)) throw new Error(`${f} is not a ${type === 'image/png' ? 'PNG' : 'JPEG'} picture. It is empty, cut short or another kind of file.`);
+    const problem = shotProblem(imageSize(bytes, type), imageKind(bytes, type));
+    if (problem) throw new Error(`${f} ${problem}`);
     return { name: path.basename(f), type, bytes };
   });
   let line = String(changelog || '').trim();
@@ -297,9 +336,9 @@ export function listingFor(folder, version, { shots = [], changelog = '' } = {})
     try { line = fs.readFileSync(path.join(folder, '.playac', 'changelog.txt'), 'utf8').trim(); } catch { line = ''; }
   }
   if (!line) {
-    throw new Error(`say what this version changes: --changelog "<one line>", a "## ${version}" section in CHANGELOG.md, or .playac/changelog.txt`);
+    throw new Error(`Say what this version changes. Use --changelog "<one line>", a "## ${version}" section in CHANGELOG.md, or .playac/changelog.txt.`);
   }
-  if (Array.from(line).length > MAX_CHANGELOG) throw new Error(`keep the changelog line under ${MAX_CHANGELOG} characters`);
+  if (Array.from(line).length > MAX_CHANGELOG) throw new Error(`Keep the changelog line under ${MAX_CHANGELOG} characters.`);
   return { shots: out, changelog: line };
 }
 
@@ -323,7 +362,7 @@ export async function upload(api, tok, zip, listing, io = {}) {
   });
   const b = await jsonOf(r);
   if (!r.ok) {
-    const e = new Error(`the upload was refused: ${uploadRefusal(r.status, b)}`);
+    const e = new Error(`The upload was refused. ${uploadRefusal(r.status, b)}`);
     e.status = r.status;
     throw e;
   }
@@ -340,7 +379,7 @@ export async function importGitHub(api, tok, source, io = {}) {
   });
   const b = await jsonOf(r);
   if (!r.ok) {
-    const e = new Error(`the import was refused: ${uploadRefusal(r.status, b)}`);
+    const e = new Error(`The import was refused. ${uploadRefusal(r.status, b)}`);
     e.status = r.status;
     throw e;
   }
@@ -361,7 +400,7 @@ export async function myVersions(api, tok, io = {}) {
   const r = await f(`${api}/api/mods/mine`, { headers: { Authorization: `Bearer ${tok}` } });
   const b = await jsonOf(r);
   if (!r.ok) {
-    const e = new Error(`the registry did not list your mods: ${said(b, r.status)}`);
+    const e = new Error(`The site did not list your mods. It said: ${said(b, r.status)}`);
     e.status = r.status;
     throw e;
   }
@@ -378,20 +417,29 @@ export async function setYanked(api, tok, rowId, yank, reason = '', io = {}) {
   });
   const b = await jsonOf(r);
   if (!r.ok) {
-    const e = new Error(`${yank ? 'yank' : 'unyank'} was refused: ${said(b, r.status)}`);
+    const e = new Error(`The site did not ${yank ? 'withdraw that version' : 'list that version again'}. It said: ${said(b, r.status)}`);
     e.status = r.status;
     throw e;
   }
   return b.mod || {};
 }
 
+/* A version's state in the words the site uses for it. The API's own names
+ * (pending, listed, superseded, yanked, rejected, removed, and the review
+ * statuses approved and taken_down) stay in --json and in the requests. */
+const STATE_WORDS = {
+  pending: 'Waiting for review', listed: 'Listed', approved: 'Listed', superseded: 'Older version',
+  yanked: 'Withdrawn', rejected: 'Refused', removed: 'Removed', taken_down: 'Removed',
+};
+export const stateWord = (state) => STATE_WORDS[state] || String(state);
+
 /* The lines `status` prints: one per version, as the registry lists them. */
 export function statusLines(list, modId = '') {
   const rows = list.filter((m) => !modId || m.mod_id === modId);
-  if (!rows.length) return [modId ? `no uploads of ${modId} yet` : 'no uploads yet'];
+  if (!rows.length) return [modId ? `You have no uploads of ${modId} yet.` : 'You have no uploads yet.'];
   const out = [];
   for (const m of rows) {
-    const state = m.state || m.status || '?';
+    const state = stateWord(m.state || m.status || '?');
     let line = `${m.mod_id} ${m.version}  ${state}`;
     if (m.source && m.source.repo) line += `  (from github.com/${m.source.repo}@${m.source.tag})`;
     out.push(line);
@@ -413,11 +461,11 @@ export function parseGitHubSource(s) {
   const t = String(s || '').trim();
   const m = /^(?:https?:\/\/)?(?:www\.)?github\.com\/([^/@\s]+)\/([^/@\s]+?)(?:\.git)?\/?@([^\s]+)$/.exec(t) ||
     /^([^/@\s]+)\/([^/@\s]+?)(?:\.git)?@([^\s]+)$/.exec(t);
-  if (!m) throw new Error('write it as <owner>/<repo>@<tag>, for example you/tea-house@v1.2.0');
+  if (!m) throw new Error('Write it as <owner>/<repo>@<tag>, for example you/tea-house@v1.2.0');
   const [, owner, repo, tag] = m;
-  if (!GH_OWNER.test(owner) || !GH_REPO.test(repo) || repo === '.' || repo === '..') throw new Error(`${owner}/${repo} is not a GitHub owner and repository name`);
+  if (!GH_OWNER.test(owner) || !GH_REPO.test(repo) || repo === '.' || repo === '..') throw new Error(`${owner}/${repo} is not a GitHub owner and repository name.`);
   const v = GH_TAG.exec(tag);
-  if (!v) throw new Error(`the tag must be the mod's version, like v1.2.0 or 1.2.0, not ${tag}`);
+  if (!v) throw new Error(`The tag must be the mod's version, like v1.2.0 or 1.2.0, not ${tag}.`);
   return { owner, repo, tag, version: v[1] };
 }
 
@@ -432,25 +480,25 @@ export function githubPreflight(dir, src, vcs) {
   let version = '';
   try { version = JSON.parse(fs.readFileSync(path.join(dir, 'mod.json'), 'utf8')).version; } catch { version = ''; }
   if (!version) {
-    notes.push('no mod.json here, so only the tag was checked: run this in the mod\'s folder to check more');
+    notes.push('There is no mod.json here, so only the tag was checked. Run this in the mod\'s folder to check more.');
     return { problems, notes };
   }
-  if (version !== src.version) problems.push(`the tag ${src.tag} says ${src.version}, but mod.json says "version": "${version}"; the import refuses a tag that does not match`);
-  try { listingFor(dir, src.version); } catch (e) { problems.push(`${e.message} (the import reads the listing from the repo at the tag, so commit it before tagging)`); }
+  if (version !== src.version) problems.push(`The tag ${src.tag} says ${src.version}, but mod.json says "version": "${version}". The import refuses a tag that does not match.`);
+  try { listingFor(dir, src.version); } catch (e) { problems.push(`${e.message} The import reads the screenshots and the changelog line from the repo at the tag, so commit them before tagging.`); }
   const inside = vcs(['rev-parse', '--is-inside-work-tree']);
   if (!inside || inside.status !== 0) {
-    notes.push('not a git repository here, so the tag itself was not checked');
+    notes.push('This folder is not a Git repository, so the tag itself was not checked.');
     return { problems, notes };
   }
   const local = vcs(['tag', '--list', src.tag]);
   if (!String(local.stdout || '').trim()) {
-    problems.push(`there is no tag ${src.tag} here: commit, then run: git tag ${src.tag} && git push origin ${src.tag}`);
+    problems.push(`There is no tag ${src.tag} here. Commit, then run: git tag ${src.tag} && git push origin ${src.tag}`);
     return { problems, notes };
   }
   const dirty = vcs(['status', '--porcelain', '--untracked-files=no']);
-  if (String(dirty.stdout || '').trim()) notes.push(`you have uncommitted changes: the import builds ${src.tag} as committed, not this folder`);
+  if (String(dirty.stdout || '').trim()) notes.push(`You have uncommitted changes. The import builds ${src.tag} as committed, not this folder.`);
   const remote = vcs(['ls-remote', '--tags', 'origin', `refs/tags/${src.tag}`]);
-  if (remote.status === 0 && !String(remote.stdout || '').trim()) problems.push(`the tag ${src.tag} is not on GitHub yet: git push origin ${src.tag}`);
-  else if (remote.status !== 0) notes.push('could not ask the remote "origin" whether the tag was pushed');
+  if (remote.status === 0 && !String(remote.stdout || '').trim()) problems.push(`The tag ${src.tag} is not on GitHub yet. Run: git push origin ${src.tag}`);
+  else if (remote.status !== 0) notes.push('Could not ask the remote "origin" whether the tag was pushed.');
   return { problems, notes };
 }

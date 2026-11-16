@@ -51,7 +51,7 @@ test('sign-in: denied and expired end with plain words', async () => {
   await assert.rejects(signIn(API, '1', io({ status: 400, body: { error: 'access_denied' } })), /denied/);
   clock = 0;
   await assert.rejects(signIn(API, '1', io({ status: 400, body: { error: 'authorization_pending' } })), /expired/);
-  await assert.rejects(signIn(API, '1', { fetch: fakeApi(() => ({ status: 429, body: { code: 'rate_limited', message: 'Too many' } })).f, print: () => {} }), /did not start: Too many/);
+  await assert.rejects(signIn(API, '1', { fetch: fakeApi(() => ({ status: 429, body: { code: 'rate_limited', message: 'Too many' } })).f, print: () => {} }), /did not start\. The site said: Too many/);
 });
 
 test('the token is saved per API until a minute before it expires', async () => {
@@ -85,7 +85,7 @@ test('upload sends the form (ZIP, screenshots, changelog) with the bearer token;
   assert.equal(form.get('screenshot').type, 'image/png');
   assert.equal(form.get('changelog'), 'Green tea.');
   const refused = fakeApi(() => ({ status: 409, body: { error: 'version_exists', detail: 'x' } }));
-  await assert.rejects(upload(API, 't', zip, listing, { fetch: refused.f }), /raise "version"/);
+  await assert.rejects(upload(API, 't', zip, listing, { fetch: refused.f }), /Raise "version"/);
   assert.match(uploadRefusal(400, { error: 'screenshot_required' }), /--shot/);
   assert.match(uploadRefusal(403, { error: 'publisher_terms' }), /accept the mod rules/);
   assert.equal(uploadRefusal(400, { error: 'invalid_mod', detail: 'mod.json: bad' }), 'mod.json: bad');
@@ -106,7 +106,7 @@ const JPG = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex');
 
 test('the listing: .playac/screenshots and CHANGELOG.md by default, flags win, plain errors when missing', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-listing-'));
-  assert.throws(() => listingFor(dir, '1.2.0'), /add a screenshot/);
+  assert.throws(() => listingFor(dir, '1.2.0'), /needs 1 to 4 screenshots of the mod in the game.*publish --help/);
   fs.mkdirSync(path.join(dir, SHOT_DIR), { recursive: true });
   fs.writeFileSync(path.join(dir, SHOT_DIR, 'b.png'), PNG);
   fs.writeFileSync(path.join(dir, SHOT_DIR, 'a.jpg'), JPG);
@@ -165,7 +165,7 @@ test('a revoked saved token is forgotten and the sign-in runs once more', async 
   assert.equal(r.mod_id, 'bean.x');
   assert.deepEqual(calls.filter((c) => c.url.endsWith('/api/mods')).map((c) => c.init.headers.Authorization), ['Bearer pacm_revoked', 'Bearer pacm_new']);
   assert.equal(savedToken(API), 'pacm_new', 'the new sign-in is the saved one');
-  assert.ok(printed.some((s) => /sign in again/.test(s)));
+  assert.ok(printed.some((s) => /Sign in again/.test(s)));
 
   /* the new token refused too: no loop, the refusal is said, nothing saved */
   forgetToken(API);
@@ -201,6 +201,6 @@ test('sign-in names the approving account when the server does; an empty name is
   const printed = [];
   await token(API, '1', { fetch: f, sleep: async () => {}, print: (s) => printed.push(s) });
   await token(API, '1', { fetch: () => { throw new Error('no sign-in needed'); }, print: (s) => printed.push(s) });
-  assert.ok(printed.some((s) => /Signed in as Bean \(saved sign-in/.test(s)), printed.join('\n'));
+  assert.ok(printed.some((s) => /Signed in as Bean, from the saved sign-in/.test(s)), printed.join('\n'));
   forgetToken(API);
 });

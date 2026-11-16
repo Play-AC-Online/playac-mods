@@ -1,9 +1,9 @@
 # Clover Meadow
 
 A texture-only example mod. It replaces the town grass with our own drawing:
-seamless green ground with clover leaves and small white flowers, one 128x128
-uncompressed RGBA DDS picture, saved under every name the game draws the
-grass with.
+seamless green ground with clover leaves and small white flowers. It is one
+128x128 uncompressed RGBA DDS picture, saved under every name the game draws
+the grass with.
 
 ## In the game
 
@@ -23,18 +23,18 @@ A closer look at the mod's grass: clover leaves and small white flowers, drawn f
 
 The film (click the picture): A walk past the houses with Clover Meadow installed: every grass tile in town is the mod's clover.
 
-The names say which in-game texture to replace; the pixels are our own. The
-grass is six textures, and the game draws each under several palettes through
+The names say which in-game texture to replace, and the pixels are our own.
+The grass is six textures. The game draws each under several palettes, through
 the seasons and the time of day. A file can name one texture and one palette:
 
     tex1_32x32_<texture>_<palette>_8.dds
 
-or put `$` in place of the palette, for that texture under any palette:
+Or it can put `$` in place of the palette, for that texture under any palette:
 
     tex1_32x32_<texture>_$_8.dds
 
 Our grass is the same picture all year, so the mod has one `$` file per
-texture: six files.
+texture. That is six files.
 
 These three grass textures are drawn under nine palettes:
 
@@ -48,11 +48,12 @@ And these three under three palettes:
     textures: 82f28ec4199a45be cfa57a6e6f966d11 e2ab673814e71af6
     palettes: 6d5ff5628ae85b42 ce63d23d746a058a d9eb32f9a8b17411
 
-To change the grass for one stretch of the year or time of day only, add a
-file named with that palette next to the `$` file: a file named for one
-palette wins over the `$` file under that palette, and the `$` file still
-covers the rest. With one file per palette (36 files) the mod could change
-with every palette; a `$` file is loaded once and shared, so it is the lighter
-choice when the picture does not change.
+To change the grass for one stretch of the year or one time of day, add a file
+named with that palette next to the `$` file. The file named for one palette
+wins under that palette, and the `$` file still covers the rest.
+
+With one file per palette, 36 files, the mod could change with every palette.
+A `$` file is loaded once and shared, so it is the lighter choice when the
+picture does not change.
 
 The pictures are drawn by a small program, never copied from the game.

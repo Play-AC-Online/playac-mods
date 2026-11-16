@@ -1,12 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/letters.schema.json",
-  "title": "Play AC Online letters file (api 2)",
-  "description": "Letter templates a mod command (send_letter) mails through the mailbox, named \"<mod id>:<letter id>\". The game wraps the body at the paper's width in its own font and refuses one that needs more than 6 lines, and refuses a present that is money, turnips, a ticket, a grab bag, a fossil or not an item. Either scope. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
+  "title": "Play AC Online letters file",
+  "description": "Letter templates that a mod command (send_letter) mails through the mailbox, named \"<mod id>:<letter id>\". The game wraps the body at the paper's width in its own font and refuses one that needs more than 6 lines. It also refuses a present that is money, turnips, a ticket, a grab bag, a fossil or not an item. Either scope. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
   "type": "object",
   "required": [
     "letters"
   ],
+  "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string"
@@ -23,6 +24,7 @@
           "body",
           "footer"
         ],
+        "additionalProperties": false,
         "properties": {
           "id": {
             "type": "string",
@@ -51,7 +53,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 8,
-            "description": "Optional: the name in the mailbox list, 1 to 8 characters (the list has room for 8). Without it the list shows the footer's first 8 characters, so \"The Lantern Keepers\" reads \"The Lant\". The letter itself always signs with the whole footer. Plain text: printable ASCII, no { or }."
+            "description": "Optional. The name in the mailbox list, 1 to 8 characters, which is all the list has room for. Without it the list shows the footer's first 8 characters, so \"The Lantern Keepers\" reads \"The Lant\". The letter itself always signs with the whole footer. Plain text: printable ASCII, no { or }."
           },
           "item": {
             "type": "string",

@@ -9,43 +9,63 @@ Generated from the Play AC Online mod API spec and errors catalogue. Do not edit
 ```
 # Blossom Lane
 
-> Download this mod's ZIP from the cookbook: it has the pictures, ready to
-> install. They are drawn by a small program when the site is built, so the
-> files listed here have no `textures/` folder, and `playac-mod check` on a
-> copy of only these files says the textures folder is missing.
+> Download this mod's ZIP from the cookbook. It has the pictures, ready to
+> install. A small program draws them when the site is built, so the files
+> listed here have no `textures/` folder. `playac-mod check` on a copy of only
+> these files says the textures folder is missing.
 
-A texture-only example mod: every grown tree in town wears a cherry blossom
-crown all year (with snow on top in winter), and fallen petals dot the grass
-from spring to autumn. Golden trees stay gold, and saplings keep their look.
+A texture-only example mod. Every grown tree in town wears a cherry blossom
+crown all year, with snow on top in winter. Fallen petals dot the grass from
+spring to autumn. Golden trees stay gold, and saplings keep their look.
 
-Every pixel is drawn by a small program (a crown of lit puffs covered in
-five-petal flowers, and seamless grass with petal drifts), never copied from
-the game. Each texture is one 128x128 RGBA DDS, named the way the game looks
+A small program draws every pixel. Nothing is copied from the game. The crown
+is lit puffs covered in five-petal flowers. The grass is seamless, with petal
+drifts. Each texture is one 128x128 RGBA DDS, named the way the game looks
 textures up:
 
     tex1_<width>x<height>_<texture hash>_<palette hash>_<format>.dds
 
-| What | Texture hash | Palettes |
+A name can have `$` in place of the palette hash. That file is the texture
+under any palette. This mod uses both kinds, 48 files in all:
+
+| What | Texture hash | Files |
 |---|---|---|
-| Tree crown, the rest of the year (February 25 to December 9) | `a67216e4ad55d908` (64x64) | 15 |
-| Tree crown, cherry blossom days (April 1 to 8) | `ac6a2be34281d4e2` (64x64) | 15 |
-| Tree crown, winter (December 10 to February 24, snow-capped) | `53d6cc5ace654ac7` (64x64) | 15 |
-| Grass, spring to autumn | `626709d910129694`, `903adc6355e36f59`, `e96fecd242518c9f` (32x32) | 9 |
+| Tree crown, the rest of the year (February 25 to December 9) | `a67216e4ad55d908` (64x64) | 15, one per palette |
+| Tree crown, cherry blossom days (April 1 to 8) | `ac6a2be34281d4e2` (64x64) | 15, one per palette |
+| Tree crown, winter (December 10 to February 24, snow-capped) | `53d6cc5ace654ac7` (64x64) | 15, one per palette |
+| Grass, spring to autumn | `626709d910129694`, `903adc6355e36f59`, `e96fecd242518c9f` (32x32) | 3, one `$` file per texture |
 
-The trees change palette through the year, which is why each crown is listed
-once per palette. Golden trees are the same crowns under a gold palette: this
-mod names every palette but the gold one, so they stay gold (a `$` name, which
-matches any palette, would turn them too). Cedars, palms and saplings have
-crowns of their own, left as they are here: their names are in the textures
-guide's common textures table. The crown keeps the game's cut-out shape: its corners are
-fully transparent, so it draws as a round crown, never a square.
+## Why the grass uses `$` files
 
-Winter grass is left as it is. The names identify which in-game texture to
-replace; the pixels are our own. Clover Meadow and Cobble Town also replace the
-grass, with `$` files: when two mods change the same texture, the lower one in
-your list wins, but a file named for one palette beats a `$` file for that
-palette wherever its mod is. So this mod's petal grass shows over theirs from
-spring to autumn whatever the order.
+The game draws the grass under nine palettes, for the time of day and the
+stretch of the year. The petal grass is the same picture under all of them, so
+one `$` file per texture covers it. A `$` file is loaded once and shared by
+every palette.
+
+## Why the crowns do not
+
+The trees change palette through the year. Golden trees are the same crowns
+under a gold palette. A `$` crown matches any palette, the gold one too, and
+would turn the golden trees pink. So this mod names every palette but the gold
+one, and golden trees stay gold. That is why each crown is saved 15 times,
+once per palette, though the picture is the same.
+
+Cedars, palms and saplings have crowns of their own, and this mod leaves them
+as they are. Their names are in the common textures table of the textures
+guide.
+
+The crown keeps the game's cut-out shape. Its corners are fully transparent,
+so it draws as a round crown, never a square.
+
+## With other mods
+
+Winter grass is left as it is. The names say which in-game texture to replace,
+and the pixels are our own.
+
+Clover Meadow and Cobble Town also replace the grass, with `$` files like this
+mod's. When two mods change the same texture, the lower one in your list wins.
+A file named for one palette beats a `$` file for that palette, wherever its
+mod is in the list.
 ```
 
 ### example.blossom-lane/mod.json
@@ -53,7 +73,7 @@ spring to autumn whatever the order.
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.blossom-lane",
   "name": "Blossom Lane",
   "version": "1.0.0",
@@ -75,14 +95,17 @@ spring to autumn whatever the order.
 ```
 # Chatty Villagers
 
-A villager line pool example (`talk.json`). Client scope: only you hear it.
-No script: the game picks the line.
+A villager line pool example (`talk.json`). It is a Just you mod
+(`"scope": "client"`), so only you hear it. It has no script. The game picks
+the line.
 
-Each personality has its own pool. On the first ordinary talk of the day a
-villager says one line from their personality's pool, then their usual hello,
-errands and all. A pool can instead name one villager (`"villager": "Bob"`) or
-nobody (every villager), and can say a line only some days (`"chance": 40`).
-The most specific pools that match a villager decide.
+Each personality has its own pool. On the first ordinary talk of the day, a
+villager says one line from their personality's pool. Then they say their
+usual hello and carry on as normal.
+
+A pool can instead name one villager (`"villager": "Bob"`), or nobody, which
+means every villager. A pool can say a line only on some days
+(`"chance": 40`). The most specific pools that match a villager decide.
 ```
 
 ### example.chatty-villagers/mod.json
@@ -90,7 +113,7 @@ The most specific pools that match a villager decide.
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.chatty-villagers",
   "name": "Chatty Villagers",
   "version": "1.0.0",
@@ -169,28 +192,28 @@ The most specific pools that match a villager decide.
 ```
 # Clover Meadow
 
-> Download this mod's ZIP from the cookbook: it has the pictures, ready to
-> install. They are drawn by a small program when the site is built, so the
-> files listed here have no `textures/` folder, and `playac-mod check` on a
-> copy of only these files says the textures folder is missing.
+> Download this mod's ZIP from the cookbook. It has the pictures, ready to
+> install. A small program draws them when the site is built, so the files
+> listed here have no `textures/` folder. `playac-mod check` on a copy of only
+> these files says the textures folder is missing.
 
 A texture-only example mod. It replaces the town grass with our own drawing:
-seamless green ground with clover leaves and small white flowers, one 128x128
-uncompressed RGBA DDS picture, saved under every name the game draws the
-grass with.
+seamless green ground with clover leaves and small white flowers. It is one
+128x128 uncompressed RGBA DDS picture, saved under every name the game draws
+the grass with.
 
-The names say which in-game texture to replace; the pixels are our own. The
-grass is six textures, and the game draws each under several palettes through
+The names say which in-game texture to replace, and the pixels are our own.
+The grass is six textures. The game draws each under several palettes, through
 the seasons and the time of day. A file can name one texture and one palette:
 
     tex1_32x32_<texture>_<palette>_8.dds
 
-or put `$` in place of the palette, for that texture under any palette:
+Or it can put `$` in place of the palette, for that texture under any palette:
 
     tex1_32x32_<texture>_$_8.dds
 
 Our grass is the same picture all year, so the mod has one `$` file per
-texture: six files.
+texture. That is six files.
 
 These three grass textures are drawn under nine palettes:
 
@@ -204,12 +227,13 @@ And these three under three palettes:
     textures: 82f28ec4199a45be cfa57a6e6f966d11 e2ab673814e71af6
     palettes: 6d5ff5628ae85b42 ce63d23d746a058a d9eb32f9a8b17411
 
-To change the grass for one stretch of the year or time of day only, add a
-file named with that palette next to the `$` file: a file named for one
-palette wins over the `$` file under that palette, and the `$` file still
-covers the rest. With one file per palette (36 files) the mod could change
-with every palette; a `$` file is loaded once and shared, so it is the lighter
-choice when the picture does not change.
+To change the grass for one stretch of the year or one time of day, add a file
+named with that palette next to the `$` file. The file named for one palette
+wins under that palette, and the `$` file still covers the rest.
+
+With one file per palette, 36 files, the mod could change with every palette.
+A `$` file is loaded once and shared, so it is the lighter choice when the
+picture does not change.
 
 The pictures are drawn by a small program when the examples are built, so the
 example's source folder holds only this README and mod.json.
@@ -220,7 +244,7 @@ example's source folder holds only this README and mod.json.
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.clover-meadow",
   "name": "Clover Meadow",
   "version": "1.0.0",
@@ -242,27 +266,28 @@ example's source folder holds only this README and mod.json.
 ```
 # Cobble Town
 
-> Download this mod's ZIP from the cookbook: it has the pictures, ready to
-> install. They are drawn by a small program when the site is built, so the
-> files listed here have no `textures/` folder, and `playac-mod check` on a
-> copy of only these files says the textures folder is missing.
+> Download this mod's ZIP from the cookbook. It has the pictures, ready to
+> install. A small program draws them when the site is built, so the files
+> listed here have no `textures/` folder. `playac-mod check` on a copy of only
+> these files says the textures folder is missing.
 
-A texture-only example mod that turns the whole town to stone: the ground is
-cobblestone with moss in the cracks, cliffs are dressed sandstone walls with
-ivy under a capstone, and river and pond banks are brick quays that darken
-toward the water. In winter the cracks fill with snow and the stones wear a
-dusting.
+A texture-only example mod that turns the whole town to stone:
 
-Every pixel is drawn by a small program (a seamless Voronoi cobble pattern,
-block and brick courses that tile across), never copied from the game. Each
-texture is one 128x128 RGBA DDS, named the way the game looks textures up,
-with `$` in place of the palette hash:
+- The ground is cobblestone with moss in the cracks.
+- Cliffs are dressed sandstone walls, with ivy under a capstone.
+- River and pond banks are brick quays that darken toward the water.
+- In winter the cracks fill with snow and the stones wear a dusting.
+
+A small program draws every pixel. Nothing is copied from the game. The ground
+is a seamless Voronoi cobble pattern. The walls are block and brick courses
+that tile across. Each texture is one 128x128 RGBA DDS, named the way the game
+looks textures up, with `$` in place of the palette hash:
 
     tex1_<width>x<height>_<texture hash>_$_<format>.dds
 
-The game draws each of these textures under several palettes (the time of day
-and the stretch of the year), and a `$` file is the picture for every one of
-them, so the mod is 18 files: one per texture.
+The game draws each of these textures under several palettes, for the time of
+day and the stretch of the year. A `$` file is the picture for every one of
+them. So the mod is 18 files, one per texture.
 
 | What | Texture hashes | Palettes `$` covers |
 |---|---|---|
@@ -273,19 +298,19 @@ them, so the mod is 18 files: one per texture.
 | River and pond banks, spring to autumn | `1218fdfe9c963f24`, `78690dcebd874a3b`, `2d865e307f1a0fdc` (64x64) | 9 |
 | River and pond banks, winter | `2ec0ba79769bedc7`, `b6437b8020145bc6`, `9438dc9288174b5a` (64x64) | 3 |
 
-Winter is not a palette here: the snowy ground and walls are other textures
-(the winter hashes), so their `$` files are the snowy pictures and the season
-still changes on its own.
+Winter is not a palette here. The snowy ground and walls are other textures,
+the winter hashes in the table. Their `$` files are the snowy pictures, so the
+season still changes on its own.
 
-The cliff and bank textures are strips: their top third is the ground at the
-edge, the rest is the face. So the top of our walls is cobbles too, and the
-ground meets the wall at a capstone instead of a seam.
+The cliff and bank textures are strips. The top third is the ground at the
+edge, and the rest is the face. So the top of our walls is cobbles too, and
+the ground meets the wall at a capstone instead of a seam.
 
-The names identify which in-game texture to replace; the pixels are our own.
-Clover Meadow and Blossom Lane also replace the grass: when two mods change
-the same texture, the lower one in your list wins, except that a file named
-for one palette beats a `$` file for that palette, wherever its mod is in the
-list.
+The names say which in-game texture to replace, and the pixels are our own.
+
+Clover Meadow and Blossom Lane also replace the grass. When two mods change
+the same texture, the lower one in your list wins. A file named for one
+palette beats a `$` file for that palette, wherever its mod is in the list.
 ```
 
 ### example.cobble-town/mod.json
@@ -293,7 +318,7 @@ list.
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.cobble-town",
   "name": "Cobble Town",
   "version": "1.0.0",
@@ -326,12 +351,12 @@ list.
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.cosy-corner",
   "name": "Cosy Corner",
   "version": "1.0.0",
   "authors": ["Play AC Online"],
-  "description": "Two pieces of furniture of its own, a Tea Chest and a Reading Chair, sold at the flower shop. Remove the mod and they stay in your house as the plain pieces they are built on; put it back and they are yours again.",
+  "description": "Adds two pieces of furniture, a Tea Chest and a Reading Chair, sold at the flower shop. Remove the mod and they stay in your house as the plain pieces they are built on. Put it back and they are yours again.",
   "scope": "world",
   "content": {
     "items": "items.json",
@@ -371,9 +396,14 @@ list.
 
 ```lua
 -- Daily Gift: once a game day, a letter with a little present arrives in the
--- mailbox. A worked example of mod commands: a hook never changes the
+-- mailbox. A worked example of mod commands: an event handler never changes the
 -- game itself, it QUEUES a command, and the game applies it at the end of a frame's
 -- update, once the player is free. mod.json must name the command in "permissions".
+--
+-- The day's letter is remembered in store.player, so each resident of the town
+-- gets their own. The game's cap is per town, not per player: 3 letters a day
+-- from one mod, so in a town of four the fourth resident to play that day
+-- gets none.
 
 -- Fruit: always a fine present (the shop's item rules refuse money, turnips,
 -- tickets, grab bags, fossils and reserve ids).
@@ -388,34 +418,40 @@ end
 
 local function send_today()
   local day = today()
-  if not day or store.get("sent") == day then return end
-  -- rng() is seeded by the town, the day and the event, so reloading the game
-  -- picks the same present that day: a reload cannot reroll it (a changed game
-  -- clock is another day, and another pick).
+  if not day or store.player.get("sent") == day then return end
+  -- rng() counts the numbers this mod has drawn in this town today and keeps
+  -- that count with the town, so a reload carries on from it: reloading the
+  -- game cannot reroll the present.
   local gift = GIFTS[rng(#GIFTS)]
-  local id, why = cmd.send_letter{ text = message("letter"), item = gift, from = message("from") }
+  local id, why, code = cmd.send_letter{ text = message("letter"), item = gift, from = message("from") }
   if id then
-    store.set("sent", day)
+    store.player.set("sent", day)
     log("letter #" .. id .. " queued with item " .. string.format("0x%04X", gift))
   else
-    log("no letter today: " .. why)
+    log("no letter today: " .. why .. " (" .. code .. ")")
+    -- The town's letters for today are used up: do not ask again until tomorrow.
+    if code == "command-day-cap" then store.player.set("sent", day) end
   end
 end
 
 -- A new day, and the first scene of each session (a game loaded on a day it
--- already saw does not run day_start again).
-on("day_start", send_today)
-on("enter_scene", send_today)
+-- already saw does not run day_started again).
+on("day_started", send_today)
+on("scene_entered", send_today)
 
--- What happened to it: "mailbox", or "post_office" when the mailbox was full.
-on("command_result", function(r)
-  if r.ok then
-    log("letter #" .. r.id .. " delivered via " .. r.via)
+-- What happened to it: e.via is "mailbox", or "post_office" when the mailbox
+-- was full. A refusal has e.code (stable, for the script) and e.message (for
+-- the log).
+on("command_finished", function(e)
+  if e.ok then
+    log("letter #" .. e.id .. " delivered via " .. e.via)
+  elseif e.code == "command-day-cap" then
+    log("letter #" .. e.id .. " not delivered: " .. e.message)
   else
-    -- Refused (in The City, visiting a friend, both boxes full): try again in
-    -- the next scene. The game's own cap stops this at 3 letters a day.
-    log("letter #" .. r.id .. " not delivered: " .. r.error)
-    store.set("sent", nil)
+    -- Refused for now (in The City, visiting a friend, both boxes full): try
+    -- again in the next scene.
+    log("letter #" .. e.id .. " not delivered: " .. e.message)
+    store.player.set("sent", nil)
   end
 end)
 ```
@@ -434,7 +470,7 @@ end)
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.daily-gift",
   "name": "Daily Gift",
   "version": "1.0.0",
@@ -446,7 +482,7 @@ end)
   },
   "scripts": {
     "main": "main.lua",
-    "hooks": ["day_start", "enter_scene", "command_result"]
+    "events": ["day_started", "scene_entered", "command_finished"]
   },
   "permissions": ["send_letter"],
   "assets_original": true
@@ -461,30 +497,33 @@ end)
 ```
 # Field Notes
 
-Your own naturalist's journal. Every bug, fish, fossil, shell and piece of fruit
-you collect goes in your notes, and villagers have something to say about it:
+Your own naturalist's journal. Every bug, fish, fossil, shell and piece of
+fruit you collect goes in your notes. Villagers have something to say about
+it:
 
 - today's haul ("2 bugs, a fish and a piece of fruit so far today!")
 - a kind you have never noted before, and your very first fossil
 - a new best day for one kind ("3 bugs today, a new best!")
-- milestones: 25, 50, 100, 250 finds and on
-- the first villager you talk to on a new day sums up yesterday, or your last
-  day out if you were away
+- milestones at 25, 50, 100, 250 finds and on
+- yesterday's summary, from the first villager you talk to on a new day. If
+  you were away, they sum up your last day out.
 
-Each villager speaks for Field Notes at most once a day, and only when there is
-something to say, so other talk mods (Village Gossip) still get their turn.
-A villager busy with something of the game's own (an errand, a complaint,
-moving out) does not speak for any mod on that talk; their note is kept for
-the next one.
+Each villager speaks for Field Notes at most once a day, and only when there
+is something to say. Other talk mods, such as Village Gossip, still get their
+turn.
+
+A villager busy with something of the game's own does not speak for any mod
+on that talk. That covers an errand, a complaint and moving out. Their note is
+kept for the next talk.
 
 ## Install
 
 1. Download `example.field-notes-1.0.0.zip` from the modding downloads page.
-2. In the game: Settings, Mods, Choose ZIP, then Restart now.
+2. In the game, go to Settings, Mods, Choose a file, then Restart now.
 
-## What it shows off
+## What it shows
 
-- `item_picked` with item numbers: the API passes only the number, so
+- `item_picked_up` with item numbers. `e.item` is only the number, so
   `classify()` in `main.lua` sorts it by the game's item number ranges:
 
   | kind | item numbers |
@@ -495,24 +534,27 @@ the next one.
   | shells | `0x2514` to `0x251B` |
   | fruit | `0x2800` to `0x2804`, coconut `0x2807` |
 
-- `store` kept small: counts are one string each (`"3,1,0,2,5"`), species seen
-  are a string of `0`/`1`, a few hundred bytes in all. A `store.set` that would go
-  over 8 KB raises, so `save()` wraps it in `pcall`.
-- `day_start` rolls today over to yesterday; `talk` reads it once.
-- `message()` templates with `{haul}`, `{n}`, `{old}` and friends filled in,
-  so the words stay in `messages/en.json`.
-- Returning `nil` from `talk` when there is nothing to say, so the next mod in
-  the list gets the villager.
+- `store` kept small. Counts are one string each (`"3,1,0,2,5"`). Species seen
+  are a string of `0` and `1`. It is a few hundred bytes in all. A `store.set`
+  that would go over 8 KB raises an error, so `save()` wraps it in `pcall`.
+- `day_started` rolls today over to yesterday. `villager_talked` reads it once.
+- `game.day_number()` counts the days between two finds. `rng()` picks one of
+  a line's wordings.
+- `message()` templates with `{haul}`, `{n}`, `{old}` and others filled in, so
+  the words stay in `messages/en.json`.
+- `villager_talked` returns `nil` when there is nothing to say, so the next
+  mod in the list gets the villager.
 
 ## Notes
 
-- `store` is per town (the mod says `"api": 2`), so each town keeps its own
-  journal, and it travels with that town's cloud save. On a visit to a friend's
-  town the journal starts empty and is not kept.
-- The day comes from `day_start`; a clock change backwards counts as a new day.
-- Items you pick up off the ground always count. Bugs caught with the net,
-  fish caught with the rod and items dug up count too: the game fires
-  `item_picked` for every item that lands in your pockets.
+- `store` is per town, so each town keeps its own journal. It travels with
+  that town's cloud save. On a visit to a friend's town the journal starts
+  empty and is not kept.
+- The day comes from `day_started`. A clock change backwards counts as a new
+  day.
+- Every item that lands in your pockets counts, because the game fires
+  `item_picked_up` for each one. That includes items picked up off the ground,
+  bugs caught with the net, fish caught with the rod and items dug up.
 - It is tested in the real script sandbox with fake finds, so every line it
   can say has been heard.
 ```
@@ -521,7 +563,7 @@ the next one.
 
 ```lua
 -- Field Notes: the player's naturalist journal. A worked example of
--- item_picked + store + day_start + talk working together.
+-- item_picked_up + store + day_started + villager_talked working together.
 --
 -- What it keeps (store is 8 KB per mod, so everything is a short string):
 --   d   today, as the number yyyymmdd
@@ -530,13 +572,14 @@ the next one.
 --   r   best-day records, same order
 --   b   the records as they stood when today began (so a record is news once)
 --   s1..s5  species ever noted: one "0"/"1" per species in that kind
---   y   the last day out with a haul, "yyyymmdd|b,f,o,s,r", until a villager
---       sums it up on the first talk of a new day
+--   k   today's day number (game.day_number()), for counting days between
+--   y   the last day out with a haul, "<day number>|b,f,o,s,r", until a
+--       villager sums it up on the first talk of a new day
 --   n   news for the next villager: "r<kind>:<old best>", "f<kind>:<index>"
 --       or "m<total>"
 --   v   villagers who already spoke today, "yyyymmdd:id.id.id"
 --
--- The API gives an item NUMBER only, so the kind comes from the game's item
+-- e.item is an item NUMBER, so the kind comes from the game's item
 -- number ranges: bugs 0x2D00..0x2D27, fish 0x2300..0x2327,
 -- the unidentified fossil 0x2511, shells 0x2514..0x251B, fruit 0x2800..0x2804
 -- and the coconut 0x2807. Anything else is not a find.
@@ -588,23 +631,11 @@ local function ymd(y, m, d)
   return y * 10000 + m * 100 + d
 end
 
--- Days since 1970-01-01 for a yyyymmdd number (Howard Hinnant's civil days).
-local function days(n)
-  local y, m, d = n // 10000, n // 100 % 100, n % 100
-  if m <= 2 then y = y - 1 end
-  local era = y // 400
-  local yoe = y - era * 400
-  local mp = (m + 9) % 12
-  local doy = (153 * mp + 2) // 5 + d - 1
-  local doe = yoe * 365 + yoe // 4 - yoe // 100 + doy
-  return era * 146097 + doe - 719468
-end
-
 -- state, read at the first event in a town and written back as it changes ----
 -- `store` is kept per town and no town is loaded while this file first runs,
 -- so the notes are read in fresh(), at each event, when store.town() changed.
 
-local today, day, life, best, base
+local today, num, day, life, best, base
 local town = false
 
 local function fresh()
@@ -616,6 +647,11 @@ local function fresh()
     local g = game.time()
     today = ymd(g.year, g.month, g.day)
     save("d", today)
+  end
+  num = store.get("k")
+  if type(num) ~= "number" then
+    num = game.day_number()
+    save("k", num)
   end
   day = counts(store.get("t"))
   life = counts(store.get("a"))
@@ -668,9 +704,10 @@ local function haul(c)
   return table.concat(parts, ", ") .. " " .. line("and") .. " " .. last
 end
 
--- A variant that changes with the villager and the day but not on every talk.
-local function pick(prefix, n, salt)
-  return line(prefix .. "." .. ((salt % n) + 1))
+-- One of a line's n variants, picked with rng(): a villager speaks once a
+-- day, so nothing here needs to be the same on a second look.
+local function pick(prefix, n)
+  return line(prefix .. "." .. rng(n))
 end
 
 -- villagers who already spoke today ----------------------------------------
@@ -697,25 +734,27 @@ end
 
 -- events -------------------------------------------------------------------
 
-on("day_start", function(date)
+on("day_started", function(e)
   fresh()
-  local d = ymd(date.year, date.month, date.day)
+  local d = ymd(e.year, e.month, e.day)
   if d == today then return end
   if sum(day) > 0 then
-    save("y", today .. "|" .. joined(day))
+    save("y", num .. "|" .. joined(day))
   end
   today = d
+  num = game.day_number()
   day = { 0, 0, 0, 0, 0 }
   base = { table.unpack(best) }
   save("d", today)
+  save("k", num)
   save("b", joined(base))
   save("t", joined(day))
   save("v", nil)
 end)
 
-on("item_picked", function(item)
+on("item_picked_up", function(e)
   fresh()
-  local k, idx = classify(item)
+  local k, idx = classify(e.item)
   if not k then return end
 
   local news
@@ -755,21 +794,21 @@ on("item_picked", function(item)
   if news then save("n", news) end
 end)
 
-local function summary(salt)
+local function summary()
   local y = store.get("y")
   if type(y) ~= "string" then return nil end
   save("y", nil)
   local d, rest = y:match("^(%d+)|(.*)$")
   local h = rest and haul(counts(rest))
   if not h then return nil end
-  local ago = days(today) - days(tonumber(d))
+  local ago = game.day_number() - tonumber(d)
   if ago > 1 then
     return fill(line("sum.gap"), { ago = ago, haul = h })
   end
-  return fill(pick("sum", 4, salt), { haul = h, life = sum(life) })
+  return fill(pick("sum", 4), { haul = h, life = sum(life) })
 end
 
-local function reaction(salt)
+local function reaction()
   local n = store.get("n")
   if type(n) ~= "string" then return nil end
   save("n", nil)
@@ -779,37 +818,37 @@ local function reaction(salt)
     if k == 3 then return line("first.fossil") end
     local seen = 0
     for _ in seen_of(k):gmatch("1") do seen = seen + 1 end
-    return fill(pick("first", 3, salt), { kind = line("noun." .. KINDS[k] .. ".one"), seen = seen })
+    return fill(pick("first", 3), { kind = line("noun." .. KINDS[k] .. ".one"), seen = seen })
   elseif what == "r" and k then
     if day[k] <= tonumber(extra) then return nil end -- a new day since
-    return fill(pick("rec", 3, salt), { n = day[k], kinds = line("noun." .. KINDS[k] .. ".many"), old = extra })
+    return fill(pick("rec", 3), { n = day[k], kinds = line("noun." .. KINDS[k] .. ".many"), old = extra })
   end
   local m = n:match("^m(%d+)$")
-  if m then return fill(pick("mile", 2, salt), { life = m }) end
+  if m then return fill(pick("mile", 2), { life = m }) end
   return nil
 end
 
-local function comment(salt)
+local function comment()
   local total = sum(day)
   if total == 0 then return nil end
   if total >= 10 then
-    return fill(pick("big", 3, salt), { total = total })
+    return fill(pick("big", 3), { total = total })
   end
   for k = 1, 5 do
     if day[k] == total and total >= 2 then
-      return fill(pick("only." .. KINDS[k], 2, salt), { n = total })
+      return fill(pick("only." .. KINDS[k], 2), { n = total })
     end
   end
-  return cap(fill(pick("haul", 6, salt), { haul = haul(day) }))
+  return cap(fill(pick("haul", 6), { haul = haul(day) }))
 end
 
-on("talk", function(npc)
+on("villager_talked", function(e)
   fresh()
-  if told(npc.id) then return nil end
-  local salt = npc.id + today + sum(life)
-  local say = summary(salt) or reaction(salt) or comment(salt)
+  local id = e.villager.id
+  if told(id) then return nil end
+  local say = summary() or reaction() or comment()
   if not say or say == "" then return nil end -- nothing to say: let other mods talk
-  mark_told(npc.id)
+  mark_told(id)
   return cap(say)
 end)
 
@@ -884,7 +923,7 @@ log("field notes open")
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.field-notes",
   "name": "Field Notes",
   "version": "1.0.0",
@@ -896,7 +935,7 @@ log("field notes open")
   },
   "scripts": {
     "main": "main.lua",
-    "hooks": ["item_picked", "talk", "day_start"]
+    "events": ["item_picked_up", "villager_talked", "day_started"]
   },
   "assets_original": true
 }
@@ -910,33 +949,35 @@ log("field notes open")
 ```
 # Harvest Fair
 
-A dated events example (`events.json`) with a letter template
+A calendar example (`calendar.json`) with a letter template
 (`letters.json`).
 
-- The Harvest Fair is the third Wednesday of September (`week` 3, `weekday` 3),
-  Apple Day is October 21 (`day`). On each, a notice goes up on the town bulletin
-  board, once, in the player's own town only, and villagers say one of the day's
-  lines before their hello.
-- A board notice changes the town, so the mod is world scope.
-- `fair-thanks` is a letter a mod command can mail (`send_letter`, name it
-  `example.harvest-festival:fair-thanks`): the player's name goes where
-  `{player}` is, and an apple comes with it. It signs "The Fair Committee";
-  the mailbox list has room for 8 characters, so `sender` names it "The Fair"
-  there.
+- It adds two calendar days. The Harvest Fair is the third Wednesday of
+  September (`week` 3, `weekday` 3). Apple Day is October 21 (`day`).
+- On each day a notice goes up on the town bulletin board. It is posted once,
+  in the player's own town only. Villagers say one of the day's lines before
+  their hello.
+- A board notice changes the town, so this is a World mod
+  (`"scope": "world"`).
+- `fair-thanks` is a letter that a mod command can mail. Use `send_letter` and
+  name it `example.harvest-festival:fair-thanks`. The player's name goes where
+  `{player}` is, and an apple comes with it.
+- The letter signs "The Fair Committee". The mailbox list has room for 8
+  characters, so `sender` names it "The Fair" there.
 
-Letter and notice text is plain ASCII and must fit six lines of the paper; the
-game measures it in its own font and refuses one that does not.
+Letter and notice text is plain ASCII and must fit six lines of the paper. The
+game measures it in its own font and refuses text that does not fit.
 ```
 
-### example.harvest-festival/events.json
+### example.harvest-festival/calendar.json
 
 ```json
 {
-  "events": [
+  "days": [
     {
       "id": "harvest-fair",
       "date": { "month": 9, "week": 3, "weekday": 3 },
-      "board": "HARVEST FAIR TODAY!\nBring your best fruit and\nshow it to your neighbors.\nThe biggest apple wins\nbragging rights for a year.",
+      "board": "HARVEST FAIR TODAY!\nBring your best fruit and\nshow it to your neighbours.\nThe biggest apple wins\nbragging rights for a year.",
       "talk": [
         "It's the Harvest Fair! I've been polishing my pears since sunrise.",
         "Harvest Fair day! Did you bring any fruit? Mine is the shiniest, I checked.",
@@ -979,15 +1020,15 @@ game measures it in its own font and refuses one that does not.
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.harvest-festival",
   "name": "Harvest Fair",
   "version": "1.0.0",
   "authors": ["Play AC Online"],
-  "description": "Two town days of our own: the Harvest Fair on the third Wednesday of September and Apple Day on October 21. A notice goes up on the bulletin board and villagers talk about it all day. Also carries a thank-you letter template for mod commands.",
+  "description": "Two calendar days of our own. The Harvest Fair is the third Wednesday of September and Apple Day is October 21. A notice goes up on the bulletin board and villagers talk about it all day. It also carries a thank-you letter template for mod commands.",
   "scope": "world",
   "content": {
-    "events": "events.json",
+    "calendar": "calendar.json",
     "letters": "letters.json"
   },
   "assets_original": true
@@ -1002,15 +1043,16 @@ game measures it in its own font and refuses one that does not.
 ```
 # Night Market
 
-A world mod that puts a shop and a script together.
+A World mod (`"scope": "world"`) that puts a shop and a script together.
 
-**The shop** (`shops.json`). After dark the flower shop becomes the Night
-Market:
+## The shop
 
-- Open 7 PM to 1 AM. The rest of the day the door stays shut and its sign reads
-  "Night Market / Open 7:00 PM to 1:00 AM."
-- Its own greeting and its own answer to "What's in stock?".
-- Six goods, one per table:
+`shops.json` turns the flower shop into the Night Market after dark:
+
+- It is open 7 PM to 1 AM. The rest of the day the door stays shut and its
+  sign reads "Night Market / Open 7:00 PM to 1:00 AM."
+- It has its own greeting and its own answer to "What's in stock?".
+- It sells six goods, one per table:
 
   | item | | price |
   |---|---|---|
@@ -1021,28 +1063,38 @@ Market:
   | `0x2257` | fan | 900 |
   | `0x2253` | pinwheel | 1200 |
 
-  Every price sits above the game's floor for the item, so the game never raises
-  it. A town fruit like the peach sells to Nook for 500 Bells when it comes from
-  another town, so the flower shop sells one for at least 500; a coconut's
-  floor is only its own buy-back (150), and candy's 25. The mushroom sells to
-  Nook for 5000, hence its price.
+Every price sits above the game's floor for the item, so the game never raises
+it. The floors:
 
-**The script** (`main.lua`). From 5 PM, a few villagers mention the market:
-before 7 that it opens soon, after 7 that it is open, plus "tonight's special".
+- A town fruit like the peach sells to Nook for 500 Bells when it comes from
+  another town. So the flower shop sells one for at least 500.
+- A coconut's floor is only its own buy-back, 150.
+- Candy's floor is 25.
+- The mushroom sells to Nook for 5000, hence its price.
 
-- `day_start` picks tonight's special from the date, so it changes every day
-  and walks through all six goods in six days. Just past midnight, before the
-  market shuts at 1, villagers still mean last night's special.
+## The script
+
+From 5 PM, a few villagers mention the market (`main.lua`). Before 7 they say
+it opens soon. After 7 they say it is open, and name "tonight's special".
+
+- `day_started` picks tonight's special from `game.day_number()`. It changes
+  every day and walks through all six goods in six days. Just past midnight,
+  before the market shuts at 1, villagers still mean last night's special.
 - `game.time().hour` decides what they say, and keeps them quiet in the day.
-- It speaks rarely, so it shares villagers with other mods: about one villager
-  in three, and at most three before 7 and three after. A villager says each
-  once a night. Everyone else is left for other mods' lines (the first mod
-  that returns a line wins a talk).
+- It speaks rarely, so it shares villagers with other mods. About one villager
+  in three speaks, the same ones all night. At most three speak before 7 and
+  three after.
+- A villager says each line once a night, in one of three wordings picked with
+  `rng()`.
+- Everyone else is left for other mods' lines. The first mod that returns a
+  line wins a talk.
 
-**What it can't do.** The special is talk only. The stock and its prices are
-the same every night, because `shops.json` is data the game reads once at boot
-and a script has no way to change a shop. A villager calling the peach
-"tonight's special" does not make it cheaper.
+## What it can't do
+
+The special is talk only. The stock and its prices are the same every night.
+`shops.json` is data the game reads once when it starts, and a script has no
+way to change a shop. A villager calling the peach "tonight's special" does
+not make it cheaper.
 
 Other mods can read the market's hours as `example.night-market:hours`.
 ```
@@ -1055,7 +1107,7 @@ Other mods can read the market's hours as `example.night-market:hours`.
 --
 -- The shop itself (hours, stock, prices, greeting) is shops.json: plain data
 -- the game reads at boot. This script only TALKS. "Tonight's special" is
--- picked here from the date and named in villagers' lines; the stock and its
+-- picked here from the day and named in villagers' lines; the stock and its
 -- prices stay the same every night, because a script cannot change a shop.
 
 local OPEN, CLOSE = 19, 1  -- the market's hours in shops.json: 7 PM to 1 AM
@@ -1063,34 +1115,27 @@ local EVENING = 17         -- villagers start talking about it at 5 PM
 local SPECIALS = 6         -- special1..special6, one per stock table
 local PER_NIGHT = 3        -- at most this many villagers a night say "soon", and 3 "open"
 
--- Days since 1970-01-01 for a calendar date, so "tonight" is one number that
--- moves by one each day, across months and years.
-local function daynum(y, m, d)
-  if m <= 2 then y = y - 1 end
-  local era = y // 400
-  local yoe = y - era * 400
-  local doy = (153 * ((m + 9) % 12) + 2) // 5 + d - 1
-  return era * 146097 + yoe * 365 + yoe // 4 - yoe // 100 + doy - 719468
-end
-
+-- Tonight's special comes from game.day_number(), one number that moves by
+-- one each day: not rng(), so the specials take turns, all six in six days.
 local function pick(day) return day % SPECIALS + 1 end
 
-local tonight, last_night  -- specials picked by day_start (nil until it runs)
+local tonight, last_night  -- specials picked by day_started (nil until it runs)
 local stretch              -- the evening and phase that `told` and `spoken` count
 local told, spoken = {}, 0
 
-on("day_start", function(date)
+on("day_started", function(e)
   last_night = tonight
-  tonight = pick(daynum(date.year, date.month, date.day))
+  tonight = pick(game.day_number())
   log("tonight's special is special" .. tonight)
 end)
 
-on("talk", function(npc)
+on("villager_talked", function(e)
+  local id = e.villager.id
   local t = game.time()
   local late = t.hour < CLOSE  -- just past midnight: still last night's market
   if t.hour < EVENING and not late then return nil end
 
-  local day = daynum(t.year, t.month, t.day)
+  local day = game.day_number()
   if late then day = day - 1 end
   local soon = not late and t.hour < OPEN
   -- "Opens soon" and "open now" each get their own few villagers a night.
@@ -1099,12 +1144,14 @@ on("talk", function(npc)
 
   -- Speak rarely: about one villager in three has heard, each says it once,
   -- and only a few say it at all. Everyone else is left to other mods.
-  if told[npc.id] or spoken >= PER_NIGHT or (npc.id + day) % 3 ~= 0 then
+  -- Who has heard is day number arithmetic, not rng(): the same villagers
+  -- all night, however often they are asked.
+  if told[id] or spoken >= PER_NIGHT or (id + day) % 3 ~= 0 then
     return nil
   end
-  told[npc.id] = true
+  told[id] = true
   spoken = spoken + 1
-  local which = (npc.id // 3) % 3 + 1
+  local which = rng(3) -- any of the three wordings
 
   if soon then return message("soon" .. which) end
   local special = late and (last_night or pick(day)) or (tonight or pick(day))
@@ -1140,7 +1187,7 @@ end)
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.night-market",
   "name": "Night Market",
   "version": "1.0.0",
@@ -1153,7 +1200,7 @@ end)
   },
   "scripts": {
     "main": "main.lua",
-    "hooks": ["talk", "day_start"]
+    "events": ["villager_talked", "day_started"]
   },
   "assets_original": true
 }
@@ -1191,16 +1238,23 @@ end)
 ```
 # Nook's Extras
 
-A Nook's stock example (`shops.json`, target `nook`). World scope: a
-visitor sees the same shelves, so a friend visit needs the same mod on both sides.
+A Nook's stock example (`shops.json`, target `nook`). It is a World mod
+(`"scope": "world"`). A visitor sees the same shelves, so a friend visit needs
+the same mod on both sides.
 
-`"mode": "add"` keeps Nook's own roll and puts these goods in at most half of the
-spots of their kind each day: three pieces of furniture, two umbrellas (one
-umbrella spot, so the date picks which one shows), a shirt and a rug. A price is
-the mod's floor price, never below what Nook pays back; no price is retail.
+`"mode": "add"` keeps Nook's own roll. It puts these goods in at most half of
+the spots of their kind each day:
+
+- three pieces of furniture
+- two umbrellas. There is one umbrella spot, so the date picks which one shows.
+- a shirt
+- a rug
+
+`price` is what Nook asks for the good in the shop. It is never below what
+Nook pays back. An entry with no price sells at the usual retail price.
 
 Changes show from the next restock, the morning after the mod is switched on.
-In the City Nook's stock is the game's own.
+In The City, Nook's stock is the game's own.
 ```
 
 ### example.nook-extras/mod.json
@@ -1208,7 +1262,7 @@ In the City Nook's stock is the game's own.
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.nook-extras",
   "name": "Nook's Extras",
   "version": "1.0.0",
@@ -1260,12 +1314,12 @@ In the City Nook's stock is the game's own.
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.tea-house",
   "name": "Tea House",
   "version": "1.0.0",
   "authors": ["Play AC Online"],
-  "description": "The flower shop becomes a tea house in the evening: its own greeting, its own hours, and fruit for tea on every table.",
+  "description": "The flower shop becomes a tea house in the evening. It has its own greeting and hours, and fruit for tea on every table.",
   "scope": "world",
   "content": {
     "shops": "shops.json",
@@ -1311,24 +1365,23 @@ In the City Nook's stock is the game's own.
 local told = {}        -- villagers who have gossiped today, by id
 local GOSSIP = 4       -- gossip1..gossip4 in messages/en.json
 
-on("day_start", function(date)
+on("day_started", function(e)
   told = {}
   store.set("days", (store.get("days") or 0) + 1)
 end)
 
-on("talk", function(npc)
-  if told[npc.id] then return nil end
-  told[npc.id] = true
+on("villager_talked", function(e)
+  local who = e.villager
+  if told[who.id] then return nil end
+  told[who.id] = true
 
-  -- If the Tea House mod is installed too, sometimes mention it.
+  -- If the Tea House mod is installed too, one talk in three mentions it.
   local tea = message("example.tea-house:hours")
-  local t = game.time()
-  if tea and (npc.id + t.day) % 3 == 0 then
-    return npc.name .. " here! " .. tea .. " Pop in!"
+  if tea and rng(3) == 1 then
+    return who.name .. " here! " .. tea .. " Pop in!"
   end
 
-  local n = (npc.id + t.day) % GOSSIP + 1
-  return message("gossip" .. n)
+  return message("gossip" .. rng(GOSSIP))
 end)
 
 log("ready")
@@ -1350,7 +1403,7 @@ log("ready")
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.village-gossip",
   "name": "Village Gossip",
   "version": "1.0.0",
@@ -1362,7 +1415,7 @@ log("ready")
   },
   "scripts": {
     "main": "main.lua",
-    "hooks": ["talk", "day_start"]
+    "events": ["villager_talked", "day_started"]
   },
   "assets_original": true
 }
@@ -1376,56 +1429,75 @@ log("ready")
 ```
 # Wish List
 
-A script example: tiny daily quests.
+A script example with tiny daily quests.
 
-Each day about two villagers in five make a wish: a seashell, a piece of fruit,
-a bag of bells, a mushroom in November, or a fruit you have picked up before
-(so nobody wishes for a fruit that does not grow in your town). The wish comes
-from the date and the villager, so it is the same all day, after a restart too.
+Each day about two villagers in five make a wish. A wish is one of these:
+
+- a seashell
+- a piece of fruit
+- a bag of Bells
+- a mushroom, in November
+- a fruit you have picked up before, so nobody wishes for a fruit that does
+  not grow in your town
+
+Who wishes comes from the date and the villager. A wish once told is saved, so
+it is the same all day, after a restart too. Each resident of the town has
+their own wishes and their own streaks.
 
 1. Talk to a villager. If they have a wish today, they tell you, once.
-2. Pick the thing up from the ground (shake a tree, walk the beach, hit a rock).
-3. Talk to them again. They thank you and count your **wish streak**: wishes
-   granted in a row. Three, five, ten and every ten after that get their own line.
-   A wish the day ends on breaks the streak, and the villager mentions it, kindly,
-   next time they wish.
+2. Pick the thing up from the ground. Shake a tree, walk the beach or hit a
+   rock.
+3. Talk to them again. They thank you and count your **wish streak**, the
+   wishes granted in a row. Three, five, ten and every ten after that get
+   their own line.
 
-When a villager has something of the game's own to say (an errand, a complaint,
-moving out, a pitfall), that talk belongs to the game: no mod hears it, so the
-wish or the thank-you waits. Talk to them once more and it comes. Nothing is
-lost: a granted wish counts for your streak the moment you pick the thing up.
+A wish the day ends on breaks the streak. The villager mentions it, kindly,
+the next time they wish.
+
+Sometimes a villager has something of the game's own to say, such as an
+errand, a complaint, moving out or a pitfall. That talk belongs to the game
+and no mod hears it, so the wish or the thank-you waits. Talk to them once
+more and it comes. Nothing is lost. A granted wish counts for your streak the
+moment you pick the thing up.
 
 ## What it does not do
 
-Mod handlers only return data: a script cannot give items, bells or friendship
-points, or change anything in the town. The reward is the story and the streak.
+Mod handlers only return data. A script cannot give items, Bells or friendship
+points, or change anything in the town. The reward is the story and the
+streak.
 
-A wish is granted when the item lands in your pockets or wallet (`item_picked`):
-picked up, caught or dug up. Buying it does not count. Wishes stick to things
-found around town (shells, fruit, bells, mushrooms). Dropping a shell and picking
-it back up counts. The villagers are trusting folk.
+A wish is granted when the item lands in your pockets or wallet
+(`item_picked_up`). Picking it up, catching it and digging it up all count.
+Buying it does not. Wishes stick to things found around town: shells, fruit,
+Bells and mushrooms. Dropping a shell and picking it back up counts. The
+villagers are trusting folk.
 
 ## How it is built
 
-- `main.lua` uses `talk`, `day_start` and `item_picked`.
-- Special and event talks never call `talk` (see the scripts guide). A wish
-  is only marked told, and a thank-you only marked given, inside a `talk` that
-  returns the line, so a talk the game kept for itself loses nothing: the next
-  ordinary talk says it.
-- `talk` returns nil unless it has a wish to state or a thank-you to give, so
-  with other talk mods installed it only takes the villagers it has news for
-  (the first mod in load order with a line wins a talk).
-- The wish is a hash of the date and `npc.id`. The day comes from `game.time()`,
-  so it also changes past midnight and after a clock change; `day_start` alone
-  would miss a save loaded on the day it was last played.
-- `store` keeps today's wishes (so a restart does not repeat them), the fruits
-  you have picked up, and each villager's `streak,total,missed`, for the 48
-  villagers seen most recently. Under 2 KB of the 8 KB. Every `store.set` is
-  wrapped in `pcall`: a refused write must not stop the script.
-- The store is per browser, not per town.
-- Under 2,000 instructions per event with 60 villagers, against a budget of 200,000.
-- Lines are in `messages/en.json`, with `{name}`, `{wish}`, `{hint}` and `{streak}`
-  filled in by the script.
+- `main.lua` uses `villager_talked`, `day_started` and `item_picked_up`.
+- Special talks never call `villager_talked`. The scripts guide lists them. A
+  wish is marked told, and a thank-you marked given, only inside a
+  `villager_talked` that returns the line. So a talk the game kept for itself
+  loses nothing, and the next ordinary talk says it.
+- `villager_talked` returns nil unless it has a wish to state or a thank-you
+  to give. With other talk mods installed it takes only the villagers it has
+  news for. The first mod in load order with a line wins a talk.
+- Who wishes is a hash of the date and `e.villager.id`. Which wish is `rng()`.
+- The day comes from `game.time()`, so it also changes past midnight and after
+  a clock change. `day_started` alone would miss a save loaded on the day it
+  was last played.
+- `store.player` keeps today's wishes, so a restart does not repeat them. It
+  also keeps the fruits you have picked up, and each villager's
+  `streak,total,missed` for the 48 villagers seen most recently.
+- That is under 2 KB for one resident. All four residents share the mod's
+  8 KB in the town.
+- Every `store.player.set` is wrapped in `pcall`, because a refused write must
+  not stop the script.
+- `store.player` is per town and per player.
+- It runs under 2,000 instructions per event with 60 villagers, against a
+  budget of 200,000.
+- Lines are in `messages/en.json`, with `{name}`, `{wish}`, `{hint}` and
+  `{streak}` filled in by the script.
 
 It is tested in the real script sandbox against these exact files.
 ```
@@ -1438,17 +1510,20 @@ It is tested in the real script sandbox against these exact files.
 -- Each day about two villagers in five make a wish, picked from the date and
 -- the villager's id, so it is the same all day. The first talk states it. Pick
 -- up a matching item and the next talk thanks you and counts a friendship
--- streak, kept in the store. A wish the day ends on breaks that streak.
+-- streak. A wish the day ends on breaks that streak.
+--
+-- Everything is kept in store.player, so each resident of the town has their
+-- own wishes and their own streaks.
 --
 -- Handlers only return data: nothing here changes the game. The reward is the
--- story and the streak. The talk handler returns nil unless it has something
--- to say, so other mods' villagers still get their turn.
+-- story and the streak. The villager_talked handler returns nil unless it has
+-- something to say, so other mods' villagers still get their turn.
 
 local WISHERS, OF = 2, 5   -- WISHERS in OF villagers wish on a given day
 local KEEP = 48            -- villagers' streaks kept; the least recent drop off
 
 -- What can be wished for. Each kind is a set of item numbers that grant it.
--- Only things the player PICKS UP from the ground count: item_picked does not
+-- Only things the player PICKS UP from the ground count: item_picked_up does not
 -- fire for a bug or fish caught, or anything dug up or bought.
 local KINDS = {
   shell = { lo = 0x2514, hi = 0x251B },   -- ITM_SHELL0..ITM_SHELL7
@@ -1477,7 +1552,7 @@ end
 
 -- ── the store, never allowed to stop the script ──
 local function save(key, value)
-  local ok, err = pcall(store.set, key, value)
+  local ok, err = pcall(store.player.set, key, value)
   if not ok then log("not saved: " .. tostring(err)) end
 end
 
@@ -1489,7 +1564,8 @@ local function clock_key()
 end
 
 -- A stable number from the day and a villager (splitmix64's finish; Lua
--- integers wrap at 64 bits, which is what it wants).
+-- integers wrap at 64 bits, which is what it wants). Not rng(): whether a
+-- villager wishes today must be the same answer every time they are asked.
 local function mix(a, b)
   local h = a * 0x100000001B3 ~ b
   h = (h ~ (h >> 30)) * 0xBF58476D1CE4E5B9
@@ -1514,14 +1590,14 @@ end
 
 -- A villager's friendship record: "streak,total,missed".
 local function record(id)
-  local s, t, m = string.match(store.get("v" .. id) or "", "^(%d+),(%d+),(%d)$")
+  local s, t, m = string.match(store.player.get("v" .. id) or "", "^(%d+),(%d+),(%d)$")
   return { streak = tonumber(s) or 0, total = tonumber(t) or 0, missed = m == "1" }
 end
 
 local function put_record(id, r)
   -- most recent first; past KEEP villagers the oldest record is dropped
   local ids = { tostring(id) }
-  for v in string.gmatch(store.get("ids") or "", "%d+") do
+  for v in string.gmatch(store.player.get("ids") or "", "%d+") do
     if v ~= ids[1] then
       if #ids < KEEP then ids[#ids + 1] = v else save("v" .. v, nil) end
     end
@@ -1551,15 +1627,16 @@ end
 
 -- ── what a villager wishes for ──
 local function wish_for(id, key)
-  local h = mix(key, id)
-  if h % OF >= WISHERS then return nil, h end
+  if mix(key, id) % OF >= WISHERS then return nil end
   local kinds = { "shell", "fruit", "bells" }
-  local seen = store.get("fruit") or 0
+  local seen = store.player.get("fruit") or 0
   for i, item in ipairs(FRUIT_ORDER) do
     if seen & (1 << i) ~= 0 then kinds[#kinds + 1] = FRUIT_BITS[item] end
   end
   if (key // 100) % 100 == 11 then kinds[#kinds + 1] = "mushroom" end
-  return kinds[(h >> 8) % #kinds + 1], h
+  -- Which wish is rng(): it is saved the moment it is stated, so it cannot
+  -- change afterwards.
+  return kinds[rng(#kinds)]
 end
 
 -- ── lines ──
@@ -1576,28 +1653,29 @@ local function say(key, name, kind, streak)
   return (string.gsub(text, "%s+$", ""))
 end
 
-local function thanks_key(r, h)
+local function thanks_key(r)
   local s = r.streak
   if s == 3 or s == 5 or s == 10 then return "streak" .. s end
   if s >= 20 and s % 10 == 0 then return "streakbig" end
   if r.total == 1 then return "first" end
   if s == 1 then return "fresh" end -- a streak that broke and starts again
-  return "thanks" .. ((h >> 16) % 4 + 1)
+  return "thanks" .. rng(4)
 end
 
--- ── this town's wishes ──
--- `store` is kept per town and no town is loaded while this file first runs,
--- so today's wishes are read at the first event in a town, and again when the
--- player is in another town (store.town() changes).
-local town = false
+-- ── this player's wishes in this town ──
+-- store.player is kept per town and per player, and no town is loaded while
+-- this file first runs, so today's wishes are read at the first event in a
+-- town, and again when the town or the player changes.
+local whose = false
 local function fresh()
-  local t = store.town()
-  if t == town then return end
-  town = t
+  local p = game.player()
+  local who = tostring(store.town()) .. "/" .. tostring(p and p.id)
+  if who == whose then return end
+  whose = who
   day, entries, order = 0, {}, {}
   clock = clock_key()
-  day = store.get("day") or 0
-  for id, w, s in string.gmatch(store.get("open") or "", "(%d+)=(%a+):(%d)") do
+  day = store.player.get("day") or 0
+  for id, w, s in string.gmatch(store.player.get("open") or "", "(%d+)=(%a+):(%d)") do
     id = tonumber(id)
     if KINDS[w] and not entries[id] then
       entries[id] = { w = w, s = tonumber(s) }
@@ -1608,56 +1686,58 @@ local function fresh()
 end
 
 -- ── handlers ──
-on("day_start", function(date)
+on("day_started", function(e)
   fresh()
-  roll(key_of(date.year, date.month, date.day))
+  roll(key_of(e.year, e.month, e.day))
 end)
 
-on("talk", function(npc)
+on("villager_talked", function(e)
   fresh()
   local key = today()
-  local e = entries[npc.id]
-  if not e then
-    local kind, h = wish_for(npc.id, key)
+  local id, name = e.villager.id, e.villager.name
+  local wish = entries[id]
+  if not wish then
+    local kind = wish_for(id, key)
     if not kind then return nil end
-    entries[npc.id] = { w = kind, s = 1 }
-    order[#order + 1] = npc.id
+    entries[id] = { w = kind, s = 1 }
+    order[#order + 1] = id
     save_day()
-    log(npc.name .. " wishes for: " .. kind)
-    local r = record(npc.id)
+    log(name .. " wishes for: " .. kind)
+    local r = record(id)
     if r.missed then
       r.missed = false
-      put_record(npc.id, r)
-      return say("again", npc.name, kind)
+      put_record(id, r)
+      return say("again", name, kind)
     end
-    return say("wish" .. ((h >> 16) % 5 + 1), npc.name, kind)
+    return say("wish" .. rng(5), name, kind)
   end
-  if e.s ~= 2 then return nil end -- told already, or thanked already: let someone else talk
-  e.s = 3
+  if wish.s ~= 2 then return nil end -- told already, or thanked already: let someone else talk
+  wish.s = 3
   save_day()
-  local r = record(npc.id)
-  return say(thanks_key(r, mix(key, npc.id)), npc.name, e.w, r.streak)
+  local r = record(id)
+  return say(thanks_key(r), name, wish.w, r.streak)
 end)
 
-on("item_picked", function(item)
+on("item_picked_up", function(e)
   fresh()
   today()
+  local item = e.item
   local bit
   for i, f in ipairs(FRUIT_ORDER) do if f == item then bit = 1 << i end end
   if bit then
-    local seen = store.get("fruit") or 0
+    local seen = store.player.get("fruit") or 0
     if seen & bit == 0 then save("fruit", seen | bit) end
   end
   -- one item grants one wish: the earliest one told that it matches
   for _, id in ipairs(order) do
-    local e = entries[id]
-    if e.s == 1 and grants(e.w, item) then
-      e.s = 2
+    local wish = entries[id]
+    if wish.s == 1 and grants(wish.w, item) then
+      wish.s = 2
       local r = record(id)
       r.streak, r.total = r.streak + 1, r.total + 1
       put_record(id, r)
       save_day()
-      log("granted a wish (" .. e.w .. "), streak " .. r.streak)
+      log("granted a wish (" .. wish.w .. "), streak " .. r.streak)
       return
     end
   end
@@ -1718,19 +1798,19 @@ log("ready")
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.wish-list",
   "name": "Wish List",
   "version": "1.0.0",
   "authors": ["Play AC Online"],
-  "description": "Tiny daily quests: a few villagers make a wish each day. Pick up what they wished for and they thank you and keep a friendship streak.",
+  "description": "Tiny daily quests. A few villagers make a wish each day. Pick up what they wished for, and they thank you and count your wish streak.",
   "scope": "client",
   "content": {
     "messages": "messages/en.json"
   },
   "scripts": {
     "main": "main.lua",
-    "hooks": ["talk", "day_start", "item_picked"]
+    "events": ["villager_talked", "day_started", "item_picked_up"]
   },
   "assets_original": true
 }

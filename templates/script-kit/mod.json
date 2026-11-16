@@ -1,18 +1,19 @@
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "yourname.my-script",
   "name": "My Script",
   "version": "1.0.0",
   "authors": ["yourname"],
-  "description": "A small script that counts days, picked up items and talks.",
+  "description": "A small script that counts days, picked up items and talks, and gives each resident one apple.",
   "scope": "client",
   "content": {
     "messages": "messages/en.json"
   },
   "scripts": {
     "main": "main.lua",
-    "hooks": ["talk", "day_start", "item_picked", "enter_scene"]
+    "events": ["villager_talked", "day_started", "item_picked_up", "scene_entered", "command_finished"]
   },
+  "permissions": ["give_item"],
   "assets_original": true
 }

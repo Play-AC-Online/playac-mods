@@ -1,9 +1,9 @@
 {
-  "events": [
+  "days": [
     {
       "id": "harvest-fair",
       "date": { "month": 9, "week": 3, "weekday": 3 },
-      "board": "HARVEST FAIR TODAY!\nBring your best fruit and\nshow it to your neighbors.\nThe biggest apple wins\nbragging rights for a year.",
+      "board": "HARVEST FAIR TODAY!\nBring your best fruit and\nshow it to your neighbours.\nThe biggest apple wins\nbragging rights for a year.",
       "talk": [
         "It's the Harvest Fair! I've been polishing my pears since sunrise.",
         "Harvest Fair day! Did you bring any fruit? Mine is the shiniest, I checked.",

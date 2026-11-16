@@ -1,5 +1,5 @@
 -- Field Notes: the player's naturalist journal. A worked example of
--- item_picked + store + day_start + talk working together.
+-- item_picked_up + store + day_started + villager_talked working together.
 --
 -- What it keeps (store is 8 KB per mod, so everything is a short string):
 --   d   today, as the number yyyymmdd
@@ -8,13 +8,14 @@
 --   r   best-day records, same order
 --   b   the records as they stood when today began (so a record is news once)
 --   s1..s5  species ever noted: one "0"/"1" per species in that kind
---   y   the last day out with a haul, "yyyymmdd|b,f,o,s,r", until a villager
---       sums it up on the first talk of a new day
+--   k   today's day number (game.day_number()), for counting days between
+--   y   the last day out with a haul, "<day number>|b,f,o,s,r", until a
+--       villager sums it up on the first talk of a new day
 --   n   news for the next villager: "r<kind>:<old best>", "f<kind>:<index>"
 --       or "m<total>"
 --   v   villagers who already spoke today, "yyyymmdd:id.id.id"
 --
--- The API gives an item NUMBER only, so the kind comes from the game's item
+-- e.item is an item NUMBER, so the kind comes from the game's item
 -- number ranges: bugs 0x2D00..0x2D27, fish 0x2300..0x2327,
 -- the unidentified fossil 0x2511, shells 0x2514..0x251B, fruit 0x2800..0x2804
 -- and the coconut 0x2807. Anything else is not a find.
@@ -66,23 +67,11 @@ local function ymd(y, m, d)
   return y * 10000 + m * 100 + d
 end
 
--- Days since 1970-01-01 for a yyyymmdd number (Howard Hinnant's civil days).
-local function days(n)
-  local y, m, d = n // 10000, n // 100 % 100, n % 100
-  if m <= 2 then y = y - 1 end
-  local era = y // 400
-  local yoe = y - era * 400
-  local mp = (m + 9) % 12
-  local doy = (153 * mp + 2) // 5 + d - 1
-  local doe = yoe * 365 + yoe // 4 - yoe // 100 + doy
-  return era * 146097 + doe - 719468
-end
-
 -- state, read at the first event in a town and written back as it changes ----
 -- `store` is kept per town and no town is loaded while this file first runs,
 -- so the notes are read in fresh(), at each event, when store.town() changed.
 
-local today, day, life, best, base
+local today, num, day, life, best, base
 local town = false
 
 local function fresh()
@@ -94,6 +83,11 @@ local function fresh()
     local g = game.time()
     today = ymd(g.year, g.month, g.day)
     save("d", today)
+  end
+  num = store.get("k")
+  if type(num) ~= "number" then
+    num = game.day_number()
+    save("k", num)
   end
   day = counts(store.get("t"))
   life = counts(store.get("a"))
@@ -146,9 +140,10 @@ local function haul(c)
   return table.concat(parts, ", ") .. " " .. line("and") .. " " .. last
 end
 
--- A variant that changes with the villager and the day but not on every talk.
-local function pick(prefix, n, salt)
-  return line(prefix .. "." .. ((salt % n) + 1))
+-- One of a line's n variants, picked with rng(): a villager speaks once a
+-- day, so nothing here needs to be the same on a second look.
+local function pick(prefix, n)
+  return line(prefix .. "." .. rng(n))
 end
 
 -- villagers who already spoke today ----------------------------------------
@@ -175,25 +170,27 @@ end
 
 -- events -------------------------------------------------------------------
 
-on("day_start", function(date)
+on("day_started", function(e)
   fresh()
-  local d = ymd(date.year, date.month, date.day)
+  local d = ymd(e.year, e.month, e.day)
   if d == today then return end
   if sum(day) > 0 then
-    save("y", today .. "|" .. joined(day))
+    save("y", num .. "|" .. joined(day))
   end
   today = d
+  num = game.day_number()
   day = { 0, 0, 0, 0, 0 }
   base = { table.unpack(best) }
   save("d", today)
+  save("k", num)
   save("b", joined(base))
   save("t", joined(day))
   save("v", nil)
 end)
 
-on("item_picked", function(item)
+on("item_picked_up", function(e)
   fresh()
-  local k, idx = classify(item)
+  local k, idx = classify(e.item)
   if not k then return end
 
   local news
@@ -233,21 +230,21 @@ on("item_picked", function(item)
   if news then save("n", news) end
 end)
 
-local function summary(salt)
+local function summary()
   local y = store.get("y")
   if type(y) ~= "string" then return nil end
   save("y", nil)
   local d, rest = y:match("^(%d+)|(.*)$")
   local h = rest and haul(counts(rest))
   if not h then return nil end
-  local ago = days(today) - days(tonumber(d))
+  local ago = game.day_number() - tonumber(d)
   if ago > 1 then
     return fill(line("sum.gap"), { ago = ago, haul = h })
   end
-  return fill(pick("sum", 4, salt), { haul = h, life = sum(life) })
+  return fill(pick("sum", 4), { haul = h, life = sum(life) })
 end
 
-local function reaction(salt)
+local function reaction()
   local n = store.get("n")
   if type(n) ~= "string" then return nil end
   save("n", nil)
@@ -257,37 +254,37 @@ local function reaction(salt)
     if k == 3 then return line("first.fossil") end
     local seen = 0
     for _ in seen_of(k):gmatch("1") do seen = seen + 1 end
-    return fill(pick("first", 3, salt), { kind = line("noun." .. KINDS[k] .. ".one"), seen = seen })
+    return fill(pick("first", 3), { kind = line("noun." .. KINDS[k] .. ".one"), seen = seen })
   elseif what == "r" and k then
     if day[k] <= tonumber(extra) then return nil end -- a new day since
-    return fill(pick("rec", 3, salt), { n = day[k], kinds = line("noun." .. KINDS[k] .. ".many"), old = extra })
+    return fill(pick("rec", 3), { n = day[k], kinds = line("noun." .. KINDS[k] .. ".many"), old = extra })
   end
   local m = n:match("^m(%d+)$")
-  if m then return fill(pick("mile", 2, salt), { life = m }) end
+  if m then return fill(pick("mile", 2), { life = m }) end
   return nil
 end
 
-local function comment(salt)
+local function comment()
   local total = sum(day)
   if total == 0 then return nil end
   if total >= 10 then
-    return fill(pick("big", 3, salt), { total = total })
+    return fill(pick("big", 3), { total = total })
   end
   for k = 1, 5 do
     if day[k] == total and total >= 2 then
-      return fill(pick("only." .. KINDS[k], 2, salt), { n = total })
+      return fill(pick("only." .. KINDS[k], 2), { n = total })
     end
   end
-  return cap(fill(pick("haul", 6, salt), { haul = haul(day) }))
+  return cap(fill(pick("haul", 6), { haul = haul(day) }))
 end
 
-on("talk", function(npc)
+on("villager_talked", function(e)
   fresh()
-  if told(npc.id) then return nil end
-  local salt = npc.id + today + sum(life)
-  local say = summary(salt) or reaction(salt) or comment(salt)
+  local id = e.villager.id
+  if told(id) then return nil end
+  local say = summary() or reaction() or comment()
   if not say or say == "" then return nil end -- nothing to say: let other mods talk
-  mark_told(npc.id)
+  mark_told(id)
   return cap(say)
 end)
 

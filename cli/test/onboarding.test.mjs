@@ -20,7 +20,7 @@ import { leftOutReason } from '../lib/files.mjs';
 import { luaSyntaxError } from '../lib/luasyntax.mjs';
 import { scaffoldFiles, writeFiles } from '../lib/scaffold.mjs';
 import { startDevFree } from '../lib/dev.mjs';
-import { githubPreflight, imageSize, listingFor, myVersions, parseGitHubSource, setYanked, statusLines } from '../lib/publish.mjs';
+import { githubPreflight, imageKind, imageSize, listingFor, myVersions, parseGitHubSource, setYanked, statusLines } from '../lib/publish.mjs';
 import { main } from '../bin/playac-mod.mjs';
 import { CHECKOUT } from '../lib/checkout.mjs';
 
@@ -34,7 +34,7 @@ const quiet = async (fn) => {
   console.error = (...a) => out.push(a.join(' '));
   try { return { code: await fn(), out: out.join('\n') }; } finally { console.log = log; console.error = error; }
 };
-const base = { schema: 1, api: 2, id: 'test.mod', name: 'Test Mod', version: '1.0.0', authors: ['Tester'], scope: 'client', assets_original: true };
+const base = { schema: 1, api: 1, id: 'test.mod', name: 'Test Mod', version: '1.0.0', authors: ['Tester'], scope: 'client', assets_original: true };
 
 /* A PNG of w x h (one grey row repeated), enough for a header and a decoder. */
 function png(w, h) {
@@ -58,33 +58,33 @@ function png(w, h) {
 
 test('Lua syntax is checked by the game\'s own parser, no luac needed', async () => {
   assert.equal(await luaSyntaxError('main.lua', 'local x <const> = 1\nreturn x'), '', 'Lua 5.4 syntax parses');
-  assert.match(await luaSyntaxError('main.lua', 'on("talk", function(npc)\n  if npc then\nend)'), /^main\.lua:3: .*near/);
+  assert.match(await luaSyntaxError('main.lua', 'on("villager_talked", function(e)\n  if e then\nend)'), /^main\.lua:3: .*near/);
   const saved = process.env.PATH;
   process.env.PATH = '';
   try {
     const c = await checkEntries({
-      'mod.json': enc(JSON.stringify({ ...base, scripts: { main: 'main.lua', hooks: ['talk'] } })),
-      'main.lua': enc('on("talk", function(npc) return end end)'),
+      'mod.json': enc(JSON.stringify({ ...base, scripts: { main: 'main.lua', events: ['villager_talked'] } })),
+      'main.lua': enc('on("villager_talked", function(e) return end end)'),
     });
     assert.equal(c.ok, false);
     assert.equal(c.luaChecked, true);
     const p = c.problems.find((x) => x.file === 'main.lua');
-    assert.match(p.message, /main\.lua:1: .* \(a Lua syntax error: the game stops this script when it loads\)/);
+    assert.match(p.message, /main\.lua:1: .* \(a Lua syntax error, so the game stops this script when it loads\)/);
   } finally { process.env.PATH = saved; }
 });
 
-test('on() for an event not in hooks is a problem, not a warning: the game stops the script', async () => {
+test('on() for an event not in scripts.events is a problem, not a warning: the game stops the script', async () => {
   const c = await checkEntries({
-    'mod.json': enc(JSON.stringify({ ...base, scripts: { main: 'main.lua', hooks: ['talk'] } })),
-    'main.lua': enc('on("talk", function(npc) end)\non("day_start", function(d) end)\n'),
+    'mod.json': enc(JSON.stringify({ ...base, scripts: { main: 'main.lua', events: ['villager_talked'] } })),
+    'main.lua': enc('on("villager_talked", function(e) end)\non("day_started", function(e) end)\n'),
   });
   assert.equal(c.ok, false);
-  assert.ok(c.problems.some((p) => p.file === 'main.lua' && /line 2: on\("day_start"\) .* not in "scripts.hooks".*none of it runs/.test(p.message)), JSON.stringify(c.problems));
-  assert.ok(!c.warnings.some((w) => /day_start/.test(w.message)));
+  assert.ok(c.problems.some((p) => p.file === 'main.lua' && /line 2: on\("day_started"\) .* not in "scripts.events".*none of it runs/.test(p.message)), JSON.stringify(c.problems));
+  assert.ok(!c.warnings.some((w) => /day_started/.test(w.message)));
   /* an unknown event too */
   const d = await checkEntries({
-    'mod.json': enc(JSON.stringify({ ...base, scripts: { main: 'main.lua', hooks: ['talk'] } })),
-    'main.lua': enc('on("talk", function() end)\non("fish_cought", function() end)\n'),
+    'mod.json': enc(JSON.stringify({ ...base, scripts: { main: 'main.lua', events: ['villager_talked'] } })),
+    'main.lua': enc('on("villager_talked", function(e) end)\non("fish_cought", function() end)\n'),
   });
   assert.ok(d.problems.some((p) => /names no event the game has/.test(p.message)));
 });
@@ -105,7 +105,7 @@ test('check takes a ZIP, as the Mods tab reads it; a hand-made ZIP with dist/ in
   fs.copyFileSync(zip, path.join(dir, 'dist', 'old.zip'));
   r = await quiet(() => main(['check', dir]));
   assert.equal(r.code, 0);
-  assert.match(r.out, /holds dist\/old\.zip, which `pack` leaves out; a ZIP you make by hand/);
+  assert.match(r.out, /holds dist\/old\.zip, which `pack` leaves out\. A ZIP you make by hand/);
   const files = {};
   for (const n of ['mod.json', 'main.lua', 'messages/en.json', 'dist/old.zip']) files[`bean.zipcheck/${n}`] = new Uint8Array(fs.readFileSync(path.join(dir, n)));
   const hand = path.join(tmp(), 'hand.zip');
@@ -180,15 +180,37 @@ test('a screenshot outside 200..4096 px is refused before the sign-in', () => {
   assert.deepEqual(imageSize(jpeg, 'image/jpeg'), { w: 300, h: 150 });
   const dir = tmp();
   fs.writeFileSync(path.join(dir, 'small.png'), png(120, 90));
-  assert.throws(() => listingFor(dir, '1.0.0', { shots: [path.join(dir, 'small.png')], changelog: 'x' }), /120x90: a screenshot's sides must be 200 to 4096 pixels/);
+  assert.throws(() => listingFor(dir, '1.0.0', { shots: [path.join(dir, 'small.png')], changelog: 'x' }), /120x90\. A screenshot's sides must be 200 to 4096 pixels/);
   fs.writeFileSync(path.join(dir, 'ok.png'), png(400, 300));
   assert.equal(listingFor(dir, '1.0.0', { shots: [path.join(dir, 'ok.png')], changelog: 'x' }).shots.length, 1);
+});
+
+test('a screenshot the registry would refuse for its area, depth or scan order is refused before the sign-in', () => {
+  const dir = tmp();
+  const shot = (name, bytes) => { fs.writeFileSync(path.join(dir, name), bytes); return path.join(dir, name); };
+  const tryShot = (f) => listingFor(dir, '1.0.0', { shots: [f], changelog: 'x' });
+  /* 4096x4096 passes the side rule and is over a 4K screen of pixels */
+  assert.throws(() => tryShot(shot('huge.png', png(4096, 4096))), /4096x4096\. A screenshot is at most a 4K screen of pixels \(3840 by 2160\)/);
+  assert.equal(tryShot(shot('4k.png', png(3840, 2160))).shots.length, 1);
+  /* a 16 bit PNG: IHDR's bit depth byte */
+  const deep = png(400, 300);
+  deep[24] = 16;
+  assert.equal(imageKind(deep, 'image/png'), 'deep');
+  assert.equal(imageKind(png(400, 300), 'image/png'), '');
+  assert.throws(() => tryShot(shot('deep.png', deep)), /is a 16 bit PNG/);
+  /* JPEG headers: baseline (C0) and progressive (C2), w x h */
+  const jpeg = (marker, w, h) => Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 4, 0, 0, 0xff, marker, 0, 11, 8, h >> 8, h & 255, w >> 8, w & 255, 1, 1, 17, 0, 0, 0]);
+  assert.equal(imageKind(jpeg(0xc0, 2560, 1440), 'image/jpeg'), '');
+  assert.equal(imageKind(jpeg(0xc2, 2560, 1440), 'image/jpeg'), 'progressive');
+  assert.throws(() => tryShot(shot('prog.jpg', jpeg(0xc2, 2560, 1440))), /is a progressive JPEG of 2560x1440\. One larger than 1920 by 1080 is refused/);
+  assert.equal(tryShot(shot('prog-hd.jpg', jpeg(0xc2, 1920, 1080))).shots.length, 1);
+  assert.equal(tryShot(shot('base.jpg', jpeg(0xc0, 3840, 2160))).shots.length, 1);
 });
 
 test('publish --github: the tag is checked against mod.json, the listing and git first', () => {
   assert.deepEqual(parseGitHubSource('github.com/you/tea@v1.2.0'), { owner: 'you', repo: 'tea', tag: 'v1.2.0', version: '1.2.0' });
   assert.deepEqual(parseGitHubSource('you/tea@1.2.0').version, '1.2.0');
-  assert.throws(() => parseGitHubSource('you/tea@latest'), /the tag must be the mod's version/);
+  assert.throws(() => parseGitHubSource('you/tea@latest'), /The tag must be the mod's version/);
   assert.throws(() => parseGitHubSource('tea@v1'), /owner/);
   const dir = tmp();
   fs.writeFileSync(path.join(dir, 'mod.json'), JSON.stringify({ ...base, version: '1.1.0' }));
@@ -203,9 +225,9 @@ test('publish --github: the tag is checked against mod.json, the listing and git
   fs.writeFileSync(path.join(dir, 'CHANGELOG.md'), '## 1.2.0\n- new\n');
   const fake = (answers) => (args) => answers[args[0]] || { status: 0, stdout: '' };
   r = githubPreflight(dir, parseGitHubSource('you/tea@v1.2.0'), fake({ 'rev-parse': { status: 0, stdout: 'true\n' }, tag: { status: 0, stdout: 'v1.2.0\n' }, 'ls-remote': { status: 0, stdout: '' } }));
-  assert.deepEqual(r.problems, ['the tag v1.2.0 is not on GitHub yet: git push origin v1.2.0']);
+  assert.deepEqual(r.problems, ['The tag v1.2.0 is not on GitHub yet. Run: git push origin v1.2.0']);
   r = githubPreflight(dir, parseGitHubSource('you/tea@v1.2.0'), fake({ 'rev-parse': { status: 0 }, tag: { status: 0, stdout: '' } }));
-  assert.match(r.problems[0], /there is no tag v1\.2\.0 here/);
+  assert.match(r.problems[0], /There is no tag v1\.2\.0 here/);
   r = githubPreflight(dir, parseGitHubSource('you/tea@v1.2.0'), fake({ 'rev-parse': { status: 0 }, tag: { status: 0, stdout: 'v1.2.0' }, 'ls-remote': { status: 0, stdout: 'abc\trefs/tags/v1.2.0\n' } }));
   assert.deepEqual(r.problems, []);
 });
@@ -225,13 +247,13 @@ test('status and yank: the author\'s versions with the CLI token', async () => {
   };
   const list = await myVersions('https://api.test', 'tok', { fetch: f });
   assert.equal(calls[0].init.headers.Authorization, 'Bearer tok');
-  assert.deepEqual(statusLines(list, 'bean.tea'), ['bean.tea 1.0.0  superseded', 'bean.tea 1.1.0  listed']);
-  assert.deepEqual(statusLines(list, 'bean.other'), ['bean.other 0.1.0  rejected', '    Not your own work: traced']);
-  assert.deepEqual(statusLines(list, 'bean.none'), ['no uploads of bean.none yet']);
+  assert.deepEqual(statusLines(list, 'bean.tea'), ['bean.tea 1.0.0  Older version', 'bean.tea 1.1.0  Listed']);
+  assert.deepEqual(statusLines(list, 'bean.other'), ['bean.other 0.1.0  Refused', '    Not your own work: traced']);
+  assert.deepEqual(statusLines(list, 'bean.none'), ['You have no uploads of bean.none yet.']);
   const m = await setYanked('https://api.test', 'tok', 'r2', true, 'breaks the shop', { fetch: f });
   assert.equal(m.state, 'yanked');
   assert.deepEqual(JSON.parse(calls[1].init.body), { reason: 'breaks the shop' });
-  await assert.rejects(setYanked('https://api.test', 'tok', 'r9', false, '', { fetch: f }), /unyank was refused/);
+  await assert.rejects(setYanked('https://api.test', 'tok', 'r9', false, '', { fetch: f }), /The site did not list that version again/);
   /* usage */
   assert.equal((await quiet(() => main(['yank']))).code, 2);
   assert.equal((await quiet(() => main(['status', tmp()]))).code, 2);

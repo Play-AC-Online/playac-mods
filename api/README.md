@@ -5,4 +5,4 @@
 - [`playac.lua`](playac.lua): Lua types for your editor.
 - [`items.json`](items.json): every item, its price, and which shops may stock it.
 
-The game reads api levels 1 to 2. Reference: https://playaconline.com/modding/reference/
+The game reads api level 1. Reference: https://playaconline.com/modding/reference/

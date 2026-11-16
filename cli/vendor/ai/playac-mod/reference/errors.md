@@ -6,7 +6,7 @@ Every message a mod maker can meet, by code. Search this file for a phrase from 
 
 Where messages come from:
 
-- page: the game page's own check, when you install a ZIP in Settings, Mods (also `npx playac-mod check`).
+- page: the game page's own check, when you install a ZIP in Settings, Mods (also `playac-mod check`).
 - registry: the shared mod list, when you upload. It runs the same rules plus image checks.
 - game: the game itself after a restart, on the mod's row in the Mods tab (shop items, scripts).
 
@@ -16,7 +16,7 @@ Where messages come from:
 
 **The ZIP is over 16 MB**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -24,17 +24,17 @@ In the game page (install, check tool):
 
 From the mod list (upload):
 
-    The ZIP is larger than 16 MiB.
+    The ZIP is larger than 16 MB.
 
-What it means: A mod ZIP can be at most 16 MB (16 MiB) compressed.
+What it means: A mod ZIP can be at most 16 MB.
 
-How to fix it: Make the textures smaller (fewer, smaller, or BC7/DXT compressed DDS files) or split the mod into two mods.
+How to fix it: Use fewer or smaller textures, or save them as BC7 or DXT compressed DDS files. You can also split the mod into two mods.
 
 ### zip-unreadable
 
 **Not a ZIP the game can read**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -48,9 +48,9 @@ From the mod list (upload):
     "main.lua" is not the size its ZIP header says.
     The upload did not arrive whole. Try again.
 
-What it means: The file is not a ZIP archive, or the ZIP is damaged (cut short, or an entry's size is wrong). RAR, 7z and tar files are not ZIPs.
+What it means: The file is not a ZIP archive, or the ZIP is damaged. RAR, 7z and tar files are not ZIPs.
 
-How to fix it: Zip the mod folder again with a normal ZIP tool: on Windows right-click, "Send to", "Compressed (zipped) folder"; on a Mac right-click, "Compress". Upload again if the upload was cut off.
+How to fix it: Zip the mod folder again with a normal ZIP tool. On Windows, right-click it and choose "Send to", then "Compressed (zipped) folder". On a Mac, right-click it and choose "Compress". If an upload was cut off, upload again.
 
 ### browser-no-zip
 
@@ -64,13 +64,13 @@ In the game page (install, check tool):
 
 What it means: The game page could not load the small library it uses to open ZIPs. Your mod is fine.
 
-How to fix it: Reload the page. If it keeps happening, an ad or script blocker may be stopping the file: allow playaconline.com.
+How to fix it: Reload the page. If it keeps happening, an ad or script blocker may be stopping the file, so allow playaconline.com.
 
 ### zip-no-manifest
 
 **No mod.json at the top of the ZIP**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -80,9 +80,9 @@ From the mod list (upload):
 
     There is no mod.json at the top of the ZIP.
 
-What it means: mod.json must be at the top of the ZIP, or inside ONE top folder that holds everything. It was not found there. Two folders down, or a ZIP with two top folders, does not count.
+What it means: mod.json was not found at the top of the ZIP, or inside one top folder that holds everything. A mod.json two folders down, or a ZIP with two top folders, does not count.
 
-How to fix it: Open the ZIP and check that mod.json is the first thing you see (or the only folder holds it). Zip the files inside your mod folder, or the mod folder itself, not its parent folder.
+How to fix it: Zip the files inside your mod folder, or the mod folder itself, not its parent folder. Open the ZIP to check that mod.json is at the top or inside the only folder.
 
 Bad (my-mod.zip):
 
@@ -105,7 +105,7 @@ my-mod/
 
 **More than 2000 files**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -116,7 +116,7 @@ From the mod list (upload):
     The ZIP holds 2001 files, more than 2000.
     The ZIP has more than 10000 entries. A mod holds at most 2000 files.
 
-What it means: A mod holds at most 2000 files. Folders, Mac/Windows junk files (__MACOSX, Thumbs.db) and hidden files and folders (any name starting with a dot) are not counted.
+What it means: A mod holds at most 2000 files. Folders, junk files such as __MACOSX and Thumbs.db, and names that start with a dot are not counted.
 
 How to fix it: Take out files the mod does not use, or split it into two mods.
 
@@ -124,7 +124,7 @@ How to fix it: Take out files the mod does not use, or split it into two mods.
 
 **Unpacks to more than 64 MB**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -132,17 +132,17 @@ In the game page (install, check tool):
 
 From the mod list (upload):
 
-    The files expand to more than 64 MiB.
+    The files expand to more than 64 MB.
 
 What it means: All the files in a mod together can be at most 64 MB once unzipped.
 
-How to fix it: Use compressed textures (BC7, DXT1 or DXT5 DDS) instead of uncompressed ones, or make them smaller. Keep phone players in mind: all switched-on mods together get 24 MB on a phone.
+How to fix it: Use compressed DDS textures (BC7, DXT1 or DXT5), or make the textures smaller. On a phone, all switched-on mods together get 24 MB.
 
 ### zip-duplicate-entry
 
 **A file is in the ZIP twice**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -152,7 +152,7 @@ From the mod list (upload):
 
     The ZIP holds "mod.json" twice.
 
-What it means: The same path appears twice inside the ZIP, which some tools do when you add files to an existing ZIP.
+What it means: The same path appears twice inside the ZIP. Some tools do this when you add files to an existing ZIP.
 
 How to fix it: Make a fresh ZIP from the folder instead of adding to an old one.
 
@@ -160,7 +160,7 @@ How to fix it: Make a fresh ZIP from the folder instead of adding to an old one.
 
 **A path is not a safe path**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -176,15 +176,15 @@ From the mod list (upload):
     The path "textures\\a.dds" uses a backslash. Zip it again with forward slashes.
     The path "café.txt" is not plain ASCII. Use English letters, digits, dashes and dots.
 
-What it means: Every path in a mod must be plain: English letters, digits, dashes, dots and underscores, folders split by "/", at most 160 bytes, with no "..", no "\", no ":", no empty folder name and no control characters.
+What it means: A path uses only English letters, digits, dashes, dots and underscores, with "/" between folders, and is at most 160 bytes. "..", "\", ":", an empty folder name and control characters are refused.
 
-How to fix it: Rename the file or folder to plain ASCII (no accents or emoji), keep names short, and zip again. On Windows use the built-in "Compressed (zipped) folder", which writes forward slashes.
+How to fix it: Rename the file or folder with plain ASCII letters, without accents or emoji, and zip again. On Windows use the built-in "Compressed (zipped) folder", which writes forward slashes.
 
 ### path-case-clash
 
 **Two names differ only in letter case**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -206,7 +206,7 @@ How to fix it: Delete or rename one of the two.
 
 **A name is both a file and a folder**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -221,7 +221,7 @@ From the mod list (upload):
 
     "data" is a file, and "data/x.json" uses it as a folder.
 
-What it means: One path is a file and also the folder of another file (for example "data" and "data/x.json").
+What it means: One path is both a file and the folder of another file, for example "data" and "data/x.json".
 
 How to fix it: Rename the file or the folder.
 
@@ -229,7 +229,7 @@ How to fix it: Rename the file or the folder.
 
 **A file type a mod cannot hold**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -243,15 +243,15 @@ From the mod list (upload):
 
     "evil.js" is not an allowed file type. Mods may carry .json .lua .dds .png .txt .md files.
 
-What it means: A mod can only hold .json, .lua, .dds, .png, .txt and .md files. Anything else (a .zip inside the ZIP, .exe, .js, .jpg, a LICENSE file with no extension) is refused.
+What it means: A mod can only hold .json, .lua, .dds, .png, .txt and .md files. Anything else is refused, for example a ZIP inside the ZIP, a .jpg or a LICENSE file with no extension.
 
-How to fix it: Take the file out, or for text give it a .txt or .md name (LICENSE.txt). Save pictures as .png or .dds: the game draws both as textures.
+How to fix it: Take the file out. Give a text file a .txt or .md name, such as LICENSE.txt. Save pictures as .png or .dds, which the game draws as textures.
 
 ### file-too-big
 
 **A file is too big**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -264,12 +264,12 @@ In the game page (install, check tool):
 
 From the mod list (upload):
 
-    mod.json is larger than 64 KiB.
-    "main.lua" is larger than 512 KiB, the most a .lua file may be.
+    mod.json is larger than 64 KB.
+    "main.lua" is larger than 512 KB, the most a .lua file may be.
 
-What it means: mod.json can be at most 64 KB, any other .json file 256 KB, any .lua file 512 KB.
+What it means: mod.json can be at most 64 KB, any other .json file 256 KB and any .lua file 512 KB.
 
-How to fix it: Split a big messages file into several mods, or move data out of mod.json. Split a big script into smaller functions; it is one file per mod today.
+How to fix it: Split a big messages file into several mods, or move data out of mod.json. A mod has one script file, so shorten a big script or move part of it into a second mod.
 
 ## JSON files
 
@@ -277,7 +277,7 @@ How to fix it: Split a big messages file into several mods, or move data out of 
 
 **A JSON key appears twice**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -292,7 +292,7 @@ From the mod list (upload):
 
     messages/en.json has the key "greet" twice.
 
-What it means: The same key is written twice in one JSON object. Different tools would keep different copies, so it is refused everywhere.
+What it means: The same key is written twice in one JSON object. Tools disagree on which copy to keep, so it is refused.
 
 How to fix it: Delete or rename one of the two keys.
 
@@ -318,7 +318,7 @@ Fixed (messages/en.json):
 
 **A string holds a NUL character**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -339,7 +339,7 @@ How to fix it: Remove the \u0000 from the text.
 
 **Not valid JSON**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -353,9 +353,9 @@ From the mod list (upload):
     mod.json is not valid JSON.
     shops.json is not valid JSON: a syntax error at byte 42.
 
-What it means: The file is not valid JSON: a missing comma or quote, a comma after the last item, a comment, single quotes, or a byte order mark at the start.
+What it means: The file is not valid JSON. The usual causes are a missing comma or quote, a comma after the last item, a comment, single quotes, or a byte order mark at the start.
 
-How to fix it: Paste the file into a JSON checker (or open it in VS Code, which underlines the mistake). JSON has no comments and no trailing commas, and strings use double quotes. Save as UTF-8 without BOM.
+How to fix it: Open the file in VS Code, which underlines the mistake, or paste it into a JSON checker. JSON has no comments and no trailing commas, and strings use double quotes. Save as UTF-8 without BOM.
 
 Bad (mod.json):
 
@@ -387,7 +387,7 @@ Fixed (mod.json):
 
 **JSON nested more than 32 levels**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -398,9 +398,9 @@ From the mod list (upload):
 
     d.json is nested more than 32 levels deep.
 
-What it means: Objects and lists inside each other may go 32 levels deep, the most the game reads. No real mod file needs more.
+What it means: The game reads objects and lists nested at most 32 levels deep. This file goes deeper.
 
-How to fix it: Flatten the data: keep the file a simple object of keys to values or to small lists.
+How to fix it: Flatten the data. Keep the file a simple object of keys to values or small lists.
 
 ## mod.json
 
@@ -414,15 +414,15 @@ From the game (Mods tab row):
 
     mod.json could not be read: bad JSON at byte 12
 
-What it means: The game itself could not read mod.json when it started. This only happens if the file passed the install check but is broken in a way only the game sees.
+What it means: The game could not read mod.json when it started, although the file passed the install check.
 
-How to fix it: Reinstall the mod from its ZIP. If it keeps happening, report it with the mod attached: it is a bug in the game.
+How to fix it: Reinstall the mod from its ZIP. If it keeps happening, report it with the mod attached, because it is a bug in the game.
 
 ### manifest-not-object
 
 **mod.json is not a JSON object**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -432,7 +432,7 @@ From the mod list (upload):
 
     mod.json must be a JSON object.
 
-What it means: mod.json must be one object in curly braces { }, not a list or a single value.
+What it means: mod.json must be one object in curly braces, not a list or a single value.
 
 How to fix it: Start from the template below.
 
@@ -457,26 +457,30 @@ Fixed (mod.json):
 
 **"api" is missing or not a whole number**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; the Mod log in Settings, Mods.
 
 In the game page (install, check tool):
 
-    "api" must be a whole number, the mod API level the mod is made for (1 to 2 today)
+    "api" must be a whole number, the mod API level the mod is made for (1 today)
 
 From the mod list (upload):
 
-    mod.json must say "api" as a whole number, the mod API level it is made for (1 to 2 today).
+    mod.json must say "api" as a whole number, the mod API level it is made for (1 today).
 
-What it means: "api" says which version of the mod rules your mod is written for. It is required, and must be a whole number like 2 (not "2" in quotes, not 1.5).
+From the game (Mods tab row):
 
-How to fix it: Add "api": 2 to mod.json (2 is the current level).
+    mod.json needs "api": 1
+
+What it means: "api" is the API level your mod is written for, as a whole number like 1 without quotes. A mod.json without it is refused when you install, check or share the mod. The game does not load a mod that has none.
+
+How to fix it: Add "api": 1 to mod.json. 1 is the current API level.
 
 Bad (mod.json):
 
 ```
 {
   "schema": 1,
-  "api": "2",
+  "api": "1",
   ...
 }
 ```
@@ -486,7 +490,7 @@ Fixed (mod.json):
 ```
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   ...
 }
 ```
@@ -495,45 +499,45 @@ Fixed (mod.json):
 
 **Made for an older game**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    made for an older game: it is made for mod API 0, this game reads 1 to 2
-    made for an older game: it is made for mod API -1, this game reads 1 to 2
+    made for an older game: it is made for mod API 0, this game reads 1
+    made for an older game: it is made for mod API -1, this game reads 1
 
 From the mod list (upload):
 
-    This mod is made for an older game: it says mod API 0, and the game reads 1 to 2.
+    This mod is made for an older game: it says mod API 0, and the game reads 1.
 
-What it means: The mod says an "api" level this game no longer reads, or it has no "api" at all (a mod made before the field existed). The game does not load it rather than guess.
+What it means: The mod names an API level this game no longer reads, or it has no "api" at all. The game does not load it.
 
-How to fix it: Players: look for an update to the mod. Makers: read the changelog for the levels in between, update the mod, and set "api" to the current level (2).
+How to fix it: If you installed it, look for an update to the mod. If you made it, read the changelog, update the mod and set "api" to 1.
 
 ### api-newer
 
 **Needs a newer game**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    needs a newer game: it is made for mod API 3, this game reads 1 to 2
-    needs a newer game: it is made for mod API 1000, this game reads 1 to 2
+    needs a newer game: it is made for mod API 2, this game reads 1
+    needs a newer game: it is made for mod API 1000, this game reads 1
 
 From the mod list (upload):
 
-    This mod needs a newer game: it says mod API 3, and the game reads 1 to 2.
+    This mod needs a newer game: it says mod API 2, and the game reads 1.
 
-What it means: The mod is written for a newer set of mod rules than this game has.
+What it means: The mod is written for a newer API level than this game has.
 
-How to fix it: Reload the page to get the newest game. If it still says this, the mod was made for a level that is not released yet: set "api" to the current level (2).
+How to fix it: Reload the page to get the newest game. If it still says this, that level is not released, so set "api" to 1.
 
 ### manifest-schema
 
 **"schema" must be 1**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -543,30 +547,70 @@ From the mod list (upload):
 
     mod.json must say "schema": 1.
 
-What it means: "schema" is the format of mod.json itself, and it is always the number 1.
+What it means: "schema" is the format of mod.json itself. It is always the number 1.
 
-How to fix it: Add "schema": 1.
+How to fix it: Add "schema": 1 to mod.json, as a number without quotes.
 
 ### manifest-unbuilt-key
 
 **A key that is not built yet**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
-    "depends" is not built yet, so a mod cannot use it: take it out of mod.json
-    "conflicts" is not built yet, so a mod cannot use it: take it out of mod.json
     "game" is not built yet, so a mod cannot use it: take it out of mod.json
     "save" is not built yet, so a mod cannot use it: take it out of mod.json
 
 From the mod list (upload):
 
-    "depends" is not built yet, so a mod cannot use it. Take it out of mod.json.
+    "game" is not built yet, so a mod cannot use it. Take it out of mod.json.
 
-What it means: "game" and "save" are reserved for planned features, so a mod.json with either of them (even set to null) is refused at every api level. "depends" and "conflicts" are built from api 2, and refused only in a mod that says "api": 1. Otherwise a mod could carry a rule that a later game starts obeying by surprise.
+What it means: "game" and "save" are reserved keys that the game does not use. A mod.json with either of them is refused, even when it is set to null.
 
-How to fix it: For depends or conflicts: say "api": 2 (see the Dependencies guide). For game or save: take the key out of mod.json.
+How to fix it: Take the key out of mod.json.
+
+### unknown-key
+
+**A key the game does not know**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    mod.json: unknown key "permisions" (did you mean "permissions"?)
+    mod.json: unknown key "homepage"
+    shops: unknown key "shop" (did you mean "shops"?)
+    talk: pool 1: unknown key "chanse" (did you mean "chance"?)
+    shops: shop 1: stock 2: unknown key "cost"
+    calendar: day 1: unknown key "bord" (did you mean "board"?)
+
+From the mod list (upload):
+
+    mod.json: unknown key "permisions" (did you mean "permissions"?)
+    shops.json: shop 1: unknown key "note"
+    calendar.json: day 2: unknown key "bord" (did you mean "board"?)
+
+From the game (Mods tab row):
+
+    mod.json: unknown key "permisions" (did you mean "permissions"?)
+    shops.json: unknown key "shop" (did you mean "shops"?)
+
+What it means: mod.json, each content file and each entry in them take only the keys the reference lists. Any other key is refused, so a typo like "permisions" cannot quietly switch a feature off. "$schema" is always allowed at the top of a file.
+
+How to fix it: Fix the spelling or take the key out. Keys are case-sensitive, and the message offers the key it thinks you meant. Put notes for yourself in a README.md, not in the JSON.
+
+Bad (mod.json):
+
+```
+"permisions": ["send_letter"]
+```
+
+Fixed (mod.json):
+
+```
+"permissions": ["send_letter"]
+```
 
 ### manifest-id-reserved
 
@@ -578,15 +622,15 @@ From the mod list (upload):
 
     The id "example.tea-house" starts with "example", which is reserved for the site's own mods. Use your own name before the dot.
 
-What it means: The shared mod list keeps the author names playaconline, official, admin and example for the site's own mods. You can install such a mod from a file, but not share it.
+What it means: The mod list keeps the author names playaconline, official, admin and example for the site's own mods. You can install such a mod from a file, but you cannot share it.
 
-How to fix it: Change the part before the dot to your own name: "yourname.tea-house".
+How to fix it: Change the part before the dot to your own name, like "yourname.tea-house".
 
 ### manifest-id
 
 **"id" is not author.mod-name**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -596,9 +640,9 @@ From the mod list (upload):
 
     The id "Tea House" must look like author.mod-name: lowercase letters, digits and dashes, one dot.
 
-What it means: The id is your name, a dot, and the mod's name: lowercase letters, digits and dashes only, up to 32 characters before the dot and 48 after, starting with a letter or digit. It names the mod everywhere and cannot change later.
+What it means: The id is your name, a dot and the mod's name. It uses lowercase letters, digits and dashes, starts with a letter or digit, and has up to 32 characters before the dot and 48 after.
 
-How to fix it: Use something like "yourname.tea-house".
+How to fix it: Use something like "yourname.tea-house". The id names the mod everywhere and cannot change later.
 
 Bad (mod.json):
 
@@ -616,7 +660,7 @@ Fixed (mod.json):
 
 **"name" must be 1 to 60 characters**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -625,16 +669,17 @@ In the game page (install, check tool):
 From the mod list (upload):
 
     The name must be 1 to 60 characters.
+    The name must be 1 to 60 characters on one line, with no control or text-direction characters.
 
-What it means: The name players read on the Mods tab is required and at most 60 characters (spaces at the ends do not count).
+What it means: The name players read on the Mods tab is required and at most 60 characters. The mod list also refuses a name with a line break, a tab, another control character or a hidden text-direction character.
 
-How to fix it: Give the mod a short name.
+How to fix it: Give the mod a short name on one line. If you pasted it, type it again, because a hidden character came with it.
 
 ### manifest-version
 
 **"version" is not like 1.0.0**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -644,15 +689,15 @@ From the mod list (upload):
 
     The version "v1.0" must be three numbers like 1.0.0, each 1 to 9 digits with no leading zero.
 
-What it means: The version is three whole numbers with dots, in quotes: "1.0.0". No "v", no fourth part, no leading zeros like "01".
+What it means: The version is three whole numbers with dots, in quotes, like "1.0.0". A "v", a fourth part and leading zeros like "01" are refused.
 
-How to fix it: Use "1.0.0" for a first release and raise it for every update you share: "1.0.1" for a fix, "1.1.0" for something new.
+How to fix it: Use "1.0.0" for a first release and raise it for every update you share. Use "1.0.1" for a fix and "1.1.0" for something new.
 
 ### manifest-authors
 
 **"authors" must list 1 to 8 names**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -662,10 +707,11 @@ From the mod list (upload):
 
     List 1 to 8 authors.
     Each author must be 1 to 40 characters.
+    Each author must be 1 to 40 characters on one line, with no control or text-direction characters.
 
-What it means: "authors" is a list (square brackets) of 1 to 8 names, each 1 to 40 characters.
+What it means: "authors" is a list of 1 to 8 names in square brackets, each 1 to 40 characters. The mod list also refuses a name with a line break, another control character or a hidden text-direction character.
 
-How to fix it: Write "authors": ["yourname"].
+How to fix it: Write the names as a list, even for one author, like "authors": ["yourname"].
 
 Bad (mod.json):
 
@@ -683,7 +729,7 @@ Fixed (mod.json):
 
 **"description" is too long or not text**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -693,7 +739,7 @@ From the mod list (upload):
 
     The description must be text of at most 500 characters.
 
-What it means: "description" is optional, but when present it must be text of at most 500 characters (null is refused).
+What it means: "description" is optional. When present it must be text of at most 500 characters, and null is refused.
 
 How to fix it: Shorten it, or take the key out.
 
@@ -701,7 +747,7 @@ How to fix it: Shorten it, or take the key out.
 
 **"tags" must come from the list**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -711,7 +757,7 @@ From the mod list (upload):
 
     tags must list at most 5 different tags from: textures, clothing, furniture, scenery, villagers, dialogue, shops, seasonal, holidays, quality-of-life, translation, humor, accessibility, scripts.
 
-What it means: "tags" is optional. When present it is a list of at most 5 different tags, each from the fixed list, in lower case. Players filter the mod list by them; the game never reads them.
+What it means: "tags" is an optional list of at most 5 different tags from the fixed list, in lower case. Players filter the mod list by them, and the game never reads them.
 
 How to fix it: Pick up to 5 tags from the list, or take the key out.
 
@@ -731,7 +777,7 @@ Fixed (mod.json):
 
 **"scope" must be "client" or "world"**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -741,15 +787,15 @@ From the mod list (upload):
 
     The scope must be "client" or "world".
 
-What it means: "client" means only you see the mod (textures, lines, scripts). "world" means it changes your town for visitors too, and only a world mod may hold a shop or a bulletin board notice (an events file with "board").
+What it means: "scope": "client" makes a Just you mod, which only you see. "scope": "world" makes a World mod, which changes your town for visitors too. Only a World mod may hold a shop or a bulletin board notice (a calendar file with "board").
 
-How to fix it: Use "client" unless the mod has a shop or a bulletin board notice (an events file with "board"); then use "world".
+How to fix it: Use "world" if the mod has a shop or a bulletin board notice (a calendar file with "board"). Otherwise use "client".
 
 ### manifest-assets-original
 
 **"assets_original" must be true**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -763,13 +809,13 @@ What it means: "assets_original": true is your promise that every file in the mo
 
 How to fix it: Make sure the promise is true, then add "assets_original": true.
 
-## content: textures, messages, shops
+## "content" in mod.json
 
 ### shops-need-world
 
 **A shop needs "scope": "world"**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -783,7 +829,7 @@ From the game (Mods tab row):
 
     shops change what visitors see, so the mod needs "scope": "world"
 
-What it means: A shop changes your town for visitors, so a mod with "shops" must say "scope": "world". World mods must match for a friend visit.
+What it means: A shop changes your town for visitors, so a mod with "shops" must be a World mod. Friends may need the same mods to visit.
 
 How to fix it: Set "scope": "world" in mod.json.
 
@@ -831,7 +877,7 @@ Fixed (mod.json):
 
 **"content" must be an object**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -841,7 +887,7 @@ From the mod list (upload):
 
     content must be an object.
 
-What it means: "content" is an object of kind to path: { "textures": "textures/", "messages": "messages/en.json", "shops": "shops.json" }.
+What it means: "content" is an object that maps each kind of content to a path, like { "textures": "textures/", "messages": "messages/en.json", "shops": "shops.json" }.
 
 How to fix it: Write it in curly braces with one key per kind of content.
 
@@ -849,30 +895,30 @@ How to fix it: Write it in curly braces with one key per kind of content.
 
 **Something a mod cannot add yet**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
-    "content.items" is not something a mod can add yet
+    "content.buildings" is not something a mod can add yet
     "content.Messages" is not something a mod can add yet
     "content.Shops" is not something a mod can add yet
     "content.acres" is not something a mod can add yet
-    "content.buildings" is not something a mod can add yet
-    "content.events" is not something a mod can add yet
+    "content.furniture" is not something a mod can add yet
+    "content.weather" is not something a mod can add yet
 
 From the mod list (upload):
 
-    content.items is not something a mod can add yet. Use textures, messages, shops.
+    content.buildings is not something a mod can add yet. Use textures, messages, shops, items, letters, calendar, talk.
 
-What it means: "content" can hold "textures", "messages" and "shops" (exactly these, lowercase), and at api 2 also "items", "letters", "events" and "talk". Buildings, acres and the rest are not supported yet. At api 1 the api 2 keys are refused too: set "api": 2.
+What it means: "content" can hold "textures", "messages", "shops", "items", "letters", "calendar" and "talk", spelled exactly like that in lowercase. A mod cannot add buildings, acres or anything else.
 
-How to fix it: Take the key out. Check the spelling and case: "Messages" is not "messages".
+How to fix it: Take the key out, or fix its spelling and case. "Messages" is not "messages".
 
 ### content-path
 
 **A content path is not inside the mod**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -887,7 +933,7 @@ From the game (Mods tab row):
 
     messages path is not inside the mod: ../x.json
 
-What it means: Each "content" value is a path inside the mod, like "messages/en.json": text, not empty, with forward slashes, no "..", no leading "/".
+What it means: Each "content" value is a path inside the mod, like "messages/en.json". It is text, not empty, with forward slashes, and has no ".." and no leading "/".
 
 How to fix it: Write the path as it is inside the ZIP, relative to mod.json.
 
@@ -895,7 +941,7 @@ How to fix it: Write the path as it is inside the ZIP, relative to mod.json.
 
 **A content path names a file that is not there**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -911,9 +957,9 @@ From the mod list (upload):
     content.messages names "messages/en.json", which is not in the ZIP.
     content.textures names "textures/", which is not a folder with files in the ZIP.
 
-What it means: mod.json names a file (or, for textures, a folder holding at least one file) that is not in the ZIP. Names are matched with exact letter case.
+What it means: mod.json names a file that is not in the ZIP. For textures it names a folder, which must hold at least one file.
 
-How to fix it: Check the spelling and case of the path against the ZIP ("EN.json" is not "en.json"), and that the file was zipped.
+How to fix it: Check the path against the ZIP, with the exact letter case. "EN.json" is not "en.json". Check that the file was zipped.
 
 ## scripts in mod.json
 
@@ -921,7 +967,7 @@ How to fix it: Check the spelling and case of the path against the ZIP ("EN.json
 
 **"scripts" must be an object**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -929,28 +975,28 @@ In the game page (install, check tool):
 
 From the mod list (upload):
 
-    scripts must be an object with main and hooks.
+    scripts must be an object with main and events.
 
-What it means: "scripts" is an object with "main" (your .lua file) and "hooks" (the events it listens to).
+What it means: "scripts" is an object with "main" (your .lua file) and "events" (the events it listens to).
 
-How to fix it: Write "scripts": { "main": "main.lua", "hooks": ["talk"] }.
+How to fix it: Write "scripts": { "main": "main.lua", "events": ["villager_talked"] }.
 
 ### scripts-unknown-key
 
 **An unknown key in "scripts"**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
-    "scripts.entry" is not a scripts setting (only main and hooks)
-    "scripts.Main" is not a scripts setting (only main and hooks)
+    "scripts.entry" is not a scripts setting (only main and events)
+    "scripts.Main" is not a scripts setting (only main and events)
 
 From the mod list (upload):
 
-    scripts.entry is not a scripts setting. Use main and hooks.
+    scripts.entry is not a scripts setting. Use main and events.
 
-What it means: "scripts" takes only "main" and "hooks" (lowercase).
+What it means: "scripts" takes only "main" and "events" (lowercase).
 
 How to fix it: Rename or remove the other key.
 
@@ -958,7 +1004,7 @@ How to fix it: Rename or remove the other key.
 
 **The script file is not in the mod**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, "Script stopped" on the mod's row.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, "Script stopped" on the mod's row.
 
 In the game page (install, check tool):
 
@@ -973,15 +1019,15 @@ From the game (Mods tab row):
 
     scripts.main could not be read (missing, or over 512 KB)
 
-What it means: "scripts.main" names a .lua file that is not in the ZIP (check the case), or the game could not read it.
+What it means: "scripts.main" names a .lua file that is not in the ZIP, or the game could not read it.
 
-How to fix it: Put the script in the ZIP at exactly the path "main" names.
+How to fix it: Put the script in the ZIP at exactly the path "main" names, with the same letter case.
 
 ### scripts-main
 
 **"scripts.main" must be a .lua file**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, "Script stopped" on the mod's row.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, "Script stopped" on the mod's row.
 
 In the game page (install, check tool):
 
@@ -996,58 +1042,59 @@ From the game (Mods tab row):
     scripts.main must end in lowercase .lua
     the mod's folder path is too long
 
-What it means: "scripts.main" is required when "scripts" is there: a path inside the mod ending in lowercase ".lua". "main.LUA" is refused.
+What it means: When "scripts" is there, "scripts.main" is required. It is a path inside the mod that ends in lowercase ".lua", so "main.LUA" is refused.
 
 How to fix it: Rename the file to end in .lua and write "main": "main.lua".
 
-### scripts-hooks
+### scripts-events
 
-**"scripts.hooks" is not a list of events**
+**"scripts.events" is not a list of events**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
-    "scripts.hooks" must list one or more events, each once, from: talk, day_start, item_picked, enter_scene
+    "scripts.events" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered
 
 From the mod list (upload):
 
-    scripts.hooks must list at least one of talk, day_start, item_picked, enter_scene.
-    scripts.hooks lists "every_frame", which is not a hook. Use talk, day_start, item_picked, enter_scene.
+    scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered.
+    scripts.events lists "every_frame", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered.
+    scripts.events lists "day_started" twice.
 
-What it means: "hooks" lists every event your script listens to with on(), each once, lowercase, at api 1: talk, day_start, item_picked, enter_scene; from api 2 also migrate, hour_change, shop_buy, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_result, answer. There is no per-frame event, on purpose. A library mod that only offers functions to other mods (remote.add) still lists one event: list one and register no handler for it, which costs nothing.
+What it means: "events" lists every event your script listens to with on(), each once, in lowercase. A library mod that only offers functions to other mods still lists one event, and need not register a handler for it.
 
-How to fix it: List the events your script uses (talk, day_start, item_picked, enter_scene, migrate, hour_change, shop_buy, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_result, answer), each once. Events added at api 2 need "api": 2.
+How to fix it: List each event your script uses, once. The events are on the Events reference.
 
 Bad (mod.json):
 
 ```
-"scripts": { "main": "main.lua", "hooks": ["Talk", "every_frame"] }
+"scripts": { "main": "main.lua", "events": ["Villager_Talked", "every_frame"] }
 ```
 
 Fixed (mod.json):
 
 ```
-"scripts": { "main": "main.lua", "hooks": ["talk"] }
+"scripts": { "main": "main.lua", "events": ["villager_talked"] }
 ```
 
 ### scripts-permissions
 
 **"permissions" is not a list of commands**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
-    "permissions" must list one or more commands, each once, from: send_letter, give_item, set_flag, show_line, ask
+    "permissions" must list one or more commands, each once, from: send_letter, give_item, show_line, ask
 
 From the mod list (upload):
 
-    permissions must list at least one of send_letter, give_item, set_flag, show_line, ask.
-    permissions lists "teleport", which is not a command. Use send_letter, give_item, set_flag, show_line, ask.
+    permissions must list at least one of send_letter, give_item, show_line, ask.
+    permissions lists "teleport", which is not a command. Use send_letter, give_item, show_line, ask.
     permissions lists "ask" twice.
 
-What it means: "permissions" (api 2) lists the commands your script may use, each once, from send_letter, give_item, set_flag, show_line and ask. Players see the list on the Mods tab.
+What it means: "permissions" lists the commands your script may use, each once, from send_letter, give_item, show_line and ask. Players see the list on the Mods tab.
 
 How to fix it: List only the commands your script calls, for example "permissions": ["send_letter"].
 
@@ -1067,7 +1114,7 @@ Fixed (mod.json):
 
 **"permissions" without "scripts"**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1085,7 +1132,7 @@ How to fix it: Add "scripts", or remove "permissions".
 
 **"exports" is not right**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; the Mod log in Settings, Mods.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; the Mod log in Settings, Mods.
 
 In the game page (install, check tool):
 
@@ -1099,7 +1146,7 @@ From the game (Mods tab row):
 
     mod.json "exports" must be an object of at most 32 function names, each with a one-line description of 1 to 120 characters: it is ignored
 
-What it means: "exports" (api 2) lists a library's remote functions for the mods that use it: { "name": "what it does" }. Names are remote.add's (1 to 32 of a-z 0-9 _), at most 32, each with a description of 1 to 120 characters on one line.
+What it means: "exports" lists the functions a library offers to other mods, as { "name": "what it does" }. It holds at most 32 names, each a remote.add name of 1 to 32 characters from a-z, 0-9 and _, with a description of 1 to 120 characters on one line.
 
 How to fix it: Write an object of names to one-line descriptions.
 
@@ -1119,7 +1166,7 @@ Fixed (mod.json):
 
 **"exports" without "scripts"**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1139,23 +1186,23 @@ How to fix it: Add "scripts", or remove "exports".
 
 **shops.json needs a "shops" list**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    shops: "shops" must be a list of 1 to 4 shops
+    shops: "shops" must be a list of 1 to 2 shops
 
 From the mod list (upload):
 
     shops.json must be a JSON object with a "shops" list.
-    shops.json needs a "shops" list of 1 to 4 shops.
+    shops.json needs a "shops" list of 1 to 2 shops.
 
 From the game (Mods tab row):
 
     shops file needs a "shops" list
-    shops: the "shops" list must hold 1 to 4 shops
+    shops: the "shops" list must hold 1 to 2 shops
 
-What it means: shops.json is an object with a "shops" list of 1 to 4 shops, even when there is only one.
+What it means: shops.json is an object with a "shops" list of 1 to 2 shops, even when there is only one.
 
 How to fix it: Wrap the shop in { "shops": [ ... ] }.
 
@@ -1175,7 +1222,7 @@ Fixed (shops.json):
 
 **A shop is not an object**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1197,7 +1244,7 @@ How to fix it: Write each shop as { "target": "flower", ... }.
 
 **Only the flower shop and Nook's can be changed**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1211,7 +1258,7 @@ From the game (Mods tab row):
 
     shops: the shops a mod can change are "flower" and "nook": barber
 
-What it means: A mod can change two shops: the flower shop, "target": "flower", and Nook's, "target": "nook" (api 2). Lowercase.
+What it means: A mod can change two shops. The flower shop is "target": "flower" and Nook's is "target": "nook", both in lowercase.
 
 How to fix it: Set "target": "flower" or "target": "nook".
 
@@ -1219,7 +1266,7 @@ How to fix it: Set "target": "flower" or "target": "nook".
 
 **Two shops for the same target**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1242,7 +1289,7 @@ How to fix it: Merge the two entries into one.
 
 **Shop "name" must be 1 to 40 characters on one line**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1256,7 +1303,7 @@ From the game (Mods tab row):
 
     shops: "name" must be 1 to 40 characters on one line
 
-What it means: The shop name (shown on the closed sign) is optional, 1 to 40 characters on one line: a line break ("\n") in it is refused.
+What it means: The shop name is shown on the closed sign. It is optional, 1 to 40 characters on one line, and a line break in it is refused.
 
 How to fix it: Shorten it and take out any line break, or leave it out.
 
@@ -1264,7 +1311,7 @@ How to fix it: Shorten it and take out any line break, or leave it out.
 
 **Shop opens and closes at the same time**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1278,7 +1325,7 @@ From the game (Mods tab row):
 
     shops: "open" and "close" are the same time
 
-What it means: A shop open around the clock is written by leaving "hours" out, not by giving the same time twice.
+What it means: The shop's "hours" give the same time twice. A shop that is open around the clock leaves "hours" out.
 
 How to fix it: Leave "hours" out, or give two different times.
 
@@ -1286,7 +1333,7 @@ How to fix it: Leave "hours" out, or give two different times.
 
 **Shop "hours" are not "HH:MM"**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1300,7 +1347,7 @@ From the game (Mods tab row):
 
     shops: hours need "open" and "close" as "HH:MM", 00:00 to 23:59
 
-What it means: "hours" is { "open": "HH:MM", "close": "HH:MM" } in 24-hour time with two digits each: "09:00", not "9:00" or "9am". Close can be after midnight ("01:00"). The shop still shuts from 2 AM to 7 AM.
+What it means: "hours" is { "open": "HH:MM", "close": "HH:MM" } in 24-hour time with two digits each, so "09:00", not "9:00" or "9am". Close can be after midnight, and the shop still shuts from 2 AM to 7 AM.
 
 How to fix it: Write both times with two-digit hours and minutes.
 
@@ -1320,7 +1367,7 @@ Fixed (shops.json):
 
 **Greeting or stock line too long**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1335,33 +1382,15 @@ From the game (Mods tab row):
 
     shops: "greeting" and "stock_line" must be 1 to 160 characters, at most 3 newlines
 
-What it means: "greeting" and "stock_line" are optional, each 1 to 160 characters with at most 3 line breaks (\n). They have to fit one message box with the keeper's own words after them.
+What it means: "greeting" and "stock_line" are optional, each 1 to 160 characters with at most 3 line breaks. They share one message box with the keeper's own words.
 
-How to fix it: Shorten the line.
-
-### nook-api
-
-**Nook's shop needs "api": 2**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
-
-In the game page (install, check tool):
-
-    shops: target "nook" needs "api": 2 in mod.json
-
-From the mod list (upload):
-
-    shops.json: target "nook" needs "api": 2 in mod.json.
-
-What it means: Changing Nook's stock came with mod API level 2. A mod that says "api": 1 cannot use it.
-
-How to fix it: Set "api": 2 in mod.json.
+How to fix it: Keep the line to 160 characters and at most 3 line breaks.
 
 ### nook-flower-key
 
 **A flower shop setting on Nook's shop**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1378,15 +1407,15 @@ From the game (Mods tab row):
 
     shops: Nook's shop takes only "mode" and "stock", not: hours
 
-What it means: Nook keeps his own name, hours and lines. A "nook" entry takes only "mode" and "stock"; "name", "hours", "greeting" and "stock_line" are the flower shop's.
+What it means: Nook keeps his own name, hours and lines. A "nook" entry takes only "mode" and "stock".
 
-How to fix it: Take those keys out of the "nook" entry.
+How to fix it: Take "name", "hours", "greeting" and "stock_line" out of the "nook" entry. They belong to the flower shop.
 
 ### nook-mode
 
 **Nook's "mode" is not "add" or "replace"**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1400,7 +1429,7 @@ From the game (Mods tab row):
 
     shops: Nook's "mode" must be "add" or "replace"
 
-What it means: "add" (the default) puts your goods in up to half the spots of their kind each morning; "replace" puts them in all of them.
+What it means: "add" is the default and puts your goods in up to half the spots of their kind each morning. "replace" puts them in all of them.
 
 How to fix it: Write "mode": "add" or "mode": "replace", or leave it out.
 
@@ -1408,7 +1437,7 @@ How to fix it: Write "mode": "add" or "mode": "replace", or leave it out.
 
 **Nook's "stock" must list 1 to 16 goods**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1430,7 +1459,7 @@ How to fix it: Keep 1 to 16 goods in the list.
 
 **A good Nook's cannot sell**
 
-Seen in: Mods tab, on the mod's row after a restart; the check tool (npx playac-mod check).
+Seen in: Mods tab, on the mod's row after a restart; the check tool (playac-mod check).
 
 In the game page (install, check tool):
 
@@ -1441,15 +1470,30 @@ From the game (Mods tab row):
     shops: a Nook's stock item cannot be sold, left out: 0x2800 has no spot on Nook's shelves
     shops: a Nook's stock item cannot be sold, left out: 0x2100 is money
 
-What it means: Only the game knows its item tables, so this shows after a restart. A Nook's good must have a spot of its kind on his shelves (furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings, flower bags); fruit and the signboard have none. Money, tickets, grab bags, turnips and fossils are refused as at the flower shop. The good is left out; the rest work.
+What it means: A Nook's good needs a spot of its kind on his shelves: furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings or flower bags. Fruit, the signboard, money, tickets, grab bags, turnips and fossils are refused. The good is left out and the rest work.
 
-How to fix it: Pick a good of a kind Nook's sells.
+How to fix it: Pick a good of a kind Nook's sells. Only the game can check this, so the message shows after a restart.
+
+### shop-replaced
+
+**Another mod has this shop**
+
+Seen in: Mods tab, on the mod's row after a restart; the Mod log in Settings, Mods.
+
+From the game (Mods tab row):
+
+    shops: a later mod changes the flower shop too, so this mod's flower shop is not used: bean.tea-house
+    shops: a later mod changes Nook's stock too, so this mod's Nook stock is not used: bean.nook-extras
+
+What it means: This is not an error in the mod. Two switched-on mods change the same shop, and the mod lower in the list has the whole shop. The message names that mod, and the rest of this mod loads as usual.
+
+How to fix it: Move this mod below the other one in the Mods tab, or switch the other one off, then restart. If you made the mod, say in its description which shop it changes, because a mod cannot change the order itself.
 
 ### shop-stock
 
 **"stock" must list 1 to 6 items**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1471,7 +1515,7 @@ How to fix it: Keep at most 6 items in the list.
 
 **An item is stocked twice**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1490,7 +1534,7 @@ From the game (Mods tab row):
 
     shops: a stock item is listed twice: 0x2800
 
-What it means: Each item can be on the tables once. "0x28aa" and "0x28AA" are the same item.
+What it means: Each item can be in a shop's stock once. "0x28aa" and "0x28AA" are the same item.
 
 How to fix it: Remove the second one.
 
@@ -1498,7 +1542,7 @@ How to fix it: Remove the second one.
 
 **An item that cannot be sold**
 
-Seen in: Mods tab, on the mod's row after a restart; the check tool (npx playac-mod check).
+Seen in: Mods tab, on the mod's row after a restart; the check tool (playac-mod check).
 
 In the game page (install, check tool):
 
@@ -1509,15 +1553,15 @@ From the game (Mods tab row):
     shops: a stock item cannot be sold, left out: 0x2B00 is money
     shops: a stock item cannot be sold, left out: 0x1234 has no shop shelf model
 
-What it means: The game checks each good against its item tables when it starts, and shows this on the mod's row; `npx playac-mod check` warns about the same goods before you install. The item was left out and the rest of the shop works. Refused: things that are not items, money, tickets, grab bags, turnips, fossils, and goods with no model for a shop table, which includes every piece of the game's own furniture. A mod's OWN new items (api 2) are always fine at the flower shop.
+What it means: The game left this good out because a shop cannot sell it, and the rest of the shop works. A shop cannot sell money, tickets, grab bags, turnips, fossils or a good with no shelf model, which at the flower shop includes the game's own furniture.
 
-How to fix it: Pick another item from the item list in the reference: it has a Flower shop column. To sell furniture at the flower shop, make it a mod item of your own; Nook's shop (target nook) sells the game's furniture.
+How to fix it: Pick another item from the item list in the reference. Its Flower shop column shows what the flower shop can sell. To sell furniture there, make it a mod item of your own, or sell the game's furniture at Nook's shop (target nook). `playac-mod check` warns about these goods before you install.
 
 ### shop-item
 
 **A stock "item" is not "0x" and 4 hex digits**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1531,7 +1575,7 @@ From the game (Mods tab row):
 
     shops: a stock item must be {"item": "0x" and four hex digits}: 2800
 
-What it means: An item number is a STRING: "0x" and exactly 4 hex digits, like "0x2800". A plain number (10240 or 0x2800 without quotes) is refused.
+What it means: An item number is a string of "0x" and exactly 4 hex digits, like "0x2800". A plain number such as 10240 is refused.
 
 How to fix it: Put the item number in quotes with 0x in front.
 
@@ -1551,7 +1595,7 @@ Fixed (shops.json):
 
 **A price is not 1 to 99999 Bells**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1565,7 +1609,7 @@ From the game (Mods tab row):
 
     shops: a price must be a whole number of Bells, 1 to 99999: 0x2800
 
-What it means: "price" is optional: a whole number of Bells from 1 to 99999, not in quotes. Leave it out for the game's usual price. A price under what Nook pays for the item is raised to that, so a shop cannot be used to make Bells.
+What it means: "price" is an optional whole number of Bells from 1 to 99999, not in quotes. The game raises a price below what Nook pays for the item, so a shop cannot be used to make Bells.
 
 How to fix it: Write a whole number like 600, or leave "price" out.
 
@@ -1573,23 +1617,23 @@ How to fix it: Write a whole number like 600, or leave "price" out.
 
 **A price the game raises**
 
-Seen in: the check tool (npx playac-mod check).
+Seen in: the check tool (playac-mod check).
 
 In the game page (install, check tool):
 
     shops: shop 1 stock 1 "price" 50 is under the floor for 0x2800 (apple) at the flower shop: the game sells it for 500
 
-What it means: Not an error: the game installs the mod. A shop never sells a good for less than what any Nook pays for it, so a lower price is raised. The floor is the good's buy-back price (a quarter of its usual price), and 500 Bells for a town fruit (apple, cherry, pear, peach, orange) at the flower shop: what Nook pays for a fruit from another town. The item list in the reference shows each good's floor.
+What it means: This is a warning, and the mod still installs. A shop never sells a good for less than Nook pays for it, so the game raises a lower price to that floor.
 
-How to fix it: Ask at least the floor, or leave "price" out for the game's usual price.
+How to fix it: Ask at least the floor, or leave "price" out for the game's usual price. The item list in the reference shows each good's floor. A town fruit at the flower shop has a floor of 500 Bells.
 
-## New items (api 2)
+## New items
 
 ### items-list
 
 **items.json needs an "items" list**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1599,7 +1643,7 @@ From the mod list (upload):
 
     items.json needs an "items" list of 1 to 64 items.
 
-What it means: The file named by "content.items" holds {"items": [...]} with 1 to 64 items.
+What it means: The file "content.items" names holds { "items": [ ... ] } with 1 to 64 items.
 
 How to fix it: Put your items in an "items" list, at most 64 of them.
 
@@ -1613,7 +1657,7 @@ Fixed (items.json):
 
 **An item is not an object**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1631,7 +1675,7 @@ How to fix it: Write each item as {"id": ..., "name": ..., "base": ...}.
 
 **An unknown item setting**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1643,13 +1687,13 @@ From the mod list (upload):
 
 What it means: An item may only have id, name, base and price.
 
-How to fix it: Remove the other keys. The look comes from "base"; a texture mod can recolor it.
+How to fix it: Remove the other keys. The look comes from "base", and a texture mod can recolour it.
 
 ### item-id
 
 **An item id is not allowed**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1661,13 +1705,13 @@ From the mod list (upload):
 
 What it means: An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-house:tea-chest.
 
-How to fix it: Use lowercase letters, digits and dashes, at most 32.
+How to fix it: Use 1 to 32 lowercase letters, digits and dashes. Start with a letter or digit.
 
 ### item-id-twice
 
 **Two items share an id**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1689,13 +1733,13 @@ How to fix it: Give the second item its own id.
 
 **An item name the game cannot show**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
     items: item 1 "name" must be 1 to 16 letters, digits, spaces or ' . , ! & -, starting with a letter or digit and not ending with a space
 
-What it means: The game's name box holds 16 characters, and its font draws letters, digits, spaces and ' . , ! & - only.
+What it means: The game's name box holds 16 characters. Its font draws only letters, digits, spaces and ' . , ! & -.
 
 How to fix it: Shorten the name to 16 characters and use only those characters.
 
@@ -1703,14 +1747,14 @@ How to fix it: Shorten the name to 16 characters and use only those characters.
 
 **An item "base" is not south-facing furniture**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
     items: item 1 "base" must be a furniture id facing south: 0x1000 to 0x1FFC or 0x3000 to 0x33C4, a multiple of 4
     items: item 1 "base" must be "0x" and 4 hex digits, a furniture id like "0x1234"
 
-What it means: A mod item borrows the model of a vanilla piece of furniture: "base" is that furniture's id, as a string, facing south.
+What it means: A mod item borrows the model of a piece of the game's furniture. "base" is that furniture's id, written as a string, facing south.
 
 How to fix it: Pick a furniture id from the item list in the reference, written like "0x1000". Its number is a multiple of 4.
 
@@ -1718,7 +1762,7 @@ How to fix it: Pick a furniture id from the item list in the reference, written 
 
 **An item price is out of range**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1742,9 +1786,9 @@ From the game (Mods tab row):
 
     items: a malformed item is left out: tea-chest
 
-What it means: The game read an item whose id, name or base breaks the rules above, or which holds a key other than id, name, base and price, and left that one item out. The install check refuses all of these first, so you only meet this when the mod reaches the game another way (developer mode, a mod edited after it was installed).
+What it means: The game left out one item because its id, name or base breaks the rules, or because it holds a key other than id, name, base and price. Installing checks this first, so you only see it in developer mode or after a mod was edited once installed.
 
-How to fix it: Check the item against the rules: id 1 to 32 of a-z 0-9 -, name 1 to 16 characters the game can draw, base a south-facing furniture id written "0x1234", and no other keys. Run the check tool.
+How to fix it: Run `playac-mod check` and fix the item it names. An item has an id, a name, a base and an optional price, and no other keys.
 
 ### item-base-refused
 
@@ -1756,9 +1800,9 @@ From the game (Mods tab row):
 
     items: this base cannot be a mod item, left out: tea-chest: base 0x1004 has no model
 
-What it means: Only the game knows its furniture tables, so this is checked when the game starts, not at install. A base with no model, a fossil, a gyroid, a mannequin or umbrella design piece, clothing, or a piece that turns into a pocket item (a balloon, diary, fan or pinwheel) cannot carry a mod item. That item is left out; the rest of the mod loads.
+What it means: The game left this item out because its base cannot carry a mod item. The reason after the id says why, and the rest of the mod loads.
 
-How to fix it: Pick another south-facing furniture id from the item list in the reference (the reason after the id says what was wrong with this one).
+How to fix it: Pick another south-facing furniture id from the item list in the reference. A base with no model cannot be used. Neither can a fossil, a gyroid, a mannequin or umbrella design, clothing, a balloon, a diary, a fan or a pinwheel.
 
 ### items-too-many-total
 
@@ -1778,7 +1822,7 @@ How to fix it: Switch off a mod with many items, or move the mod whose items you
 
 **A shop stocks an item this mod does not have**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1793,22 +1837,22 @@ How to fix it: Use an id from your items file, like your.mod:tea-chest, or a van
 
 **Two goods share one furniture**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
     shops: shop 1 stock 2 shares its furniture 0x1000 with another good of this shop
     shops: shop 1 stock 2 shares its furniture 0x1008 with another good of this shop
 
-What it means: A mod item is that furniture in the save, so one shop cannot sell the base and the mod item, or two mod items on one base.
+What it means: In a save, a mod item is its base furniture. So one shop cannot sell both the base and the mod item, or two mod items on one base.
 
-How to fix it: Give one of them another base, or drop one from the stock.
+How to fix it: Give one of them another base, or remove one from the stock.
 
 ### item-renames
 
 **"renames" is not right**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -1816,20 +1860,20 @@ In the game page (install, check tool):
     "renames": "chest" must be a full item id like author.mod:thing
     "renames": "test.mod:tea-chest" renames an item to itself
     "renames" must be an object of old item id to new item id
-    "renames": "old.mod:chest" must point at an item of this mod, like test.mod:thing
-    "renames": "old.mod:chest" points at test.mod:nope, which is not in items.json
+    "renames": "other.mod:chest" must be an old id of this mod, like test.mod:old-thing
+    "renames": "test.mod:chest" must point at an item of this mod, like test.mod:thing
 
-What it means: "renames" moves items placed under an old full id to one of this mod's items, once per save. Each key is an old full id, each value a full id of an item in your items file.
+What it means: "renames" moves items placed under an old full id to one of this mod's items, once per save. Each key is an old full id of this mod, and each value is the full id of an item in your items file.
 
-How to fix it: Write it as {"old.mod:chest": "your.mod:tea-chest"}, with content.items set, and never rename an item to itself.
+How to fix it: Write it as {"your.mod:chest": "your.mod:tea-chest"} and set content.items. Do not rename an item to itself.
 
-## letters.json (api 2)
+## letters.json
 
 ### target-not-object
 
-**A letter, event or pool is not an object**
+**A letter, calendar day or pool is not an object**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1844,37 +1888,37 @@ From the mod list (upload):
 From the game (Mods tab row):
 
     letters: a letter must be an object
-    events: an event must be an object
+    calendar: a day must be an object
     talk: a pool must be an object: pool 2
 
-What it means: Each entry of the list is a JSON object in { }.
+What it means: Each entry of the list is a JSON object in curly braces.
 
 How to fix it: Write each entry as an object, like { "id": "thanks", ... }.
 
 ### target-id
 
-**A letter or event "id" is not right**
+**A letter or calendar day "id" is not right**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
     letters: letter 1 "id" must be 1 to 48 of a-z 0-9 _ . -
-    events: event 2 "id" "fair" is used twice
-    events: event 2 "id" "harvest" is used twice
+    calendar: day 2 "id" "fair" is used twice
+    calendar: day 2 "id" "harvest" is used twice
     letters: letter 2 "id" "thanks" is used twice
 
 From the mod list (upload):
 
     letters.json: letter 1's id must be 1 to 48 of a-z, 0-9, _ . and -.
-    events.json: the id "fair" is used twice.
+    calendar.json: the id "fair" is used twice.
 
 From the game (Mods tab row):
 
     letters: an "id" must be 1 to 48 of a-z 0-9 _ . -: Thanks
-    events: an "id" is used twice, the second is left out: fair
+    calendar: an "id" is used twice, the second is left out: fair
 
-What it means: Each letter and event has its own "id": 1 to 48 lowercase letters, digits, _ . or -, not used twice in the file. A command names a letter "your.mod:<id>".
+What it means: Each letter and calendar day has its own "id" of 1 to 48 lowercase letters, digits, "_", "." or "-". An id is used once in the file, and a command names a letter as "your.mod:<id>".
 
 How to fix it: Give each entry a distinct lowercase id.
 
@@ -1882,7 +1926,7 @@ How to fix it: Give each entry a distinct lowercase id.
 
 **letters.json needs a "letters" list**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1896,7 +1940,7 @@ From the game (Mods tab row):
 
     letters file needs a "letters" list of 1 to 32
 
-What it means: letters.json is { "letters": [ ... ] } with 1 to 32 letters. Needs "api": 2.
+What it means: letters.json is { "letters": [ ... ] } with 1 to 32 letters.
 
 How to fix it: Wrap the letters in a "letters" list.
 
@@ -1910,7 +1954,7 @@ Fixed (letters.json):
 
 **A letter "header" is not right**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1925,15 +1969,15 @@ From the game (Mods tab row):
     letters: "header" must be 1 to 24 plain characters besides {player}: thanks
     letters: "header" is too long: thanks
 
-What it means: The header is the letter's first line: 1 to 24 plain characters (letters, digits and signs on a US keyboard), no line break, with {player} at most once where the name goes. No other { or }.
+What it means: The header is the letter's first line. It is 1 to 24 plain characters from a US keyboard on one line, with {player} at most once where the name goes and no other { or }.
 
-How to fix it: Shorten it, keep to plain characters, write {player} once.
+How to fix it: Shorten it, keep to plain characters and write {player} at most once.
 
 ### letter-body
 
 **A letter "body" is not right**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1950,9 +1994,9 @@ From the game (Mods tab row):
 
     letters: "body" must be 1 to 192 plain characters on at most 6 lines: thanks
 
-What it means: The body is 1 to 192 plain characters on at most 6 lines (\n breaks a line). No accents, no curly quotes, no { or }. When a character is the problem, the message names the first one and its place (counting from 1): a curly quote or apostrophe pasted from a word processor is the usual one.
+What it means: The body is 1 to 192 plain characters on at most 6 lines, with no accents, curly quotes, { or }. When a character is the problem, the message names the first one and its place, counting from 1.
 
-How to fix it: Shorten it, or replace the character the message names with a plain one (a straight ' for a curly one).
+How to fix it: Shorten it, or replace the character the message names with a plain one. A curly quote pasted from a word processor is the usual cause, so type a straight ' instead.
 
 ### paper-fit
 
@@ -1963,17 +2007,17 @@ Seen in: Mods tab, on the mod's row after a restart.
 From the game (Mods tab row):
 
     letters: "body" does not fit on the letter paper (6 lines): thanks
-    events: "board" does not fit on a board page (6 lines): fair
+    calendar: "board" does not fit on a board page (6 lines): fair
 
-What it means: The game wraps a letter body and a board notice at the paper's width (192 pixels in its own font, words kept whole). This text needs more than 6 lines that way, so it is left out. Only the game measures this, so it shows after a restart.
+What it means: The game wraps a letter body or a board notice at the paper's width, 192 pixels in the game's font, and keeps words whole. This text needs more than 6 lines that way, so it is left out.
 
-How to fix it: Shorten the text, or break it into shorter lines yourself with \n.
+How to fix it: Shorten the text, or break it into shorter lines yourself with \n. Only the game measures this, so the message shows after a restart.
 
 ### letter-footer
 
 **A letter "footer" is not 1 to 32 plain characters**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -1987,7 +2031,7 @@ From the game (Mods tab row):
 
     letters: "footer" must be 1 to 32 plain characters: thanks
 
-What it means: The footer is the sign-off, like "Tom Nook": 1 to 32 plain characters on one line.
+What it means: The footer is the sign-off, like "Tom Nook". It is 1 to 32 plain characters on one line.
 
 How to fix it: Shorten it and keep it on one line.
 
@@ -1995,7 +2039,7 @@ How to fix it: Shorten it and keep it on one line.
 
 **A letter "sender" is not 1 to 8 plain characters**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2009,7 +2053,7 @@ From the game (Mods tab row):
 
     letters: "sender" must be 1 to 8 plain characters: thanks
 
-What it means: The sender is the name the mailbox list shows for the letter, and the list has room for 8 characters. It is optional: without it the list shows the footer's first 8 characters, and the letter itself always signs with the whole footer.
+What it means: The sender is the name the mailbox list shows for the letter, and the list has room for 8 characters. Without a sender the list shows the first 8 characters of the footer.
 
 How to fix it: Use a short name of 1 to 8 plain characters on one line, like "Lanterns", or leave "sender" out.
 
@@ -2017,7 +2061,7 @@ How to fix it: Use a short name of 1 to 8 plain characters on one line, like "La
 
 **A letter "item" is not right**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2032,7 +2076,7 @@ From the game (Mods tab row):
     letters: "item" must be "0x" and four hex digits: thanks
     letters: the item cannot be sent, the letter is left out: thanks: 0x2100 is money
 
-What it means: A present is a STRING, "0x" and 4 hex digits. Money, turnips, tickets, grab bags, fossils and things that are not items or furniture cannot be sent (the game checks that).
+What it means: A present is a string of "0x" and 4 hex digits. The game refuses money, turnips, tickets, grab bags, fossils and anything that is not an item or furniture.
 
 How to fix it: Write the item like "0x2800", or pick another present.
 
@@ -2040,7 +2084,7 @@ How to fix it: Write the item like "0x2800", or pick another present.
 
 **A letter "paper" is not 0 to 63**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2054,7 +2098,7 @@ From the game (Mods tab row):
 
     letters: "paper" must be a whole number 0 to 63: thanks
 
-What it means: "paper" picks the stationery: a whole number from 0 to 63. Leave it out for the first one.
+What it means: "paper" picks the stationery, as a whole number from 0 to 63. Leave it out for the first one.
 
 How to fix it: Write a whole number from 0 to 63.
 
@@ -2070,190 +2114,197 @@ From the game (Mods tab row):
 
 What it means: The browser could not give the game memory for this entry. It is left out.
 
-How to fix it: Restart the game; switch off large mods if it happens again.
+How to fix it: Restart the game. If it happens again, switch off large mods.
 
-## events.json (api 2)
+## calendar.json
 
-### events-file
+### calendar-file
 
-**events.json needs an "events" list**
+**calendar.json needs a "days" list**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
-
-In the game page (install, check tool):
-
-    events: "events" must be a list of 1 to 16 events
-
-From the mod list (upload):
-
-    events.json needs an "events" list of 1 to 16 events.
-
-From the game (Mods tab row):
-
-    events file needs a "events" list of 1 to 16
-
-What it means: events.json is { "events": [ ... ] } with 1 to 16 events. Needs "api": 2.
-
-How to fix it: Wrap the events in an "events" list.
-
-### event-date
-
-**An event "date" is not right**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    events: event 1 "date" must be { "month", "day" } or { "month", "week" (1 to 4 or "last"), "weekday" (0 Sunday to 6) }
+    calendar: "days" must be a list of 1 to 16 days
 
 From the mod list (upload):
 
-    events.json: event 1's date must be {month, day} or {month, week 1 to 4 or "last", weekday 0 (Sunday) to 6}.
+    calendar.json needs a "days" list of 1 to 16 days.
 
 From the game (Mods tab row):
 
-    events: "date" must be {month, day} or {month, week 1-4 or "last", weekday 0-6}: fair
+    calendar file needs a "days" list of 1 to 16
 
-What it means: A date is a month (1 to 12) with either a day of that month (February 29 works) or a week (1 to 4, or "last") and a weekday (0 is Sunday). Not both forms.
+What it means: calendar.json is { "days": [ ... ] } with 1 to 16 days. It is the file "content.calendar" names.
 
-How to fix it: Write { "month": 11, "day": 20 } or { "month": 11, "week": 4, "weekday": 4 }.
+How to fix it: Wrap the days in a "days" list.
 
-### event-empty
+Fixed (calendar.json):
 
-**An event with nothing in it**
+```
+{ "days": [{ "id": "fair", "date": { "month": 11, "day": 20 }, "talk": ["The fair is today!"] }] }
+```
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+### calendar-date
+
+**A calendar day's "date" is not right**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    events: event 1 needs a "board" notice, "talk" lines or a "letter"
+    calendar: day 1 "date" must be { "month", "day" } or { "month", "week" (1 to 4 or "last"), "weekday" (0 Sunday to 6) }
 
 From the mod list (upload):
 
-    events.json: event 1 needs a board notice, talk lines or a letter.
+    calendar.json: day "fair"'s date must be {month, day} or {month, week 1 to 4 or "last", weekday 0 (Sunday) to 6}.
 
 From the game (Mods tab row):
 
-    events: an event needs a "board" notice, "talk" lines or a "letter": fair
+    calendar: "date" must be {month, day} or {month, week 1-4 or "last", weekday 0-6}: fair
 
-What it means: An event does something on its day: a "board" notice, "talk" lines, a "letter" in the mailbox, or any of them together.
+What it means: A date is a month from 1 to 12 with either a day of that month, or a week and a weekday. The week is 1 to 4 or "last", the weekday counts from 0 for Sunday, and February 29 works.
+
+How to fix it: Write { "month": 11, "day": 20 } or { "month": 11, "week": 4, "weekday": 4 }, not both forms.
+
+### calendar-empty
+
+**A calendar day with nothing in it**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    calendar: day 1 needs a "board" notice, "talk" lines or a "letter"
+
+From the mod list (upload):
+
+    calendar.json: day "fair": needs a board notice, talk lines or a letter.
+
+From the game (Mods tab row):
+
+    calendar.json: day "fair": needs a board notice, talk lines or a letter
+    calendar: a day needs a "board" notice, "talk" lines or a "letter": fair
+
+What it means: A calendar day must do something on its date. It can have a "board" notice, "talk" lines, a "letter", or any of them together.
 
 How to fix it: Add a "board" notice, "talk" lines or a "letter".
 
-### event-letter
+### calendar-letter
 
-**An event "letter" is not one of the mod's letters**
+**A calendar day's "letter" is not one of the mod's letters**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    events: event 1 "letter" "lantern" names no letter in this mod's letters file
-    events: event 1 "letter" must be the id of a letter in this mod's letters file
-    events: event 1 "letter" "lanterns" names no letter in this mod's letters file
+    calendar: day 1 "letter" "lantern" names no letter in this mod's letters file
+    calendar: day 1 "letter" must be the id of a letter in this mod's letters file
+    calendar: day 1 "letter" "lanterns" names no letter in this mod's letters file
 
 From the mod list (upload):
 
-    events.json: event 1's letter "lantern" names no letter in this mod's letters file.
-    events.json: event 1's letter must be the id of a letter in this mod's letters file.
+    calendar.json: day "lantern-night"'s letter "lantern" names no letter in this mod's letters file.
+    calendar.json: day "lantern-night"'s letter must be the id of a letter in this mod's letters file.
 
 From the game (Mods tab row):
 
-    events: "letter" names no letter in this mod's letters file: lantern-night
-    events: "letter" must be the id of a letter in this mod's letters file: lantern-night
+    calendar: "letter" names no letter in this mod's letters file: lantern-night
+    calendar: "letter" must be the id of a letter in this mod's letters file: lantern-night
 
-What it means: An event's "letter" is the "id" of a letter in the SAME mod's letters file (content.letters). The game mails it on the event's day, once, to the player's mailbox in their own town, and it counts against the mod's daily letter cap. A letter the game left out (one that does not fit the paper, say) cannot be sent either.
+What it means: A calendar day's "letter" must be the "id" of a letter in the same mod's letters file. A letter the game left out, such as one that does not fit the paper, cannot be sent either.
 
 How to fix it: Add the letter to your letters file, or fix the id to match one there exactly.
 
-Bad (events.json):
+Bad (calendar.json):
 
 ```
-{ "events": [{ "id": "lantern-night", "date": { "month": 11, "day": 13 }, "letter": "lantern" }] }
+{ "days": [{ "id": "lantern-night", "date": { "month": 11, "day": 13 }, "letter": "lantern" }] }
 ```
 
-Fixed (events.json):
+Fixed (calendar.json):
 
 ```
-{ "events": [{ "id": "lantern-night", "date": { "month": 11, "day": 13 }, "letter": "lanterns" }] }
+{ "days": [{ "id": "lantern-night", "date": { "month": 11, "day": 13 }, "letter": "lanterns" }] }
 ```
 
-### event-board-world
+### calendar-board-world
 
 **A board notice needs "scope": "world"**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    events: event 1 "board" changes the town, so "scope" must be "world"
+    calendar: day 1 "board" changes the town, so "scope" must be "world"
 
 From the mod list (upload):
 
-    events.json: event 1's board notice changes the town, so mod.json needs "scope": "world".
+    calendar.json: day "fair"'s board notice changes the town, so mod.json needs "scope": "world".
 
 From the game (Mods tab row):
 
-    events: a "board" notice changes the town, so the mod needs "scope": "world": fair
+    calendar: a "board" notice changes the town, so the mod needs "scope": "world": fair
 
-What it means: A notice goes up on your town's bulletin board, which a visitor reads too, so a mod with one is a world mod. Talk lines alone can be client.
+What it means: A notice goes up on your town's bulletin board, which a visitor reads too. A mod with one must be a World mod.
 
-How to fix it: Set "scope": "world", or keep only "talk" lines.
+How to fix it: Set "scope": "world", or keep only "talk" lines, which a Just you mod may have.
 
-### event-board
+### calendar-board
 
-**An event "board" notice is not right**
+**A calendar day's "board" notice is not right**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    events: event 1 "board" must be 1 to 192 plain characters on at most 6 lines
-    events: event 1 "board" must be 1 to 192 plain characters on at most 6 lines: a control character (U+0009) at character 3 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })
-    events: event 1 "board" must be 1 to 192 plain characters on at most 6 lines: "é" at character 4 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })
+    calendar: day 1 "board" must be 1 to 192 plain characters on at most 6 lines
+    calendar: day 1 "board" must be 1 to 192 plain characters on at most 6 lines: a control character (U+0009) at character 3 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })
+    calendar: day 1 "board" must be 1 to 192 plain characters on at most 6 lines: "é" at character 4 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })
 
 From the mod list (upload):
 
-    events.json: event 1's board must be 1 to 192 plain characters on at most 6 lines.
+    calendar.json: day "fair"'s board must be 1 to 192 plain characters on at most 6 lines.
 
 From the game (Mods tab row):
 
-    events: "board" must be 1 to 192 plain characters on at most 6 lines: fair
+    calendar: "board" must be 1 to 192 plain characters on at most 6 lines: fair
 
-What it means: A notice is plain text like a letter body: 1 to 192 characters on at most 6 lines. When a character is the problem, the message names the first one and its place.
+What it means: A notice is plain text like a letter body, 1 to 192 characters on at most 6 lines. When a character is the problem, the message names the first one and its place.
 
 How to fix it: Shorten it and keep to plain characters.
 
-### event-talk
+### calendar-talk
 
-**An event's "talk" lines are not right**
+**A calendar day's "talk" lines are not right**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    events: event 1 "talk" must list 1 to 16 lines of 1 to 160 characters with at most 3 line breaks
+    calendar: day 1 "talk" must list 1 to 16 lines of 1 to 160 characters with at most 3 line breaks
 
 From the mod list (upload):
 
-    events.json: event 1's talk must list 1 to 16 lines of 1 to 160 characters on at most 4 lines each.
+    calendar.json: day "fair"'s talk must list 1 to 16 lines of 1 to 160 characters on at most 4 lines each.
 
 From the game (Mods tab row):
 
-    events: "talk" must list 1 to 16 lines: fair
-    events: a talk line must be 1 to 160 characters, at most 3 newlines: fair
+    calendar: "talk" must list 1 to 16 lines: fair
+    calendar: a talk line must be 1 to 160 characters, at most 3 newlines: fair
 
 What it means: "talk" lists 1 to 16 lines villagers say that day, each 1 to 160 characters with at most 3 line breaks.
 
 How to fix it: Shorten the lines or the list.
 
-## talk.json (api 2)
+## talk.json
 
 ### talk-file
 
 **talk.json needs a "pools" list**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2267,7 +2318,7 @@ From the game (Mods tab row):
 
     talk file needs a "pools" list of 1 to 32
 
-What it means: talk.json is { "pools": [ ... ] } with 1 to 32 pools. Needs "api": 2.
+What it means: talk.json is { "pools": [ ... ] } with 1 to 32 pools.
 
 How to fix it: Wrap the pools in a "pools" list.
 
@@ -2275,7 +2326,7 @@ How to fix it: Wrap the pools in a "pools" list.
 
 **A pool names a personality and a villager**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2289,7 +2340,7 @@ From the game (Mods tab row):
 
     talk: a pool names a "personality" or a "villager", not both: pool 1
 
-What it means: A pool is for one villager, one personality, or (with neither) everyone.
+What it means: A pool is for one villager, for one personality, or for everyone when it names neither. This pool names both.
 
 How to fix it: Keep one of the two, or split the pool in two.
 
@@ -2297,7 +2348,7 @@ How to fix it: Keep one of the two, or split the pool in two.
 
 **A pool's "personality" is not one the game has**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2311,7 +2362,7 @@ From the game (Mods tab row):
 
     talk: "personality" must be normal, peppy, lazy, jock, cranky or snooty: pool 1
 
-What it means: The game has six villager personalities: normal, peppy, lazy, jock, cranky and snooty (lowercase).
+What it means: The game has six villager personalities, written in lowercase: normal, peppy, lazy, jock, cranky and snooty.
 
 How to fix it: Use one of the six.
 
@@ -2319,7 +2370,7 @@ How to fix it: Use one of the six.
 
 **A pool's "villager" is not a name**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2333,7 +2384,7 @@ From the game (Mods tab row):
 
     talk: "villager" must be a name of 1 to 8 plain characters: pool 1
 
-What it means: A villager is named as the game spells it, 1 to 8 plain characters, any case ("Bob").
+What it means: A villager is named as the game spells it, in 1 to 8 plain characters, like "Bob". Upper and lower case do not matter.
 
 How to fix it: Write the villager's name.
 
@@ -2341,7 +2392,7 @@ How to fix it: Write the villager's name.
 
 **A pool's "chance" is not 1 to 100**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2355,7 +2406,7 @@ From the game (Mods tab row):
 
     talk: "chance" must be a whole number 1 to 100: pool 1
 
-What it means: "chance" is how many days in 100 the pool speaks to a villager: a whole number from 1 to 100. Leave it out for every day.
+What it means: "chance" is how many days in 100 the pool speaks to a villager, as a whole number from 1 to 100. Leave it out for every day.
 
 How to fix it: Write a whole number from 1 to 100.
 
@@ -2363,7 +2414,7 @@ How to fix it: Write a whole number from 1 to 100.
 
 **A pool's "lines" are not right**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2382,13 +2433,13 @@ What it means: A pool has 1 to 32 lines, each 1 to 160 characters with at most 3
 
 How to fix it: Shorten the lines or the list.
 
-## Settings, translations, dependencies (api 2)
+## Settings, translations, dependencies
 
 ### manifest-depends
 
 **depends or conflicts is not a list of mods**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -2404,9 +2455,9 @@ From the mod list (upload):
     depends must be an object of mod id to version range, like {"author.mod": ">=1.0.0"}.
     "bean.lib" is in both depends and conflicts.
 
-What it means: "depends" and "conflicts" (api 2) are objects: each key a mod id (not your own), each value a version range. At most 16 each, and one mod cannot be in both.
+What it means: "depends" and "conflicts" are objects of mod id to version range. Each holds at most 16 mods, never your own, and one mod cannot be in both.
 
-How to fix it: Write them as { "author.mod": ">=1.0.0" }, with "api": 2.
+How to fix it: Write them as { "author.mod": ">=1.0.0" }.
 
 Fixed (mod.json):
 
@@ -2419,7 +2470,7 @@ Fixed (mod.json):
 
 **A version range the game cannot read**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -2430,27 +2481,27 @@ From the mod list (upload):
 
     depends: the range for bean.lib must be "*" or up to 4 of >=, <=, >, <, = and a version, like ">=1.0.0 <2.0.0".
 
-What it means: A range is "*" (any version) or up to 4 comparisons split by ONE space, each >=, <=, >, <, = (or none, which means =) and an x.y.z version. "^" and "~" are not ranges here.
+What it means: A range is "*" for any version, or up to 4 comparisons with one space between them. Each comparison is >=, <=, >, < or = and an x.y.z version, and "^" and "~" are not supported.
 
-How to fix it: Write ">=1.0.0 <2.0.0" instead of "^1.0.0", and "1.2.3" for one exact version.
+How to fix it: Write ">=1.0.0 <2.0.0" instead of "^1.0.0". Write "1.2.3" for one exact version.
 
 ### manifest-data-version
 
 **data_version is not a whole number**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
     "data_version" must be a whole number from 1 to 1000000
-    "scripts.hooks" lists "migrate", which needs a "data_version"
+    "scripts.events" lists "data_migrated", which needs a "data_version"
 
 From the mod list (upload):
 
     data_version must be a whole number from 1 to 1000000.
-    The migrate hook needs a data_version.
+    The scripts.events list has "data_migrated", which needs a data_version.
 
-What it means: "data_version" (api 2) is a whole number from 1 to 1000000 for the shape of what your script saves. The "migrate" hook runs when it changes, so it needs one.
+What it means: "data_version" is a whole number from 1 to 1000000 that numbers the shape of what your script saves. The "data_migrated" event runs when it changes, so that event needs one.
 
 How to fix it: Add "data_version": 1 and raise it when you change what your script saves.
 
@@ -2458,7 +2509,7 @@ How to fix it: Add "data_version": 1 and raise it when you change what your scri
 
 **A setting's default or bounds are wrong**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -2474,9 +2525,9 @@ From the mod list (upload):
     settings: "price" default must be a whole number from min to max.
     settings: "motto" max_length must be a whole number from 1 to 200.
 
-What it means: bool: default true or false. number: whole min, max and default, min below max, default between them, within a billion. choice: 2 to 16 different choices, default one of them. text: max_length 1 to 200, default one line no longer than that.
+What it means: A setting's default or bounds do not fit its type.
 
-How to fix it: Fix the default or bounds the message names.
+How to fix it: Fix what the message names. A bool default is true or false. A number has a whole min, max and default within a billion, with min below max and the default between them. A choice has 2 to 16 different choices and a default that is one of them. A text has a max_length from 1 to 200 and a one-line default no longer than that.
 
 Fixed (mod.json):
 
@@ -2490,7 +2541,7 @@ Fixed (mod.json):
 
 **A setting is not one the game can show**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -2507,15 +2558,15 @@ From the mod list (upload):
     settings: "x" type must be one of bool, number, choice, text.
     settings: "x" label must be 1 to 60 characters.
 
-What it means: "settings" (api 2) lists at most 16 settings. Each has a name (a-z 0-9 _, starting with a letter, used once), a type (bool, number, choice, text), a label of 1 to 60 characters, an optional description of at most 200, and only the keys its type takes.
+What it means: "settings" is a list of at most 16 settings. Each has a name, a type, a label and only the keys its type takes.
 
-How to fix it: Fix the setting the message names. A bool takes only default; a number default, min and max; a choice default and choices; a text default and max_length.
+How to fix it: Fix the setting the message names. A name is a-z, 0-9 and _, starts with a letter and is used once. A type is bool, number, choice or text. A label is 1 to 60 characters, and an optional description is at most 200. A bool takes default. A number takes default, min and max. A choice takes default and choices. A text takes default and max_length.
 
 ### messages-translations
 
 **A translations folder the game cannot read**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
 
 In the game page (install, check tool):
 
@@ -2530,9 +2581,9 @@ From the mod list (upload):
     content.messages: messages/ja.json is not one of en.json de.json es.json fr.json it.json.
     content.messages names a folder without en.json: English is the fallback for every language.
 
-What it means: At api 2 "content.messages" can name a folder of translations: en.json (required, the fallback) and any of de.json, es.json, fr.json, it.json, nothing else. A translation may only hold keys en.json has.
+What it means: "content.messages" can name a folder of translations. The folder holds en.json, which is required, and any of de.json, es.json, fr.json and it.json. A translation holds only keys that en.json has.
 
-How to fix it: Add en.json, rename or remove the other files, and fix the key spelling in the translation.
+How to fix it: Add en.json, remove or rename any other file, and fix the key spelling in the translation.
 
 ### setting-refused
 
@@ -2547,7 +2598,7 @@ In the game page (install, check tool):
     Drink must be one of: tea, coffee
     Motto must be at most 20 characters, on one line
 
-What it means: The Mods tab refused a value for a mod's setting: it is outside what the mod allows.
+What it means: The value is outside what the mod allows for that setting.
 
 How to fix it: Pick a value inside the range or list the message gives.
 
@@ -2566,9 +2617,9 @@ In the game page (install, check tool):
     is in a dependency cycle (c.one, c.two): none of them can load
     cannot run with b.lib 1.0.0: switch one of them off
 
-What it means: A mod that lists "depends" loads only when every mod it needs is installed, on, in the version range and loaded. A mod that lists "conflicts" stays off while that mod is on. Mods that need each other in a circle cannot load.
+What it means: A mod with "depends" loads only when every mod it needs is installed, switched on, in the version range and loaded. A mod with "conflicts" stays off while the other mod is on, and mods that need each other in a circle cannot load.
 
-How to fix it: Install or switch on the mod it names (or the right version of it), or switch off one of two mods that cannot run together.
+How to fix it: Install or switch on the mod the message names, in the right version. For two mods that cannot run together, switch one off.
 
 ### engine-dependency
 
@@ -2581,7 +2632,7 @@ From the game (Mods tab row):
     not loaded: needs yourname.tea-lib >=1.0.0 <2.0.0, which the game did not load before it
     not loaded: needs yourname.tea-lib >=2.0.0, and the game loaded 1.2.0
 
-What it means: The game checks "depends" again when it starts, after the Mods tab has put your mods in order: every mod a mod needs must load before it, in the version range. If one did not (it is missing, off, out of range, did not load itself, or comes later in the order), the mod is not loaded at all: no textures, lines, shops or script. The Mods tab normally stops this first, with a "needs" message on the row.
+What it means: The game checks "depends" again when it starts. A mod this one needs did not load before it in the version range, so this mod is not loaded at all.
 
 How to fix it: Install and switch on the mod it names, in a version inside the range, then restart. If the Mods tab shows no other message, reinstall both mods.
 
@@ -2596,7 +2647,7 @@ From the game (Mods tab row):
     settings: a value is not a boolean, a whole number or a line of text: frac
     settings: a text value cannot be used: motto
 
-What it means: A stored setting value is not one the game can hand a script. The Mods tab never stores one like it; this means the browser's copy was changed by hand.
+What it means: A stored setting value is not one the game can give a script. This happens only when the browser's copy was changed by hand.
 
 How to fix it: Open the mod's Settings and set the value again, then restart.
 
@@ -2606,7 +2657,7 @@ How to fix it: Open the mod's Settings and set the value again, then restart.
 
 **A messages file is not key to text**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2620,7 +2671,7 @@ From the game (Mods tab row):
 
     messages file is not a JSON object
 
-What it means: A messages file is one flat object: each key is a line id, each value the line's text. No lists, no nested objects.
+What it means: A messages file is one flat object. Each key is a line id and each value is the line's text.
 
 How to fix it: Write it as { "greet": "Hello!", "bye": "See you!" }.
 
@@ -2628,7 +2679,7 @@ How to fix it: Write it as { "greet": "Hello!", "bye": "See you!" }.
 
 **More than 256 lines**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2650,7 +2701,7 @@ How to fix it: Split the lines into two mods, or reuse lines.
 
 **A line id is not 1 to 48 of a-z 0-9 _ . -**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2669,15 +2720,15 @@ From the game (Mods tab row):
 
     messages: a key must be 1 to 48 of a-z 0-9 _ . -: Hours
 
-What it means: Line ids are 1 to 48 characters of lowercase a-z, digits, "_", "." and "-". No spaces, capitals or ":". Your mod's id is added in front for you ("yourname.my-mod:greet").
+What it means: A line id is 1 to 48 characters of lowercase a-z, digits, "_", "." and "-". The game adds your mod's id in front, like "yourname.my-mod:greet".
 
-How to fix it: Rename the key: "hours" or "shop.hours".
+How to fix it: Rename the key, for example "hours" or "shop.hours".
 
 ### messages-text
 
 **A line is empty or over 400 bytes**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (npx playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
@@ -2694,9 +2745,9 @@ From the game (Mods tab row):
 
     messages: a line must be text of 1 to 400 bytes: greet
 
-What it means: Each line is text (in quotes) of 1 to 400 bytes. Letters with accents and emoji take more than one byte. Lines wrap at 24 characters, 4 lines to a page.
+What it means: Each line is text in quotes, 1 to 400 bytes long. Letters with accents and emoji take more than one byte.
 
-How to fix it: Shorten the line, or split it into two lines your script shows one after the other.
+How to fix it: Shorten the line, or split it into two lines that your script shows one after the other.
 
 ### messages-out-of-memory
 
@@ -2724,9 +2775,9 @@ From the mod list (upload):
 
     "textures/tex1_64x64_626709d910129694_14.dds" is an unchanged copy of a texture from the game (tex1_64x64_626709d910129694_14). Upload only art you made yourself.
 
-What it means: Every pixel of this texture equals a texture from the game or the HD pack. Mods may only hold art you made. Exported textures from the texture inspector are the game's own art until you paint over them.
+What it means: Every pixel of this texture equals a texture from the game or the HD pack. A mod may only hold art you made, and a texture exported from the texture inspector is the game's art until you paint over it.
 
-How to fix it: Paint your own picture into the file (keep the file name), or delete files you did not change.
+How to fix it: Paint your own picture into the file and keep the file name. Delete files you did not change.
 
 ### texture-mipmaps
 
@@ -2739,9 +2790,9 @@ From the mod list (upload):
     "textures/a.dds" stores 7 mip levels. Save it with one level (no mipmaps): the game reads only the first.
     "textures/a.dds" has 64 bytes after its image. Save it with one level (no mipmaps) and nothing else.
 
-What it means: The game reads only the first level of a DDS, so anything after it would go unreviewed. The registry refuses it.
+What it means: The game reads only the first level of a DDS. Anything after it would go unreviewed, so the upload is refused.
 
-How to fix it: Save the DDS again with mipmaps switched off (in GIMP: "Mipmaps: No mipmaps"; in Paint.NET untick "Generate mip maps").
+How to fix it: Save the DDS again with mipmaps switched off. In GIMP choose "Mipmaps: No mipmaps". In Paint.NET untick "Generate mip maps".
 
 ### texture-size
 
@@ -2759,24 +2810,24 @@ From the game (Mods tab row):
 
     PNG texture is over 2048x2048, left out: textures/tex1_64x64_0123456789abcdef_14.png
 
-What it means: A DDS is 1 to 16384 pixels a side; a PNG at most 2048x2048 (the game draws a PNG texture too, and leaves out a bigger one). Bigger textures also cost phone players memory.
+What it means: A DDS is 1 to 16384 pixels a side. A PNG is at most 2048x2048, and the game leaves out a bigger one.
 
-How to fix it: Scale it down. 2x or 4x the original size already looks sharp.
+How to fix it: Scale it down. 2 or 4 times the original size already looks sharp, and bigger textures cost phone players memory.
 
 ### texture-small
 
 **A picture smaller than, or not the shape of, the texture it replaces**
 
-Seen in: the check tool (npx playac-mod check).
+Seen in: the check tool (playac-mod check).
 
 In the game page (install, check tool):
 
     textures/tex1_64x64_0123456789abcdef_14.dds is 32x32, smaller than the original 64x64: the game stretches it over the original's place, so it looks blurrier than the game's own texture
     textures/tex1_64x64_0123456789abcdef_14.dds is 128x64, not the shape of the original 64x64: the game stretches it to the original's shape, so it looks squashed
 
-What it means: Not an error: the game installs the mod and draws the picture. The name says the original's size (tex1_64x64_...); the game always draws your picture in the original's place, so a smaller one looks blurry and one of another shape looks squashed.
+What it means: This is a warning, and the mod still installs. The game draws your picture in the original's place, so a smaller one looks blurry and one of another shape looks squashed.
 
-How to fix it: Paint at the original size, or 2 or 4 times it in both directions (128x128 for a 64x64).
+How to fix it: Paint at the original size, or at 2 or 4 times it in both directions. The file name gives the original size, like tex1_64x64.
 
 ### texture-png-unreadable
 
@@ -2789,7 +2840,7 @@ From the game (Mods tab row):
     texture is not a PNG the game reads, left out: textures/tex1_64x64_0123456789abcdef_14.png
     PNG texture could not be read (image data is damaged), left out: textures/tex1_64x64_0123456789abcdef_14.png
 
-What it means: The game draws a .png texture by decoding it itself. This file is not a PNG, or is damaged, or uses a kind of PNG the game does not decode, so it is left out (the reason in brackets says why). The rest of the mod loads.
+What it means: The game left this file out because it is not a PNG, is damaged, or is a kind of PNG the game does not decode. The reason in brackets says which, and the rest of the mod loads.
 
 How to fix it: Export the picture again as a plain 8-bit RGBA or RGB PNG from your paint program, or save it as a .dds.
 
@@ -2801,24 +2852,39 @@ Seen in: Mods tab, on the mod's row after a restart.
 
 From the game (Mods tab row):
 
-    PNG textures are over 96 MiB of pixels, this one left out: textures/tex1_64x64_0123456789abcdef_14.png
-    PNG textures are over 24 MiB of pixels on a phone, this one left out: textures/tex1_64x64_0123456789abcdef_14.png
+    PNG textures are over 96 MB of pixels, this one left out: textures/tex1_64x64_0123456789abcdef_14.png
+    PNG textures are over 24 MB of pixels on a phone, this one left out: textures/tex1_64x64_0123456789abcdef_14.png
 
-What it means: Every switched-on mod's PNG textures together may decode to at most 96 MiB of pixels (4 bytes a pixel), 24 MiB on a phone or low-memory device. PNGs past that, in load order, are left out; DDS textures do not count.
+What it means: The PNG textures of all switched-on mods may decode to at most 96 MB of pixels, or 24 MB on a phone or low-memory device. PNGs past that, in load order, are left out.
 
-How to fix it: Make your PNGs smaller (2x the original size is already sharp), switch off another texture mod, or save the big textures as compressed .dds (BC7 or DXT5).
+How to fix it: Make your PNGs smaller, switch off another texture mod, or save big textures as compressed .dds (BC7 or DXT5). A PNG costs 4 bytes a pixel, and 2 times the original size is already sharp. DDS textures have a budget of their own.
+
+### texture-dds-budget
+
+**Too many DDS texture bytes across your mods**
+
+Seen in: Mods tab, on the mod's row after a restart.
+
+From the game (Mods tab row):
+
+    DDS textures are over 96 MB, this one left out: textures/tex1_64x64_0123456789abcdef_14.dds
+    DDS textures are over 24 MB on a phone, this one left out: textures/tex1_64x64_0123456789abcdef_14.dds
+
+What it means: The DDS textures of all switched-on mods may take at most 96 MB on the graphics card, or 24 MB on a phone or low-memory device. DDS files past that are left out, starting with the mods highest in the list, and the game's own texture is drawn.
+
+How to fix it: Save big textures compressed as BC7 or DXT5, make them smaller, or switch off another texture mod. BC7 and DXT5 cost 1 byte a pixel, DXT1 half a byte and uncompressed DDS 4 bytes. PNG textures have a budget of their own, and the HD pack does not count.
 
 ### texture-twice
 
 **The same texture as a PNG and a DDS**
 
-Seen in: the check tool (npx playac-mod check).
+Seen in: the check tool (playac-mod check).
 
 In the game page (install, check tool):
 
     textures/tex1_64x64_0123456789abcdef_14.dds and textures/tex1_64x64_0123456789abcdef_14.png are the same texture: the game uses only one of them (the first it finds when it scans the folder, which you cannot choose), so the other is never drawn
 
-What it means: Not an error: the game installs the mod. A .png and a .dds with the same name are the same texture, and the game keeps whichever it finds first. You cannot choose which.
+What it means: This is a warning, and the mod still installs. A .png and a .dds with the same name are the same texture, and the game uses whichever it finds first.
 
 How to fix it: Keep one of the two files and delete the other.
 
@@ -2834,9 +2900,9 @@ From the mod list (upload):
     "a.png" is named as .png but holds a DDS texture. Save it in the format its name says.
     "photo.png" is a picture in a format mods can't carry. Save it as PNG or DDS.
 
-What it means: Every file is checked for what it really holds. A picture renamed to .txt, .json or .md would reach players as text, where no moderator looks, so it is refused; so is a .png that is really a DDS (or the other way round), and JPEG, GIF, WebP and other formats.
+What it means: Every file is checked for what it really holds. A picture in a .txt, .json or .md file is refused, and so is a .png that holds a DDS, a .dds that holds a PNG, and any JPEG, GIF or WebP.
 
-How to fix it: Save each picture as a real .dds (textures) or .png, with the extension that matches what it is.
+How to fix it: Save each picture as a real .dds or .png, with the extension that matches its format.
 
 ### png-extra-data
 
@@ -2847,11 +2913,11 @@ Seen in: Share a mod, when you upload.
 From the mod list (upload):
 
     "art.png" holds a acTL chunk, which a picture in a mod may not carry (an animation frame or app data). Export it again as a plain PNG.
-    "art.png" holds more than 64 KiB of metadata. Export it again without metadata.
+    "art.png" holds more than 64 KB of metadata. Export it again without metadata.
 
-What it means: A PNG in a mod is a plain picture: no animation frames (APNG), no data hidden in extra chunks, and only a little metadata. Hidden data would go unreviewed.
+What it means: A PNG in a mod is a plain picture. Animation frames, data in extra chunks and more than a little metadata are refused, because hidden data would go unreviewed.
 
-How to fix it: Export the picture again as a plain PNG, with "save metadata" (EXIF, XMP, comments, color profile) switched off.
+How to fix it: Export the picture again as a plain PNG with "save metadata" switched off. That covers EXIF, XMP, comments and the colour profile.
 
 ### texture-format
 
@@ -2866,9 +2932,9 @@ From the mod list (upload):
     "textures/a.dds" is cut short.
     "art.png" is not a PNG we can read.
 
-What it means: A .dds must be BC7, DXT1 (BC1), DXT5 (BC3) or uncompressed 32-bit RGBA; a .png must be a normal PNG. Other formats (DXT3, 16-bit, 24-bit) and damaged files are refused. The game skips a texture it cannot read, so it would never show.
+What it means: A .dds must be BC7, DXT1 (BC1), DXT5 (BC3) or uncompressed 32-bit RGBA, and a .png must be a normal PNG. Other formats and damaged files are refused, because the game would skip them.
 
-How to fix it: Export again as BC7 or DXT5 (or uncompressed RGBA 8888) with no mipmaps.
+How to fix it: Export again as BC7, DXT5 or uncompressed RGBA 8888, with no mipmaps.
 
 ### log-texture-not-read
 
@@ -2882,11 +2948,11 @@ From the game (Mods tab row):
     texture textures/grass.dds not read: the name is not a texture name (tex1_WxH_hash[_palette]_fmt.dds or .png)
     texture textures/tex1_32x32_626709d910129694_193ca5974976e36e_8.dds could not be read: not a DDS this browser can draw (BC7, BC1, BC3 or RGBA)
 
-What it means: The game reads only files named the way the HD pack names them (tex1_WxH_hash..._fmt), as DDS or PNG, from the textures folder. Anything else there is skipped.
+What it means: The game reads only .dds and .png files in the textures folder that carry a texture name, like tex1_64x64_hash_14. It skips anything else there.
 
-How to fix it: Name the file after the texture it replaces (the texture inspector copies the name for you), save it as .dds (BC7, BC1, BC3 or uncompressed RGBA) or .png, and reload.
+How to fix it: Name the file after the texture it replaces. The texture inspector copies the name for you. Save it as .dds (BC7, BC1, BC3 or uncompressed RGBA) or .png, then reload.
 
-## The texture inspector (dev mode)
+## The texture inspector (developer mode)
 
 ### inspector-no-scene
 
@@ -2912,9 +2978,9 @@ On the site:
 
     That texture is no longer kept. It shows again once the game draws it.
 
-What it means: The inspector keeps up to 512 textures and 16 MB, dropping the one drawn longest ago, and Stop recording frees them all.
+What it means: The inspector keeps up to 512 textures and 16 MB, and drops the one drawn longest ago. Stop recording frees them all.
 
-How to fix it: Walk back to where the texture is drawn (it is recorded again), then Copy name, PNG, Flash or Export it.
+How to fix it: Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG, Flash or Export.
 
 ### inspector-export
 
@@ -2928,11 +2994,11 @@ On the site:
     The mod id must look like yourname.mod-name (lower case letters, digits and -)
     ZIP support is not loaded in the game page. Reload and try again
 
-What it means: Export needs at least one ticked texture and an id like yourname.mod-name (lowercase letters, digits and dashes, one dot).
+What it means: Export needs at least one ticked texture and a mod id like yourname.mod-name. The id is lowercase letters, digits and dashes, with one dot.
 
 How to fix it: Tick the textures you want, type an id like "yourname.my-textures", and press Export again. If ZIP support is missing, reload the page.
 
-## Developer mode and the mod log
+## Developer mode and the Mod log
 
 ### dev-start-game
 
@@ -2948,9 +3014,9 @@ On the site:
 
     Start the game first: developer mode loads a mod into the running game page.
 
-What it means: A folder or a dev server is read into the game page, which is not up yet.
+What it means: Developer mode loads a mod into the running game, and the game has not started yet.
 
-How to fix it: Press Play and wait for the title screen (or your town), then choose the folder or Connect again.
+How to fix it: Press Play and wait for the title screen or your town. Then choose the folder or press Connect again.
 
 ### dev-check-fails
 
@@ -2963,9 +3029,9 @@ On the site:
     Not loaded: the folder fails playac-mod check: mod.json: "id" is missing
     Not reloaded: the folder fails playac-mod check: shops.json: a price must be a whole number of Bells, 1 to 99999
 
-What it means: playac-mod dev checks the folder on every save and sends nothing while it fails. The game keeps the last good copy.
+What it means: `playac-mod dev` checks the folder on every save and sends nothing while the check fails. The game keeps the last good copy.
 
-How to fix it: Fix what the message (and the terminal running playac-mod dev) names. The reload happens by itself once it passes.
+How to fix it: Fix what the message names. The terminal running `playac-mod dev` shows it too. The reload happens by itself once the check passes.
 
 ### dev-restart-needed
 
@@ -2983,7 +3049,7 @@ On the site:
     The script cannot reload: it was not in mod.json at boot. Restart the game.
     Textures cannot reload: the mod had no textures folder at boot. Restart the game.
 
-What it means: Lines, the shop, talk, letters, events, the items file, the script and textures reload while you play. A change to mod.json waits for a restart: mod.json is read once, when the game starts, so a change to it (or a script or textures folder it did not have at the start) needs one.
+What it means: Lines, the shop, talk, letters, the calendar, the items file, the script and textures reload while you play. A change to mod.json waits for a restart, because the game reads mod.json once, when it starts.
 
 How to fix it: Choose Restart now in the Developer section. Save your town first.
 
@@ -3003,9 +3069,9 @@ On the site:
     The folder could not be read: the folder has more than 2000 files
     Stopped watching the folder: The requested file could not be read
 
-What it means: The browser would not read the folder (permission lost, the folder moved or was renamed), or it holds more than a mod may.
+What it means: The browser could not read the folder, or the folder holds more than a mod may. The browser loses a folder when its permission ends, or when the folder is moved or renamed.
 
-How to fix it: Choose the folder again. Pick the folder with mod.json in it, not a parent of it. Hidden files and node_modules are skipped; anything else in it counts.
+How to fix it: Choose the folder again. Pick the folder that holds mod.json, not a parent of it. Hidden files and node_modules are skipped, and everything else in it counts.
 
 ### dev-server-address
 
@@ -3017,27 +3083,27 @@ On the site:
 
     Use the address playac-mod dev prints: http://localhost and a port.
 
-What it means: The page only talks to a dev server on your own computer: http on localhost or 127.0.0.1.
+What it means: The game only talks to `playac-mod dev` on your own computer, over http on localhost or 127.0.0.1.
 
-How to fix it: Paste the address `npx playac-mod dev` prints, for example http://127.0.0.1:2604.
+How to fix it: Paste the address `playac-mod dev` prints, for example http://127.0.0.1:2604.
 
 ### dev-server-origin
 
-**The dev server refused this site**
+**playac-mod dev refused this site**
 
 Seen in: Settings, Mods, Developer, "Load a mod you are making" (?moddev=1).
 
 On the site:
 
-    The dev server could not be reached at http://127.0.0.1:2604: the dev server refused this site: start it with --origin http://localhost:5174
+    The dev server could not be reached at http://127.0.0.1:2604: the dev server refused this site: start it with --origin https://my-copy.example
 
-What it means: playac-mod dev only answers playaconline.com and a few local addresses, so another website cannot read your folder. This copy of the game is on another address.
+What it means: `playac-mod dev` answers only playaconline.com and a few local addresses, so another website cannot read your folder. This copy of the game is on another address.
 
-How to fix it: Start it with --origin and the address of the game page, for example `npx playac-mod dev --origin http://localhost:5174`.
+How to fix it: Start it with --origin and the address of the game page, for example `playac-mod dev --origin https://my-copy.example`.
 
 ### dev-server-protocol
 
-**The dev server speaks another version**
+**playac-mod dev and the game are different versions**
 
 Seen in: Settings, Mods, Developer, "Load a mod you are making" (?moddev=1).
 
@@ -3045,9 +3111,9 @@ On the site:
 
     The dev server could not be reached at http://127.0.0.1:2604: the dev server speaks protocol 2; this game reads 1. Update one of them
 
-What it means: The CLI and the game changed how they talk, and these two are different versions.
+What it means: The tool and the game changed how they talk, and these two are different versions.
 
-How to fix it: Update the CLI (run its install line again: https://playaconline.com/modding/testing/#cli), or reload the game page to get the newest one.
+How to fix it: Update the tool by running its install line again (https://playaconline.com/modding/testing/#cli). Or reload the game to get the newest one.
 
 ### dev-server-hash
 
@@ -3060,13 +3126,13 @@ On the site:
     Not reloaded: "main.lua" from the dev server does not match its hash in the index twice in a row, so nothing was loaded: restart playac-mod dev, or choose the folder instead
     The dev server could not be reached at http://127.0.0.1:2604: the dev server's index gives no sha256 for "mod.json", so its bytes cannot be checked (is it playac-mod dev?)
 
-What it means: The page checks every file it reads from playac-mod dev against the hash the server lists for it, and loads nothing that does not match. One mismatch is a file saved between the list and the file, so the page reads again; a second one means something other than playac-mod dev answered, or the file keeps changing.
+What it means: The game checks every file from `playac-mod dev` against the hash the tool lists for it. The file did not match twice in a row, so nothing was loaded.
 
-How to fix it: Stop and start `npx playac-mod dev`, then Connect again. If it keeps happening, choose the folder instead.
+How to fix it: Stop and start `playac-mod dev`, then Connect again. If it keeps happening, choose the folder instead.
 
 ### dev-server-unreachable
 
-**The dev server could not be reached**
+**playac-mod dev could not be reached**
 
 Seen in: Settings, Mods, Developer, "Load a mod you are making" (?moddev=1).
 
@@ -3075,9 +3141,9 @@ On the site:
     The dev server could not be reached at http://127.0.0.1:2604: Failed to fetch
     The dev server could not be reached at http://127.0.0.1:2604: the dev server answered 404 for /__playac/index (is it playac-mod dev?)
 
-What it means: Nothing answered at that address, or what answered is not playac-mod dev. Safari blocks a secure page from reaching http on your computer.
+What it means: Nothing answered at that address, or what answered is not `playac-mod dev`. Safari stops a secure page from reaching http on your computer.
 
-How to fix it: Run `npx playac-mod dev` in your mod folder and use the address it prints. Use Chrome, Edge or Firefox, or choose the folder instead.
+How to fix it: Run `playac-mod dev` in your mod folder and use the address it prints. Use Chrome, Edge or Firefox, or choose the folder instead.
 
 ### dev-not-reloaded
 
@@ -3106,9 +3172,9 @@ On the site:
 
     Your browser cleared your mods. Browsers can delete a site's stored data, for example when the device is low on space or the site has not been visited for a while. Install them again below.
 
-What it means: Installed mods live in the browser's site storage, and the browser deleted it (low space, or Safari after 7 days without a visit). The game asks the browser to keep mods, but a browser can still clear them.
+What it means: Installed mods live in the browser's site storage, and the browser deleted it. This happens when the device is low on space, or in Safari after 7 days without a visit.
 
-How to fix it: Install the mods again (Browse mods, or your ZIPs). Keep your own mod ZIPs somewhere safe.
+How to fix it: Install the mods again from Browse mods or from your ZIPs. Keep your own mod ZIPs somewhere safe.
 
 ### mods-unreadable
 
@@ -3122,7 +3188,7 @@ On the site:
 
 What it means: The browser would not open its site storage, where mods are kept. Private windows and blocked site data do this.
 
-How to fix it: Use a normal (not private) window and allow site data for playaconline.com, then reload.
+How to fix it: Use a normal window, not a private one. Allow site data for playaconline.com, then reload.
 
 ### mods-db
 
@@ -3136,9 +3202,9 @@ In the game page (install, check tool):
     the developer mods database is held open by another tab
     the mods database refused the change
 
-What it means: The browser's mod storage turned the change down: another tab of the game is updating it (a newer version of the page is moving your mods to a new layout), or the browser stopped the write (storage full, or site data blocked).
+What it means: The browser's mod storage refused the change. Another tab of the game is updating it, or the browser stopped the write because storage is full or site data is blocked.
 
-How to fix it: Close the game's other tabs, reload, and try again. If it keeps happening, free some space on the device or allow site data for playaconline.com.
+How to fix it: Close the game's other tabs, reload and try again. If it keeps happening, free some space on the device or allow site data for playaconline.com.
 
 ### mod-not-installed
 
@@ -3150,7 +3216,7 @@ In the game page (install, check tool):
 
     that mod is not installed
 
-What it means: The Mods tab changed a mod that is no longer installed: another tab removed it meanwhile.
+What it means: That mod is no longer installed. Another tab removed it.
 
 How to fix it: Reload the Mods tab to see your mods as they are now.
 
@@ -3164,9 +3230,9 @@ In the game page (install, check tool):
 
     Your mods are 600 MB together, more than the 512 MB one export can hold. Remove the mods you do not use, then export again
 
-What it means: "Export my mods" makes one ZIP in the browser's memory, and your installed mods together are more than it can safely hold.
+What it means: "Export my mods" makes one ZIP in the browser's memory, and your installed mods together are more than it can hold.
 
-How to fix it: Remove the mods you do not use and export again. Each mod is also its own ZIP you can keep from Browse mods or its author.
+How to fix it: Remove the mods you do not use and export again. Each mod is also its own ZIP, which you can get from the mod list or from its author.
 
 ### storage-full
 
@@ -3178,7 +3244,7 @@ In the game page (install, check tool):
 
     There is not enough room in this browser's storage for this mod: it needs about 40 MB and about 12 MB is free. Remove a mod you do not use or free some space on this device, then try again
 
-What it means: Mods are kept in the browser's site storage, and it is full or blocked (a private window, or site data switched off).
+What it means: Mods are kept in the browser's site storage, and it is full or blocked. A private window and switched-off site data both block it.
 
 How to fix it: Remove a mod you do not use, free space on the device, or allow site data for playaconline.com. Private windows have very little room.
 
@@ -3193,7 +3259,11 @@ In the game page (install, check tool):
     only the first 32 mods load
     You already have 32 mods on, the most the game loads. Turn one off first
 
-What it means: The game loads at most 32 switched-on mods.
+From the game (Mods tab row):
+
+    only the first 32 mods load; not loaded
+
+What it means: The game loads at most 32 switched-on mods. The message shows on each mod that was left out, never on one that loaded.
 
 How to fix it: Switch off a mod you can do without, then restart.
 
@@ -3208,9 +3278,9 @@ In the game page (install, check tool):
     This mod unpacks to 30 MB, more than the 24 MB the game keeps for mods on a phone, so it cannot be switched on here
     the mods before it already fill the 96 MB the game keeps for mods
 
-What it means: All switched-on mods together can unpack to at most 96 MB, or 24 MB on a phone or a low-memory device. A new mod that does not fit is installed switched off.
+What it means: All switched-on mods together can unpack to at most 96 MB, or 24 MB on a phone or low-memory device. A new mod that does not fit is installed switched off.
 
-How to fix it: Switch off a big mod, or as a maker, keep texture mods small (compressed DDS, only the textures you changed) so phone players can use them.
+How to fix it: Switch off a big mod. If you made the mod, save its textures as compressed DDS and include only the ones you changed, so phone players can use it.
 
 ## When the game starts
 
@@ -3224,9 +3294,9 @@ On the site:
 
     The game stopped responding the last time it started with this mod on: Tea House. It started without mods this time. Your mods are still installed.
 
-What it means: The game did not finish starting, or froze early, the last time it ran with these mods switched on, so it started once without any mods. Nothing was removed.
+What it means: The game froze while starting with these mods on, so this start ran once without them. Nothing was switched off or removed.
 
-How to fix it: Players: turn the named mod off (or one of them at a time), then restart. Makers: test the mod alone; the usual causes are textures too big for the device (phones have 24 MB for all mods) or a script doing heavy work at start.
+How to fix it: If you installed it, switch the named mod off, or one of them at a time, then restart. If you made it, test the mod alone. The usual causes are a script that does heavy work at start and textures too big for the device. A phone has 24 MB for all mods.
 
 ### boot-failed
 
@@ -3240,9 +3310,9 @@ In the game page (install, check tool):
     the stored mod does not match its id
     the mod list could not be written
 
-What it means: The game could not unpack this mod from browser storage when it started, usually because the browser is out of memory or storage, or the stored copy was damaged.
+What it means: The game could not unpack this mod from browser storage when it started. The browser is usually out of memory or storage, or the stored copy is damaged.
 
-How to fix it: Restart the game. If it stays, remove the mod and install it again.
+How to fix it: Restart the game. If the message stays, remove the mod and install it again.
 
 ## Script stopped
 
@@ -3258,14 +3328,14 @@ From the game (Mods tab row):
     script took too long (over 33 ms)
     script took too long (over 100 ms)
 
-What it means: One event gets a budget of 200,000 Lua instructions per mod, and one event run is stopped past 33 ms of wall time. The main chunk, when the game starts, gets 100 ms. String patterns, table.sort/concat and memory use count too. Over it, the script is stopped for the rest of the session, so it can never freeze the game.
+What it means: One event gets 200,000 Lua instructions per mod and 33 ms, and the main chunk gets 100 ms when the game starts. A script that goes over is stopped for the rest of the session, so it cannot freeze the game.
 
-How to fix it: Do less per event: no long loops, cache results in local variables or the store, avoid patterns like ".-.-.-" on long text. pcall does not get around the budget.
+How to fix it: Do less per event. Avoid long loops and patterns like ".-.-.-" on long text, and cache results in local variables or the store. String patterns, table.sort, table.concat and memory use count towards the budget, and pcall does not get around it.
 
 Bad (main.lua):
 
 ```
-on("day_start", function()
+on("day_started", function(e)
   local n = 0
   for i = 1, 1e9 do n = n + i end
 end)
@@ -3274,7 +3344,7 @@ end)
 Fixed (main.lua):
 
 ```
-on("day_start", function(date)
+on("day_started", function(e)
   store.set("days", (store.get("days") or 0) + 1)
 end)
 ```
@@ -3289,9 +3359,9 @@ From the game (Mods tab row):
 
     script kept the game waiting (3 runs over 8 ms)
 
-What it means: All mods together get 4 ms of Lua time a frame. An event run over 8 ms is a strike, and three strikes stop the script for the session, even if each run stayed inside its instruction budget, so a slow script cannot make the game stutter.
+What it means: All mods together get 4 ms of Lua time a frame. An event run over 8 ms is a strike, and 3 strikes stop the script for the session, even when each run stayed inside its instruction budget.
 
-How to fix it: Do less per event: keep work small and spread it over events, cache results in locals or the store, and avoid long loops or patterns on long text.
+How to fix it: Do less per event. Spread work over several events, cache results in local variables or the store, and avoid long loops and patterns on long text.
 
 ### script-memory
 
@@ -3305,34 +3375,34 @@ From the game (Mods tab row):
 
 What it means: A mod's script can use 4 MB, and all mods together 16 MB.
 
-How to fix it: Keep fewer and smaller tables; do not build big strings in a loop (collect parts and table.concat them once).
+How to fix it: Keep fewer and smaller tables. Do not build big strings in a loop. Collect the parts and call table.concat once.
 
 ### script-on-event
 
-**on() with an event not in "hooks"**
+**on() with an event not in "scripts.events"**
 
 Seen in: Mods tab, "Script stopped" on the mod's row.
 
 From the game (Mods tab row):
 
-    @yourname.my-mod/main.lua:1: on(): 'talk' is not in this mod's "hooks" list in mod.json
+    @yourname.my-mod/main.lua:1: on(): 'villager_talked' is not in this mod's "scripts.events" list in mod.json
     @yourname.my-mod/main.lua:1: on(): unknown event 'tick'
 
-What it means: A script can only listen to the events mod.json lists in "scripts.hooks", and only to real events (at api 1: talk, day_start, item_picked, enter_scene; from api 2 also migrate, hour_change, shop_buy, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_result, answer).
+What it means: A script can only listen to an event that mod.json lists in "scripts.events", and the event must exist. The Events reference lists every event.
 
-How to fix it: Add the event to "hooks" in mod.json, or fix its spelling in on().
+How to fix it: Add the event to "scripts.events" in mod.json, or fix its spelling in on().
 
 Bad (mod.json):
 
 ```
-"scripts": { "main": "main.lua", "hooks": ["day_start"] }
--- main.lua: on("talk", ...)
+"scripts": { "main": "main.lua", "events": ["day_started"] }
+-- main.lua: on("villager_talked", ...)
 ```
 
 Fixed (mod.json):
 
 ```
-"scripts": { "main": "main.lua", "hooks": ["day_start", "talk"] }
+"scripts": { "main": "main.lua", "events": ["day_started", "villager_talked"] }
 ```
 
 ### script-on-late
@@ -3345,9 +3415,9 @@ From the game (Mods tab row):
 
     @yourname.my-mod/main.lua:4: on(): handlers can only be added while the script loads, not from inside a handler
 
-What it means: Handlers are added once, while main.lua first runs. A handler cannot add more handlers, and neither can a function another mod calls with remote.call.
+What it means: Handlers are added once, while main.lua first runs. A handler cannot add more handlers, and neither can a function that another mod calls with remote.call.
 
-How to fix it: Call on() at the top level of main.lua, and keep a flag in a variable to switch behaviour later.
+How to fix it: Call on() at the top level of main.lua. To change behaviour later, keep a flag in a variable.
 
 ### script-on-too-many
 
@@ -3357,7 +3427,7 @@ Seen in: Mods tab, "Script stopped" on the mod's row.
 
 From the game (Mods tab row):
 
-    @yourname.my-mod/main.lua:20: on(): at most 16 handlers for 'talk'
+    @yourname.my-mod/main.lua:20: on(): at most 16 handlers for 'villager_talked'
 
 What it means: A mod can add at most 16 handlers per event.
 
@@ -3373,9 +3443,9 @@ From the game (Mods tab row):
 
     @yourname.my-mod/main.lua:3: store.set: no town is loaded yet (the script's main part runs before the save loads): save from an event, or use store.client
 
-What it means: "store" is kept per town, and the main part of a script runs before the town loads, so store.set is refused there (store.get answers nil). This is an api 2 rule: a mod whose mod.json says api 1 keeps the per-browser store of level 1, usable in the main part.
+What it means: "store" is kept per town, and the main part of a script runs before the town loads. So store.set is refused there and store.get returns nil.
 
-How to fix it: Save from an event (day_start, talk, ...), or use store.client for data that belongs to the browser rather than the town.
+How to fix it: Save from an event such as day_started or villager_talked. For data that belongs to the browser and not the town, use store.client.
 
 Bad (main.lua):
 
@@ -3386,7 +3456,7 @@ store.set("loaded", true)
 Fixed (main.lua):
 
 ```
-on("day_start", function() store.set("days", (store.get("days") or 0) + 1) end)
+on("day_started", function(e) store.set("days", (store.get("days") or 0) + 1) end)
 ```
 
 ### remote-not-exported
@@ -3399,7 +3469,7 @@ From the game (Mods tab row):
 
     @yourname.my-lib/main.lua:3: remote.add: count is not in mod.json "exports" (a library offers what it lists)
 
-What it means: Your mod.json has "exports", so remote.add offers only the names it lists: the mods that use your library were promised exactly those.
+What it means: Your mod.json has "exports", so remote.add offers only the names it lists.
 
 How to fix it: Add the name to "exports" with a one-line description, or offer one that is listed.
 
@@ -3414,11 +3484,11 @@ From the game (Mods tab row):
     @yourname.my-mod/main.lua:4: remote.call: tea.lib offers no function brew
     @yourname.my-mod/main.lua:4: remote.call: tea.lib is already running (a call back into it would be a cycle), refused
     @yourname.my-mod/main.lua:1: remote.add: functions can only be offered while the script loads
-    @yourname.my-mod/main.lua:6: remote.call: tea.lib has not updated this town's data yet (its migrate runs after this one), refused
+    @yourname.my-mod/main.lua:6: remote.call: tea.lib has not updated this town's data yet (its data_migrated runs after this one), refused
 
-What it means: remote.add offers a function while the script loads (names a-z 0-9 _, at most 32). remote.call copies nil, booleans, numbers, strings and tables of them (64 KB, 16 levels) to a running mod that offers the function; a call back into a mod already running is refused. Inside a migrate handler, a call into a mod whose own migrate has not run in that town yet is refused too: its data is still at the old version.
+What it means: A remote.add or remote.call was refused. The text after the function name says why.
 
-How to fix it: Check the mod is installed, on and offers that name (remote.has), pass plain data, and do not call back into the caller. In migrate, only change your own data; ask other mods in a later event, when every migration is done.
+How to fix it: For remote.add, offer the function while the script loads, under a name of a-z, 0-9 and _ up to 32 characters. For remote.call, check with remote.has that the mod is on and offers the name. Pass only nil, booleans, numbers, strings and tables of them, up to 64 KB and 16 levels deep. Do not call back into a mod that is already running. In data_migrated, change only your own data and call other mods from a later event.
 
 ### script-store
 
@@ -3431,10 +3501,12 @@ From the game (Mods tab row):
     @yourname.my-mod/main.lua:3: store.set: only strings, numbers and booleans can be saved
     @yourname.my-mod/main.lua:3: store.set: the store would be over 8192 bytes, nothing was saved
     @yourname.my-mod/main.lua:3: store.set: key longer than 64 bytes
+    @yourname.my-mod/main.lua:3: store.set: a key cannot start with a control character
+    @yourname.my-mod/main.lua:3: store.player.set: only strings, numbers and booleans can be saved
 
-What it means: The store keeps strings, numbers and booleans (not tables or functions), keys up to 64 bytes, values up to 1024 bytes, 8 KB per mod per town (and 8 KB in store.client, per browser), no zero bytes, no NaN. A refused set changes nothing, and the error stops the script unless you pcall it.
+What it means: store.set refused the value, so nothing was saved. The error stops the script unless you wrap the call in pcall.
 
-How to fix it: Save plain values, keep keys short, and turn a table into a string yourself if you must (for example "3,7,12").
+How to fix it: Save only strings, numbers and booleans. Keep a key to 64 bytes and a value to 1024 bytes, with no zero bytes, no NaN and no control character at the start of a key. A mod has 8 KB per town, shared by store and store.player, and 8 KB per browser in store.client. To save a table, turn it into a string such as "3,7,12".
 
 ### script-sandbox
 
@@ -3446,14 +3518,28 @@ From the game (Mods tab row):
 
     @yourname.my-mod/main.lua:2: setmetatable: __gc is not allowed in mod scripts (finalizers cannot be stopped)
     @yourname.my-mod/main.lua:5: tables with a __len metamethod are not supported here in mod scripts
+    @yourname.my-mod/main.lua:4: math.random is not available: use rng() (seeded, so a reload cannot reroll)
+    @yourname.my-mod/main.lua:1: math.randomseed is not available: use rng() (seeded, so a reload cannot reroll)
 
-What it means: Some Lua features are switched off because they could run outside the time budget: __gc finalizers, and __len metamethods passed to table functions. io, os, load, require, dofile and debug do not exist at all.
+What it means: The script used a Lua feature that mod scripts do not have. __gc finalizers and __len metamethods passed to table functions are switched off, and math.random and math.randomseed raise an error.
 
-How to fix it: Remove the metamethod. Use plain tables.
+How to fix it: Remove the metamethod and use plain tables. Write rng() for math.random(), rng(n) for math.random(n) and rng(m, n) for math.random(m, n). rng() is seeded by the mod, the town and the game day, so a reload cannot reroll a result. io, os, load, require, dofile and debug do not exist.
+
+Bad (main.lua):
+
+```
+local n = math.random(6)
+```
+
+Fixed (main.lua):
+
+```
+local n = rng(6)
+```
 
 ### script-state-failed
 
-**The script's Lua state failed**
+**The script could not keep running**
 
 Seen in: Mods tab, "Script stopped" on the mod's row.
 
@@ -3462,15 +3548,15 @@ From the game (Mods tab row):
     the script's Lua state failed and was dropped
     the script raised an error that is not a string
 
-What it means: The Lua engine for this mod failed in a way it cannot recover from, or the script raised an error with error({...}) instead of a string.
+What it means: The script failed in a way the game cannot recover from, or it raised an error with error({...}) instead of a string.
 
-How to fix it: Raise errors with error("text"). If it says the state failed, report it with the mod: it is a bug in the game.
+How to fix it: Raise errors with error("text"). If the message says the state failed, report it with the mod, because that is a bug in the game.
 
 ### script-syntax
 
 **A Lua syntax error**
 
-Seen in: Mods tab, "Script stopped" on the mod's row; the check tool (npx playac-mod check).
+Seen in: Mods tab, "Script stopped" on the mod's row; the check tool (playac-mod check).
 
 In the game page (install, check tool):
 
@@ -3482,23 +3568,23 @@ From the game (Mods tab row):
     @yourname.my-mod/main.lua:5: 'end' expected (to close 'function' at line 2) near <eof>
     @yourname.my-mod/main.lua:3: unexpected symbol near '='
 
-What it means: The script is not valid Lua 5.4, so it never starts: none of its handlers run, and the Mods tab says "Script stopped" with the file, the line and what Lua expected there. The rest of the mod (textures, lines, shop) still works. `npx playac-mod check` finds the same error before you install, when a Lua 5.4 `luac` is on your PATH (it says so when there is none).
+What it means: The script is not valid Lua 5.4, so it never starts and none of its handlers run. The Mods tab shows the file, the line and what Lua expected there, and the rest of the mod still works.
 
-How to fix it: Open the file at the line shown. Usual causes: a missing `end` (every function, if, for and while needs one), a missing `then` or `do`, a string with no closing quote, `!=` where Lua writes `~=`, or a `+` where Lua joins strings with `..`. The line Lua names is where it noticed, often just after the real mistake.
+How to fix it: Open the file at the line shown, which is often just after the real mistake. The usual causes are a missing `end`, `then` or `do`, a string with no closing quote, `!=` where Lua writes `~=`, and `+` where Lua joins strings with `..`. `playac-mod check` finds the same error before you install.
 
 Bad (main.lua):
 
 ```
-on("talk", function(npc)
-  if npc.name == "Bob" return "Hi" end
+on("villager_talked", function(e)
+  if e.villager.name == "Bob" return "Hi" end
 end)
 ```
 
 Fixed (main.lua):
 
 ```
-on("talk", function(npc)
-  if npc.name == "Bob" then return "Hi" end
+on("villager_talked", function(e)
+  if e.villager.name == "Bob" then return "Hi" end
 end)
 ```
 
@@ -3513,63 +3599,87 @@ From the game (Mods tab row):
     @yourname.my-mod/main.lua:7: attempt to index a nil value (global 'io')
     @yourname.my-mod/main.lua:3: attempt to call a nil value (global 'give_item')
 
-What it means: A Lua error in your script: the text says which file and line. The script is stopped for the rest of the session; the rest of the mod (textures, lines, shop) keeps working. Common causes: a typo in a name, calling something that does not exist in the API (io, os, require, a function from a newer game), or indexing nil.
+What it means: Your script raised a Lua error, and the text gives the file and line. The script is stopped for the rest of the session, and the rest of the mod keeps working.
 
-How to fix it: Open the file at the line number shown, fix it, reinstall and restart. Use log() to print values while you work, and pcall around code that may fail.
+How to fix it: Open the file at the line shown and fix it, then reinstall and restart. The usual causes are a typo in a name, a call to something the API does not have, and indexing nil. Use log() to print values, and pcall around code that may fail.
 
-## Mod commands (api 2)
+## Mod commands
 
 ### command-permission
 
 **A command not in "permissions"**
 
-Seen in: the command_result event (its error) and the mod log, when a command is refused.
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
 
 From the game (Mods tab row):
 
     give_item is not in this mod's "permissions" in mod.json
 
-What it means: A script may only use the commands its mod.json "permissions" lists, and only at "api": 2. Players see that list on the Mods tab.
+What it means: A script may only use the commands that "permissions" in mod.json lists. Players see that list on the Mods tab.
 
-How to fix it: Add the command to "permissions" (and say "api": 2), or stop calling it.
+How to fix it: Add the command to "permissions", or stop calling it. Trying again does not help, because the list is read when the game starts.
 
 Bad (mod.json):
 
 ```
-"api": 2,
-"scripts": { "main": "main.lua", "hooks": ["day_start"] }
+"scripts": { "main": "main.lua", "events": ["day_started"] }
 ```
 
 Fixed (mod.json):
 
 ```
-"api": 2,
-"scripts": { "main": "main.lua", "hooks": ["day_start"] },
+"scripts": { "main": "main.lua", "events": ["day_started"] },
 "permissions": ["send_letter"]
 ```
 
-### command-cap
+### command-event-cap
 
-**Too many commands**
+**Too many commands in one event**
 
-Seen in: the command_result event (its error) and the mod log, when a command is refused.
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
 
 From the game (Mods tab row):
 
-    set_flag: at most 4 commands in one event
-    send_letter: at most 3 a day for each mod
+    send_letter: at most 4 commands in one event
+
+What it means: A mod may queue at most 4 commands while one event runs.
+
+How to fix it: Queue fewer commands per event. The count starts again at the next event, so the rest can go then.
+
+### command-queue-full
+
+**The command queue is full**
+
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
+
+From the game (Mods tab row):
+
     show_line: this mod already has 8 commands waiting
     ask: the game's command queue is full (32), try later
 
-What it means: A mod may queue at most 4 commands in one event and, each game day in each town, 3 letters, 5 items, 100 flags, 20 lines and 10 questions (counted when the game applies them, the ones still waiting included in the check, kept across a reload). At most 8 of its commands wait at once, 32 for all mods.
+What it means: Commands wait in a queue until the game applies them at the end of a frame. At most 8 of one mod's commands wait at once, and 32 for all mods together.
 
-How to fix it: Queue fewer commands: remember in the store what you already sent today.
+How to fix it: Try again from a later event. The queue empties as the game applies it.
+
+### command-day-cap
+
+**The day's cap for this command is used up**
+
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
+
+From the game (Mods tab row):
+
+    send_letter: at most 3 a day for each mod
+
+What it means: Each game day in each town, a mod may send 3 letters, give 5 items, show 20 lines and ask 10 questions. The caps are per town, not per player, and a reload does not reset them.
+
+How to fix it: Try again on the next game day. Remember in the store what you already sent today, so the script does not ask again.
 
 ### command-item
 
 **An item a command cannot hand out**
 
-Seen in: the command_result event (its error) and the mod log, when a command is refused.
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
 
 From the game (Mods tab row):
 
@@ -3578,69 +3688,68 @@ From the game (Mods tab row):
     give_item: a mod can only give its own new items, by "<this mod's id>:<item id>"
     give_item: no item by that id in this mod's items file
 
-What it means: Items follow the shop's rules: no money, turnips, tickets, grab bags, fossils or reserved numbers. An item is a number, "0x" and four hex digits, or one of this mod's own new items by its full id.
+What it means: Items follow the shop's rules, so a command cannot hand out money, turnips, tickets, grab bags, fossils or reserved numbers. An item is "0x" and four hex digits, or one of this mod's own new items by its full id.
 
-How to fix it: Pick another item, or write it as "0x2800" or "yourname.my-mod:thing".
+How to fix it: Pick another item. Write it as "0x2800" or "yourname.my-mod:thing".
 
 ### command-args
 
 **A command's arguments are wrong**
 
-Seen in: the command_result event (its error) and the mod log, when a command is refused.
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
 
 From the game (Mods tab row):
 
     send_letter: text must be 1 to 192 characters
     send_letter: the text does not fit a letter (6 lines)
     ask: choices must be a list of 2 to 4 answers
-    set_flag: the key must be 1 to 32 of a-z 0-9 _ . -
     show_line: text must be 1 to 400 bytes
 
-What it means: The command was called with something it cannot use. The limits: a letter 1 to 192 characters in 6 lines, from up to 8, paper 0 to 63; a line up to 400 bytes; a question up to 120 characters with 2 to 4 answers of up to 16; a flag key of a-z 0-9 _ . - up to 32, its text up to 64 bytes.
+What it means: The command was called with a value it cannot use.
 
-How to fix it: Check the call against the reference (/modding/reference/) and shorten the text.
+How to fix it: Check the call against the reference (/modding/reference/) and shorten the text. A letter is 1 to 192 characters in 6 lines, with "from" up to 8 characters and paper 0 to 63. A line is up to 400 bytes. A question is up to 120 characters, with 2 to 4 answers of up to 16 characters.
 
 ### command-city
 
 **Commands are off in The City**
 
-Seen in: the command_result event (its error) and the mod log, when a command is refused.
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
 
 From the game (Mods tab row):
 
     commands are switched off in The City
     send_letter: commands are switched off in The City
 
-What it means: In The City every command is refused: other players there do not have your mod, and nothing a mod gives may enter the shared town. Called in The City, a command returns nil and this reason; queued at home and applied after the player went there, it comes back as a refused command_result. Either way it does not count against the daily caps.
+What it means: In The City every command is refused, because other players there do not have your mod. A refused command does not count against the daily caps.
 
-How to fix it: Nothing to fix. Try again at home (for example from enter_scene).
+How to fix it: Nothing to fix. Handle the nil return or the failed command_finished, and try again at home, for example from scene_entered.
 
 ### command-visiting
 
 **Only the town's owner changes a town**
 
-Seen in: the command_result event (its error) and the mod log, when a command is refused.
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
 
 From the game (Mods tab row):
 
     only the town owner's game can change the town (you are visiting)
     give_item: only the town owner's game can change the town (you are visiting)
 
-What it means: Visiting a friend, send_letter and give_item are refused (nil and this reason when called, or a refused command_result if the player left home after queueing) and do not count against the daily caps: only the town owner's game changes a town. set_flag, show_line and ask still work.
+What it means: On a visit, send_letter and give_item are refused, because only the town owner's game changes a town. They do not count against the daily caps, and show_line and ask still work.
 
-How to fix it: Nothing to fix. Send it once the player is home.
+How to fix it: Nothing to fix. Handle the nil return or the failed command_finished, and send it once the player is home.
 
 ### command-lent-home
 
 **A lent mod acts only in its town**
 
-Seen in: the command_result event (its error) and the mod log, when a command is refused.
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
 
 From the game (Mods tab row):
 
     a friend's mod lent for a visit acts only in their town
 
-What it means: A visitor whose game borrowed the host's mods for a visit restarts on them at home before the trip and again after it. There every command of a lent mod comes back refused, and its shop, Nook goods, board notices, items and renames do nothing: a lent mod never changes the visitor's own town or save. In the host's town it runs as a visitor's mod does.
+What it means: This mod was lent to a visitor for one visit. At the visitor's home its commands are refused and its shop, Nook goods, board notices, items and renames do nothing, so it never changes the visitor's own town or save.
 
 How to fix it: Nothing to fix. Your mod runs normally for players who installed it.
 
@@ -3648,7 +3757,7 @@ How to fix it: Nothing to fix. Your mod runs normally for players who installed 
 
 **No room for a letter or an item**
 
-Seen in: the command_result event (its error) and the mod log, when a command is refused.
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
 
 From the game (Mods tab row):
 
@@ -3656,25 +3765,24 @@ From the game (Mods tab row):
     the pockets, the mailbox and the post office are all full
     the pockets are full (a new item cannot come by mail)
 
-What it means: The mailbox and the post office had no room, or the pockets were full for one of the mod's own new items (a letter cannot carry its identity).
+What it means: There was no room for the letter or the item. One of the game's items can go to the pockets or come by mail, and one of the mod's own new items can only go to the pockets.
 
-How to fix it: Try again later; watch command_result and resend when it failed.
+How to fix it: Try again later. Watch command_finished and send it again when it failed.
 
 ### command-not-shown
 
 **A line or a gift could not be done**
 
-Seen in: the command_result event (its error) and the mod log, when a command is refused.
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
 
 From the game (Mods tab row):
 
     the text cannot be drawn in the window (too many pages?)
     the item is not this town's to give (its mod is off, or this is not your town)
-    the flag could not be saved
 
-What it means: The game could not carry the command out: a line too long to page, a new item whose mod is off, or a flag the store refused (it would take the store over 8 KB).
+What it means: The game could not carry the command out. The line is too long to page, or the item's mod is off.
 
-How to fix it: Shorten the line, keep the mod on, or keep the store small.
+How to fix it: Shorten the line, or keep the mod on. Trying the same command again does not help.
 
 ## Sharing a mod
 
@@ -3690,7 +3798,7 @@ On the site:
 
 What it means: What you share must be the exact ZIP players will get, not a folder still changing.
 
-How to fix it: Run `npx playac-mod pack`, unload the developer copy, restart, and upload the ZIP.
+How to fix it: Run `playac-mod pack`, unload the developer copy, restart, and upload the ZIP.
 
 ### upload-name-word
 
@@ -3702,9 +3810,9 @@ From the mod list (upload):
 
     The mod's name has a word the site does not allow. Pick another name.
 
-What it means: The list of shared mods is public, so a mod's name goes through the same word filter as everything else players can read on the site.
+What it means: The mod list is public, so a mod's name goes through the site's word filter.
 
-How to fix it: Change "name" in mod.json, raise the version, and upload again.
+How to fix it: Change "name" in mod.json, raise the version and upload again.
 
 ### upload-author-word
 
@@ -3716,9 +3824,9 @@ From the mod list (upload):
 
     An author name has a word the site does not allow. Use another name.
 
-What it means: Author names are shown on the public list of shared mods, so they go through the site's word filter.
+What it means: Author names show on the mod list, so they go through the site's word filter.
 
-How to fix it: Change the name in "authors" in mod.json, raise the version, and upload again.
+How to fix it: Change the name in "authors" in mod.json, raise the version and upload again.
 
 ### upload-sign-in
 
@@ -3748,7 +3856,7 @@ From the mod list (upload):
 
 Registry codes: `publisher_terms`
 
-What it means: The first time you share, you answer your age and accept the mod rules.
+What it means: The first time you share, you give your age and accept the mod rules.
 
 How to fix it: Answer the questions above the upload button, then upload again.
 
@@ -3780,9 +3888,9 @@ From the mod list (upload):
 
 Registry codes: `upload_rights_removed`, `uploads_locked`
 
-What it means: Mods from this account were removed for copyright several times (the repeat-infringer policy), or a moderator switched uploads off for it.
+What it means: This account cannot share mods. Its mods were removed for copyright several times, or a moderator switched uploads off for it.
 
-How to fix it: See the mod rules page for how to appeal.
+How to fix it: Read the mod rules page for how to appeal.
 
 ### upload-version-exists
 
@@ -3796,7 +3904,7 @@ From the mod list (upload):
 
 Registry codes: `version_exists`
 
-What it means: Every upload is a new version and a version can never be replaced, so players who have it always have the same files. Its number is not used again either, even after it is removed. Only a rejected version, which nobody else ever saw, frees its number.
+What it means: Every upload is a new version, and a version is never replaced, so everyone who has it has the same files. A version number is used once, even after the version is removed, unless a moderator refused it.
 
 How to fix it: Raise "version" in mod.json (1.0.0 to 1.0.1) and upload again.
 
@@ -3811,15 +3919,18 @@ From the mod list (upload):
     Add at least one screenshot of the mod in the game (PNG or JPEG). It is shown on the mod's page.
     Screenshot 1 must be a PNG or a JPEG.
     Screenshot 1 must be 200 to 4096 pixels a side.
+    Screenshot 1 is larger than a 4K screen (3840 by 2160 pixels). Make it smaller.
+    Screenshot 1 is a 16 bit PNG. Save it as an ordinary (8 bit) PNG or a JPEG.
+    Screenshot 1 is a progressive JPEG larger than 1920 by 1080 pixels. Save it as a standard (baseline) JPEG or a PNG, or make it smaller.
     Screenshot 1 could not be read: is it a whole PNG or JPEG?
-    Each screenshot must be at most 2 MiB.
+    Each screenshot must be at most 2 MB.
     Send at most 4 screenshots.
 
 Registry codes: `screenshot_required`
 
-What it means: Every shared version needs 1 to 4 screenshots of the mod in the game, shown on its page: PNG or JPEG, 200 to 4096 pixels a side, at most 2 MB each. The server re-saves them, so no hidden photo data survives.
+What it means: Every shared version needs 1 to 4 screenshots of the mod in the game, and one was missing or could not be used. The site saves them again, so no hidden photo data survives.
 
-How to fix it: Add a screenshot in Share a mod, with playac-mod publish --shot, or in .playac/screenshots/ (also for a GitHub import).
+How to fix it: Add a screenshot in Share a mod, with `playac-mod publish --shot`, or in .playac/screenshots/, which a GitHub import reads too. Use a PNG or JPEG of 200 to 4096 pixels a side, at most 3840 by 2160 pixels in all and 2 MB. Save it as an ordinary 8-bit PNG or a standard JPEG, not a 16-bit PNG or a progressive JPEG over 1920 by 1080.
 
 ### upload-changelog
 
@@ -3836,9 +3947,9 @@ From the mod list (upload):
 
 Registry codes: `changelog_required`
 
-What it means: Every shared version needs one line about what it changes, shown in its page's version list: up to 300 characters and 4 line breaks, and the same words filter as a mod's name.
+What it means: Every shared version needs one line on what it changes. The line shows in the version list on the mod's page.
 
-How to fix it: Write the line in Share a mod, with playac-mod publish --changelog, or as this version's section of CHANGELOG.md.
+How to fix it: Write the line in Share a mod, with `playac-mod publish --changelog`, or as this version's section of CHANGELOG.md. Keep it to 300 characters and 4 line breaks. It goes through the site's word filter.
 
 ### upload-form
 
@@ -3854,9 +3965,9 @@ From the mod list (upload):
     The upload form has no boundary.
     Send one zip at a time.
 
-What it means: An upload is a form with the zip, the screenshots and the changelog line. This one was not sent the way the site sends it.
+What it means: An upload is a form with the ZIP, the screenshots and the changelog line. This one was not sent the way the site sends it.
 
-How to fix it: Share from Settings, Mods, or with playac-mod publish. A script of your own must send multipart/form-data with the parts zip, screenshot and changelog.
+How to fix it: Share from Settings, Mods, or with `playac-mod publish`. A script of your own must send multipart/form-data with the parts zip, screenshot and changelog.
 
 ### upload-not-owner
 
@@ -3887,9 +3998,9 @@ From the mod list (upload):
 
 Registry codes: `too_many_uploads`, `too_many_pending`, `rate_limited`
 
-What it means: There is a limit on uploads per hour and on uploads waiting for review at once.
+What it means: There is a limit on uploads per hour and on uploads waiting for review.
 
-How to fix it: Wait for a review, or try again in an hour. Test locally first so each upload counts.
+How to fix it: Wait for a review, or try again in an hour. Test on your own computer first, so each upload counts.
 
 ### upload-storage-full
 
@@ -3899,11 +4010,11 @@ Seen in: Share a mod, when you upload.
 
 From the mod list (upload):
 
-    Your mods would take more than 64 MiB. Ask for an old version to be taken down, or make this one smaller.
+    Your mods would take more than 64 MB. Ask for an old version to be taken down, or make this one smaller.
 
 Registry codes: `storage_full`
 
-What it means: Each account has a total size for all its shared versions.
+What it means: Each account has a total size for all its shared versions, and this upload would go over it.
 
 How to fix it: Ask for an old version to be removed, or make the mod smaller.
 
@@ -3920,7 +4031,7 @@ From the mod list (upload):
 
 Registry codes: `uploads_busy`, `upload_slow`
 
-What it means: One upload at a time per account and network, and the file has to keep arriving.
+What it means: Only one upload runs at a time per account and network, and the file has to keep arriving.
 
 How to fix it: Wait a minute and try again, on a steadier connection if it was too slow.
 
@@ -3936,7 +4047,7 @@ From the mod list (upload):
 
 Registry codes: `image_check_unavailable`
 
-What it means: Every image is checked before an upload is accepted, and the checking service did not answer. Nothing was uploaded.
+What it means: Every image is checked before an upload is accepted, and the check did not answer. Nothing was uploaded.
 
 How to fix it: Try again in a few minutes.
 
@@ -3968,9 +4079,9 @@ From the mod list (upload):
 
 Registry codes: `uploads_closed`
 
-What it means: The site has not opened mod sharing (or has closed it for now). Uploads and GitHub imports are both refused. Installing a mod from a ZIP file is not affected.
+What it means: Sharing mods is not open, so uploads and GitHub imports are refused. Installing a mod from a ZIP still works.
 
-How to fix it: Keep making and testing the mod locally, and share it once sharing opens.
+How to fix it: Keep making and testing the mod on your own computer, and share it once sharing opens.
 
 ### upload-paused
 
@@ -4004,9 +4115,9 @@ From the mod list (upload):
 
 Registry codes: `two_factor_required`, `two_factor_code`, `two_factor_unavailable`, `two_factor_locked`
 
-What it means: Sharing a mod, importing one from GitHub and approving a playac-mod sign-in all need two-factor sign-in on the account, and a code entered in the last few minutes on this browser. Turning it on asks for your password. After 5 wrong codes in a row, code checks pause for a minute, then longer with each further wrong code (an hour at most), and the account is emailed. If the server cannot check codes at all, sharing is switched off.
+What it means: Sharing a mod, importing one from GitHub and approving a playac-mod sign-in all need two-factor sign-in and a recent code from your authenticator app. After 5 wrong codes in a row, code checks pause for a minute or longer, and we email the account.
 
-How to fix it: Turn on two-factor sign-in on your Profile page, then enter a code from your authenticator app when asked. If codes are paused, wait, then use a fresh code (check the phone's clock is right).
+How to fix it: Switch on two-factor sign-in on your Profile page, then enter a code from your authenticator app when asked. If codes are paused, wait, check that the phone's clock is right and use a fresh code.
 
 ### upload-prefix-taken
 
@@ -4020,23 +4131,27 @@ From the mod list (upload):
 
 Registry codes: `prefix_taken`
 
-What it means: The part of a mod id before the dot (kim in kim.tea-house) belongs to the account that first uploaded under it, from that upload on, even while it waits for review, so nobody else can publish under that name. It is free again only if every upload under it was rejected.
+What it means: The part of a mod id before the dot belongs to the account that first uploaded under it, even while that upload waits for review. In kim.tea-house that part is kim. It is free again only if every upload under it was refused.
 
 How to fix it: Change "id" in mod.json to start with your own name.
 
 ### upload-content-taken-down
 
-**These files were taken down**
+**These files were removed from the mod list**
 
 Seen in: Share a mod, when you upload.
 
 From the mod list (upload):
 
-    These files were taken down from the registry, so they can't be shared again.
+    These files were removed from the mod list, so they can't be shared again.
+
+On the site:
+
+    These files were removed from the mod list, so they can't be shared again.
 
 Registry codes: `content_taken_down`
 
-What it means: The same files as a version a moderator removed. Copies of it are switched off, and the files cannot be shared again under any id or version.
+What it means: These are the same files as a version the moderators removed. They cannot be shared again under any id or version.
 
 How to fix it: Read the review decision on the removed version and change what it named. If you think the removal was wrong, see the mod rules page.
 
@@ -4052,9 +4167,9 @@ From the mod list (upload):
 
 Registry codes: `too_many_attempts`
 
-What it means: Every upload attempt counts, refused ones too: each one costs a check of every image.
+What it means: Every upload attempt counts towards the hourly limit, refused ones too, because each one costs a check of every image.
 
-How to fix it: Check the mod locally first (npx playac-mod check), then try again in an hour.
+How to fix it: Run `playac-mod check` first, then try again in an hour.
 
 ### upload-too-many-images
 
@@ -4069,7 +4184,7 @@ From the mod list (upload):
 
 Registry codes: `too_many_images`
 
-What it means: Every picture in an upload is checked before it is accepted, so one upload may hold at most 500 different pictures, about 67 million pixels in all (16 textures of 2048 by 2048). The same file used many times counts once.
+What it means: One upload may hold at most 500 different pictures and about 67 million pixels in all, which is 16 textures of 2048 by 2048. The same file used many times counts once.
 
 How to fix it: Split the mod into smaller mods, or make the large textures smaller.
 
@@ -4103,9 +4218,9 @@ From the mod list (upload):
 
 Registry codes: `mod_conflict`
 
-What it means: A yank or unyank (or a moderator's decision) that the version's state does not allow: a version a moderator yanked is the moderator's to list again, and a decision someone else made first wins.
+What it means: The version's state does not allow that change. Only a moderator can list again a version that a moderator withdrew, and a decision made first wins.
 
-How to fix it: Reload the Mods tab. For a moderator's yank, read the reason, fix the mod and upload a new version.
+How to fix it: Reload the Mods tab. If a moderator withdrew the version, read the reason, fix the mod and upload a new version.
 
 ## Review decisions
 
@@ -4147,7 +4262,7 @@ Seen in: the review decision on your upload.
 
 What it means: The owner of a copyright sent us a notice saying this mod copies their work, so it was removed. If you believe the notice is a mistake, the mod rules page says how to respond.
 
-How to fix it: If you believe the notice is wrong, the mod rules page explains the counter-notice.
+How to fix it: If you believe the notice is wrong, send a counter-notice. The mod rules page explains how.
 
 ### review-sexual-content
 
@@ -4207,7 +4322,7 @@ Seen in: the review decision on your upload.
 
 What it means: The mod does not load or does not do what it says. Fix it and upload it again as a new version.
 
-How to fix it: Test it with the check tool and in the game (dev mode, the log panel), fix it, and upload a higher version.
+How to fix it: Test it with `playac-mod check`, then in the game with developer mode and the Mod log. Fix it and upload a higher version.
 
 ### review-spam
 
@@ -4227,7 +4342,7 @@ Seen in: the review decision on your upload.
 
 What it means: Mods from this account were removed for copyright several times, so under the repeat-infringer policy on the mod rules page its mods are no longer shared.
 
-How to fix it: See the mod rules page for how to appeal.
+How to fix it: Read the mod rules page for how to appeal.
 
 ### review-uploader-request
 
@@ -4247,7 +4362,7 @@ Seen in: the review decision on your upload.
 
 What it means: The mod breaks another of the mod rules. The moderator's note says which.
 
-How to fix it: Read the moderator's note: it says which rule.
+How to fix it: Read the moderator's note. It says which rule.
 
 ## Updates and removals
 
@@ -4261,9 +4376,9 @@ In the game page (install, check tool):
 
     Removed by the moderators: holds art from another game. It cannot be switched on
 
-What it means: The moderators took this version down (the reason follows). Every copy, even one installed from a ZIP, is switched off at the next start and cannot be switched on.
+What it means: The moderators removed this version, and the reason follows the message. Every copy is switched off at the next start and cannot be switched on, even one installed from a ZIP.
 
-How to fix it: Players: remove it, or install a newer version once the maker fixes it. Makers: read the review reason, fix the problem and upload a new version; players who update get it switched back on.
+How to fix it: If you installed it, remove it, or install a newer version once the author fixes it. If you made it, read the review reason, fix the problem and upload a new version. Players who update get the mod switched on again.
 
 ### status-update-available
 
@@ -4275,13 +4390,13 @@ On the site:
 
     Update available
 
-What it means: A newer approved version of the mod is in the mod list.
+What it means: A newer listed version of the mod is in the mod list.
 
-How to fix it: Open Browse mods and install the update, then restart.
+How to fix it: Open Browse mods, install the update and restart.
 
 ### status-yanked
 
-**No longer offered in the mod list**
+**Withdrawn from the mod list**
 
 Seen in: Mods tab, on the mod's row after a restart.
 
@@ -4289,9 +4404,9 @@ On the site:
 
     No longer offered in the mod list. It still works.
 
-What it means: The maker took this version out of the list (a yank). It still works and friend visits still match it, but new players cannot install it.
+What it means: The author withdrew this version. It still works and friend visits still match it, but new players cannot install it.
 
-How to fix it: Nothing to do. If the maker shares a newer version, update to it.
+How to fix it: Nothing to do. If the author shares a newer version, update to it.
 
 ### status-mods-switched-off
 
@@ -4305,9 +4420,9 @@ From the mod list (upload):
 
 Registry codes: `mods_switched_off`
 
-What it means: The site switched every mod off for a while (the kill switch). Games start without mods, and no mod can be downloaded until it is back on. Nothing is uninstalled.
+What it means: We switched mods off for everyone for a while. Games start without mods and no mod can be downloaded, but nothing is uninstalled.
 
-How to fix it: Nothing to do: your mods come back on their own.
+How to fix it: Nothing to do. Your mods come back on their own.
 
 ## Friend visits
 
@@ -4324,9 +4439,9 @@ In the game page (install, check tool):
     the friend's mods did not all load
     a lent mod is missing from this tab
 
-What it means: You agreed to visit with your friend's mods, and this game could not run every one of them: together with your own mods they are over the room the game keeps for mods on this device, one needs a mod that is not in the set, or the set kept for this tab is gone. A visit needs the whole set, so it was not started.
+What it means: You agreed to visit with your friend's mods, but this game could not run all of them, so the visit did not start. The set is too big for this device, needs a mod it does not hold, or is gone from this tab.
 
-How to fix it: Switch off some of your own client mods (they count toward the room too) and ask again, or play on a computer, which keeps more room for mods. If the set is gone, ask again: the game fetches it once more.
+How to fix it: Switch off some of your own Just you mods, which use the same room, and ask again. A computer keeps more room for mods than a phone. If the set is gone, ask again and the game fetches it once more.
 
 ### dev-visits-off
 
@@ -4338,26 +4453,26 @@ On the site:
 
     A mod is loaded in developer mode, so friend visits are off: no other town has that mod. Unload it in Settings, Mods, then restart the game.
 
-What it means: A mod loaded from a folder is not installed and no one else has it, so your town would not match any other. Visits refuse it either way.
+What it means: A mod loaded in developer mode is not installed and no other town has it, so friend visits are off.
 
 How to fix it: Unload it in Settings, Mods, Developer, then restart the game.
 
 ### visit-modset-mismatch
 
-**A visit refused: world mods differ**
+**The two towns run different World mods**
 
 Seen in: the Multiplayer panel, when a visit is refused.
 
 On the site:
 
-    Your world mods don't match. Visits need the same world mods (the ones visitors can see) in both towns (or none). Change them in Settings, Mods.
-    Kim's town runs Tea House 1.2.0, you don't. Visits need the same world mods (the ones visitors can see) in both towns. Change them in Settings, Mods.
+    Your World mods don't match. Visits need the same World mods (the ones visitors can see) in both towns (or none). Change them in Settings, Mods.
+    Kim's town runs Tea House 1.2.0, you don't. Visits need the same World mods (the ones visitors can see) in both towns. Change them in Settings, Mods.
 
 Registry codes: `modset_mismatch`
 
-What it means: A friend visit starts only when both towns run the same world mods that count for visits, the same versions, in the same order, or both none. The message names what differs. Client mods never count. A world mod counts when it has "textures", "shops" or "items" content, or a command other than send_letter, give_item, set_flag, show_line and ask; one with only lines, letters, events or talk pools and those commands does not. When every one of your friend's world mods that counts is from Browse mods, you are offered their mods for that visit instead.
+What it means: A friend visit starts only when both towns run the same World mods that count for visits, in the same versions and order. The message names what differs.
 
-How to fix it: Both players open Settings, Mods, and make the world mods match: same mods, same versions (install from the same place or the same ZIP), same order. Or switch world mods off and restart. Makers: publish your world mod on Browse mods, so visitors can load it for a visit.
+How to fix it: Make the World mods match in Settings, Mods, or switch them off and restart. A World mod counts when it has "textures", "shops" or "items" content, and a Just you mod never counts. See the multiplayer guide for the full rule (https://playaconline.com/modding/guides/multiplayer/).
 
 ### visit-lend-failed
 
@@ -4378,11 +4493,11 @@ From the mod list (upload):
 
 On the site:
 
-    Couldn't load Kim's mods for this visit. Couldn't download Tea House: the registry answered 404.
+    Couldn't load Kim's mods for this visit. Couldn't download Tea House: the mod list answered 404.
 
-What it means: You agreed to visit with your friend's mods, and one of them could not be downloaded, the download was not exactly the version your friend runs (checked by content hash), or your friend's settings for it were not ones that mod takes. Nothing was kept or installed, and the visit was left.
+What it means: You agreed to visit with your friend's mods, and one could not be downloaded, did not match your friend's version or had settings the mod does not take. Nothing was kept or installed, and the visit was left.
 
-How to fix it: Ask again later. If it keeps happening, the mod may have been taken down or updated: both players can install the same version from Browse mods.
+How to fix it: Ask again later. If it keeps happening, the mod may have been removed or updated. Both players can then install the same version from Browse mods.
 
 ### city-mod-refused
 
@@ -4395,6 +4510,6 @@ In the game page (install, check tool):
     bean.lamps: a City mod may only hold textures and lines, not shops
     bean.lamps: a City mod may not run scripts
 
-What it means: The City's own mod set (chosen by the site) may only change textures and lines. A mod with a shop, a script or commands is never loaded there.
+What it means: The City's own mods may only change textures and lines. A mod with a shop, a script or commands is never loaded there.
 
-How to fix it: Nothing for players to do: the site fixes its City set. Makers: a mod meant for The City holds only textures and messages.
+How to fix it: Nothing to do. If you make a mod for The City, give it only textures and messages.

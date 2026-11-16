@@ -1,7 +1,8 @@
 # Nook's Extras
 
-A Nook's stock example (`shops.json`, target `nook`). World scope: a
-visitor sees the same shelves, so a friend visit needs the same mod on both sides.
+A Nook's stock example (`shops.json`, target `nook`). It is a World mod
+(`"scope": "world"`). A visitor sees the same shelves, so a friend visit needs
+the same mod on both sides.
 
 ## In the game
 
@@ -17,10 +18,16 @@ After: the same morning with Nook's Extras. Four spots now hold the mod's goods 
 
 The film (click the picture): A walk round Nook's Cranny with Nook's Extras installed: the mod's goods sit in the spots of their own kind, among his usual stock.
 
-`"mode": "add"` keeps Nook's own roll and puts these goods in at most half of the
-spots of their kind each day: three pieces of furniture, two umbrellas (one
-umbrella spot, so the date picks which one shows), a shirt and a rug. A price is
-the mod's floor price, never below what Nook pays back; no price is retail.
+`"mode": "add"` keeps Nook's own roll. It puts these goods in at most half of
+the spots of their kind each day:
+
+- three pieces of furniture
+- two umbrellas. There is one umbrella spot, so the date picks which one shows.
+- a shirt
+- a rug
+
+`price` is what Nook asks for the good in the shop. It is never below what
+Nook pays back. An entry with no price sells at the usual retail price.
 
 Changes show from the next restock, the morning after the mod is switched on.
-In the City Nook's stock is the game's own.
+In The City, Nook's stock is the game's own.

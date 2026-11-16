@@ -45,9 +45,9 @@
     },
     {
       "fileMatch": [
-        "/events.json"
+        "/calendar.json"
       ],
-      "url": "./.playac/schemas/events.schema.json"
+      "url": "./.playac/schemas/calendar.schema.json"
     },
     {
       "fileMatch": [

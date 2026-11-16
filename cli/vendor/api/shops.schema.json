@@ -2,11 +2,12 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/shops.schema.json",
   "title": "Play AC Online shops.json",
-  "description": "Restocks and rewords a shop. The flower shop, and from api 2 Nook's (target nook: goods added to or replacing the day's roll per spot kind, every store size, from the next restock; off in the City). The game itself (not the page or the registry) refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids, and raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. From api 2 a good may be an item of the same mod (its full id); without a price it takes the item's price. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
+  "description": "Restocks and rewords a shop: the flower shop or Nook's. For target nook, the goods are added to or replace the day's roll per spot kind, in every store size, from the next restock. Nook's goods are off in The City. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
   "type": "object",
   "required": [
     "shops"
   ],
+  "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string"
@@ -14,26 +15,27 @@
     "shops": {
       "type": "array",
       "minItems": 1,
-      "maxItems": 4,
+      "maxItems": 2,
       "items": {
         "type": "object",
         "required": [
           "target",
           "stock"
         ],
+        "additionalProperties": false,
         "properties": {
           "target": {
             "enum": [
               "flower",
               "nook"
             ],
-            "description": "Which shop: \"flower\", or \"nook\" (api 2). One shop per target. A nook entry takes only mode and stock."
+            "description": "Which shop: \"flower\" or \"nook\". One shop per target. A nook entry takes only mode and stock."
           },
           "name": {
             "type": "string",
             "minLength": 1,
             "maxLength": 40,
-            "description": "The shop's name on its sign: one line (no line break).",
+            "description": "The shop's name on its sign, on one line with no line break.",
             "pattern": "^[^\\n]*$"
           },
           "hours": {
@@ -52,7 +54,7 @@
                 "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
               }
             },
-            "description": "HH:MM, open and close different. Close may be past midnight. Hours can only shorten the shop's own."
+            "description": "HH:MM. Open and close must differ. Close may be past midnight. Hours can only shorten the shop's own."
           },
           "greeting": {
             "type": "string",
@@ -75,10 +77,11 @@
               "required": [
                 "item"
               ],
+              "additionalProperties": false,
               "properties": {
                 "item": {
                   "type": "string",
-                  "description": "The item id as a string, \"0x\" and 4 hex digits; from api 2 also the full id of an item in this mod's items file (author.mod:thing). Listed at most once; two mod items may not share a base.",
+                  "description": "The item id as a string, \"0x\" and 4 hex digits, or the full id of an item in this mod's items file (author.mod:thing). Each item is listed at most once. Two mod items may not share a base.",
                   "anyOf": [
                     {
                       "pattern": "^0x[0-9a-fA-F]{4}$"
@@ -92,7 +95,7 @@
                   "type": "integer",
                   "minimum": 1,
                   "maximum": 99999,
-                  "description": "Bells. Leave out for the game's own price."
+                  "description": "The price in Bells. Leave it out for the game's own price."
                 }
               }
             },
@@ -103,12 +106,12 @@
               "add",
               "replace"
             ],
-            "description": "Nook's only: \"add\" (default) puts the goods in at most half of each kind's spots, \"replace\" in all of them."
+            "description": "Nook's only. \"add\" (the default) puts the goods in at most half of each kind's spots. \"replace\" puts them in all of them."
           }
         },
         "allOf": [
           {
-            "description": "The flower shop sells at most 6 goods (one per table spot); Nook's up to 16.",
+            "description": "The flower shop sells at most 6 goods, one per table spot. Nook's sells up to 16.",
             "if": {
               "required": [
                 "target"

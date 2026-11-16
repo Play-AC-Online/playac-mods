@@ -4,24 +4,23 @@
 local told = {}        -- villagers who have gossiped today, by id
 local GOSSIP = 4       -- gossip1..gossip4 in messages/en.json
 
-on("day_start", function(date)
+on("day_started", function(e)
   told = {}
   store.set("days", (store.get("days") or 0) + 1)
 end)
 
-on("talk", function(npc)
-  if told[npc.id] then return nil end
-  told[npc.id] = true
+on("villager_talked", function(e)
+  local who = e.villager
+  if told[who.id] then return nil end
+  told[who.id] = true
 
-  -- If the Tea House mod is installed too, sometimes mention it.
+  -- If the Tea House mod is installed too, one talk in three mentions it.
   local tea = message("example.tea-house:hours")
-  local t = game.time()
-  if tea and (npc.id + t.day) % 3 == 0 then
-    return npc.name .. " here! " .. tea .. " Pop in!"
+  if tea and rng(3) == 1 then
+    return who.name .. " here! " .. tea .. " Pop in!"
   end
 
-  local n = (npc.id + t.day) % GOSSIP + 1
-  return message("gossip" .. n)
+  return message("gossip" .. rng(GOSSIP))
 end)
 
 log("ready")

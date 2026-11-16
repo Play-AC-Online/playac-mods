@@ -1,74 +1,615 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/mod.schema.json",
-  "title": "Play AC Online mod.json (mod API levels 1 to 2)",
-  "description": "FALLBACK copy shipped with playac-mod; the mod contract is the rule. `npx playac-mod check` runs the real rules.",
+  "title": "Play AC Online mod.json",
+  "description": "A mod's manifest, mod API level 1. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/manifest/",
   "type": "object",
-  "required": ["schema", "api", "id", "name", "version", "authors", "scope", "assets_original"],
+  "required": [
+    "schema",
+    "api",
+    "id",
+    "name",
+    "version",
+    "authors",
+    "scope",
+    "assets_original"
+  ],
+  "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
-    "schema": { "const": 1, "description": "The mod.json format. Always 1." },
-    "api": { "type": "integer", "minimum": 1, "maximum": 2, "description": "The mod API level the mod is written for. 2 adds items and renames." },
+    "$schema": {
+      "description": "Optional. The JSON Schema an editor checks mod.json against, for autocomplete and errors as you type. The game ignores it.",
+      "type": "string",
+      "examples": [
+        "https://playaconline.com/schemas/mod.schema.json"
+      ]
+    },
+    "schema": {
+      "description": "The manifest format. Always 1.",
+      "const": 1,
+      "examples": [
+        1
+      ]
+    },
+    "api": {
+      "description": "The mod API level the mod is made for. The game checks a mod by the rules of its own level. It runs an older level through shims while that level is supported. Use the newest level.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1,
+      "examples": [
+        1
+      ]
+    },
     "id": {
+      "description": "author.mod-name, in lowercase letters, digits and dashes, with one dot. The author parts playaconline, official, admin and example are reserved for the site's own mods in the mod list. The mod list also refuses an author part that passes for one of them (official-, examples, playaconline-official).",
       "type": "string",
       "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}$",
-      "description": "author.mod-name: lowercase letters, digits and dashes. The registry reserves playaconline, official, admin and example."
+      "maxLength": 81,
+      "examples": [
+        "yourname.tea-house"
+      ]
     },
-    "name": { "type": "string", "minLength": 1, "maxLength": 60 },
+    "name": {
+      "description": "The name players see, 1 to 60 characters after trimming spaces. The mod list also refuses a name with a line break, another control character or a hidden text-direction character.",
+      "type": "string",
+      "pattern": "^\\s*\\S(?:[\\s\\S]{0,58}\\S)?\\s*$",
+      "examples": [
+        "Tea House"
+      ]
+    },
     "version": {
+      "description": "x.y.z, each part 1 to 9 digits with no leading zero. Every upload needs a version number this mod has not used yet. The number of a refused upload can be used again.",
       "type": "string",
       "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$",
-      "description": "x.y.z. Raise it for every upload."
+      "examples": [
+        "1.0.0"
+      ]
     },
     "authors": {
+      "description": "1 to 8 names, each 1 to 40 characters. The mod list also refuses a name with a line break, another control character or a hidden text-direction character.",
       "type": "array",
       "minItems": 1,
       "maxItems": 8,
-      "items": { "type": "string", "minLength": 1, "maxLength": 40 }
+      "items": {
+        "type": "string",
+        "pattern": "^\\s*\\S(?:[\\s\\S]{0,38}\\S)?\\s*$"
+      },
+      "examples": [
+        [
+          "Your Name"
+        ]
+      ]
     },
-    "description": { "type": "string", "maxLength": 500 },
+    "description": {
+      "description": "Optional text of at most 500 characters. null is refused. Leave the key out instead.",
+      "type": "string",
+      "maxLength": 500,
+      "examples": [
+        "The flower shop becomes a tea house in the evening."
+      ]
+    },
+    "tags": {
+      "description": "Optional. The mod list's filters: at most 5 different tags from a fixed list, lower case. Players filter the mod list by them. The game never reads them. Anything else is refused (manifest-tags).",
+      "type": "array",
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "textures",
+          "clothing",
+          "furniture",
+          "scenery",
+          "villagers",
+          "dialogue",
+          "shops",
+          "seasonal",
+          "holidays",
+          "quality-of-life",
+          "translation",
+          "humor",
+          "accessibility",
+          "scripts"
+        ]
+      },
+      "examples": [
+        [
+          "textures",
+          "seasonal"
+        ]
+      ]
+    },
     "scope": {
-      "enum": ["client", "world"],
-      "description": "client: only you see it. world: changes what a visitor would see (shops)."
+      "description": "client is a Just you mod, which only you see. world is a World mod, which changes what a visitor to your town would see. Only a World mod may hold a shop (content.shops) or a calendar file with a board notice. A friend visit needs the same World mods that count (see visit_scope) on both sides.",
+      "enum": [
+        "client",
+        "world"
+      ],
+      "examples": [
+        "client"
+      ]
     },
     "content": {
+      "description": "What the mod adds, each a path inside the mod: textures, messages, shops, items, letters, calendar and talk. Anything else is refused. messages may name a folder of translations. In a folder, en.json is required and de, es, fr and it are optional.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "textures": { "type": "string", "minLength": 1, "description": "A folder of tex1_... .dds files." },
-        "messages": { "type": "string", "minLength": 1, "description": "A JSON file of key to text." },
-        "shops": { "type": "string", "minLength": 1, "description": "shops.json. Needs scope world." },
-        "items": { "type": "string", "minLength": 1, "description": "items.json: new furniture (api 2)." }
-      }
+        "textures": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A folder with at least one texture file."
+        },
+        "messages": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The messages file, or a folder of <lang>.json files (en, de, es, fr, it). en.json is required."
+        },
+        "shops": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The shops file. Needs scope world."
+        },
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The items file."
+        },
+        "letters": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The letters file."
+        },
+        "calendar": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The calendar file. A board notice needs scope world."
+        },
+        "talk": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The talk pools file."
+        }
+      },
+      "examples": [
+        {
+          "messages": "messages/en.json"
+        }
+      ]
     },
     "scripts": {
+      "description": "A Lua script and the events it listens to. events may list data_migrated only with a data_version.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["main", "hooks"],
+      "required": [
+        "main",
+        "events"
+      ],
       "properties": {
-        "main": { "type": "string", "pattern": "\\.lua$" },
-        "hooks": {
+        "main": {
+          "type": "string",
+          "pattern": "\\.lua$",
+          "description": "The script file, ending in lowercase .lua."
+        },
+        "events": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "enum": ["talk", "day_start", "item_picked", "enter_scene"] }
+          "items": {
+            "$ref": "#/definitions/event"
+          },
+          "description": "Every event the script handles, each once."
+        }
+      },
+      "examples": [
+        {
+          "main": "main.lua",
+          "events": [
+            "villager_talked",
+            "day_started"
+          ]
+        }
+      ]
+    },
+    "permissions": {
+      "description": "The commands the mod's script may queue, each once. The game refuses any command the list leaves out. The Mods tab and the moderators' review show what the list lets the mod do. Needs scripts.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "send_letter",
+          "give_item",
+          "show_line",
+          "ask"
+        ]
+      },
+      "examples": [
+        [
+          "send_letter"
+        ]
+      ]
+    },
+    "exports": {
+      "description": "A library's remote functions by name, each with a one-line description. These are what other mods may remote.call. At most 32 names, each 1 to 32 of a-z 0-9 _. Each description is 1 to 120 characters on one line. When exports is declared, the game lets remote.add offer only these names. The Mod log says when a listed name was never offered. playac-mod types turns a dependency's exports into editor hints for the mods that depend on it. Needs scripts.",
+      "type": "object",
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z0-9_]{1,32}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120,
+        "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+      },
+      "examples": [
+        {
+          "count_pieces": "How many workshop pieces the player bought, as a whole number."
+        }
+      ]
+    },
+    "assets_original": {
+      "description": "Must be true. It is your promise that the mod holds only work its authors made, never files taken from the game.",
+      "const": true,
+      "examples": [
+        true
+      ]
+    },
+    "renames": {
+      "description": "Maps an old full item id of this mod to the full id of an item in this mod's items file. At most 64. Needs content.items. Each rename runs once per save, and mod-items.json records it. A renamed item already in a house therefore keeps working.",
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^([a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}):([a-z0-9][a-z0-9-]{0,31})$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^([a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}):([a-z0-9][a-z0-9-]{0,31})$"
+      },
+      "examples": [
+        {
+          "yourname.tea-house:old-cup": "yourname.tea-house:cup"
+        }
+      ]
+    },
+    "depends": {
+      "description": "Mods this one needs, as mod id to version range. A range is \"*\", or up to 4 comparisons (>= <= > < = and a version) split by one space. At most 16. This mod loads after them. It does not load when one is missing, off, out of range or not loading. The game checks again when it starts: a mod whose dependency is not loaded before it, in range, is not loaded at all.",
+      "type": "object",
+      "maxProperties": 16,
+      "propertyNames": {
+        "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^(\\*|((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))( ((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))){0,3})$"
+      },
+      "examples": [
+        {
+          "yourname.tea-lib": ">=1.0.0 <2.0.0"
+        }
+      ]
+    },
+    "conflicts": {
+      "description": "Mods this one cannot run with, as mod id to version range. At most 16. An id may not also be in depends. This mod stays off while a matching one is on.",
+      "type": "object",
+      "maxProperties": 16,
+      "propertyNames": {
+        "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^(\\*|((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))( ((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))){0,3})$"
+      },
+      "examples": [
+        {
+          "someone.other-shop": "*"
+        }
+      ]
+    },
+    "data_version": {
+      "description": "A whole number 1 to 1000000 for the shape of what the scripts save. When it changes, the data_migrated event runs once per town. Listing data_migrated in scripts.events needs it.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000,
+      "examples": [
+        1
+      ]
+    },
+    "settings": {
+      "description": "At most 16 settings the player sets on the Mods tab and scripts read with settings.get. The types are bool, number (whole, with min and max), choice (2 to 16 choices) and text (max_length 1 to 200). Every setting of a World mod counts for visit matching, because its values are part of what a friend visit compares. Keep cosmetic toggles out of World mods.",
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "label",
+              "default"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,31}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "type": {
+                "const": "bool"
+              },
+              "default": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "label",
+              "default",
+              "min",
+              "max"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,31}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "type": {
+                "const": "number"
+              },
+              "default": {
+                "type": "integer",
+                "minimum": -1000000000,
+                "maximum": 1000000000
+              },
+              "min": {
+                "type": "integer",
+                "minimum": -1000000000,
+                "maximum": 1000000000
+              },
+              "max": {
+                "type": "integer",
+                "minimum": -1000000000,
+                "maximum": 1000000000
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "label",
+              "default",
+              "choices"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,31}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "type": {
+                "const": "choice"
+              },
+              "default": {
+                "type": "string"
+              },
+              "choices": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 16,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "label",
+              "default",
+              "max_length"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,31}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "type": {
+                "const": "text"
+              },
+              "default": {
+                "type": "string"
+              },
+              "max_length": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 200
+              }
+            }
+          }
+        ]
+      },
+      "examples": [
+        [
+          {
+            "name": "greet",
+            "type": "bool",
+            "label": "Say hello",
+            "default": true
+          }
+        ]
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "description": "game, save: Top-level keys reserved for planned features. Each is refused, even when null, so no mod carries one a later game would start obeying.",
+      "not": {
+        "description": "\"game\", \"save\" are not built yet: take them out",
+        "anyOf": [
+          {
+            "required": [
+              "game"
+            ]
+          },
+          {
+            "required": [
+              "save"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "content.shops changes what visitors see, so scope must be \"world\".",
+      "if": {
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "required": [
+              "shops"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "scope": {
+            "const": "world"
+          }
         }
       }
     },
-    "assets_original": {
-      "const": true,
-      "description": "Every file is your own work, never taken from the game."
+    {
+      "description": "scripts.events may list data_migrated only with a data_version.",
+      "if": {
+        "required": [
+          "scripts"
+        ],
+        "properties": {
+          "scripts": {
+            "required": [
+              "events"
+            ],
+            "properties": {
+              "events": {
+                "not": {
+                  "items": {
+                    "not": {
+                      "const": "data_migrated"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "data_version"
+        ]
+      }
     },
-    "renames": {
-      "type": "object",
-      "maxProperties": 64,
-      "description": "api 2: old full item id to a full id of an item in this mod. Runs once per save.",
-      "propertyNames": { "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}:[a-z0-9][a-z0-9-]{0,31}$" },
-      "additionalProperties": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}:[a-z0-9][a-z0-9-]{0,31}$" }
+    {
+      "description": "permissions requires scripts: only a script can use a command.",
+      "if": {
+        "required": [
+          "permissions"
+        ]
+      },
+      "then": {
+        "required": [
+          "scripts"
+        ]
+      }
     },
-    "depends": { "not": {}, "description": "Not built yet: refused." },
-    "conflicts": { "not": {}, "description": "Not built yet: refused." },
-    "game": { "not": {}, "description": "Not built yet: refused." },
-    "save": { "not": {}, "description": "Not built yet: refused." }
+    {
+      "description": "exports requires scripts: only a script offers functions.",
+      "if": {
+        "required": [
+          "exports"
+        ]
+      },
+      "then": {
+        "required": [
+          "scripts"
+        ]
+      }
+    }
+  ],
+  "definitions": {
+    "event": {
+      "description": "A script event.",
+      "enum": [
+        "villager_talked",
+        "day_started",
+        "item_picked_up",
+        "scene_entered",
+        "data_migrated",
+        "hour_changed",
+        "item_bought",
+        "item_sold",
+        "fish_caught",
+        "bug_caught",
+        "letter_read",
+        "villager_moved_in",
+        "visitor_arrived",
+        "command_finished",
+        "question_answered"
+      ]
+    }
   }
 }

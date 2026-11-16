@@ -8,12 +8,11 @@
  *
  * Source, first that has playac.lua:
  *   1. $PLAYAC_API_DIR
- *   2. the monorepo's generated outputs of api/api.json (the Phase 1 API
+ *   2. the game's source's generated outputs of api/api.json (the API
  *      spine): api/, then api/
  *   3. vendor/api (copied there by the game's build for the npm package)
- *   4. fallback/ in this package (hand-written for mod API level 1)
- * Each file falls back on its own, so a spine that generates only the
- * schemas still gets the fallback playac.lua.
+ *   4. fallback/ in this package (the same files, written by api-gen)
+ * Each file falls back on its own.
  *
  * then, for a mod with "depends", each dependency's mod.json "exports"
  * (a library's remote functions, one line each) is appended to the copied
@@ -32,10 +31,9 @@ export const TYPE_FILES = [
   'schemas/mod.schema.json',
   'schemas/shops.schema.json',
   'schemas/messages.schema.json',
-  /* api 2 content files (fresh-eyes: new did not write the mod items schema) */
   'schemas/mod-items.schema.json',
   'schemas/letters.schema.json',
-  'schemas/events.schema.json',
+  'schemas/calendar.schema.json',
   'schemas/talk.schema.json',
 ];
 
@@ -68,7 +66,7 @@ function readManifest(file) {
 }
 
 /* The exports a library declares, when they follow the rules (the game's own,
- * mods.js rulesV2Exports): { name: description } or null. */
+ * mods.js exportRules): { name: description } or null. */
 export function exportsOf(manifest) {
   const x = manifest && manifest.exports;
   if (!x || typeof x !== 'object' || Array.isArray(x) || Object.keys(x).length > 32) return null;
@@ -126,8 +124,6 @@ export function writeTypes(dir) {
   const out = [];
   for (const rel of TYPE_FILES) {
     const from = findTypeFile(rel);
-    /* The api 2 schemas are not in the hand-written api 1 fallback. */
-    if (!from && TYPE_FILES.indexOf(rel) >= 4) continue;
     if (!from) throw new Error(`no source for ${rel}`);
     const to = path.join(dir, TYPES_DIR, ...rel.split('/'));
     fs.mkdirSync(path.dirname(to), { recursive: true });

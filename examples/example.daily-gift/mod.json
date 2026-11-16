@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.daily-gift",
   "name": "Daily Gift",
   "version": "1.0.0",
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "main": "main.lua",
-    "hooks": ["day_start", "enter_scene", "command_result"]
+    "events": ["day_started", "scene_entered", "command_finished"]
   },
   "permissions": ["send_letter"],
   "assets_original": true

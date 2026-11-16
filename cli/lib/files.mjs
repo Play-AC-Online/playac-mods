@@ -60,7 +60,7 @@ export function byteOrder(a, b) {
 
 /* The mod in dir: { entries: {path: Uint8Array}, names, leftOut: [{path, why}] }. */
 export function readFolder(dir) {
-  if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) throw new Error(`${dir} is not a folder`);
+  if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) throw new Error(`${dir} is not a folder.`);
   const entries = {};
   const leftOut = [];
   for (const rel of walk(dir)) {

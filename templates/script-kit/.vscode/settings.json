@@ -32,9 +32,9 @@
     },
     {
       "fileMatch": [
-        "/events.json"
+        "/calendar.json"
       ],
-      "url": "https://playaconline.com/schemas/events.schema.json"
+      "url": "https://playaconline.com/schemas/calendar.schema.json"
     },
     {
       "fileMatch": [

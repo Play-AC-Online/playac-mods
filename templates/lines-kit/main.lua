@@ -13,16 +13,15 @@ local function count_lines()
   return n
 end
 
-on("day_start", function(date)
+on("day_started", function(e)
   told = {}
 end)
 
-on("talk", function(npc)
-  if told[npc.id] then return nil end
-  told[npc.id] = true
+on("villager_talked", function(e)
+  local id = e.villager.id
+  if told[id] then return nil end
+  told[id] = true
   count = count or count_lines()
   if count == 0 then return nil end
-  local t = game.time()
-  local pick = (npc.id + t.day) % count + 1
-  return message("line" .. pick)
+  return message("line" .. rng(count))
 end)

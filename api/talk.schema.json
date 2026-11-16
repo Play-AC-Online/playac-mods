@@ -1,12 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/talk.schema.json",
-  "title": "Play AC Online talk pools file (api 2)",
-  "description": "Villager line pools: on an ordinary talk (never a special or event talk) where no script said a line, a villager says at most one data line a day (today's event lines first, else the most specific matching pools: this villager, else this personality, else everyone), then their own hello. Either scope; runs in the City too. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
+  "title": "Play AC Online talk pools file",
+  "description": "Villager line pools. On an ordinary talk where no script said a line, a villager says at most one data line a day, then their own hello. A special talk never uses a pool. Today's calendar lines come first. Otherwise the most specific matching pools are used: this villager, else this personality, else everyone. When several mods have pools that match, their lines are put together and one is picked. It is not always the first mod's. The game keeps which villagers had their line today per town with the save, so restarting the game does not make them say one again. Either scope. Pools run in The City too. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
   "type": "object",
   "required": [
     "pools"
   ],
+  "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string"
@@ -20,6 +21,7 @@
         "required": [
           "lines"
         ],
+        "additionalProperties": false,
         "properties": {
           "personality": {
             "enum": [

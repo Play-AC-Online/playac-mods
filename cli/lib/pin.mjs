@@ -1,7 +1,7 @@
 /* pin.mjs - which playac-mod a mod repo's CI runs, pinned by its SHA-256.
  *
  * The name "playac-mod" is not ours on the npm registry yet, so anything that
- * resolves it there (`npx playac-mod@0`, `npm view playac-mod`) would run
+ * resolves it there by name (an npx run, an npm view) would run
  * whatever package someone else publishes under it. The CI workflow
  * (template/.github/workflows/mod.yml) never asks npm by name: it downloads
  * one frozen release tarball by URL, refuses it unless its SHA-256 is the one

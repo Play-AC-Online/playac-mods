@@ -2,7 +2,7 @@
 
 Generated from https://playaconline.com/schemas/items.json. Do not edit by hand.
 
-831 goods can be stocked at the flower shop (shops.json "target": "flower") and 1996 at Nook's (target "nook", api 2), out of 2333 items and pieces of furniture. Use the id as a string in shops.json: `{ "item": "0x2800", "price": 600 }`. "price" is the usual shop price (leave "price" out to use it); a lower price is raised to the floor for that shop.
+831 goods can be stocked at the flower shop (shops.json "target": "flower") and 1996 at Nook's (target "nook"), out of 2333 items and pieces of furniture. Use the id as a string in shops.json: `{ "item": "0x2800", "price": 600 }`. "price" is the usual shop price (leave "price" out to use it); a lower price is raised to the floor for that shop.
 
 - price: Bells at the shop for the town's own fruit; a foreign fruit sells for 2000. The grab bag costs the current year and is shown as 0.
 - buyback: what Nook pays (price / 4).
@@ -2128,4 +2128,4 @@ Generated from https://playaconline.com/schemas/items.json. Do not edit by hand.
 | `0x33C0` | chowder | furniture | 1890 | no | yes (472) |
 | `0x33C4` |  | furniture | 0 | no | yes (0) |
 
-Not stockable (left out by the game, with the reason on the Mods tab row after a restart, and warned about by `npx playac-mod check`): money, tickets, grab bags, turnips, fossils; at the flower shop, goods with no shop shelf model (all of the game's own furniture); at Nook's, goods with no spot on his shelves (fruit, the signboard). A mod's own new items (content.items) are always stockable at both.
+Not stockable (left out by the game, with the reason on the Mods tab row after a restart, and warned about by `playac-mod check`): money, tickets, grab bags, turnips, fossils; at the flower shop, goods with no shop shelf model (all of the game's own furniture); at Nook's, goods with no spot on his shelves (fruit, the signboard). A mod's own new items (content.items) are always stockable at both.

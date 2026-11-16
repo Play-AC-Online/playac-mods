@@ -1,13 +1,14 @@
-# Your editor: schemas and Lua types
+# Your editor, schemas and Lua types
 
-Mod files are plain text: JSON for `mod.json`, lines, shops, letters and events,
-and Lua for scripts. Any text editor works. A good one tells you about a mistake
-as you type, instead of when the game refuses the mod.
+Mod files are plain text. `mod.json`, lines, shops, letters and calendar days
+are JSON. Scripts are Lua. Any text editor works. A good one tells you about a
+mistake as you type, before the game refuses the mod.
 
-This guide sets up **VS Code** (free, on macOS, Windows and Linux) so that:
+This guide sets up **VS Code**, which is free and runs on macOS, Windows and
+Linux. After it:
 
-- every mod JSON file is checked against the game's own schema, with hover help
-  and autocomplete for each key;
+- Every mod JSON file is checked against the game's own schema, with hover
+  help and autocomplete for each key.
 - Lua scripts get autocomplete, hover docs and warnings for every function and
   event of the game's script API.
 
@@ -15,105 +16,115 @@ Other editors are at the end.
 
 ## 1. Install VS Code
 
-- **macOS**: download from https://code.visualstudio.com/download, unzip, and
-  drag **Visual Studio Code** into Applications.
+- **macOS**: download it from https://code.visualstudio.com/download and
+  unzip it. Drag **Visual Studio Code** into Applications.
 - **Windows**: download the **User Installer** from
-  https://code.visualstudio.com/download and run it. Or:
-  `winget install Microsoft.VisualStudioCode`
-- **Linux**: the `.deb` (Debian, Ubuntu) or `.rpm` (Fedora, openSUSE) from
-  https://code.visualstudio.com/download, then
-  `sudo apt install ./code_*.deb` or `sudo dnf install ./code-*.rpm`. Or
+  https://code.visualstudio.com/download and run it. Or run
+  `winget install Microsoft.VisualStudioCode`.
+- **Linux**: download the `.deb` (Debian, Ubuntu) or `.rpm` (Fedora, openSUSE)
+  from https://code.visualstudio.com/download. Then run
+  `sudo apt install ./code_*.deb` or `sudo dnf install ./code-*.rpm`. Or run
   `sudo snap install code --classic`.
 
 VSCodium (https://vscodium.com) is the same editor without Microsoft's
-telemetry; everything below works in it too.
+telemetry. Everything below works in it too.
 
-**Check it worked:** VS Code opens. Optional: in VS Code, open the Command
-Palette (Cmd+Shift+P on macOS, Ctrl+Shift+P elsewhere) and run **Shell Command:
-Install 'code' command in PATH** (macOS only; Windows and Linux do it for you), so
-`code .` in a terminal opens the folder you are in.
+**Check it worked:** VS Code opens.
+
+Optional, on macOS only: open the Command Palette with Cmd+Shift+P and run
+**Shell Command: Install 'code' command in PATH**. Then `code .` in a terminal
+opens the folder you are in. Windows and Linux do this for you.
 
 ## 2. Open your mod as a folder
 
-Use **File, Open Folder...** and pick the folder that has `mod.json` in it, not a
-single file and not the folder above it. VS Code reads its settings from the
-`.vscode/` folder inside it, and those settings are what wire up the checks.
+1. Choose **File, Open Folder...**.
+2. Pick the folder that has `mod.json` in it. Do not pick a single file or the
+   folder above it.
+3. If VS Code asks **"Do you trust the authors of the files in this
+   folder?"**, choose **Yes, I trust the authors** for your own mod. In
+   Restricted Mode the Lua extension does not run.
 
-If VS Code asks **"Do you trust the authors of the files in this folder?"**,
-choose **Yes, I trust the authors** for your own mod. In Restricted Mode the Lua
-extension does not run.
+VS Code reads its settings from the `.vscode/` folder inside the mod folder.
+Those settings set up the checks. The `.vscode/` folder comes from one of
+these:
 
-Where does the `.vscode/` folder come from?
-
-- A mod made with `npx playac-mod new` has one already
+- A mod made with `playac-mod new` has one already
   ([Node.js and playac-mod](node-and-cli.md)).
-- Each starter kit from https://playaconline.com/modding/downloads/ has one too.
-- Starting from anything else, copy one from a kit, or make it as in
+- Each starter kit from https://playaconline.com/modding/downloads/ has one.
+- For any other mod, copy one from a kit or make it as in
   [step 5](#5-the-settings-by-hand).
 
 On macOS and Linux, folders starting with a dot are hidden in Finder and file
-managers (Cmd+Shift+. shows them in Finder). VS Code's file list shows them.
+managers. Cmd+Shift+. shows them in Finder. VS Code's file list always shows
+them.
 
-## 3. JSON files: nothing to install
+## 3. JSON files, nothing to install
 
 VS Code checks JSON against a schema on its own. With the folder open:
 
 1. Open `mod.json`.
-2. Hover over a key such as `"scope"`: a description appears.
-3. Change `"scope"` to `"nope"`: it is underlined, and the **Problems** panel
-   (View, Problems) says what the allowed values are. Change it back.
+2. Hover over a key such as `"scope"`. A description appears.
+3. Change `"scope"` to `"nope"`. It is underlined, and the **Problems** panel
+   (View, Problems) lists the allowed values.
+4. Change it back.
 
-**Check it worked:** step 3 underlines the value. If nothing is underlined:
+**Check it worked:** step 3 underlines the value. If nothing is underlined,
+check two things:
 
-- the folder you opened is not the one with `.vscode/` in it (see step 2); or
-- the settings point at the schemas online (the kits do) and VS Code could not
-  download them: check your connection, and that the setting
-  `json.schemaDownload.enable` is on (it is by default).
+- The folder you opened must be the one with `.vscode/` in it (see step 2).
+- The kits' settings point at the schemas online, so VS Code must be able to
+  download them. Check your connection. Check that the setting
+  `json.schemaDownload.enable` is on, as it is by default.
 
-Which schema checks which file is decided by file name: `mod.json`,
-`shops.json`, `items.json`, `letters.json`, `events.json`, `talk.json`, and any
-`.json` in a `messages/` folder. Name your files that way and they are checked.
+The file name decides which schema checks a file. The names are `mod.json`,
+`shops.json`, `items.json`, `letters.json`, `calendar.json`, `talk.json` and
+any `.json` in a `messages/` folder. Name your files that way and they are
+checked.
 
-A `mod.json` or `shops.json` can also name its own schema, which works in any
-editor that reads `$schema` (the game ignores the key):
+A `mod.json` or `shops.json` can also name its own schema. This works in any
+editor that reads `$schema`. The game ignores the key.
 
 ```json
 { "$schema": "https://playaconline.com/schemas/mod.schema.json" }
 ```
 
-## 4. Lua scripts: the Lua extension and the game's types
+## 4. Lua scripts, the Lua extension and the game's types
 
-1. In VS Code, open the **Extensions** view (the squares icon on the left, or
-   Cmd+Shift+X / Ctrl+Shift+X).
-2. Search for **Lua** and install the one by **sumneko** (its id is
-   `sumneko.lua`). A mod folder recommends it, so VS Code may offer it in a pop-up
-   at the bottom right: **Install** there does the same.
+1. In VS Code, open the **Extensions** view. It is the squares icon on the
+   left, or Cmd+Shift+X on macOS and Ctrl+Shift+X elsewhere.
+2. Search for **Lua** and install the one by **sumneko**. Its id is
+   `sumneko.lua`. A mod folder recommends it, so VS Code may offer it in a
+   pop-up at the bottom right. **Install** there does the same.
 3. The extension reads the game's API from `.playac/playac.lua` in your mod
-   folder. Put it there:
-   - with the tool: run `npx playac-mod types` in the mod folder (a mod made with
-     `playac-mod new` has it already); or
-   - by hand: download https://playaconline.com/schemas/playac.lua and save it as
-     `.playac/playac.lua` inside your mod folder (make the `.playac` folder
-     first).
-4. Reload the window (Command Palette, **Developer: Reload Window**).
+   folder. Put the file there in one of two ways:
+   - With the tool: run `playac-mod types` in the mod folder. A mod made with
+     `playac-mod new` has the file already.
+   - By hand: make a `.playac` folder inside your mod folder. Download
+     https://playaconline.com/schemas/playac.lua and save it there as
+     `.playac/playac.lua`.
+4. Reload the window with **Developer: Reload Window** from the Command
+   Palette.
 
-**Check it worked:** open `main.lua` and type `cmd.` on a new line: a list of
-the game's commands appears. Hover over `on` in `on("talk", ...)`: it shows the
-event's description. A misspelt event name such as `on("tlak", ...)` is
-underlined.
+**Check it worked:**
 
-If `on`, `message` and `log` are underlined as undefined globals, the extension
-did not find `.playac/playac.lua`: check the file is there and the folder you
-opened is the mod folder.
+- Open `main.lua` and type `cmd.` on a new line. A list of the game's commands
+  appears.
+- Hover over `on` in `on("villager_talked", ...)`. It shows the event's
+  description.
+- A misspelt event name such as `on("villager_tlaked", ...)` is underlined.
 
-The `.playac/` folder is hidden, so the game and `playac-mod pack` never put it
-in your mod's ZIP. After a game update, refresh it the same way (`npx playac-mod
-types`, or download it again).
+If `on`, `message` and `log` are underlined as undefined globals, the
+extension did not find `.playac/playac.lua`. Check that the file is there and
+that the folder you opened is the mod folder.
+
+The `.playac/` folder is hidden, so the game and `playac-mod pack` never put
+it in your mod's ZIP. After a game update, refresh it the same way: run
+`playac-mod types` or download the file again.
 
 ## 5. The settings by hand
 
-If your mod folder has no `.vscode/`, make a folder `.vscode` in it and a file
-`.vscode/settings.json` with this in it:
+If your mod folder has no `.vscode/`, make a folder `.vscode` in it. Make a
+file `.vscode/settings.json` with this in it:
 
 ```json
 {
@@ -123,7 +134,7 @@ If your mod folder has no `.vscode/`, make a folder `.vscode` in it and a file
     { "fileMatch": ["/messages/*.json"], "url": "https://playaconline.com/schemas/messages.schema.json" },
     { "fileMatch": ["/items.json"], "url": "https://playaconline.com/schemas/mod-items.schema.json" },
     { "fileMatch": ["/letters.json"], "url": "https://playaconline.com/schemas/letters.schema.json" },
-    { "fileMatch": ["/events.json"], "url": "https://playaconline.com/schemas/events.schema.json" },
+    { "fileMatch": ["/calendar.json"], "url": "https://playaconline.com/schemas/calendar.schema.json" },
     { "fileMatch": ["/talk.json"], "url": "https://playaconline.com/schemas/talk.schema.json" }
   ],
   "Lua.runtime.version": "Lua 5.4",
@@ -135,27 +146,30 @@ If your mod folder has no `.vscode/`, make a folder `.vscode` in it and a file
 
 What each part does:
 
-- `json.schemas`: which schema checks which file. A mod made with `playac-mod new`
-  points at copies in `.playac/schemas/` instead, so it also works offline.
+- `json.schemas`: which schema checks which file. A mod made with
+  `playac-mod new` points at copies in `.playac/schemas/` instead, so it also
+  works offline.
 - `Lua.runtime.version`: the game runs Lua 5.4.
 - `Lua.workspace.library`: the game's API, for autocomplete and hover docs.
-- `Lua.runtime.builtin`: `io`, `os`, `debug` and `package` do not exist in a mod's
-  script, so the editor stops offering them.
-- `Lua.diagnostics.disable`: lets you name globals in lower case, as the examples
-  do.
+- `Lua.runtime.builtin`: `io`, `os`, `debug` and `package` do not exist in a
+  mod's script, so the editor stops offering them.
+- `Lua.diagnostics.disable`: lets you name globals in lower case, as the
+  examples do.
 
-Optional, and nice to have: `"editor.formatOnSave": true` and
-`"files.insertFinalNewline": true`. For a lines mod, `"editor.wordWrap": "on"`
-makes long lines readable.
+Optional settings:
+
+- `"editor.formatOnSave": true` and `"files.insertFinalNewline": true` keep
+  files tidy.
+- `"editor.wordWrap": "on"` makes long lines readable in a lines mod.
 
 ## Other editors
 
-- **JSON schemas**: most editors with a JSON language server read `"$schema"` in
-  the file (Zed, Neovim with `jsonls`, JetBrains IDEs, Sublime Text with LSP-json).
-  For the files that cannot name their own (messages, items, letters, events,
-  talk), map them by file name in that editor's JSON schema settings, using the
-  URLs above.
-- **Lua**: the same language server (lua-language-server) is available for
+- **JSON schemas**: most editors with a JSON language server read `"$schema"`
+  in the file. Examples are Zed, Neovim with `jsonls`, JetBrains IDEs and
+  Sublime Text with LSP-json. Messages, items, letters, calendar and talk
+  files cannot name their own schema. Map them by file name in the editor's
+  JSON schema settings, using the URLs above.
+- **Lua**: the same language server, lua-language-server, is available for
   Neovim, Zed, Sublime Text and JetBrains IDEs (EmmyLua). Point its
   `workspace.library` at `.playac/playac.lua`, the same as above. A
   `.luarc.json` file in the mod folder does this for any editor that uses it:
@@ -169,9 +183,9 @@ makes long lines readable.
   }
   ```
 
-- **No setup at all**: any plain text editor (TextEdit in plain text mode,
-  Notepad, gedit) is fine for lines and shops. Then let the game or
-  `npx playac-mod check` find the mistakes.
+- **No setup at all**: any plain text editor is fine for lines and shops, such
+  as TextEdit in plain text mode, Notepad or gedit. Then let the game or
+  `playac-mod check` find the mistakes.
 
 ## More
 

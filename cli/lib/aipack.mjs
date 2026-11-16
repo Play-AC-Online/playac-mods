@@ -1,7 +1,7 @@
 /* aipack.mjs - the AI assistant skill pack in every new mod.
  *
  * The pack (a Claude Code skill, AGENTS.md, Copilot instructions, and their
- * reference files) is generated in the monorepo at ai/ by
+ * reference files) is generated in the game's source at ai/ by
  * the game's build; ai/pack.json says where each file goes
  * in a mod folder. Read from the checkout this package sits in, else from
  * vendor/ai (the game's build copies it at npm pack). The same files are the

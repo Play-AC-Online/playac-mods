@@ -1,6 +1,6 @@
 # Tea House
 
-The flower shop becomes a tea house in the evening: its own greeting, its own hours, and fruit for tea on every table.
+The flower shop becomes a tea house in the evening. It has its own greeting and hours, and fruit for tea on every table.
 
 ## In the game
 

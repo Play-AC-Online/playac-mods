@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.field-notes",
   "name": "Field Notes",
   "version": "1.0.0",
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "main": "main.lua",
-    "hooks": ["item_picked", "talk", "day_start"]
+    "events": ["item_picked_up", "villager_talked", "day_started"]
   },
   "assets_original": true
 }

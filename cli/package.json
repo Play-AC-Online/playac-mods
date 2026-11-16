@@ -1,6 +1,6 @@
 {
   "name": "playac-mod",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Make, check, pack, try and publish mods for Play AC Online.",
   "license": "MIT",
   "type": "module",
@@ -13,7 +13,9 @@
     "fallback/",
     "vendor/",
     "template/",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=18.17"

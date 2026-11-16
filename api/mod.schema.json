@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/mod.schema.json",
   "title": "Play AC Online mod.json",
-  "description": "A mod's manifest, mod API levels 1 to 2. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/manifest/",
+  "description": "A mod's manifest, mod API level 1. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/manifest/",
   "type": "object",
   "required": [
     "schema",
@@ -14,6 +14,7 @@
     "scope",
     "assets_original"
   ],
+  "additionalProperties": false,
   "properties": {
     "$schema": {
       "description": "Optional. The JSON Schema an editor checks mod.json against, for autocomplete and errors as you type. The game ignores it.",
@@ -30,16 +31,16 @@
       ]
     },
     "api": {
-      "description": "The mod API level the mod is made for. The game checks a mod by the rules of its own level, and runs an older level through shims while that level is supported. Use the newest level.",
+      "description": "The mod API level the mod is made for. The game checks a mod by the rules of its own level. It runs an older level through shims while that level is supported. Use the newest level.",
       "type": "integer",
       "minimum": 1,
-      "maximum": 2,
+      "maximum": 1,
       "examples": [
-        2
+        1
       ]
     },
     "id": {
-      "description": "author.mod-name: lowercase letters, digits and dashes, one dot. The author part playaconline, official, admin and example are reserved for the site's own mods in the registry.",
+      "description": "author.mod-name, in lowercase letters, digits and dashes, with one dot. The author parts playaconline, official, admin and example are reserved for the site's own mods in the mod list. The mod list also refuses an author part that passes for one of them (official-, examples, playaconline-official).",
       "type": "string",
       "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}$",
       "maxLength": 81,
@@ -48,7 +49,7 @@
       ]
     },
     "name": {
-      "description": "The name players see, 1 to 60 characters (after trimming spaces).",
+      "description": "The name players see, 1 to 60 characters after trimming spaces. The mod list also refuses a name with a line break, another control character or a hidden text-direction character.",
       "type": "string",
       "pattern": "^\\s*\\S(?:[\\s\\S]{0,58}\\S)?\\s*$",
       "examples": [
@@ -56,7 +57,7 @@
       ]
     },
     "version": {
-      "description": "x.y.z, each part 1 to 9 digits with no leading zero. Every upload needs a version number this mod has not used yet (a refused upload's number can be used again).",
+      "description": "x.y.z, each part 1 to 9 digits with no leading zero. Every upload needs a version number this mod has not used yet. The number of a refused upload can be used again.",
       "type": "string",
       "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$",
       "examples": [
@@ -64,7 +65,7 @@
       ]
     },
     "authors": {
-      "description": "1 to 8 names, each 1 to 40 characters.",
+      "description": "1 to 8 names, each 1 to 40 characters. The mod list also refuses a name with a line break, another control character or a hidden text-direction character.",
       "type": "array",
       "minItems": 1,
       "maxItems": 8,
@@ -79,7 +80,7 @@
       ]
     },
     "description": {
-      "description": "Optional text of at most 500 characters. null is refused: leave the key out instead.",
+      "description": "Optional text of at most 500 characters. null is refused. Leave the key out instead.",
       "type": "string",
       "maxLength": 500,
       "examples": [
@@ -87,7 +88,7 @@
       ]
     },
     "tags": {
-      "description": "Optional. The mod list's filters: at most 5 different tags from a fixed list, lower case. Players filter Player mods by them; the game never reads them. Anything else is refused (manifest-tags).",
+      "description": "Optional. The mod list's filters: at most 5 different tags from a fixed list, lower case. Players filter the mod list by them. The game never reads them. Anything else is refused (manifest-tags).",
       "type": "array",
       "maxItems": 5,
       "uniqueItems": true,
@@ -117,7 +118,7 @@
       ]
     },
     "scope": {
-      "description": "client: only you see it. world: it changes what a visitor to your town would see. Only a world mod may hold a shop (content.shops) or, from api 2, an events file with a board notice. A friend visit needs the same world mods that count (see visit_scope) on both sides.",
+      "description": "client is a Just you mod, which only you see. world is a World mod, which changes what a visitor to your town would see. Only a World mod may hold a shop (content.shops) or a calendar file with a board notice. A friend visit needs the same World mods that count (see visit_scope) on both sides.",
       "enum": [
         "client",
         "world"
@@ -127,7 +128,7 @@
       ]
     },
     "content": {
-      "description": "What the mod adds, each a path inside the mod. textures, messages and shops; from api 2 also items, letters, events and talk. Anything else is refused. From api 2, messages may name a folder of translations (en.json required; de es fr it).",
+      "description": "What the mod adds, each a path inside the mod: textures, messages, shops, items, letters, calendar and talk. Anything else is refused. messages may name a folder of translations. In a folder, en.json is required and de, es, fr and it are optional.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -139,7 +140,7 @@
         "messages": {
           "type": "string",
           "minLength": 1,
-          "description": "The messages file, or from api 2 a folder of <lang>.json (en, de, es, fr, it; en.json required)."
+          "description": "The messages file, or a folder of <lang>.json files (en, de, es, fr, it). en.json is required."
         },
         "shops": {
           "type": "string",
@@ -149,22 +150,22 @@
         "items": {
           "type": "string",
           "minLength": 1,
-          "description": "The items file (api 2 and later)."
+          "description": "The items file."
         },
         "letters": {
           "type": "string",
           "minLength": 1,
-          "description": "The letters file (api 2 and later)."
+          "description": "The letters file."
         },
-        "events": {
+        "calendar": {
           "type": "string",
           "minLength": 1,
-          "description": "The events file (api 2 and later). A board notice needs scope world."
+          "description": "The calendar file. A board notice needs scope world."
         },
         "talk": {
           "type": "string",
           "minLength": 1,
-          "description": "The talk pools file (api 2 and later)."
+          "description": "The talk pools file."
         }
       },
       "examples": [
@@ -174,12 +175,12 @@
       ]
     },
     "scripts": {
-      "description": "A Lua script and the events it listens to. From api 2 hooks may also list migrate (needs data_version).",
+      "description": "A Lua script and the events it listens to. events may list data_migrated only with a data_version.",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "main",
-        "hooks"
+        "events"
       ],
       "properties": {
         "main": {
@@ -187,7 +188,7 @@
           "pattern": "\\.lua$",
           "description": "The script file, ending in lowercase .lua."
         },
-        "hooks": {
+        "events": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
@@ -200,15 +201,26 @@
       "examples": [
         {
           "main": "main.lua",
-          "hooks": [
-            "talk",
-            "day_start"
+          "events": [
+            "villager_talked",
+            "day_started"
           ]
         }
       ]
     },
     "permissions": {
-      "description": "The commands the mod's script may queue, each once. The game refuses any command the list leaves out, and the Mods tab and the moderators' review show what the list lets the mod do. Needs scripts. At api 1 the key is unknown and grants nothing.",
+      "description": "The commands the mod's script may queue, each once. The game refuses any command the list leaves out. The Mods tab and the moderators' review show what the list lets the mod do. Needs scripts.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "send_letter",
+          "give_item",
+          "show_line",
+          "ask"
+        ]
+      },
       "examples": [
         [
           "send_letter"
@@ -216,7 +228,18 @@
       ]
     },
     "exports": {
-      "description": "A library's remote functions, by name, each with a one-line description: what other mods may remote.call. At most 32 names (1 to 32 of a-z 0-9 _), descriptions 1 to 120 characters on one line. Declared, the game lets remote.add offer only these names, and says in the mod log when a listed name was never offered. playac-mod types turns a dependency's exports into editor hints for the mods that depend on it. Needs scripts. At api 1 the key is unknown and does nothing.",
+      "description": "A library's remote functions by name, each with a one-line description. These are what other mods may remote.call. At most 32 names, each 1 to 32 of a-z 0-9 _. Each description is 1 to 120 characters on one line. When exports is declared, the game lets remote.add offer only these names. The Mod log says when a listed name was never offered. playac-mod types turns a dependency's exports into editor hints for the mods that depend on it. Needs scripts.",
+      "type": "object",
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z0-9_]{1,32}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120,
+        "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+      },
       "examples": [
         {
           "count_pieces": "How many workshop pieces the player bought, as a whole number."
@@ -224,14 +247,14 @@
       ]
     },
     "assets_original": {
-      "description": "Must be true: your promise that the mod holds only work its authors made, never files taken from the game.",
+      "description": "Must be true. It is your promise that the mod holds only work its authors made, never files taken from the game.",
       "const": true,
       "examples": [
         true
       ]
     },
     "renames": {
-      "description": "Old full item id to a full id of an item in this mod's items file, at most 64. Needs content.items. Each rename runs once per save (the sidecar records it), so a renamed item already in a house keeps working.",
+      "description": "Maps an old full item id of this mod to the full id of an item in this mod's items file. At most 64. Needs content.items. Each rename runs once per save, and mod-items.json records it. A renamed item already in a house therefore keeps working.",
       "type": "object",
       "maxProperties": 64,
       "propertyNames": {
@@ -248,7 +271,7 @@
       ]
     },
     "depends": {
-      "description": "Mods this one needs, mod id to version range (\"*\", or up to 4 of >= <= > < = and a version split by one space). At most 16. It loads after them, and not at all when one is missing, off, out of range or not loading. The game checks it again when it starts: a mod whose dependency is not loaded before it, in range, is not loaded at all.",
+      "description": "Mods this one needs, as mod id to version range. A range is \"*\", or up to 4 comparisons (>= <= > < = and a version) split by one space. At most 16. This mod loads after them. It does not load when one is missing, off, out of range or not loading. The game checks again when it starts: a mod whose dependency is not loaded before it, in range, is not loaded at all.",
       "type": "object",
       "maxProperties": 16,
       "propertyNames": {
@@ -266,7 +289,7 @@
       ]
     },
     "conflicts": {
-      "description": "Mods this one cannot run with, mod id to version range. At most 16; an id may not also be in depends. This mod stays off while a matching one is on.",
+      "description": "Mods this one cannot run with, as mod id to version range. At most 16. An id may not also be in depends. This mod stays off while a matching one is on.",
       "type": "object",
       "maxProperties": 16,
       "propertyNames": {
@@ -284,7 +307,7 @@
       ]
     },
     "data_version": {
-      "description": "A whole number 1 to 1000000 for the shape of what the scripts save. When it changes, the migrate event runs once per town. The migrate hook needs it.",
+      "description": "A whole number 1 to 1000000 for the shape of what the scripts save. When it changes, the data_migrated event runs once per town. Listing data_migrated in scripts.events needs it.",
       "type": "integer",
       "minimum": 1,
       "maximum": 1000000,
@@ -293,7 +316,7 @@
       ]
     },
     "settings": {
-      "description": "At most 16 settings the player sets on the Mods tab and scripts read with settings.get. Types bool, number (whole, min and max), choice (2 to 16 choices) and text (max_length 1 to 200). A world mod's values are part of the visit modset hash.",
+      "description": "At most 16 settings the player sets on the Mods tab and scripts read with settings.get. The types are bool, number (whole, with min and max), choice (2 to 16 choices) and text (max_length 1 to 200). Every setting of a World mod counts for visit matching, because its values are part of what a friend visit compares. Keep cosmetic toggles out of World mods.",
       "type": "array",
       "maxItems": 16,
       "items": {
@@ -470,7 +493,7 @@
   },
   "allOf": [
     {
-      "description": "depends, conflicts, game, save: Top-level keys reserved for planned features. A key not built at a mod's api level is refused, even when null, so no mod carries one a later game would start obeying. depends and conflicts are built from api 2 (refused only at api 1); game and save are refused at every level.",
+      "description": "game, save: Top-level keys reserved for planned features. Each is refused, even when null, so no mod carries one a later game would start obeying.",
       "not": {
         "description": "\"game\", \"save\" are not built yet: take them out",
         "anyOf": [
@@ -485,48 +508,6 @@
             ]
           }
         ]
-      }
-    },
-    {
-      "description": "\"depends\" is built from api 2.",
-      "if": {
-        "required": [
-          "api"
-        ],
-        "properties": {
-          "api": {
-            "maximum": 1
-          }
-        }
-      },
-      "then": {
-        "not": {
-          "description": "\"depends\" is not built yet at this api level: take it out, or say \"api\": 2",
-          "required": [
-            "depends"
-          ]
-        }
-      }
-    },
-    {
-      "description": "\"conflicts\" is built from api 2.",
-      "if": {
-        "required": [
-          "api"
-        ],
-        "properties": {
-          "api": {
-            "maximum": 1
-          }
-        }
-      },
-      "then": {
-        "not": {
-          "description": "\"conflicts\" is not built yet at this api level: take it out, or say \"api\": 2",
-          "required": [
-            "conflicts"
-          ]
-        }
       }
     },
     {
@@ -552,160 +533,7 @@
       }
     },
     {
-      "description": "content.items is an api 2 key.",
-      "if": {
-        "required": [
-          "api"
-        ],
-        "properties": {
-          "api": {
-            "maximum": 1
-          }
-        }
-      },
-      "then": {
-        "not": {
-          "description": "content.items needs \"api\": 2 or later",
-          "required": [
-            "content"
-          ],
-          "properties": {
-            "content": {
-              "required": [
-                "items"
-              ]
-            }
-          }
-        }
-      }
-    },
-    {
-      "description": "content.letters is an api 2 key.",
-      "if": {
-        "required": [
-          "api"
-        ],
-        "properties": {
-          "api": {
-            "maximum": 1
-          }
-        }
-      },
-      "then": {
-        "not": {
-          "description": "content.letters needs \"api\": 2 or later",
-          "required": [
-            "content"
-          ],
-          "properties": {
-            "content": {
-              "required": [
-                "letters"
-              ]
-            }
-          }
-        }
-      }
-    },
-    {
-      "description": "content.events is an api 2 key.",
-      "if": {
-        "required": [
-          "api"
-        ],
-        "properties": {
-          "api": {
-            "maximum": 1
-          }
-        }
-      },
-      "then": {
-        "not": {
-          "description": "content.events needs \"api\": 2 or later",
-          "required": [
-            "content"
-          ],
-          "properties": {
-            "content": {
-              "required": [
-                "events"
-              ]
-            }
-          }
-        }
-      }
-    },
-    {
-      "description": "content.talk is an api 2 key.",
-      "if": {
-        "required": [
-          "api"
-        ],
-        "properties": {
-          "api": {
-            "maximum": 1
-          }
-        }
-      },
-      "then": {
-        "not": {
-          "description": "content.talk needs \"api\": 2 or later",
-          "required": [
-            "content"
-          ],
-          "properties": {
-            "content": {
-              "required": [
-                "talk"
-              ]
-            }
-          }
-        }
-      }
-    },
-    {
-      "description": "At api 1 scripts.hooks may list only talk, day_start, item_picked, enter_scene.",
-      "if": {
-        "required": [
-          "api"
-        ],
-        "properties": {
-          "api": {
-            "maximum": 1
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "scripts": {
-            "properties": {
-              "hooks": {
-                "items": {
-                  "not": {
-                    "description": "this event needs a higher \"api\"",
-                    "enum": [
-                      "migrate",
-                      "hour_change",
-                      "shop_buy",
-                      "item_sold",
-                      "fish_caught",
-                      "bug_caught",
-                      "letter_read",
-                      "villager_moved_in",
-                      "visitor_arrived",
-                      "command_result",
-                      "answer"
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "description": "scripts.hooks may list migrate only with a data_version.",
+      "description": "scripts.events may list data_migrated only with a data_version.",
       "if": {
         "required": [
           "scripts"
@@ -713,14 +541,14 @@
         "properties": {
           "scripts": {
             "required": [
-              "hooks"
+              "events"
             ],
             "properties": {
-              "hooks": {
+              "events": {
                 "not": {
                   "items": {
                     "not": {
-                      "const": "migrate"
+                      "const": "data_migrated"
                     }
                   }
                 }
@@ -739,14 +567,8 @@
       "description": "permissions requires scripts: only a script can use a command.",
       "if": {
         "required": [
-          "api",
           "permissions"
-        ],
-        "properties": {
-          "api": {
-            "minimum": 2
-          }
-        }
+        ]
       },
       "then": {
         "required": [
@@ -758,80 +580,13 @@
       "description": "exports requires scripts: only a script offers functions.",
       "if": {
         "required": [
-          "api",
           "exports"
-        ],
-        "properties": {
-          "api": {
-            "minimum": 2
-          }
-        }
+        ]
       },
       "then": {
         "required": [
           "scripts"
         ]
-      }
-    },
-    {
-      "description": "permissions is checked from api 2 (an older level ignores it).",
-      "if": {
-        "required": [
-          "api"
-        ],
-        "properties": {
-          "api": {
-            "minimum": 2
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "permissions": {
-            "type": "array",
-            "minItems": 1,
-            "uniqueItems": true,
-            "items": {
-              "enum": [
-                "send_letter",
-                "give_item",
-                "set_flag",
-                "show_line",
-                "ask"
-              ]
-            }
-          }
-        }
-      }
-    },
-    {
-      "description": "exports is checked from api 2 (an older level ignores it).",
-      "if": {
-        "required": [
-          "api"
-        ],
-        "properties": {
-          "api": {
-            "minimum": 2
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "exports": {
-            "type": "object",
-            "maxProperties": 32,
-            "propertyNames": {
-              "pattern": "^[a-z0-9_]{1,32}$"
-            },
-            "additionalProperties": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 120,
-              "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
-            }
-          }
-        }
       }
     }
   ],
@@ -839,21 +594,21 @@
     "event": {
       "description": "A script event.",
       "enum": [
-        "talk",
-        "day_start",
-        "item_picked",
-        "enter_scene",
-        "migrate",
-        "hour_change",
-        "shop_buy",
+        "villager_talked",
+        "day_started",
+        "item_picked_up",
+        "scene_entered",
+        "data_migrated",
+        "hour_changed",
+        "item_bought",
         "item_sold",
         "fish_caught",
         "bug_caught",
         "letter_read",
         "villager_moved_in",
         "visitor_arrived",
-        "command_result",
-        "answer"
+        "command_finished",
+        "question_answered"
       ]
     }
   }

@@ -40,7 +40,7 @@ export const PNG_MAX_SIDE = 2048;
 export const PNG_BUDGET = 96 * 1024 * 1024;
 export const PNG_BUDGET_PHONE = 24 * 1024 * 1024;
 
-const NOT_UTF8 = 'is not UTF-8 text: the game page reads each bad byte as a replacement character (U+FFFD), so its text may show wrong in the game; save it as UTF-8';
+const NOT_UTF8 = 'is not UTF-8 text. The game reads each bad byte as a replacement character (U+FFFD), so its text may show wrong in the game. Save it as UTF-8.';
 const UPLOAD_REFUSES = 'the mod list refuses it when you upload it';
 
 /* A PNG's size from its header (signature + IHDR), as pc_png_size reads it, or null. */
@@ -210,7 +210,7 @@ export function unusedFileWarnings(manifest, names) {
   const c = isObj(manifest.content) ? manifest.content : {};
   const used = new Set(['mod.json']);
   const dirs = [];
-  for (const k of ['messages', 'shops', 'items', 'letters', 'events', 'talk']) {
+  for (const k of ['messages', 'shops', 'items', 'letters', 'calendar', 'talk']) {
     if (typeof c[k] !== 'string' || !c[k]) continue;
     used.add(c[k]);
     if (k === 'messages') dirs.push(c[k].replace(/\/$/, '') + '/');
@@ -225,8 +225,8 @@ export function unusedFileWarnings(manifest, names) {
     out.push({
       file: name,
       message: TOOL_FILES.has(base)
-        ? `is a tool's file (${base}), not part of the mod: the game never reads it, but it is packed and every player downloads it. Move it out of the mod folder, or keep the mod in a subfolder of your project`
-        : 'is packed, but nothing in mod.json points at it, so the game never reads it: name it in "content", or move it out of the mod folder',
+        ? `is a tool's file (${base}), not part of the mod. The game never reads it, but it is packed and every player downloads it. Move it out of the mod folder, or keep the mod in a subfolder of your project.`
+        : 'is packed, but nothing in mod.json points at it, so the game never reads it. Name it in "content", or move it out of the mod folder.',
     });
   }
   return out;
@@ -244,7 +244,7 @@ export function letterSenderWarnings(doc) {
     if (!isObj(L) || Object.prototype.hasOwnProperty.call(L, 'sender') || typeof L.footer !== 'string') return;
     if (L.footer.length <= max) return;
     const name = typeof L.id === 'string' ? `"${L.id}"` : String(k + 1);
-    out.push(`letters: letter ${name}: the mailbox list shows only ${max} characters of who it is from, so it reads ${JSON.stringify(L.footer.slice(0, max).trimEnd())} there (the letter itself signs ${JSON.stringify(L.footer)}). Add "sender" with a name of up to ${max} characters for the list`);
+    out.push(`letters: letter ${name}: the mailbox list shows only ${max} characters of the sender, so it reads ${JSON.stringify(L.footer.slice(0, max).trimEnd())} there. The letter itself still signs ${JSON.stringify(L.footer)}. Add "sender" with a name of up to ${max} characters for the list.`);
   });
   return out;
 }
@@ -259,7 +259,7 @@ function textureWarnings(dir, names, ents, warn) {
     const png = lower.endsWith('.png');
     if (!lower.endsWith('.dds') && !png) continue;
     if (!TEXTURE_NAME_RE.test(base)) {
-      warn(name, 'not a texture name the game matches (tex1_<w>x<h>_<hash>[_<palette>]_<format>.dds or .png); find names with the texture inspector');
+      warn(name, 'is not a texture name the game matches. A name looks like tex1_<w>x<h>_<hash>[_<palette>]_<format>.dds or .png. Find names with the texture inspector.');
       continue;
     }
     const key = lower.slice(0, -4);
@@ -269,11 +269,11 @@ function textureWarnings(dir, names, ents, warn) {
     if (png) {
       size = pngSize(ents[name]);
       if (!size) {
-        warn(name, 'not a PNG the game reads: the game leaves it out, and the mod list refuses it');
+        warn(name, 'is not a PNG the game reads. The game leaves it out, and the mod list refuses it.');
         continue;
       }
       if (size.w > PNG_MAX_SIDE || size.h > PNG_MAX_SIDE) {
-        warn(name, `is ${size.w}x${size.h}: a PNG texture is at most ${PNG_MAX_SIDE}x${PNG_MAX_SIDE}, so the game leaves it out and the mod list refuses it`);
+        warn(name, `is ${size.w}x${size.h}. A PNG texture is at most ${PNG_MAX_SIDE}x${PNG_MAX_SIDE}, so the game leaves it out and the mod list refuses it.`);
         continue;
       }
       pngBytes += size.w * size.h * 4;
@@ -290,22 +290,22 @@ function textureWarnings(dir, names, ents, warn) {
     if (size) {
       const [, ow, oh] = /^tex1_([0-9]+)x([0-9]+)_/i.exec(base).map(Number);
       if (size.w < ow || size.h < oh) {
-        warn(name, `is ${size.w}x${size.h}, smaller than the original ${ow}x${oh}: the game stretches it over the original's place, so it looks blurrier than the game's own texture`);
+        warn(name, `is ${size.w}x${size.h}, smaller than the original ${ow}x${oh}. The game stretches it over the original's place, so it looks blurrier than the game's own texture.`);
       }
       if (size.w * oh !== size.h * ow) {
-        warn(name, `is ${size.w}x${size.h}, not the shape of the original ${ow}x${oh}: the game stretches it to the original's shape, so it looks squashed`);
+        warn(name, `is ${size.w}x${size.h}, not the shape of the original ${ow}x${oh}. The game stretches it to the original's shape, so it looks squashed.`);
       }
     }
   }
   for (const files of same.values()) {
     if (files.length < 2) continue;
-    warn(files[0], `${files.join(' and ')} are the same texture: the game uses only one of them (the first it finds when it scans the folder, which you cannot choose), so the other is never drawn`);
+    warn(files[0], `${files.join(' and ')} are the same texture: the game uses only one of them. You cannot choose which, so the other is never drawn.`);
   }
-  const mib = (n) => `${Math.round(n / (1024 * 1024))} MiB`;
+  const mib = (n) => `${Math.round(n / (1024 * 1024))} MB`;
   if (pngBytes > PNG_BUDGET) {
-    warn(dir, `the PNG textures are ${mib(pngBytes)} of pixels once loaded; the game loads at most ${mib(PNG_BUDGET)} of PNG pixels across all mods and leaves the rest out`);
+    warn(dir, `holds PNG textures that are ${mib(pngBytes)} of pixels once loaded. The game loads at most ${mib(PNG_BUDGET)} of PNG pixels across all mods and leaves the rest out.`);
   } else if (pngBytes > PNG_BUDGET_PHONE) {
-    warn(dir, `the PNG textures are ${mib(pngBytes)} of pixels once loaded; on a phone the game loads at most ${mib(PNG_BUDGET_PHONE)} of PNG pixels and leaves the rest out`);
+    warn(dir, `holds PNG textures that are ${mib(pngBytes)} of pixels once loaded. On a phone the game loads at most ${mib(PNG_BUDGET_PHONE)} of PNG pixels and leaves the rest out.`);
   }
 }
 
@@ -356,7 +356,7 @@ export async function checkEntries(entries, opts = {}) {
     const c = isObj(manifest) && isObj(manifest.content) ? manifest.content : {};
     const api = isObj(manifest) ? manifest.api : undefined;
     /* every rule of the content files (the items file and renames, the
-     * shops file and its level, letters, events, talk, messages and their
+     * shops file and its level, letters, calendar, talk, messages and their
      * translations) is the game's own: mods.js contentProblems, the function
      * readMod runs. docOf has already reported a file that is too big or not
      * JSON, so such a file is skipped here (null). */
@@ -374,23 +374,22 @@ export async function checkEntries(entries, opts = {}) {
     const lettersDoc = c.letters ? docOf(c.letters) : undefined;
     if (lettersDoc !== undefined) for (const w of letterSenderWarnings(lettersDoc)) warn(c.letters, w);
     if (typeof api === 'number' && api < mods.API_MAX) {
-      warn('mod.json', `"api" is ${api}; the game's newest mod API level is ${mods.API_MAX}`);
+      warn('mod.json', `"api" is ${api}. The game's newest API level is ${mods.API_MAX}.`);
     }
     if (typeof c.textures === 'string') textureWarnings(c.textures.replace(/\/$/, '') + '/', names, ents, warn);
     for (const w of unusedFileWarnings(manifest, names)) warn(w.file, w.message);
     const scripts = isObj(manifest) && isObj(manifest.scripts) ? manifest.scripts : null;
     const main = scripts && scripts.main;
     for (const name of names.filter((x) => x.endsWith('.lua'))) {
-      if (name !== main) warn(name, 'is not scripts.main: the game runs only the main script (there is no require)');
+      if (name !== main) warn(name, 'is not scripts.main. The game runs only the main script, and there is no require.');
     }
     if (typeof main === 'string' && ents[main]) {
       const src = new TextDecoder('utf-8').decode(ents[main]);
       const ctxs = {
-        api: typeof api === 'number' ? api : 1,
-        hooks: Array.isArray(scripts.hooks) ? scripts.hooks : [],
+        listed: Array.isArray(scripts.events) ? scripts.events : [],
         permissions: Array.isArray(manifest.permissions) ? manifest.permissions : [],
-        events: mods.HOOKS_V2 || mods.HOOKS,
-        commands: mods.PERMISSIONS || [],
+        events: mods.EVENTS,
+        commands: mods.PERMISSIONS,
       };
       /* An on() the game refuses stops the whole script at load (the game engine
        * api_on raises): the mod installs, but its script is dead, so that is a
@@ -408,7 +407,7 @@ export async function checkEntries(entries, opts = {}) {
   if (opts.lua !== false) {
     for (const name of names.filter((x) => x.toLowerCase().endsWith('.lua'))) {
       const why = await luaSyntaxError(name, ents[name]);
-      if (why) problems.push({ file: name, message: `${why} (a Lua syntax error: the game stops this script when it loads)`, script: true });
+      if (why) problems.push({ file: name, message: `${why} (a Lua syntax error, so the game stops this script when it loads)`, script: true });
     }
     luaChecked = true;
   }
@@ -458,7 +457,7 @@ export async function checkFolder(dir, opts = {}) {
   const handZip = f.leftOut.filter((l) => handZipRefuses(l.path));
   if (handZip.length && r.ok) {
     const list = handZip.slice(0, 3).map((l) => l.path).join(', ') + (handZip.length > 3 ? ` and ${handZip.length - 3} more` : '');
-    r.warnings.push({ file: '', message: `holds ${list}, which \`pack\` leaves out; a ZIP you make by hand (Compress, Send to) would include ${handZip.length === 1 ? 'it' : 'them'}, and the game refuses a mod with ${handZip.length === 1 ? 'that file' : 'those files'}. Use \`playac-mod pack\`, or move ${handZip.length === 1 ? 'it' : 'them'} out of the folder first` });
+    r.warnings.push({ file: '', message: `holds ${list}, which \`pack\` leaves out. A ZIP you make by hand (Compress, Send to) would include ${handZip.length === 1 ? 'it' : 'them'}, and the game refuses a mod with ${handZip.length === 1 ? 'that file' : 'those files'}. Use \`playac-mod pack\`, or move ${handZip.length === 1 ? 'it' : 'them'} out of the folder first.` });
   }
   return { ...r, leftOut: f.leftOut, entries: f.entries };
 }
@@ -471,7 +470,7 @@ export async function checkZip(file, opts = {}) {
   try {
     raw = fflate.unzipSync(bytes);
   } catch (e) {
-    return { ok: false, problems: [{ file: '', message: `${file} is not a ZIP the game can read (${e.message})` }], warnings: [], manifest: undefined, result: null, leftOut: [], entries: {}, luaChecked: false };
+    return { ok: false, problems: [{ file: '', message: `${file} is not a ZIP the game can read (${e.message}).` }], warnings: [], manifest: undefined, result: null, leftOut: [], entries: {}, luaChecked: false };
   }
   const r = await checkEntries(raw, opts);
   try {

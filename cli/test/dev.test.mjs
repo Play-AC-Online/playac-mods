@@ -208,23 +208,23 @@ test('kindOf and changeEvents: adds and removes are manifest changes too', () =>
 });
 
 /* every content key sends its own kind, so the game hears about it. */
-test('kindOf: each api 2 content file and a messages folder name a kind', () => {
-  const man = { content: { messages: 'messages', talk: 'talk.json', letters: 'mail/letters.json', events: 'events.json', items: 'items.json', shops: 'shops.json' } };
+test('kindOf: each content file and a messages folder name a kind', () => {
+  const man = { content: { messages: 'messages', talk: 'talk.json', letters: 'mail/letters.json', calendar: 'calendar.json', items: 'items.json', shops: 'shops.json' } };
   assert.equal(kindOf('messages/en.json', man), 'lines');
   assert.equal(kindOf('messages/de.json', man), 'lines');
   assert.equal(kindOf('talk.json', man), 'talk');
   assert.equal(kindOf('mail/letters.json', man), 'letters');
-  assert.equal(kindOf('events.json', man), 'events');
+  assert.equal(kindOf('calendar.json', man), 'calendar');
+  assert.equal(kindOf('events.json', man), '', 'no such content file');
   assert.equal(kindOf('items.json', man), 'items');
   assert.equal(kindOf('messagesx.json', man), '', 'a name that only starts like the folder is not in it');
   assert.equal(kindOf('messages/en.json', { content: { messages: 'messages/' } }), 'lines');
 });
 
-async function servedApi2() {
+async function servedTalk() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-dev2-'));
   writeFiles(dir, scaffoldFiles('bean.two', 'lines'));
   const m = JSON.parse(fs.readFileSync(path.join(dir, 'mod.json'), 'utf8'));
-  m.api = 2;
   m.content = { ...m.content, talk: 'talk.json' };
   fs.writeFileSync(path.join(dir, 'mod.json'), JSON.stringify(m, null, 2));
   fs.writeFileSync(path.join(dir, 'talk.json'), JSON.stringify({ pools: [{ lines: ['One.'] }] }));
@@ -233,8 +233,8 @@ async function servedApi2() {
   return { dir, dev };
 }
 
-test('an api 2 file edit streams its kind; undoing a broken save streams "fixed"', async () => {
-  const { dir, dev } = await servedApi2();
+test('a talk file edit streams its kind; undoing a broken save streams "fixed"', async () => {
+  const { dir, dev } = await servedTalk();
   const es = events(`${dev.url}/__playac/events`, { Origin: SITE });
   try {
     await es.ready;

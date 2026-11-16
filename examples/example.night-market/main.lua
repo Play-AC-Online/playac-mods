@@ -3,7 +3,7 @@
 --
 -- The shop itself (hours, stock, prices, greeting) is shops.json: plain data
 -- the game reads at boot. This script only TALKS. "Tonight's special" is
--- picked here from the date and named in villagers' lines; the stock and its
+-- picked here from the day and named in villagers' lines; the stock and its
 -- prices stay the same every night, because a script cannot change a shop.
 
 local OPEN, CLOSE = 19, 1  -- the market's hours in shops.json: 7 PM to 1 AM
@@ -11,34 +11,27 @@ local EVENING = 17         -- villagers start talking about it at 5 PM
 local SPECIALS = 6         -- special1..special6, one per stock table
 local PER_NIGHT = 3        -- at most this many villagers a night say "soon", and 3 "open"
 
--- Days since 1970-01-01 for a calendar date, so "tonight" is one number that
--- moves by one each day, across months and years.
-local function daynum(y, m, d)
-  if m <= 2 then y = y - 1 end
-  local era = y // 400
-  local yoe = y - era * 400
-  local doy = (153 * ((m + 9) % 12) + 2) // 5 + d - 1
-  return era * 146097 + yoe * 365 + yoe // 4 - yoe // 100 + doy - 719468
-end
-
+-- Tonight's special comes from game.day_number(), one number that moves by
+-- one each day: not rng(), so the specials take turns, all six in six days.
 local function pick(day) return day % SPECIALS + 1 end
 
-local tonight, last_night  -- specials picked by day_start (nil until it runs)
+local tonight, last_night  -- specials picked by day_started (nil until it runs)
 local stretch              -- the evening and phase that `told` and `spoken` count
 local told, spoken = {}, 0
 
-on("day_start", function(date)
+on("day_started", function(e)
   last_night = tonight
-  tonight = pick(daynum(date.year, date.month, date.day))
+  tonight = pick(game.day_number())
   log("tonight's special is special" .. tonight)
 end)
 
-on("talk", function(npc)
+on("villager_talked", function(e)
+  local id = e.villager.id
   local t = game.time()
   local late = t.hour < CLOSE  -- just past midnight: still last night's market
   if t.hour < EVENING and not late then return nil end
 
-  local day = daynum(t.year, t.month, t.day)
+  local day = game.day_number()
   if late then day = day - 1 end
   local soon = not late and t.hour < OPEN
   -- "Opens soon" and "open now" each get their own few villagers a night.
@@ -47,12 +40,14 @@ on("talk", function(npc)
 
   -- Speak rarely: about one villager in three has heard, each says it once,
   -- and only a few say it at all. Everyone else is left to other mods.
-  if told[npc.id] or spoken >= PER_NIGHT or (npc.id + day) % 3 ~= 0 then
+  -- Who has heard is day number arithmetic, not rng(): the same villagers
+  -- all night, however often they are asked.
+  if told[id] or spoken >= PER_NIGHT or (id + day) % 3 ~= 0 then
     return nil
   end
-  told[npc.id] = true
+  told[id] = true
   spoken = spoken + 1
-  local which = (npc.id // 3) % 3 + 1
+  local which = rng(3) -- any of the three wordings
 
   if soon then return message("soon" .. which) end
   local special = late and (last_night or pick(day)) or (tonight or pick(day))

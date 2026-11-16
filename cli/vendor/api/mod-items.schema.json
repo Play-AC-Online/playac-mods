@@ -1,12 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://playaconline.com/schemas/items.schema.json",
-  "title": "Play AC Online mod items file (api 2)",
-  "description": "New furniture, each on a vanilla base piece (api 2). The engine also refuses a base with no model, fossils, gyroids, clothing, design pieces and pieces that become a pocket item. In the save a mod item is its base piece; a sidecar maps it back, so removing the mod leaves the base piece behind and reinstalling restores it. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
+  "$id": "https://playaconline.com/schemas/mod-items.schema.json",
+  "title": "Play AC Online mod items file",
+  "description": "New furniture, each on a vanilla base piece. The game also refuses a base with no model, fossils, gyroids, clothing, design pieces and pieces that become a pocket item. In the save, a mod item is its base piece. A file beside the save (mod-items.json) maps it back. Removing the mod therefore leaves the base piece behind, and reinstalling restores the mod item. That file belongs to the save it was written beside. Next to another save of the same town, such as a backup put back or an older town file imported, it is not used. Those pieces are then plain base pieces again. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
   "type": "object",
   "required": [
     "items"
   ],
+  "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string"
@@ -27,12 +28,12 @@
           "id": {
             "type": "string",
             "pattern": "^[a-z0-9][a-z0-9-]{0,31}$",
-            "description": "The item's own id; its full id is <mod id>:<id>."
+            "description": "The item's own id. Its full id is <mod id>:<id>."
           },
           "name": {
             "type": "string",
             "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9 '.,!&-]{0,14}[A-Za-z0-9'.,!&-])?$",
-            "description": "1 to 16 of letters, digits, space and ' . , ! & -, starting with a letter or digit, not ending with a space."
+            "description": "1 to 16 characters: letters, digits, space and ' . , ! & -. It starts with a letter or digit and does not end with a space."
           },
           "base": {
             "type": "string",
@@ -43,7 +44,7 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 99999,
-            "description": "Bells. Leave out for the base piece's price."
+            "description": "The price in Bells. Leave it out for the base piece's price."
           }
         }
       }

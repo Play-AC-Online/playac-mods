@@ -23,10 +23,10 @@
  * change.kind is what the game must reload, one event per kind:
  *   "lines"     the content.messages file, or a file in its folder (hot)
  *   "shop"      the content.shops file         (hot)
- *   "talk"      the content.talk file          (hot, api 2)
- *   "letters"   the content.letters file       (hot, api 2)
- *   "events"    the content.events file        (hot, api 2)
- *   "items"     the content.items file         (hot, api 2; the game says
+ *   "talk"      the content.talk file          (hot)
+ *   "letters"   the content.letters file       (hot)
+ *   "calendar"  the content.calendar file      (hot)
+ *   "items"     the content.items file         (hot; the game says
  *               in its mod log what waits: pieces already placed keep
  *               their base, a new id for them is a mod.json rename)
  *   "lua"       any .lua file                  (hot: restart that mod's script)
@@ -50,7 +50,7 @@
  * EventSource always send one (they are cross-origin), so a request without
  * one is curl, a script, or a no-cors load (an <img> or <script> on another
  * site), none of which dev mode needs. A tool that wants the folder sends
- * `Origin: http://localhost:5173`, or reads the folder itself.
+ * `Origin: https://playaconline.com`, or reads the folder itself.
  *
  * The index's files[].sha256 is the manifest of hashes: the page checks each
  * file it fetches against it (devmods.ts) and reads again when a save landed
@@ -92,8 +92,8 @@ export function kindOf(file, manifest) {
   if (file === c.messages) return 'lines';
   if (typeof c.messages === 'string' && c.messages && file.startsWith(c.messages.replace(/\/$/, '') + '/')) return 'lines';
   if (file === c.shops) return 'shop';
-  /* api 2 data files */
-  for (const k of ['talk', 'letters', 'events', 'items']) if (file === c[k]) return k;
+  /* the other data files */
+  for (const k of ['talk', 'letters', 'calendar', 'items']) if (file === c[k]) return k;
   if (file.endsWith('.lua')) return 'lua';
   if (typeof c.textures === 'string' && file.startsWith(c.textures.replace(/\/$/, '') + '/')) return 'textures';
   return '';
@@ -140,7 +140,7 @@ export function changeEvents(prev, next, manifest) {
     else if (prev.get(file) !== sum) put(kindOf(file, manifest), file);
   }
   for (const file of prev.keys()) if (!next.has(file)) { put('manifest', file); put(kindOf(file, manifest), file); }
-  const order = ['manifest', 'items', 'lines', 'shop', 'talk', 'letters', 'events', 'lua', 'textures'];
+  const order = ['manifest', 'items', 'lines', 'shop', 'talk', 'letters', 'calendar', 'lua', 'textures'];
   return order.filter((k) => byKind.has(k)).map((k) => ({ kind: k, files: [...byKind.get(k)].sort() }));
 }
 
@@ -226,8 +226,8 @@ export async function startDev(dir, opts = {}) {
   /* '' when the request may read, else why not (no Origin is refused). */
   function cors(req, res) {
     const origin = req.headers.origin;
-    if (!origin) return 'playac-mod dev: a request with no Origin is refused; the game page sends one (a tool may send Origin: http://localhost:5173)';
-    if (!origins.has(origin.toLowerCase())) return 'playac-mod dev: this site may not read the mod (add it with --origin)';
+    if (!origin) return 'playac-mod dev: A request with no Origin is refused. The game sends one. A tool may send Origin: https://playaconline.com';
+    if (!origins.has(origin.toLowerCase())) return 'playac-mod dev: This site may not read the mod. Add it with --origin.';
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Vary', 'Origin');
     res.setHeader('Access-Control-Expose-Headers', 'X-Playac-Content-Sha, X-Playac-Sha256');

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.night-market",
   "name": "Night Market",
   "version": "1.0.0",
@@ -13,7 +13,7 @@
   },
   "scripts": {
     "main": "main.lua",
-    "hooks": ["talk", "day_start"]
+    "events": ["villager_talked", "day_started"]
   },
   "assets_original": true
 }

@@ -1,25 +1,31 @@
 # Node.js and the playac-mod tool
 
-`playac-mod` is a command line tool that makes a new mod folder, checks it with
-the game's own rules, packs the ZIP, reloads your mod in the game as you save,
-and publishes it. It runs on Node.js.
+`playac-mod` is a command line tool for making mods. It runs on Node.js. It
+does five things:
 
-You do not need it to make a mod: installing a ZIP in the game runs the same
-checks. It saves a lot of time once you write scripts or make more than one mod.
+- makes a new mod folder
+- checks a mod with the game's own rules
+- packs the ZIP
+- reloads your mod in the game as you save
+- publishes it
 
-By the end of this guide `playac-mod --version` answers, and you have made,
+You do not need it to make a mod, because installing a ZIP in the game runs
+the same checks. It saves time once you write scripts or make more than one
+mod.
+
+At the end of this guide `playac-mod --version` answers. You have also made,
 checked and packed a mod with it.
 
 ## 1. Open a terminal
 
-- **macOS**: Applications, Utilities, **Terminal** (or press Cmd+Space and type
-  Terminal).
-- **Windows**: Start menu, type **Terminal** (Windows 11) or **PowerShell**
-  (Windows 10). Command Prompt works too.
-- **Linux**: your desktop's **Terminal** app (often Ctrl+Alt+T).
+- **macOS**: open Applications, Utilities, **Terminal**. Or press Cmd+Space
+  and type Terminal.
+- **Windows**: open the Start menu and type **Terminal** (Windows 11) or
+  **PowerShell** (Windows 10). Command Prompt works too.
+- **Linux**: open your desktop's **Terminal** app, often with Ctrl+Alt+T.
 
-Lines in grey boxes below are typed into it, one at a time, each followed by
-Enter.
+Type the lines in the grey boxes below into the terminal, one at a time. Press
+Enter after each.
 
 ## 2. Do you already have Node.js?
 
@@ -27,34 +33,35 @@ Enter.
 node --version
 ```
 
-If it prints a version of 18.17 or higher (for example `v22.12.0`), skip to
-[step 4](#4-install-playac-mod). If it says `command not found`, `is not
-recognized`, or prints an older version, install it as below.
+If it prints a version of 18.17 or higher, such as `v22.12.0`, skip to
+[step 4](#4-install-playac-mod). If it says `command not found` or `is not
+recognized`, or prints an older version, install Node.js as below.
 
 ## 3. Install Node.js
 
 Use the newest **LTS** version. Anything from 18.17 up works.
 
-### macOS: with nvm (no administrator password)
+### macOS, with nvm (no administrator password)
 
 nvm installs Node.js inside your home folder, so later installs never ask for
 `sudo`.
 
-1. Make sure your shell has a settings file for nvm to add itself to (a new Mac
-   has none):
+1. Make a settings file for your shell, so nvm can add itself to it. A new Mac
+   has none.
 
    ```bash
    touch ~/.zshrc
    ```
 
-2. Install nvm (the official install line from https://github.com/nvm-sh/nvm):
+2. Install nvm. This is the official install line from
+   https://github.com/nvm-sh/nvm.
 
    ```bash
    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.41.0/install.sh | bash
    ```
 
-   If macOS offers to install the "command line developer tools", accept, wait
-   for it to finish, and run the line again.
+   If macOS offers to install the "command line developer tools", accept and
+   wait for it to finish. Then run the line again.
 3. **Close the terminal window and open a new one.**
 4. Install Node.js:
 
@@ -70,20 +77,21 @@ node --version      # prints a version, 18.17 or higher
 npm --version       # prints a version number
 ```
 
-If `nvm` is not found in the new window, see [Troubleshooting](#troubleshooting)
-below.
+If `nvm` is not found in the new window, see
+[Troubleshooting](#troubleshooting) below.
 
-Prefer an installer? The macOS installer from https://nodejs.org works too, but
-then `npm install -g` needs `sudo`; nvm avoids that.
+The macOS installer from https://nodejs.org works too. With it,
+`npm install -g` needs `sudo`. nvm avoids that.
 
-### Windows: the installer
+### Windows, the installer
 
 1. Download the **LTS** Windows Installer (`.msi`) from
-   https://nodejs.org/en/download and run it. Keep the defaults; you do not need
-   the "Tools for Native Modules" box.
+   https://nodejs.org/en/download and run it. Keep the defaults. You do not
+   need the "Tools for Native Modules" box.
 
-   Or, in a terminal: `winget install OpenJS.NodeJS.LTS`
-2. **Close every terminal window and open a new one**, so it sees the new PATH.
+   Or run this in a terminal: `winget install OpenJS.NodeJS.LTS`
+2. **Close every terminal window and open a new one**, so it sees the new
+   PATH.
 
 **Check it worked:**
 
@@ -92,23 +100,22 @@ node --version      # prints a version, 18.17 or higher
 npm --version       # prints a version number
 ```
 
-If PowerShell says **"running scripts is disabled on this system"** when you run
-`npm` or `npx`, either use **Command Prompt** instead, or allow scripts you
-installed yourself, once:
+PowerShell may say **"running scripts is disabled on this system"** when you
+run `npm` or `npx`. Use **Command Prompt** instead. Or run this once, which
+allows scripts you installed yourself:
 
 ```powershell
 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
 
-### Linux: with nvm
+### Linux, with nvm
 
-Your distribution's own `nodejs` package is often too old (check with
-`node --version` after installing it). nvm gets the current one, in your home
-folder, with no `sudo`:
+Your distribution's own `nodejs` package is often too old. nvm gets the
+current one, in your home folder, with no `sudo`.
 
-1. You need `curl`. Most desktops have it; if `curl --version` fails, install it
-   (`sudo apt install curl` on Debian and Ubuntu, `sudo dnf install curl` on
-   Fedora).
+1. You need `curl`. Most desktops have it. If `curl --version` fails, install
+   it with `sudo apt install curl` on Debian and Ubuntu, or
+   `sudo dnf install curl` on Fedora.
 2. Install nvm:
 
    ```bash
@@ -116,96 +123,95 @@ folder, with no `sudo`:
    ```
 
 3. **Close the terminal and open a new one.**
-4. `nvm install --lts`
+4. Run `nvm install --lts`.
 
-**Check it worked:** the same three lines as macOS above.
+**Check it worked:** run the same three lines as for macOS above.
 
 ## 4. Install playac-mod
 
 ```bash
-npm install -g https://playaconline.com/modding/downloads/playac-mod.tgz
+npm install -g https://playaconline.com/modding/downloads/playac-mod-0.2.0.tgz
 ```
 
-The package is not on the npm registry yet, so it installs from the site with this
-line. `npm` comes with Node.js.
+This installs release 0.2.0 of the tool from the game's site. `npm` comes with Node.js.
 
-**Install it only with the line above.** The game does not own the name
-`playac-mod` on the npm registry yet, so a package found there by that name
-could be anyone's. Until the game's own copy is published there (this page
-will then give the npm install line instead), never run `npx playac-mod@...`
-with a version after it or `npm install -g playac-mod`, and if `npx` ever asks
-`Need to install the following packages: playac-mod ... Ok to proceed?`, answer
-**n**. Once the tool is installed, `npx playac-mod` runs your installed copy and
-never asks. The check workflow `--github` writes is safe either way: it
-downloads one release by its address and refuses it unless its SHA-256 matches.
+The SHA-256 of that file is `4ec34948e2037789db1b7bc3a8ed492c45bc2c6707cb7bd338326b6d74f7ccb5`. To check it yourself, download
+the file, compare, and install the file you checked:
 
-<!-- Maintainers: the step that ends this. Register the name playac-mod on the
-npm registry under the game's account, publish the frozen release file there
-(the same file, so its SHA-256 stays the one every workflow pins), then flip
-the one switch that says the tool is on npm. Until the name is registered,
-anyone can take it. -->
+```bash
+curl -fLO https://playaconline.com/modding/downloads/playac-mod-0.2.0.tgz
+shasum -a 256 playac-mod-0.2.0.tgz                  # macOS, Linux
+certutil -hashfile playac-mod-0.2.0.tgz SHA256      # Windows
+npm install -g ./playac-mod-0.2.0.tgz
+```
+
+**Install it only from that address.** A package named `playac-mod` on the npm
+registry is not the game's. Do not install the tool by its name alone.
 
 **Check it worked:**
 
 ```bash
 playac-mod --version
-npx playac-mod --version
 ```
 
-Both print the same thing, like `0.1.0 (mod API 1..2, rules from ...)`: the
-tool's version and the mod api levels it checks. The docs write commands as
-`npx playac-mod ...`; plain `playac-mod ...` is the same tool.
+It prints a line like
+`playac-mod 0.2.0, build 1a2b3c4d5e6f (API level 1)`. That is the
+tool's version, its build and the mod API level it checks.
 
-To update later, run the install line again.
+The tool tells you when a newer release is out and prints the line that
+installs it. Each release's changes are at
+https://playaconline.com/modding/cli/#changelog.
 
 ## 5. Your first mod with the tool
 
-A new terminal starts in your home folder. Make a folder for your mods there and
-go into it (the same two lines on every system):
+A new terminal starts in your home folder. Make a folder for your mods there
+and go into it. These two lines are the same on every system.
 
 ```bash
 mkdir my-mods
 cd my-mods
 ```
 
-Make a mod. The part before the dot is your author name: lower case letters,
-digits and dashes.
+Make a mod. The part before the dot is your author name. It may hold lower
+case letters, digits and dashes.
 
 ```bash
-npx playac-mod new yourname.first-lines --kind lines
+playac-mod new yourname.first-lines --kind lines
 cd yourname.first-lines
 ```
 
 It prints `made yourname.first-lines: a lines mod, yourname.first-lines`. The
 kinds are `texture`, `lines`, `shop` and `script`.
 
-**Check it, pack it:**
+**Check it and pack it:**
 
 ```bash
-npx playac-mod check    # every rule the game checks
-npx playac-mod pack     # the ZIP to install or share
+playac-mod check    # every rule the game checks
+playac-mod pack     # the ZIP to install or share
 ```
 
-`check` ends with `ok   yourname.first-lines 0.1.0, client, ...`. `pack` prints
-`packed ../yourname.first-lines-0.1.0.zip`: the ZIP is written **next to** the
-folder, never inside it.
+`check` ends with `ok   yourname.first-lines 0.1.0, client, ...`. `pack`
+prints `packed ../yourname.first-lines-0.1.0.zip`. The ZIP is written **next
+to** the folder, never inside it.
 
-**Try it in the game:** either install that ZIP (**Settings, Mods, Install from a
-file, Choose ZIP**, then **Restart now**), or, faster while you work:
+**Try it in the game.** There are two ways:
+
+- Install that ZIP with **Settings, Mods, Install from a file, Choose a file**,
+  then **Restart now**.
+- Faster while you work: run `playac-mod dev` and connect the game to it, as
+  [The game](game.md#with-playac-mod-connect-to-playac-mod-dev) shows. Leave
+  `dev` running while you edit. Ctrl+C stops it.
+
+  ```bash
+  playac-mod dev
+  ```
+
+**Editor types.** `new` already wrote `.playac/` and VS Code settings.
+`.playac/` holds the game's Lua types and a JSON schema for every mod file.
+After a game update, refresh them with:
 
 ```bash
-npx playac-mod dev
-```
-
-and connect the game to it as [The game](game.md#with-playac-mod-connect-to-playac-mod-dev)
-shows. Leave `dev` running while you edit; Ctrl+C stops it.
-
-**Editor types:** `new` already wrote `.playac/` (the game's Lua types and a JSON
-schema for every mod file) and VS Code settings. After a game update, refresh
-them with:
-
-```bash
-npx playac-mod types
+playac-mod types
 ```
 
 Next: [set up your editor](editor.md) to use them.
@@ -214,45 +220,51 @@ Next: [set up your editor](editor.md) to use them.
 
 | Command | What it does |
 |---|---|
-| `new <id> --kind <kind>` | A new mod folder that already passes `check` |
-| `check` | Every rule the game checks, each problem with its file and line |
-| `pack` | The ZIP, the same bytes every time, written next to the folder |
-| `dev` | Serves the folder to the game's developer mode |
-| `types` | Refreshes `.playac/` (Lua types, JSON schemas) |
-| `publish` | Signs in with a code and sends the mod for review ([Publishing](publishing.md)) |
-| `status`, `yank` | Your uploaded versions; take one out of the list |
-| `help` | All of the above, with every option |
+| `new <id> --kind <kind>` | Makes a new mod folder that already passes `check`. |
+| `check` | Runs every rule the game checks. Gives each problem with its file and line. |
+| `pack` | Makes the ZIP, the same bytes every time, next to the folder. |
+| `dev` | Serves the folder to the game's developer mode. |
+| `types` | Refreshes `.playac/` (Lua types, JSON schemas). |
+| `publish` | Signs in with a code and sends the mod for review ([Publishing](publishing.md)). |
+| `status` | Lists your uploaded versions. |
+| `yank` | Withdraws a version from the mod list. |
+| `help` | Lists every command and option. |
 
-Each in full: https://playaconline.com/modding/testing/#cli
+Each command in full: https://playaconline.com/modding/cli/
 
 ## Troubleshooting
 
-**`nvm: command not found` after installing it (macOS, Linux).** Open a new
-terminal window first. Still missing? On macOS, run `touch ~/.zshrc` and run the
-nvm install line again. On Linux, check `~/.bashrc` ends with the lines nvm added
-(`export NVM_DIR=...`). The nvm page lists more causes:
+**`nvm: command not found` after installing it (macOS, Linux).**
+
+1. Open a new terminal window.
+2. If it is still missing on macOS, run `touch ~/.zshrc` and run the nvm
+   install line again.
+3. If it is still missing on Linux, check that `~/.bashrc` ends with the lines
+   nvm added (`export NVM_DIR=...`).
+
+The nvm page lists more causes:
 https://github.com/nvm-sh/nvm#troubleshooting-on-macos
 
-**`playac-mod: command not found` (or "not recognized") after installing it.**
-Open a new terminal. Then `npm prefix -g` shows where global tools go: its `bin`
-folder (macOS, Linux) or the folder itself (Windows) must be on your PATH. With
-nvm it always is, once nvm is loaded.
+**`playac-mod: command not found` (or "not recognized") after installing
+it.** Open a new terminal. Then run `npm prefix -g`, which shows where global
+tools go. On macOS and Linux its `bin` folder must be on your PATH. On Windows
+the folder itself must be. With nvm it always is, once nvm is loaded.
 
-**`EACCES: permission denied` on `npm install -g` (macOS, Linux).** Node.js was
-installed for the whole computer, so global installs need administrator rights.
-The clean fix is to install Node.js with nvm as above (then run the install line
-again). Putting `sudo` in front also works, but every later update needs it too.
+**`EACCES: permission denied` on `npm install -g` (macOS, Linux).** Node.js
+was installed for the whole computer, so global installs need administrator
+rights. The clean fix is to install Node.js with nvm as above, then run the
+install line again. Putting `sudo` in front also works, but every later update
+needs it too.
 
 **`npm error 404` or `ENOTFOUND` on the install line.** Check your internet
-connection and that you copied the whole address.
+connection. Check that you copied the whole address.
 
-**`npx playac-mod` says `npm error 404 Not Found - GET https://registry.npmjs.org/playac-mod`,
-or asks `Need to install the following packages`.** The tool is not installed
-(step 4), so npx looked for it on the npm registry, where the game has not
-published it yet. Answer **n** if it asks, run the install line, then try
-again.
+**`npm error 404 Not Found - GET https://registry.npmjs.org/playac-mod`, or a
+question `Need to install the following packages`.** Something asked npm for
+the tool by its name. The game's tool is not there. Answer **n** if it asks,
+then install the tool with the line in step 4.
 
-**Node.js older than 18.17.** The tool says so and stops. `nvm install --lts`
-(or the installer) and open a new terminal.
+**Node.js older than 18.17.** The tool says so and stops. Run
+`nvm install --lts` or use the installer, then open a new terminal.
 
 More: [Troubleshooting](troubleshooting.md).

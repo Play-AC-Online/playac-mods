@@ -99,7 +99,7 @@ export function shopItemWarnings(doc, table) {
       }
       const floor = it.floor[s.target];
       if (typeof g.price === 'number' && typeof floor === 'number' && g.price < floor) {
-        out.push(`${at} "price" ${g.price} is under the floor for ${named} at ${where}: the game sells it for ${floor}`);
+        out.push(`${at} "price" ${g.price} is under the floor for ${named} at ${where}. The game sells it for ${floor}.`);
       }
     });
   });

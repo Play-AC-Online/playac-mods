@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "example.wish-list",
   "name": "Wish List",
   "version": "1.0.0",
   "authors": ["Play AC Online"],
-  "description": "Tiny daily quests: a few villagers make a wish each day. Pick up what they wished for and they thank you and keep a friendship streak.",
+  "description": "Tiny daily quests. A few villagers make a wish each day. Pick up what they wished for, and they thank you and count your wish streak.",
   "scope": "client",
   "content": {
     "messages": "messages/en.json"
   },
   "scripts": {
     "main": "main.lua",
-    "hooks": ["talk", "day_start", "item_picked"]
+    "events": ["villager_talked", "day_started", "item_picked_up"]
   },
   "assets_original": true
 }

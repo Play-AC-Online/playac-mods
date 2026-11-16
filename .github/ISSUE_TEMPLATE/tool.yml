@@ -1,0 +1,27 @@
+name: A bug in the playac-mod tool
+description: A command fails, prints something wrong or disagrees with the game.
+labels: [tool]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The output of playac-mod --version.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: What you typed and what it printed
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: input
+    id: system
+    attributes:
+      label: System and Node.js version
+      description: Like macOS 15, Node.js 22.

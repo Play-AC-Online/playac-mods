@@ -6,7 +6,7 @@
  *
  * Kinds:
  *   texture  replaces the town grass with a pattern drawn here (textures/)
- *   lines    villagers say a line of yours before their hello (messages + talk)
+ *   lines    villagers say a line of yours before their hello (messages + a script)
  *   shop     the flower shop restocked and reworded (shops.json, scope world)
  *   script   a script that counts days and picked-up items (store, log) */
 import { renderWorkflow, WORKFLOW_TEMPLATE } from './pin.mjs';
@@ -67,10 +67,10 @@ export const GRASS_TEXTURE = 'tex1_32x32_626709d910129694_$_8.dds';
 
 function readme(id, name, kind) {
   const what = {
-    texture: `Replaces the town grass with a checked lawn. Each file in textures/ is named after the texture it replaces: find names with the texture inspector (Settings, Mods, developer mode).`,
+    texture: 'Replaces the town grass with a checked lawn. Each file in textures/ is named after the texture it replaces. Find names with the texture inspector, under Settings, Mods, in the Developer section.',
     lines: 'Villagers say a line from messages/en.json before their usual hello, once a day each.',
-    shop: 'The flower shop sells your stock, at your prices and hours, with its own greeting (shops.json). A shop changes what visitors see, so this mod is "scope": "world".',
-    script: `A script that counts the days you played and the items you picked up, and logs them. log() lines show in Settings, Mods, Mod log, and in the browser's developer console as "[Mods] ${id}: ..." (type [Mods] in its filter box). The store is kept per town: read it inside events, never at the top of main.lua, which runs before a town is loaded.`,
+    shop: 'The flower shop sells your stock, at your prices and hours, with its own greeting. It is all in shops.json. A shop changes what visitors see, so this is a World mod ("scope": "world").',
+    script: `A script that counts the days you played and the items you picked up, and logs them. log() lines show in the Mod log, under Settings, Mods. They also show in the browser's developer console as "[Mods] ${id}: ...". Type [Mods] in the console's filter box to find them. The store is kept per town. Read it inside events, never at the top of main.lua, which runs before a town is loaded.`,
   }[kind];
   return `# ${name}
 
@@ -81,18 +81,35 @@ ${what}
 ## Work on it
 
 \`\`\`bash
-npx playac-mod check      # every rule the game applies, problems per file
-npx playac-mod dev        # serve this folder; open the game with ?moddev=1
-npx playac-mod pack       # ../${id}-<version>.zip (beside this folder) and its content hash
-npx playac-mod publish    # sign in once, then upload for review
-npx playac-mod status     # what the registry did with each version
+playac-mod check      # every rule the game applies, problems per file
+playac-mod dev        # serve this folder; open the game with ?moddev=1
+playac-mod pack       # ../${id}-<version>.zip (beside this folder) and its content hash
+\`\`\`
+
+\`playac-mod <command> --help\` shows a command's options.
+
+## Share it
+
+Before you run \`playac-mod publish\` you need three things:
+
+1. An account on playaconline.com with two-factor sign-in switched on. Set it
+   up on your Profile page.
+2. One to four screenshots of the mod in the game, PNG or JPEG, in
+   \`.playac/screenshots/\`.
+3. One line that says what this version changes. Pass it with
+   \`--changelog "<line>"\`, or put it in \`.playac/changelog.txt\`.
+
+\`\`\`bash
+playac-mod publish    # sign in with a code (it lasts an hour), then upload for review
+playac-mod status     # what happened to each version you uploaded
 \`\`\`
 
 Raise "version" in mod.json for every release. Every file in a shared mod
-must be your own work: never the game's pictures or text.
+must be your own work. Never use the game's pictures or text.
+The steps in full: https://playaconline.com/modding/publishing/
 
-This README goes into the mod's ZIP (every .md does, except a top-level
-CHANGELOG.md), so players and the reviewer read it: keep it about the mod.
+This README goes into the mod's ZIP, so players and the reviewer read it.
+Keep it about the mod. Every .md file is packed, except a CHANGELOG.md at the top.
 
 Guide: https://playaconline.com/modding/  Errors: https://playaconline.com/modding/errors/
 `;
@@ -101,9 +118,9 @@ Guide: https://playaconline.com/modding/  Errors: https://playaconline.com/moddi
 /* The files of a new mod of kind, as {path: string|Buffer}. */
 export function scaffoldFiles(id, kind, opts = {}) {
   if (!mods.validateManifest || !/^[a-z0-9][a-z0-9-]{0,31}\.[a-z0-9][a-z0-9-]{0,47}$/.test(id)) {
-    throw new Error('the id must look like yourname.mod-name: lowercase letters, digits and dashes, one dot');
+    throw new Error('The id must look like yourname.mod-name. Use lowercase letters, digits and dashes, with one dot.');
   }
-  if (!KINDS.includes(kind)) throw new Error(`--kind must be one of ${KINDS.join(', ')}`);
+  if (!KINDS.includes(kind)) throw new Error(`--kind must be one of ${KINDS.join(', ')}.`);
   const author = (opts.author || id.split('.')[0]).slice(0, 40);
   const name = (opts.name || id.split('.')[1].split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')).slice(0, 60);
   const manifest = {
@@ -128,28 +145,31 @@ export function scaffoldFiles(id, kind, opts = {}) {
   if (kind === 'lines') {
     manifest.description = 'Villagers share a line before their hello, once a day each.';
     manifest.content.messages = 'messages/en.json';
-    manifest.scripts = { main: 'main.lua', hooks: ['talk', 'day_start'] };
+    manifest.scripts = { main: 'main.lua', events: ['villager_talked', 'day_started'] };
     files['messages/en.json'] = json({
       line1: 'Did you hear? Someone planted a tree by the river last night.',
       line2: 'I have a feeling today is going to be a good one.',
       line3: 'The shop smelled like oranges this morning. Lovely!',
     });
     files['main.lua'] = `-- ${name}: one line per villager per day, before their usual hello.
--- Hooks only RETURN data: the game shows the line, nothing changes mid-frame.
+-- A handler only RETURNS data: the game shows the line, nothing changes mid-frame.
+-- Every handler gets one table, e.
 
 local said = {}   -- villager ids that already spoke today
 local LINES = 3   -- line1..line3 in messages/en.json
 
-on("day_start", function(date)
+---@param e PlayacDayStartedEvent
+on("day_started", function(e)
   said = {}
 end)
 
----@param npc PlayacNpc
-on("talk", function(npc)
-  if said[npc.id] then return nil end
-  said[npc.id] = true
-  local t = game.time()
-  return message("line" .. ((npc.id + t.day) % LINES + 1))
+---@param e PlayacVillagerTalkedEvent
+on("villager_talked", function(e)
+  local who = e.villager
+  if said[who.id] then return nil end
+  said[who.id] = true
+  -- rng() is seeded by the mod, the town and the game day: a reload cannot reroll it.
+  return message("line" .. rng(LINES))
 end)
 
 log("ready")
@@ -175,31 +195,35 @@ log("ready")
   }
   if (kind === 'script') {
     manifest.description = 'Counts days played and items picked up.';
-    manifest.scripts = { main: 'main.lua', hooks: ['day_start', 'item_picked', 'enter_scene'] };
+    manifest.scripts = { main: 'main.lua', events: ['day_started', 'item_picked_up', 'scene_entered'] };
     files['main.lua'] = `-- ${name}: counts things in this mod's store (8 KB per town).
 -- log() lines show in Settings, Mods, Mod log and in the browser console as "[Mods] ${id}: ...".
 -- This top level runs once, before any town is loaded: register handlers
 -- here, and read or save the store only inside events.
+-- Every handler gets one table, e.
 
-on("day_start", function(date)
-  -- A restart later on a day the town already saw does not fire day_start
-  -- again; count by date anyway, so a day is never counted twice.
-  local today = ("%04d-%02d-%02d"):format(date.year, date.month, date.day)
+---@param e PlayacDayStartedEvent
+on("day_started", function(e)
+  -- A restart later on a day the town already saw does not fire day_started
+  -- again; count by day number anyway, so a day is never counted twice.
+  local today = game.day_number()
   if store.get("last_day") ~= today then
     store.set("last_day", today)
     store.set("days", (store.get("days") or 0) + 1)
   end
-  log(("day %d: %s"):format(store.get("days"), today))
+  log(("day %d: %04d-%02d-%02d"):format(store.get("days"), e.year, e.month, e.day))
 end)
 
-on("item_picked", function(item)
+---@param e PlayacItemPickedUpEvent
+on("item_picked_up", function(e)
   local n = (store.get("picked") or 0) + 1
   store.set("picked", n)
-  log(("picked up item 0x%04x (%d so far)"):format(item, n))
+  log(("picked up item 0x%04x (%d so far)"):format(e.item, n))
 end)
 
-on("enter_scene", function(scene)
-  log("entered scene " .. scene)
+---@param e PlayacSceneEnteredEvent
+on("scene_entered", function(e)
+  log("entered scene " .. (e.name or e.scene))
 end)
 
 log("ready")
@@ -230,10 +254,10 @@ export function editorFiles() {
         { fileMatch: ['/mod.json'], url: `./${TYPES_DIR}/schemas/mod.schema.json` },
         { fileMatch: ['/shops.json'], url: `./${TYPES_DIR}/schemas/shops.schema.json` },
         { fileMatch: ['/messages/*.json'], url: `./${TYPES_DIR}/schemas/messages.schema.json` },
-        /* api 2 content files, under the names the guides and examples use */
+        /* the other content files, under the names the guides and examples use */
         { fileMatch: ['/items.json'], url: `./${TYPES_DIR}/schemas/mod-items.schema.json` },
         { fileMatch: ['/letters.json'], url: `./${TYPES_DIR}/schemas/letters.schema.json` },
-        { fileMatch: ['/events.json'], url: `./${TYPES_DIR}/schemas/events.schema.json` },
+        { fileMatch: ['/calendar.json'], url: `./${TYPES_DIR}/schemas/calendar.schema.json` },
         { fileMatch: ['/talk.json'], url: `./${TYPES_DIR}/schemas/talk.schema.json` },
       ],
     }),
@@ -259,7 +283,7 @@ export function githubFiles(release, version = '0.1.0') {
 export function writeFiles(dir, files, { force = false } = {}) {
   for (const rel of Object.keys(files)) {
     const abs = path.join(dir, ...rel.split('/'));
-    if (!force && fs.existsSync(abs)) throw new Error(`${path.relative(process.cwd(), abs) || abs} already exists (use --force to overwrite)`);
+    if (!force && fs.existsSync(abs)) throw new Error(`${path.relative(process.cwd(), abs) || abs} already exists. Use --force to write over it.`);
   }
   for (const [rel, body] of Object.entries(files)) {
     const abs = path.join(dir, ...rel.split('/'));

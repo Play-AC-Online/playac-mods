@@ -1,0 +1,18 @@
+name: A wrong or missing fact
+description: Something in the docs, a setup guide or the API files is wrong or missing.
+labels: [docs]
+body:
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: The page address or the file in this repository.
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What is wrong
+      description: What it says, and what is true instead. Say how you know.
+    validations:
+      required: true

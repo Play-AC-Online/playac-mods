@@ -1,7 +1,8 @@
 # Chatty Villagers
 
-A villager line pool example (`talk.json`). Client scope: only you hear it.
-No script: the game picks the line.
+A villager line pool example (`talk.json`). It is a Just you mod
+(`"scope": "client"`), so only you hear it. It has no script. The game picks
+the line.
 
 ## In the game
 
@@ -21,8 +22,10 @@ Talk again the same day and there is no mod line: one new line per villager per 
 
 The film (click the picture): Twiggy's first talk of the day opens on the mod's line, then her own words; a second talk skips straight to her hello.
 
-Each personality has its own pool. On the first ordinary talk of the day a
-villager says one line from their personality's pool, then their usual hello,
-errands and all. A pool can instead name one villager (`"villager": "Bob"`) or
-nobody (every villager), and can say a line only some days (`"chance": 40`).
-The most specific pools that match a villager decide.
+Each personality has its own pool. On the first ordinary talk of the day, a
+villager says one line from their personality's pool. Then they say their
+usual hello and carry on as normal.
+
+A pool can instead name one villager (`"villager": "Bob"`), or nobody, which
+means every villager. A pool can say a line only on some days
+(`"chance": 40`). The most specific pools that match a villager decide.

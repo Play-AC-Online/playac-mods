@@ -1,6 +1,6 @@
 # Cosy Corner
 
-Two pieces of furniture of its own, a Tea Chest and a Reading Chair, sold at the flower shop. Remove the mod and they stay in your house as the plain pieces they are built on; put it back and they are yours again.
+Adds two pieces of furniture, a Tea Chest and a Reading Chair, sold at the flower shop. Remove the mod and they stay in your house as the plain pieces they are built on. Put it back and they are yours again.
 
 ## In the game
 

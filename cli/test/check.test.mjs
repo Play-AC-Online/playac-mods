@@ -15,7 +15,7 @@ import { dds } from '../lib/scaffold.mjs';
 
 const enc = (s) => (typeof s === 'string' ? new TextEncoder().encode(s) : s);
 const js = (v) => enc(JSON.stringify(v));
-const base = { schema: 1, api: 2, id: 'test.mod', name: 'Test Mod', version: '1.0.0', authors: ['Tester'], scope: 'client', assets_original: true };
+const base = { schema: 1, api: 1, id: 'test.mod', name: 'Test Mod', version: '1.0.0', authors: ['Tester'], scope: 'client', assets_original: true };
 const gameOk = (entries) => { try { mods.readMod(fflate.zipSync(entries), fflate); return true; } catch { return false; } };
 /* check, and the rule: its verdict is readMod's */
 async function check(entries, opts = {}) {
@@ -106,9 +106,9 @@ test('check warns on a picture smaller than, or another shape from, the original
     [T(32, 32, 4, 'png')]: pngHeader(128, 128),
   }));
   assert.equal(r.ok, true);
-  assert.ok(warned(r, `textures/${T(64, 64, 1)}`, /^is 32x32, smaller than the original 64x64: the game stretches it over the original's place, so it looks blurrier/));
+  assert.ok(warned(r, `textures/${T(64, 64, 1)}`, /^is 32x32, smaller than the original 64x64\. The game stretches it over the original's place, so it looks blurrier/));
   assert.ok(!warned(r, `textures/${T(64, 64, 1)}`, /shape/), 'same shape');
-  assert.ok(warned(r, `textures/${T(32, 32, 2)}`, /^is 64x32, not the shape of the original 32x32: the game stretches it to the original's shape, so it looks squashed$/));
+  assert.ok(warned(r, `textures/${T(32, 32, 2)}`, /^is 64x32, not the shape of the original 32x32\. The game stretches it to the original's shape, so it looks squashed\.$/));
   assert.ok(!warned(r, `textures/${T(32, 32, 2)}`, /smaller/), 'not smaller: 64 >= 32 and 32 >= 32');
   assert.ok(warned(r, `textures/${T(64, 32, 3, 'png')}`, /^is 32x16, smaller than the original 64x32/));
   assert.ok(!r.warnings.some((w) => w.file.endsWith(T(32, 32, 4, 'png'))), 'a bigger PNG of the same shape is fine');
@@ -120,15 +120,15 @@ test('check warns when a .png and a .dds are the same texture (any case)', async
   assert.equal(r.ok, true);
   const w = r.warnings.filter((x) => /are the same texture/.test(x.message));
   assert.equal(w.length, 1, JSON.stringify(r.warnings));
-  assert.match(w[0].message, /\.PNG and textures\/.*\.dds are the same texture: the game uses only one of them \(the first it finds when it scans the folder, which you cannot choose\), so the other is never drawn$/);
+  assert.match(w[0].message, /\.PNG and textures\/.*\.dds are the same texture: the game uses only one of them\. You cannot choose which, so the other is never drawn\.$/);
 });
 
 /* ── scripts (scriptscan.mjs) ── */
 
-const ctx = { api: 2, hooks: ['talk'], permissions: ['show_line'], events: mods.HOOKS_V2, commands: mods.PERMISSIONS };
+const ctx = { listed: ['villager_talked'], permissions: ['show_line'], events: mods.EVENTS, commands: mods.PERMISSIONS };
 
 test('stripLua blanks comments and strings, keeps lines, and remembers string values', () => {
-  const src = 'a = "x--y" -- on("talk")\n--[==[ cmd.ask{} ]==] b = [[\nlong]] c = \'q\\\'s\'';
+  const src = 'a = "x--y" -- on("villager_talked")\n--[==[ cmd.ask{} ]==] b = [[\nlong]] c = \'q\\\'s\'';
   const { code, strings } = stripLua(src);
   assert.equal(code.length, src.length);
   assert.equal(code.split('\n').length, src.split('\n').length);
@@ -136,43 +136,66 @@ test('stripLua blanks comments and strings, keeps lines, and remembers string va
   assert.deepEqual([...strings.values()], ['x--y', 'long', "q's"]);
 });
 
-test('the script scan: on() against scripts.hooks and the events, cmd.* against permissions and api', () => {
+test('the script scan: on() against scripts.events and the events, cmd.* against permissions, math.random', () => {
   const src = [
-    'on("talk", function() end)',              /* 1 fine */
-    "on('day_start', function() end)",         /* 2 not in hooks */
+    'on("villager_talked", function(e) end)',  /* 1 fine */
+    "on('day_started', function(e) end)",      /* 2 not in scripts.events */
     'on("dawn", function() end)',              /* 3 no such event */
     'cmd.show_line("hi")',                     /* 4 fine */
     'cmd.ask{ text = "?" }',                   /* 5 no permission */
     'cmd.ask{ text = "again" }',               /* 6 said once */
     'cmd.teleport("x")',                       /* 7 no such command */
-    '-- on("hour_change", f) cmd.give_item(1)', /* 8 a comment */
-    'local s = "on(\'item_sold\', f) cmd.set_flag(1)"', /* 9 a string */
-    'x.on("hour_change", f) obj:on("migrate", f)', /* 10 not the global on */
+    '-- on("hour_changed", f) cmd.give_item(1) math.random()', /* 8 a comment */
+    'local s = "on(\'item_sold\', f) cmd.teleport(1) math.random(3)"', /* 9 a string */
+    'x.on("hour_changed", f) obj:on("data_migrated", f)', /* 10 not the global on */
     'local c = cmd.send_letter',               /* 11 not a call */
+    'local n = math.random(6)',                /* 12 not in the sandbox */
+    'math.randomseed(7) local m = math.random()', /* 13 randomseed too; random said once */
+    'local r = my.math.random(2)',             /* 14 not the global math */
   ].join('\n');
   const w = scanScript(src, ctx);
-  assert.deepEqual(w.map((x) => x.line), [2, 3, 5, 7], JSON.stringify(w, null, 1));
-  assert.equal(w[0].message, 'line 2: on("day_start") but "day_start" is not in "scripts.hooks" in mod.json, so the game stops your script when it loads and none of it runs: on(): \'day_start\' is not in this mod\'s "hooks" list in mod.json. Add "day_start" to "hooks"');
-  assert.match(w[1].message, /^line 3: on\("dawn"\) names no event the game has, so the game stops your script when it loads and none of it runs: on\(\): unknown event 'dawn' \(the events: talk, /);
-  /* an on() the engine refuses kills the script, so check lists it as a problem */
-  assert.deepEqual(w.map((x) => !!x.error), [true, true, false, false]);
-  assert.equal(w[2].message, 'line 5: cmd.ask: "ask" is not in "permissions" in mod.json, so the game refuses every call: it returns nil and logs: cmd.ask refused: ask is not in this mod\'s "permissions" in mod.json');
-  assert.match(w[3].message, /^line 7: cmd\.teleport is not a command \(the commands: send_letter, give_item, set_flag, show_line, ask\), so calling it stops that handler with an error$/);
+  assert.deepEqual(w.map((x) => x.line), [2, 3, 5, 7, 12, 13], JSON.stringify(w, null, 1));
+  assert.equal(w[0].message, 'line 2: on("day_started") is used, but "day_started" is not in "scripts.events" in mod.json. The game stops your script when it loads and none of it runs. Its error is: on(): \'day_started\' is not in this mod\'s "scripts.events" list in mod.json. Add "day_started" to "scripts.events".');
+  assert.match(w[1].message, /^line 3: on\("dawn"\) names no event the game has\. The game stops your script when it loads and none of it runs\. Its error is: on\(\): unknown event 'dawn'\. The events are villager_talked, day_started, /);
+  /* an on() the engine refuses kills the script, so check lists it as a
+   * problem; math.random raises where it is called, which stops it too */
+  assert.deepEqual(w.map((x) => !!x.error), [true, true, false, false, true, true]);
+  assert.equal(w[2].message, 'line 5: cmd.ask: "ask" is not in "permissions" in mod.json, so the game refuses every call. Each call returns nil, the reason and the code command-permission. It logs: cmd.ask refused: ask is not in this mod\'s "permissions" in mod.json');
+  assert.match(w[3].message, /^line 7: cmd\.teleport is not a command, so calling it stops that handler with an error\. The commands are send_letter, give_item, show_line, ask\.$/);
+  assert.equal(w[4].message, 'line 12: math.random is not available: use rng() (seeded, so a reload cannot reroll). The game stops your script where it calls math.random.');
+  assert.match(w[5].message, /^line 13: math\.randomseed is not available: use rng\(\)/);
   /* the engine's own words, so the catalogue entry links */
   assert.equal(mods.errorCode(w[0].message), 'script-on-event');
   assert.equal(mods.errorCode(w[2].message), 'command-permission');
+  assert.equal(mods.errorCode(w[4].message), 'script-sandbox');
 
-  const v1 = scanScript('cmd.show_line "hi"', { ...ctx, api: 1 });
-  assert.equal(v1.length, 1);
-  assert.match(v1[0].message, /^line 1: cmd\.show_line: a command needs "api": 2 and "show_line" in "permissions" in mod\.json; at api 1 the game refuses every call/);
+  /* the names the API had before its first release are not events or commands */
+  for (const old of ['talk', 'day_start', 'item_picked', 'enter_scene', 'migrate', 'hour_change', 'shop_buy', 'command_result', 'answer']) {
+    const r = scanScript(`on("${old}", function(e) end)`, ctx);
+    assert.ok(r.length === 1 && r[0].error && /names no event the game has/.test(r[0].message), old);
+  }
+  assert.match(scanScript('cmd.set_flag{ key = "a", value = 1 }', ctx)[0].message, /^line 1: cmd\.set_flag is not a command/);
+  /* a command needs only its permission: there is one api level */
+  assert.deepEqual(scanScript('cmd.show_line "hi"', ctx), []);
+});
+
+test('the script scan: a handler takes one table', () => {
+  const two = scanScript('on("villager_talked", function(villager, extra) return nil end)', ctx);
+  assert.equal(two.length, 1);
+  assert.ok(!two[0].error, 'a warning: the script still runs');
+  assert.equal(two[0].message, 'line 1: the on("villager_talked") handler takes (villager, extra), but every handler gets one table. Write function(e) and read its fields, like e.villager.');
+  for (const fine of ['on("villager_talked", function(e) end)', 'on("villager_talked", function() end)', 'on("villager_talked", handler)', 'on("villager_talked", function(e, ...) end)']) {
+    assert.deepEqual(scanScript(fine, ctx), [], fine);
+  }
 });
 
 test('check runs the script scan on scripts.main: the mod installs, but a dead script fails check', async () => {
-  const man = { ...base, scripts: { main: 'main.lua', hooks: ['talk'] } };
-  const r = await check({ 'mod.json': js(man), 'main.lua': enc('on("talk", function() end)\non("day_start", function() end)\ncmd.ask{}') });
+  const man = { ...base, scripts: { main: 'main.lua', events: ['villager_talked'] } };
+  const r = await check({ 'mod.json': js(man), 'main.lua': enc('on("villager_talked", function(e) end)\non("day_started", function(e) end)\ncmd.ask{}\nlocal n = math.random(3)') });
   assert.equal(r.installs, true);
   assert.equal(r.ok, false, 'the game stops this script at load');
-  assert.ok(said(r, 'main.lua', /^line 2: on\("day_start"\) but "day_start" is not in "scripts.hooks"/), JSON.stringify(r.problems));
+  assert.ok(said(r, 'main.lua', /^line 2: on\("day_started"\) is used, but "day_started" is not in "scripts.events"/), JSON.stringify(r.problems));
+  assert.ok(said(r, 'main.lua', /^line 4: math\.random is not available: use rng\(\)/), JSON.stringify(r.problems));
   assert.ok(warned(r, 'main.lua', /^line 3: cmd\.ask: "ask" is not in "permissions"/));
 });
 
@@ -214,7 +237,7 @@ test('a JSON syntax error carries its line and column, and is listed once', asyn
 test('check lists the manifest\'s problems AND every content file\'s, where readMod stops at the manifest', async () => {
   const man = {
     ...base, version: '1.0', scope: 'world',
-    content: { shops: 'shops.json', messages: 'lines/', letters: 'letters.json', events: 'events.json', talk: 'talk.json', items: 'items.json' },
+    content: { shops: 'shops.json', messages: 'lines/', letters: 'letters.json', calendar: 'calendar.json', talk: 'talk.json', items: 'items.json' },
   };
   const entries = {
     'mod.json': js(man),
@@ -222,21 +245,21 @@ test('check lists the manifest\'s problems AND every content file\'s, where read
     'lines/en.json': js({ 'Bad Key': 'x' }),
     'lines/de.json': js({ ok: '' }),
     'letters.json': js({ letters: [] }),
-    'events.json': js({ events: [{ id: 'e', date: { month: 13, day: 1 }, talk: ['hi'] }] }),
+    'calendar.json': js({ days: [{ id: 'e', date: { month: 13, day: 1 }, talk: ['hi'] }] }),
     'talk.json': js({ pools: [{ personality: 'grumpy', lines: ['hi'] }] }),
     'items.json': js({ items: [{ id: 'x', name: 'X', base: '0x1001' }] }),
   };
   let game = '';
   try { mods.readMod(fflate.zipSync(entries), fflate); } catch (e) { game = e.message; }
   assert.match(game, /"version"/);
-  assert.doesNotMatch(game, /shops:|letters:|events:|talk:|items:|messages/, 'readMod stops at the manifest');
+  assert.doesNotMatch(game, /shops:|letters:|calendar:|talk:|items:|messages/, 'readMod stops at the manifest');
   const r = await check(entries);
   assert.ok(said(r, 'mod.json', /"version"/));
   assert.ok(said(r, 'shops.json', /"stock" must list 1 to 6/), JSON.stringify(r.problems, null, 1));
   assert.ok(said(r, 'lines/en.json', /^messages\/en: key "Bad Key"/));
   assert.ok(said(r, 'lines/de.json', /^messages\/de: "ok" must be text/));
   assert.ok(said(r, 'letters.json', /^letters: "letters" must be a list/));
-  assert.ok(said(r, 'events.json', /^events: event 1 "date"/));
+  assert.ok(said(r, 'calendar.json', /^calendar: day 1 "date"/));
   assert.ok(said(r, 'talk.json', /^talk: pool 1 "personality"/));
   assert.ok(said(r, 'items.json', /facing south/));
 });
@@ -246,11 +269,19 @@ test('a content file with any name is parsed, with a position, like readMod\'s d
   assert.deepEqual(r.problems.map((p) => [p.file, p.message]), [['lines.txt', 'lines.txt: line 1, column 7: this is not valid JSON (expected a value, found "}")']]);
 });
 
-test('the translation rule and the api 1 nook rule, as readMod has them', async () => {
+test('the translation rule and the unknown-key rule, as readMod has them', async () => {
   const tr = await check({ 'mod.json': js({ ...base, content: { messages: 'm/' } }), 'm/en.json': js({ a: 'x' }), 'm/fr.json': js({ b: 'y' }) });
   assert.deepEqual(tr.problems.map((p) => [p.file, p.message]), [['m/fr.json', 'messages/fr: "b" is not in en.json (a translation holds only keys en.json has)']]);
-  const nook = await check({ 'mod.json': js({ ...base, api: 1, scope: 'world', content: { shops: 'shops.json' } }), 'shops.json': js({ shops: [{ target: 'nook', stock: [{ item: '0x2800' }] }] }) });
-  assert.ok(said(nook, 'shops.json', /target "nook" needs "api": 2/), JSON.stringify(nook.problems));
+  /* an unknown key, in mod.json and in a content file's entry, with the key it is close to and the catalogue's code */
+  const typo = await check({ 'mod.json': js({ ...base, scope: 'world', permisions: ['ask'], content: { shops: 'shops.json' } }), 'shops.json': js({ shops: [{ target: 'nook', stock: [{ item: '0x1000' }], mod: 'add' }] }) }, { items: null });
+  assert.deepEqual(typo.problems.map((p) => [p.file, p.message, mods.errorCode(p.message)]), [
+    ['mod.json', 'mod.json: unknown key "permisions" (did you mean "permissions"?)', 'unknown-key'],
+    ['shops.json', 'shops: shop 1: unknown key "mod" (did you mean "mode"?)', 'unknown-key'],
+  ]);
+  /* one api level: a mod.json without "api", or with the next level, is refused */
+  const { api: _none, ...noApi } = base;
+  assert.ok(said(await check({ 'mod.json': js(noApi) }), 'mod.json', /^"api" must be a whole number/));
+  assert.ok(said(await check({ 'mod.json': js({ ...base, api: 2 }) }), 'mod.json', /^needs a newer game/));
 });
 
 /* check runs the game's own content rules (mods.js contentProblems,
@@ -263,7 +294,7 @@ test('no copies of the game\'s rules in the CLI: their words live in mods.js onl
   const lib = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'lib');
   const src = fs.readdirSync(lib).filter((f) => f.endsWith('.mjs') && !f.startsWith('luasyntax.wasm'))
     .map((f) => fs.readFileSync(path.join(lib, f), 'utf8')).join('\n');
-  for (const words of ['is not in en.json', 'needs "api": 2 in mod.json', 'which is not in ', "=== '__MACOSX'", "['.json', '.lua'"]) {
+  for (const words of ['is not in en.json', 'unknown key "', 'did you mean', 'which is not in ', "=== '__MACOSX'", "['.json', '.lua'"]) {
     assert.ok(!src.includes(words), `lib/ holds a copy of a mods.js rule: ${words}`);
   }
   for (const k of ['contentProblems', 'messageFiles', 'isJunk', 'EXTS']) assert.ok(mods[k], `mods.js exports ${k}`);
@@ -287,14 +318,14 @@ test('shop goods: unknown ids, goods a shop cannot stock, prices under the floor
     { target: 'nook', stock: [{ item: '0x2800', price: 300 }, { item: '0x1003', price: 999 }, { item: '0x2900' }] },
   ] };
   assert.deepEqual(shopItemWarnings(shops, NEW), [
-    'shops: shop 1 stock 1 "price" 300 is under the floor for 0x2800 (apple) at the flower shop: the game sells it for 500',
+    'shops: shop 1 stock 1 "price" 300 is under the floor for 0x2800 (apple) at the flower shop. The game sells it for 500.',
     'shops: shop 1 stock 2 "item" 0x1002 (wardrobe) has no shop shelf model, so the game leaves it out of the flower shop',
     'shops: shop 1 stock 3 "item" 0x7777 is not an item or furniture the game has, so the game leaves it out of the flower shop',
-    'shops: shop 2 stock 2 "price" 999 is under the floor for 0x1003 (wardrobe) at Nook\'s shop: the game sells it for 1000',
+    'shops: shop 2 stock 2 "price" 999 is under the floor for 0x1003 (wardrobe) at Nook\'s shop. The game sells it for 1000.',
     'shops: shop 2 stock 3 "item" 0x2900 (sapling) cannot be sold at Nook\'s shop, so the game leaves it out of Nook\'s shop',
   ]);
   assert.deepEqual(shopItemWarnings({ shops: [{ target: 'flower', stock: [{ item: '0x2800', price: 50 }, { item: '0x1000' }] }] }, OLD), [
-    'shops: shop 1 stock 1 "price" 50 is under the floor for 0x2800 (food apple) at the flower shop: the game sells it for 100',
+    'shops: shop 1 stock 1 "price" 50 is under the floor for 0x2800 (food apple) at the flower shop. The game sells it for 100.',
     'shops: shop 1 stock 2 "item" 0x1000 (spooky wardrobe) has no shop shelf model, so the game leaves it out of the flower shop',
   ]);
   assert.deepEqual(shopItemWarnings(shops, null), [], 'no items.json: the check is skipped');
@@ -315,7 +346,7 @@ test('check warns on shop goods and passes the mod; without items.json it says n
 test('a JSON file with bytes that are not UTF-8 passes, as in readMod, with a warning', async () => {
   const r = await check({ 'mod.json': js({ ...base, content: { messages: 'm.json' } }), 'm.json': new Uint8Array([0x7b, 0x22, 0x61, 0x22, 0x3a, 0x22, 0xff, 0x22, 0x7d]) });
   assert.equal(r.ok, true, JSON.stringify(r.problems));
-  assert.ok(warned(r, 'm.json', /^is not UTF-8 text: the game page reads each bad byte as a replacement character/));
+  assert.ok(warned(r, 'm.json', /^is not UTF-8 text\. The game reads each bad byte as a replacement character/));
 });
 
 
@@ -324,7 +355,7 @@ test('a letter footer over 8 characters with no sender warns: the mailbox list s
   const mk = (L) => ({ 'mod.json': js({ ...base, content: { letters: 'letters.json' } }), 'letters.json': js({ letters: [L] }) });
   const r = await check(mk(letter({})));
   assert.equal(r.ok, true, JSON.stringify(r.problems));
-  assert.ok(warned(r, 'letters.json', /reads "The Lant" there .*Add "sender"/), JSON.stringify(r.warnings));
+  assert.ok(warned(r, 'letters.json', /reads "The Lant" there\. .*Add "sender"/), JSON.stringify(r.warnings));
   const named = await check(mk(letter({ sender: 'Lanterns' })));
   assert.equal(named.ok, true, JSON.stringify(named.problems));
   assert.deepEqual(named.warnings.filter((w) => w.file === 'letters.json'), [], 'a sender: no warning');

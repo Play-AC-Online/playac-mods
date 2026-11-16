@@ -1,7 +1,12 @@
 -- Daily Gift: once a game day, a letter with a little present arrives in the
--- mailbox. A worked example of mod commands: a hook never changes the
+-- mailbox. A worked example of mod commands: an event handler never changes the
 -- game itself, it QUEUES a command, and the game applies it at the end of a frame's
 -- update, once the player is free. mod.json must name the command in "permissions".
+--
+-- The day's letter is remembered in store.player, so each resident of the town
+-- gets their own. The game's cap is per town, not per player: 3 letters a day
+-- from one mod, so in a town of four the fourth resident to play that day
+-- gets none.
 
 -- Fruit: always a fine present (the shop's item rules refuse money, turnips,
 -- tickets, grab bags, fossils and reserve ids).
@@ -16,33 +21,39 @@ end
 
 local function send_today()
   local day = today()
-  if not day or store.get("sent") == day then return end
-  -- rng() is seeded by the town, the day and the event, so reloading the game
-  -- picks the same present that day: a reload cannot reroll it (a changed game
-  -- clock is another day, and another pick).
+  if not day or store.player.get("sent") == day then return end
+  -- rng() counts the numbers this mod has drawn in this town today and keeps
+  -- that count with the town, so a reload carries on from it: reloading the
+  -- game cannot reroll the present.
   local gift = GIFTS[rng(#GIFTS)]
-  local id, why = cmd.send_letter{ text = message("letter"), item = gift, from = message("from") }
+  local id, why, code = cmd.send_letter{ text = message("letter"), item = gift, from = message("from") }
   if id then
-    store.set("sent", day)
+    store.player.set("sent", day)
     log("letter #" .. id .. " queued with item " .. string.format("0x%04X", gift))
   else
-    log("no letter today: " .. why)
+    log("no letter today: " .. why .. " (" .. code .. ")")
+    -- The town's letters for today are used up: do not ask again until tomorrow.
+    if code == "command-day-cap" then store.player.set("sent", day) end
   end
 end
 
 -- A new day, and the first scene of each session (a game loaded on a day it
--- already saw does not run day_start again).
-on("day_start", send_today)
-on("enter_scene", send_today)
+-- already saw does not run day_started again).
+on("day_started", send_today)
+on("scene_entered", send_today)
 
--- What happened to it: "mailbox", or "post_office" when the mailbox was full.
-on("command_result", function(r)
-  if r.ok then
-    log("letter #" .. r.id .. " delivered via " .. r.via)
+-- What happened to it: e.via is "mailbox", or "post_office" when the mailbox
+-- was full. A refusal has e.code (stable, for the script) and e.message (for
+-- the log).
+on("command_finished", function(e)
+  if e.ok then
+    log("letter #" .. e.id .. " delivered via " .. e.via)
+  elseif e.code == "command-day-cap" then
+    log("letter #" .. e.id .. " not delivered: " .. e.message)
   else
-    -- Refused (in The City, visiting a friend, both boxes full): try again in
-    -- the next scene. The game's own cap stops this at 3 letters a day.
-    log("letter #" .. r.id .. " not delivered: " .. r.error)
-    store.set("sent", nil)
+    -- Refused for now (in The City, visiting a friend, both boxes full): try
+    -- again in the next scene.
+    log("letter #" .. e.id .. " not delivered: " .. e.message)
+    store.player.set("sent", nil)
   end
 end)

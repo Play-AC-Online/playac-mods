@@ -215,6 +215,12 @@ export function petalGrass(seed = 2652) {
   return c.px;
 }
 
+/* the petal grass is one `$` (any palette) file per summer grass
+ * texture, 3 files, where it was once 27 (one per texture and palette, all the
+ * same picture). The CROWNS stay one file per palette, 45 files, on purpose:
+ * golden trees are the same crown textures under a gold palette that TREE_PALS
+ * leaves out, so they stay gold. A `$` crown would match the gold palette too
+ * and turn the golden trees pink. So the mod is 48 files, once 72. */
 export function blossomLaneFiles() {
   const files = {};
   const crown = dds(128, 128, blossomCrown());
@@ -225,7 +231,7 @@ export function blossomLaneFiles() {
     files[name(64, 64, CROWN_WINTER, pal)] = snowy;
   }
   const grass = dds(128, 128, petalGrass());
-  for (const tex of GRASS_SUMMER) for (const pal of GROUND_PALS_SUMMER) files[name(32, 32, tex, pal)] = grass;
+  for (const tex of GRASS_SUMMER) files[name(32, 32, tex, '$')] = grass;
   return files;
 }
 
