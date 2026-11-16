@@ -62,7 +62,7 @@ function lawn() {
 }
 
 /* The town grass, under any palette ("$"): one of the names
- * the game's build draws for example.clover-meadow. */
+ * tools/example-textures.mjs draws for example.clover-meadow. */
 export const GRASS_TEXTURE = 'tex1_32x32_626709d910129694_$_8.dds';
 
 function readme(id, name, kind) {

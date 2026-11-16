@@ -25,9 +25,16 @@ The film (click the picture): A walk past the houses with Clover Meadow installe
 
 The names say which in-game texture to replace; the pixels are our own. The
 grass is six textures, and the game draws each under several palettes through
-the seasons and the time of day, so the mod has one file per pairing:
+the seasons and the time of day. A file can name one texture and one palette:
 
     tex1_32x32_<texture>_<palette>_8.dds
+
+or put `$` in place of the palette, for that texture under any palette:
+
+    tex1_32x32_<texture>_$_8.dds
+
+Our grass is the same picture all year, so the mod has one `$` file per
+texture: six files.
 
 These three grass textures are drawn under nine palettes:
 
@@ -41,8 +48,11 @@ And these three under three palettes:
     textures: 82f28ec4199a45be cfa57a6e6f966d11 e2ab673814e71af6
     palettes: 6d5ff5628ae85b42 ce63d23d746a058a d9eb32f9a8b17411
 
-That is 36 files, all the same picture. One file per texture named with `$` in
-place of the palette (`tex1_32x32_626709d910129694_$_8.dds`) would cover every
-palette too.
+To change the grass for one stretch of the year or time of day only, add a
+file named with that palette next to the `$` file: a file named for one
+palette wins over the `$` file under that palette, and the `$` file still
+covers the rest. With one file per palette (36 files) the mod could change
+with every palette; a `$` file is loaded once and shared, so it is the lighter
+choice when the picture does not change.
 
 The pictures are drawn by a small program, never copied from the game.

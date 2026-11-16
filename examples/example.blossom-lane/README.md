@@ -46,4 +46,7 @@ fully transparent, so it draws as a round crown, never a square.
 
 Winter grass is left as it is. The names identify which in-game texture to
 replace; the pixels are our own. Clover Meadow and Cobble Town also replace the
-grass: when two mods change the same texture, the lower one in your list wins.
+grass, with `$` files: when two mods change the same texture, the lower one in
+your list wins, but a file named for one palette beats a `$` file for that
+palette wherever its mod is. So this mod's petal grass shows over theirs from
+spring to autumn whatever the order.

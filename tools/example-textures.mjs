@@ -391,21 +391,25 @@ export function wallFace({ kind, snow = false }) {
   return c.px;
 }
 
+/* one `$` (any palette) file per texture, 18 files, where it was once
+ * 108 (one per texture and palette). Every palette got the same picture, so a
+ * `$` file draws the same frame; summer and winter are different TEXTURES (the
+ * hashes above), not palettes, so the snow still comes with winter. */
 export function cobbleTownFiles() {
   const files = {};
   const ground = dds(128, 128, cobbleGround());
   const groundSnow = dds(128, 128, cobbleGround({ snow: true }));
-  for (const tex of GRASS_SUMMER) for (const pal of GROUND_PALS_SUMMER) files[name(32, 32, tex, pal)] = ground;
-  for (const tex of GRASS_WINTER) for (const pal of GROUND_PALS_WINTER) files[name(32, 32, tex, pal)] = groundSnow;
+  for (const tex of GRASS_SUMMER) files[name(32, 32, tex, '$')] = ground;
+  for (const tex of GRASS_WINTER) files[name(32, 32, tex, '$')] = groundSnow;
   const sets = [
-    [EARTH_SUMMER, CLIFF_PALS_SUMMER, wallFace({ kind: 'cliff' })],
-    [EARTH_WINTER, CLIFF_PALS_WINTER, wallFace({ kind: 'cliff', snow: true })],
-    [STONE_SUMMER, BANK_PALS_SUMMER, wallFace({ kind: 'bank' })],
-    [STONE_WINTER, BANK_PALS_WINTER, wallFace({ kind: 'bank', snow: true })],
+    [EARTH_SUMMER, wallFace({ kind: 'cliff' })],
+    [EARTH_WINTER, wallFace({ kind: 'cliff', snow: true })],
+    [STONE_SUMMER, wallFace({ kind: 'bank' })],
+    [STONE_WINTER, wallFace({ kind: 'bank', snow: true })],
   ];
-  for (const [texs, pals, px] of sets) {
+  for (const [texs, px] of sets) {
     const img = dds(128, 128, px);
-    for (const tex of texs) for (const pal of pals) files[name(64, 64, tex, pal)] = img;
+    for (const tex of texs) files[name(64, 64, tex, '$')] = img;
   }
   return files;
 }
@@ -477,10 +481,14 @@ export function cloverMeadow(size = 128) {
   return px;
 }
 
+/* one `$` file per grass texture, 6 files, where it was once 36 (one
+ * per texture and palette, all the same picture). CLOVER_GRASS still lists the
+ * palettes: the README teaches them (what a `$` covers, and the one-palette
+ * file that would beat it), and perPalette() below rebuilds the old layout. */
 export function cloverMeadowFiles() {
   const files = {};
   const img = dds(128, 128, cloverMeadow());
-  for (const [tex, pals] of CLOVER_GRASS) for (const pal of pals) files[name(32, 32, tex, pal)] = img;
+  for (const [tex] of CLOVER_GRASS) files[name(32, 32, tex, '$')] = img;
   return files;
 }
 
@@ -507,6 +515,30 @@ export function textureKitFiles() {
   const img = dds(64, 64, kitCheck());
   for (const tex of GRASS_SUMMER) files[name(32, 32, tex, '$')] = img;
   return files;
+}
+
+/* ── The old one-file-per-palette layout ─────────────────────────────────────
+ * the palettes the game draws each texture above with. perPalette(files)
+ * turns every `$` name it knows into one file per palette, the same bytes under
+ * each: the layout the examples shipped before. verify-mods.js --case wild plays
+ * both and compares the frames, so it can show the `$` files draw the same. */
+const PALETTES = {};
+for (const tex of GRASS_SUMMER) PALETTES[tex] = GROUND_PALS_SUMMER;
+for (const tex of GRASS_WINTER) PALETTES[tex] = GROUND_PALS_WINTER;
+for (const tex of EARTH_SUMMER) PALETTES[tex] = CLIFF_PALS_SUMMER;
+for (const tex of EARTH_WINTER) PALETTES[tex] = CLIFF_PALS_WINTER;
+for (const tex of STONE_SUMMER) PALETTES[tex] = BANK_PALS_SUMMER;
+for (const tex of STONE_WINTER) PALETTES[tex] = BANK_PALS_WINTER;
+for (const [tex, pals] of CLOVER_GRASS) PALETTES[tex] = pals;
+
+export function perPalette(files) {
+  const out = {};
+  for (const [path, bytes] of Object.entries(files)) {
+    const m = path.match(/^(textures\/tex1_\d+x\d+_([0-9a-f]{16}))_\$_(\d+\.\w+)$/);
+    if (!m || !PALETTES[m[2]]) { out[path] = bytes; continue; }
+    for (const pal of PALETTES[m[2]]) out[`${m[1]}_${pal}_${m[3]}`] = bytes;
+  }
+  return out;
 }
 
 /* The starter kits' drawn files, by kit folder (templates/<kit>). The

@@ -1072,7 +1072,9 @@
       "description": "The longest version range in depends or conflicts.",
       "sources": {
         "js": "RANGE_BYTES_MAX",
-        "go": "maxRangeBytes", "c": "PC_MOD_RANGE_BYTES_MAX"}
+        "go": "maxRangeBytes",
+        "c": "PC_MOD_RANGE_BYTES_MAX"
+      }
     },
     {
       "name": "depends.range_parts",
@@ -1082,7 +1084,9 @@
       "description": "The most comparisons in one version range, like \">=1.0.0 <2.0.0\" (two).",
       "sources": {
         "js": "RANGE_PARTS_MAX",
-        "go": "maxRangeParts", "c": "PC_MOD_RANGE_PARTS_MAX"}
+        "go": "maxRangeParts",
+        "c": "PC_MOD_RANGE_PARTS_MAX"
+      }
     }
   ],
   "manifest": [
