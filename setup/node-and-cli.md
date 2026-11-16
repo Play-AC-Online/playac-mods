@@ -135,7 +135,7 @@ npm install -g https://playaconline.com/modding/downloads/playac-mod-0.2.0.tgz
 
 This installs release 0.2.0 of the tool from the game's site. `npm` comes with Node.js.
 
-The SHA-256 of that file is `4ec34948e2037789db1b7bc3a8ed492c45bc2c6707cb7bd338326b6d74f7ccb5`. To check it yourself, download
+The SHA-256 of that file is `a1e2daac2e65e55b6ed465f3f576ad463573a478e2ec547886a8b67d030162f2`. To check it yourself, download
 the file, compare, and install the file you checked:
 
 ```bash

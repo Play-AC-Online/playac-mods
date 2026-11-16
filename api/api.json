@@ -276,7 +276,7 @@
       "value": 200000,
       "unit": "instructions",
       "since": 1,
-      "description": "Instructions one mod may run per event, counting all its handlers for that event together. The main chunk gets its own count. Library work is charged too: every 64 bytes allocated, every 4 pattern-matching steps and every element a table function touches. Over the limit, the script stops for the session.",
+      "description": "Instructions one mod may run per event, counting all its handlers for that event together. The main chunk gets its own count. Library work is charged too: every 64 bytes allocated, every 4 pattern-matching steps and every element a table function touches. An allocation the memory limit refuses is charged too: one instruction for every 64 bytes the script holds. Over the limit, the script stops for the session.",
       "sources": {
         "c": "PC_MOD_LUA_BUDGET"
       }
@@ -802,7 +802,7 @@
       "value": 8,
       "unit": "characters",
       "since": 1,
-      "description": "A letter's signature, also the mailbox list's sender.",
+      "description": "A letter's signature, also the mailbox list's sender. It is one line. A line break or another control character is refused.",
       "sources": {
         "c": "PC_MOD_FX_FROM_CHARS"
       }
@@ -3028,7 +3028,7 @@
             {
               "name": "t",
               "type": "table",
-              "description": "{ text, item?, from?, paper? } or { template }. text is 1 to 192 characters fitting 6 lines. item is a number or \"0x\" and four hex digits. from is 1 to 8 characters (\"A friend\"). paper is 0 to 63. template is one of this mod's own letters.json letters, by its id or \"<this mod's id>:<id>\". The header, body, sign-off, present and paper then all come from the template."
+              "description": "{ text, item?, from?, paper? } or { template }. text is 1 to 192 characters fitting 6 lines. item is a number or \"0x\" and four hex digits. from is 1 to 8 characters on one line (\"A friend\" when left out). paper is 0 to 63. template is one of this mod's own letters.json letters, by its id or \"<this mod's id>:<id>\". The header, body, sign-off, present and paper then all come from the template."
             }
           ],
           "returns": {
@@ -3865,7 +3865,7 @@
         {
           "name": "t",
           "type": "table",
-          "description": "{ text, item?, from?, paper? } or { template }. text is 1 to 192 characters fitting 6 lines. item is a number or \"0x\" and four hex digits. from is 1 to 8 characters (\"A friend\"). paper is 0 to 63. template is one of this mod's own letters.json letters, by its id or \"<this mod's id>:<id>\". The header, body, sign-off, present and paper then all come from the template."
+          "description": "{ text, item?, from?, paper? } or { template }. text is 1 to 192 characters fitting 6 lines. item is a number or \"0x\" and four hex digits. from is 1 to 8 characters on one line (\"A friend\" when left out). paper is 0 to 63. template is one of this mod's own letters.json letters, by its id or \"<this mod's id>:<id>\". The header, body, sign-off, present and paper then all come from the template."
         }
       ],
       "returns": {

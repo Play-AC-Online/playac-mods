@@ -631,7 +631,7 @@ Queues a letter in the player's own mailbox. The post office keeps it when the m
 
 | argument | type | what |
 |---|---|---|
-| `t` | table | { text, item?, from?, paper? } or { template }. text is 1 to 192 characters fitting 6 lines. item is a number or "0x" and four hex digits. from is 1 to 8 characters ("A friend"). paper is 0 to 63. template is one of this mod's own letters.json letters, by its id or "<this mod's id>:<id>". The header, body, sign-off, present and paper then all come from the template. |
+| `t` | table | { text, item?, from?, paper? } or { template }. text is 1 to 192 characters fitting 6 lines. item is a number or "0x" and four hex digits. from is 1 to 8 characters on one line ("A friend" when left out). paper is 0 to 63. template is one of this mod's own letters.json letters, by its id or "<this mod's id>:<id>". The header, body, sign-off, present and paper then all come from the template. |
 
 Returns integer|nil: The command's id. When it is refused at once: nil, then a message and a code.
 
@@ -726,7 +726,7 @@ Each mod runs in its own Lua 5.4 state with only these standard libraries. It ta
 | `shops.price_max` | 99,999 Bells | The highest price a mod shop may ask. The game raises a price below its own buy-back to the buy-back. The buy-back is what Nook pays for the item. |
 | `lua.memory_bytes` | 4 MB | Memory one mod's script may use. Over it, the script stops for the session. |
 | `lua.memory_total_bytes` | 16 MB | Memory every mod's script together may use. |
-| `lua.budget` | 200,000 instructions | Instructions one mod may run per event, counting all its handlers for that event together. The main chunk gets its own count. Library work is charged too: every 64 bytes allocated, every 4 pattern-matching steps and every element a table function touches. Over the limit, the script stops for the session. |
+| `lua.budget` | 200,000 instructions | Instructions one mod may run per event, counting all its handlers for that event together. The main chunk gets its own count. Library work is charged too: every 64 bytes allocated, every 4 pattern-matching steps and every element a table function touches. An allocation the memory limit refuses is charged too: one instruction for every 64 bytes the script holds. Over the limit, the script stops for the session. |
 | `lua.deadline_ms` | 100 milliseconds | Wall-clock limit on a script's main chunk when the game starts. |
 | `lua.handlers_per_event` | 16 handlers | The most handlers one mod may register for one event. |
 | `lua.log_per_event` | 20 lines | log() lines kept per event. The rest are dropped. |
@@ -775,7 +775,7 @@ Each mod runs in its own Lua 5.4 state with only these standard libraries. It ta
 | `commands.lines_per_day` | 20 commands | show_line per mod per game day in each town. The count is per town and shared by its residents, not per player. It is a safety limit, not a game rule. |
 | `commands.asks_per_day` | 10 commands | ask per mod per game day in each town. The count is per town and shared by its residents, not per player. It is a safety limit, not a game rule. |
 | `commands.letter_chars` | 192 characters | A letter's text. It must also fit the letter's 6 lines of 192 pixels. |
-| `commands.letter_from_chars` | 8 characters | A letter's signature, also the mailbox list's sender. |
+| `commands.letter_from_chars` | 8 characters | A letter's signature, also the mailbox list's sender. It is one line. A line break or another control character is refused. |
 | `commands.line_bytes` | 400 bytes | A show_line text. |
 | `commands.ask_chars` | 120 characters | An ask question. |
 | `commands.choice_chars` | 16 characters | One answer of an ask. |

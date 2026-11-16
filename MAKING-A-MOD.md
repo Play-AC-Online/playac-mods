@@ -450,7 +450,8 @@ per save:
 "renames": { "you.my-mod:old-name": "you.my-mod:tea-chest" }
 ```
 
-The new id must be one of this mod's items.
+Both ids must start with this mod's id. The new id must be one of this mod's
+items. A mod cannot rename another mod's items.
 
 ## Letters
 
@@ -794,8 +795,8 @@ end)
   fossils or the game's reserved numbers. Write an item as a number or
   `"0x2800"`.
 - A letter's text is 1 to 192 characters and must fit the letter's 6 lines.
-  `from` is up to 8 characters, and `"A friend"` when left out. `paper` is 0
-  to 63.
+  `from` is up to 8 characters on one line, and `"A friend"` when left out.
+  `paper` is 0 to 63.
 - A letter is an ordinary letter once it arrives. A save keeps working without
   your mod.
 - A mod may queue at most 4 commands in one event.
@@ -885,6 +886,12 @@ A changed items file is read again at once:
 What to know about a mod loaded this way:
 
 - It is not installed. Only this browser has it.
+- Its code comes from your own computer. That is the folder you chose, or the
+  files `playac-mod dev` serves there. The game takes a dev address only at
+  `localhost` or `127.0.0.1`.
+- Nobody has reviewed that code and nothing has scanned its pictures. It runs
+  in the same sandbox and under the same limits as any mod. Load only a folder
+  you made or one you trust.
 - It loads last, so its textures and shops win.
 - A script's `villager_talked` goes to the first mod in load order, so an
   installed mod's line can still come first.
@@ -900,23 +907,29 @@ What to know about a mod loaded this way:
 - **Settings, Mods, Start without mods** restarts the game without loading any
   mod. Adding `?nomods=1` to the play page's address does the same.
 - A mod that was skipped when the game started says why on its row.
-- If the game froze while starting with mods on, the next start runs once
+- If the game stopped responding with mods on, a later start runs once
   without them. Settings, Mods then names the mods that were on, with a button
   to switch them off. A notice as the game starts names them too. Nothing is
-  switched off for you, and the start after that tries the mods again.
+  switched off for you. The start after that tries the mods again.
 
-How the game tells that a start froze:
+How the game tells that it stopped responding:
 
+- The game watches the whole session, not only the start.
 - A start counts as finished once the player has been in the game world for
   about 5 seconds, or after 5 minutes of the game running in a visible tab.
-- The next start with the SAME mods runs without them in two cases. Either the
-  last start stopped responding 8 seconds or more before, or this is the
-  second unfinished start in a row.
-- A reload, a closed tab or a switch to another app during a normal start does
-  not trigger it.
-- When you test a mod that hangs on purpose, expect exactly one start without
-  mods after the hang. To clear it, change which mods are on or start without
-  mods yourself.
+- A page that is still alive clears its mark when it closes, reloads or goes
+  to the background. A frozen page cannot. Neither can a tab the browser killed.
+- A start that never finished: the next start with the SAME mods runs without
+  them when the page stopped responding 8 seconds or more before. Two
+  unfinished starts in a row do the same.
+- A session that ended later, during play: one alone changes nothing. The
+  second in a row with the SAME mods makes the next start run without them.
+  One alone may be a phone dropping the tab for memory.
+- A reload, a closed tab or a switch to another app does not trigger it.
+- When you test a mod that hangs at start on purpose, expect exactly one start
+  without mods after the hang. A mod that hangs during play needs two hangs in
+  a row. To clear the count, change which mods are on or start without mods
+  yourself.
 
 ## Updates and removed mods
 
@@ -956,6 +969,8 @@ names a version. The SHA-256 of the ZIP file is not.
 - Use no Nintendo or other franchise art, music or text. Use no Nintendo names
   or logos in a mod's name, id or pictures.
 - A moderator checks every shared mod before it is listed.
+- Every picture in an upload is scanned for known child abuse imagery. A mod
+  installed from a file is never uploaded, so nothing scans it.
 - Sharing is for players 13 or older. The first upload asks your age and asks
   you to accept the mod rules.
 - Sharing needs two-factor sign-in, which you switch on from your Profile

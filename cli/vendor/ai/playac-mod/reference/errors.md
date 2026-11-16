@@ -1146,7 +1146,7 @@ From the game (Mods tab row):
 
     mod.json "exports" must be an object of at most 32 function names, each with a one-line description of 1 to 120 characters: it is ignored
 
-What it means: "exports" lists the functions a library offers to other mods, as { "name": "what it does" }. It holds at most 32 names, each a remote.add name of 1 to 32 characters from a-z, 0-9 and _, with a description of 1 to 120 characters on one line.
+What it means: "exports" lists the functions a library offers other mods, as { "name": "what it does" }. It holds at most 32 names. A name is 1 to 32 characters from a-z, 0-9 and _. A description is 1 to 120 characters on one line.
 
 How to fix it: Write an object of names to one-line descriptions.
 
@@ -1553,7 +1553,7 @@ From the game (Mods tab row):
     shops: a stock item cannot be sold, left out: 0x2B00 is money
     shops: a stock item cannot be sold, left out: 0x1234 has no shop shelf model
 
-What it means: The game left this good out because a shop cannot sell it, and the rest of the shop works. A shop cannot sell money, tickets, grab bags, turnips, fossils or a good with no shelf model, which at the flower shop includes the game's own furniture.
+What it means: A shop cannot sell this good, so the game left it out. The rest of the shop works. A shop cannot sell money, tickets, grab bags, turnips, fossils or a good with no shelf model. At the flower shop that includes the game's own furniture.
 
 How to fix it: Pick another item from the item list in the reference. Its Flower shop column shows what the flower shop can sell. To sell furniture there, make it a mod item of your own, or sell the game's furniture at Nook's shop (target nook). `playac-mod check` warns about these goods before you install.
 
@@ -1786,7 +1786,7 @@ From the game (Mods tab row):
 
     items: a malformed item is left out: tea-chest
 
-What it means: The game left out one item because its id, name or base breaks the rules, or because it holds a key other than id, name, base and price. Installing checks this first, so you only see it in developer mode or after a mod was edited once installed.
+What it means: The game left out one item. Its id, name or base breaks the rules, or it holds a key other than id, name, base and price. Installing checks this first, so it shows only in developer mode or after an installed mod was edited.
 
 How to fix it: Run `playac-mod check` and fix the item it names. An item has an id, a name, a base and an optional price, and no other keys.
 
@@ -2870,7 +2870,7 @@ From the game (Mods tab row):
     DDS textures are over 96 MB, this one left out: textures/tex1_64x64_0123456789abcdef_14.dds
     DDS textures are over 24 MB on a phone, this one left out: textures/tex1_64x64_0123456789abcdef_14.dds
 
-What it means: The DDS textures of all switched-on mods may take at most 96 MB on the graphics card, or 24 MB on a phone or low-memory device. DDS files past that are left out, starting with the mods highest in the list, and the game's own texture is drawn.
+What it means: The DDS textures of all switched-on mods get 96 MB on the graphics card. A phone or low-memory device has 24 MB. DDS files past that are left out, starting with the mods highest in the list. The game's own texture is drawn instead.
 
 How to fix it: Save big textures compressed as BC7 or DXT5, make them smaller, or switch off another texture mod. BC7 and DXT5 cost 1 byte a pixel, DXT1 half a byte and uncompressed DDS 4 bytes. PNG textures have a budget of their own, and the HD pack does not count.
 
@@ -3294,7 +3294,7 @@ On the site:
 
     The game stopped responding the last time it started with this mod on: Tea House. It started without mods this time. Your mods are still installed.
 
-What it means: The game froze while starting with these mods on, so this start ran once without them. Nothing was switched off or removed.
+What it means: The game stopped responding with these mods on, so this start ran once without them. One start that froze is enough. A freeze or crash later, during play, counts the second time in a row. Nothing was switched off or removed.
 
 How to fix it: If you installed it, switch the named mod off, or one of them at a time, then restart. If you made it, test the mod alone. The usual causes are a script that does heavy work at start and textures too big for the device. A phone has 24 MB for all mods.
 

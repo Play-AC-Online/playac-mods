@@ -292,7 +292,7 @@ function remote.has(mod, name) end
 cmd = {}
 
 ---Queues a letter in the player's own mailbox. The post office keeps it when the mailbox is full. The save holds an ordinary letter, so it loads without the mod.
----@param t table { text, item?, from?, paper? } or { template }. text is 1 to 192 characters fitting 6 lines. item is a number or "0x" and four hex digits. from is 1 to 8 characters ("A friend"). paper is 0 to 63. template is one of this mod's own letters.json letters, by its id or "<this mod's id>:<id>". The header, body, sign-off, present and paper then all come from the template.
+---@param t table { text, item?, from?, paper? } or { template }. text is 1 to 192 characters fitting 6 lines. item is a number or "0x" and four hex digits. from is 1 to 8 characters on one line ("A friend" when left out). paper is 0 to 63. template is one of this mod's own letters.json letters, by its id or "<this mod's id>:<id>". The header, body, sign-off, present and paper then all come from the template.
 ---@return integer? id The command's id. When it is refused at once: nil, then a message and a code.
 ---@return string? message Why it was refused, in words.
 ---@return playac.CommandCode? code The refusal's stable code (command_codes).
