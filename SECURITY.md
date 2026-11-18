@@ -15,7 +15,7 @@ on the mod's page in the game.
 Report it privately. Do not open a public issue and do not post the details
 in public.
 
-1. On GitHub: open the [Security tab](https://github.com/christophermarek/playac-mods/security) of this
+1. On GitHub: open the [Security tab](https://github.com/Play-AC-Online/playac-mods/security) of this
    repository and choose **Report a vulnerability**.
 2. Or on the game's Discord, https://discord.gg/7CrPXyX97m: ask a moderator for a private
    channel, and give the details only there.

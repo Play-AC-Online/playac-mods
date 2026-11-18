@@ -5,6 +5,7 @@
  * THE RULE these hold: check's verdict (ok) is readMod's. Everything new here
  * that the game page does not refuse is a WARNING that says what happens. */
 import test from 'node:test';
+import './gen-checkout.mjs'; /* builds the generated files these tests read, in a checkout */
 import assert from 'node:assert/strict';
 import { fflate, mods } from '../lib/contract.mjs';
 import { checkEntries, jsonFault, lineCol } from '../lib/check.mjs';

@@ -1,7 +1,0 @@
-{
-  "mod/name": "Teehaus",
-  "mod/description": "Am Abend wird der Blumenladen zum Teehaus. Es hat eine eigene Begrüßung, eigene Öffnungszeiten und Obst zum Tee auf jedem Tisch.",
-  "shops/flower/name": "Teehaus",
-  "shops/flower/greeting": "Willkommen im Teehaus! Jedes Obst hier passt wunderbar zu einer Tasse. Lass dir Zeit.",
-  "shops/flower/stock_line": "Frisches Obst, alle sechs Sorten, auf den Tischen an den Wänden. Zeig auf eins und ich sage dir den Preis."
-}

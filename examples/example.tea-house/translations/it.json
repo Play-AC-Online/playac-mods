@@ -1,7 +1,0 @@
-{
-  "mod/name": "Sala da tè",
-  "mod/description": "La sera il negozio di fiori diventa una sala da tè. Ha il suo saluto, i suoi orari e frutta per il tè su ogni tavolo.",
-  "shops/flower/name": "Sala da tè",
-  "shops/flower/greeting": "Benvenuto nella sala da tè! Ogni frutto qui sta benissimo con una tazza. Fai con calma.",
-  "shops/flower/stock_line": "Frutta fresca, tutti e sei i tipi, sui tavoli lungo le pareti. Indicane uno e ti dico il prezzo."
-}

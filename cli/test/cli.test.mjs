@@ -7,6 +7,7 @@
  * readMod accepts (every case in the contract's test cases), that pack is
  * byte-for-byte deterministic, and that its content hash is mods.js's. */
 import test from 'node:test';
+import './gen-checkout.mjs'; /* builds the generated files these tests read, in a checkout */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -198,8 +199,9 @@ test('pack is deterministic: same bytes twice, in any time zone, in any file ord
 });
 
 test('the content hash is mods.js contentSha of the same files, however they were zipped', SOURCE_ONLY, async () => {
-  for (const ex of ['example.tea-house', 'example.village-gossip']) {
-    const dir = path.join(CHECKOUT.examples, ex);
+  /* the test mods of a shop and of a script with settings and a dependency */
+  for (const ex of ['fixture.shop', 'fixture.gossip']) {
+    const dir = path.join(CHECKOUT.fixtures, ex);
     const r = await checkFolder(dir, { lua: false });
     assert.equal(r.ok, true, `${ex}: ${JSON.stringify(r.problems)}`);
     /* Another ZIP of the same files: under a top folder, other order, other

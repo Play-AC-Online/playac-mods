@@ -1,6 +1,7 @@
 /* playac-mod dev: the protocol the game's ?moddev=1 mode reads.
  * Real HTTP on 127.0.0.1, a real folder, real edits. */
 import test from 'node:test';
+import './gen-checkout.mjs'; /* builds the generated files these tests read, in a checkout */
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';

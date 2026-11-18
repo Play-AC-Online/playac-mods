@@ -7,6 +7,7 @@
  * dev moves off a taken port, new --github, the screenshot size and the
  * --github tag checked before the sign-in, status and yank. */
 import test from 'node:test';
+import './gen-checkout.mjs'; /* builds the generated files these tests read, in a checkout */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';

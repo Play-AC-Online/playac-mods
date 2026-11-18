@@ -553,9 +553,19 @@ export const GENERATED_KITS = {
   'texture-kit': textureKitFiles,
 };
 
-/* What each example draws, by folder name. build-examples.mjs adds these files. */
+/* The texture fixture: Clover Meadow's `$` grass, Blossom Lane's
+ * per-palette tree crowns and Cobble Town's `$` cliff and bank faces in one
+ * mod, so the tests keep every kind of texture name the three examples had.
+ * The grass is Clover Meadow's alone (Blossom Lane and Cobble Town drew grass
+ * too; one picture per name). */
+export function textureFixtureFiles() {
+  return { ...blossomLaneFiles(), ...cobbleTownFiles(), ...cloverMeadowFiles() };
+}
+
+/* What each fixture draws, by folder name (mods/fixtures). build-examples.mjs
+ * adds these files. The Clover Meadow example's repo holds its drawn DDS as
+ * real files (scripts/examples/.mjs prepare writes them from
+ * cloverMeadowFiles), so no example is drawn here any more. */
 export const GENERATED = {
-  'example.blossom-lane': blossomLaneFiles,
-  'example.clover-meadow': cloverMeadowFiles,
-  'example.cobble-town': cobbleTownFiles,
+  'fixture.textures': textureFixtureFiles,
 };

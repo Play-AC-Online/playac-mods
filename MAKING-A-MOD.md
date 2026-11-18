@@ -7,10 +7,12 @@ Players install mods in **Settings, Mods**, from a ZIP or from the mod list.
 This file is the offline reference for the file formats and the script API.
 The step-by-step guide is at https://playaconline.com/modding/.
 
-- Working examples are in [`examples/`](examples/). Each one's ZIP is on the
-  cookbook, https://playaconline.com/modding/cookbook/.
-- `example.night-market` puts a shop and a script together. Its README says
-  what a script cannot do to a shop.
+- Six working example mods each live in a public repository of their own:
+  Clover Meadow (textures), Chatty Villagers (villager lines, data only), Tea
+  House (a shop, its hours and translations), Cosy Corner (new furniture),
+  Harvest Fair (calendar days and letters) and Daily Gift (a script, commands
+  and a timer). The cookbook links every repository, shows each mod file by
+  file and has its ZIP: https://playaconline.com/modding/cookbook/.
 - The full reference, with every limit, is
   https://playaconline.com/modding/reference/.
 - The setup guides are in [`setup/`](setup/). They cover Node.js, the
@@ -719,8 +721,8 @@ No event runs in the title screen demo.
   next day.
 - Item numbers: bugs `0x2D00`-`0x2D27`, fish `0x2300`-`0x2327`, an
   unidentified fossil `0x2511`, shells `0x2514`-`0x251B`, fruit
-  `0x2800`-`0x2804` and the coconut `0x2807`. `examples/example.field-notes`
-  sorts finds this way.
+  `0x2800`-`0x2804` and the coconut `0x2807`. A script can sort finds by these
+  ranges.
 
 ### When events run
 
@@ -738,8 +740,7 @@ No event runs in the title screen demo.
   - Kamakura and summer camp
 - `day_started` runs once on each new day. It also runs when the game starts
   on a new day. A game loaded on the same day it was last played gets none. A
-  script that needs today reads `game.time()` (see
-  `examples/example.wish-list`).
+  script that needs today reads `game.time()`.
 - `item_picked_up` runs once an item is really in the pockets or the wallet.
   That covers an item picked up from the ground, caught with the net or the
   rod, or dug up. Buying does not fire it.

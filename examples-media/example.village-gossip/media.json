@@ -1,9 +1,0 @@
-{
-  "stills": [
-    { "file": "gossip-line.webp", "caption": "The first talk of the day with a villager opens on a bit of town gossip from the mod's script, in the villager's own window." },
-    { "file": "own-hello.webp", "caption": "The next page is the villager's own words: the gossip comes before the conversation and never replaces it." },
-    { "file": "second-talk.webp", "caption": "Talk to the same villager again that day and there is no gossip: once a day per villager." },
-    { "file": "tea-house-mention.webp", "caption": "The Tea House is an optional dependency. When it is installed, one first talk in three mentions it, with words from the Tea House mod." }
-  ],
-  "film": { "file": "film.mp4", "poster": "film.webp", "caption": "Walking up to Twiggy: her first talk of the day starts with the mod's gossip, then carries on as usual. A second talk that day has no gossip." }
-}

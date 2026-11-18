@@ -16,12 +16,14 @@
   "scripts": {
     "main": "main.lua",
     "events": [
-      "villager_talked",
-      "day_started"
+      "day_started",
+      "scene_entered",
+      "command_finished",
+      "timer_fired"
     ]
   },
-  "optional_depends": {
-    "example.tea-house": ">=1.0.0"
-  },
+  "permissions": [
+    "send_letter"
+  ],
   "assets_original": true
 }

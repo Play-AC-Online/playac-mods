@@ -23,7 +23,7 @@ permissions:
 env:
   PLAYAC_MOD_VERSION: '0.2.0'
   PLAYAC_MOD_URL: 'https://playaconline.com/modding/downloads/playac-mod-0.2.0.tgz'
-  PLAYAC_MOD_SHA256: 'c1fb50329ec8b248fe8915505ea011ddcf1eca18e31480801bb1fe89c34ce0e6'
+  PLAYAC_MOD_SHA256: '28a1db70650d155dfcb8b162bdbcc9351b6f50cf18fdd79c59a2ea03aee11dda'
 
 jobs:
   check:

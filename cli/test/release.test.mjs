@@ -9,6 +9,7 @@
  * carries no release list at all, a release that names itself is refused, and
  * the pin comes from the site's list or not at all. */
 import test from 'node:test';
+import './gen-checkout.mjs'; /* builds the generated files these tests read, in a checkout */
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -54,7 +55,8 @@ test('a package carries no release list, no path into the game\'s source and no 
   assert.match(checkout, /^export const CHECKOUT = null;$/m);
   assert.doesNotMatch(checkout, /existsSync|import /, 'the packaged checkout.mjs looks at nothing');
   const pkg = JSON.parse(files['package.json'].toString());
-  assert.equal(pkg.repository.url, 'git+https://github.com/christophermarek/playac-mods.git');
+  /* the owner is the example pin's (scripts/examples/.test.mjs holds it) */
+  assert.match(pkg.repository.url, /^git\+https:\/\/github\.com\/[A-Za-z0-9-]+\/playac-mods\.git$/);
   assert.equal(pkg.repository.directory, 'cli');
   assert.equal(pkg.bin['playac-mod'], 'bin/playac-mod.mjs');
   for (const [rel, body] of Object.entries(files)) {

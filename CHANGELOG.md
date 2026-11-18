@@ -10,6 +10,8 @@ sync is one commit. The lists below are the places to read what changed.
 
 ## This repository
 
+- The example mods moved out. Each is its own repository now, laid out like a
+  mod repository of yours, and the README lists them.
 - Added a licence (MIT), this file, CONTRIBUTING.md, SECURITY.md and issue forms.
 - The install line now names one release of the tool and gives its SHA-256.
 - `playac-mod` commands are written without `npx`.

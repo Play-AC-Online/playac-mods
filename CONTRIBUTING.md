@@ -13,7 +13,7 @@ the next sync.
 
 - **An issue.** Say what is wrong and where: a fact that is not true, an
   example that does not work, a step in a setup guide that fails, a bug in
-  the tool. [Open one](https://github.com/christophermarek/playac-mods/issues/new/choose).
+  the tool. [Open one](https://github.com/Play-AC-Online/playac-mods/issues/new/choose).
 - **A pull request, as a suggestion.** It shows exactly what you mean, and
   that is useful. We read it, make the change in the game's sources and close
   the pull request with a note. It is never merged, and that is not a

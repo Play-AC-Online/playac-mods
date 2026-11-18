@@ -61,8 +61,8 @@ function lawn() {
   return dds(size, size, px);
 }
 
-/* The town grass, under any palette ("$"): one of the names
- * tools/example-textures.mjs draws for example.clover-meadow. */
+/* The town grass, under any palette ("$"): one of the names the Clover
+ * Meadow example replaces (tools/example-textures.mjs draws it). */
 export const GRASS_TEXTURE = 'tex1_32x32_626709d910129694_$_8.dds';
 
 function readme(id, name, kind) {

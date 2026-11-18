@@ -1,7 +1,0 @@
-{
-  "mod/name": "Salon de thé",
-  "mod/description": "Le soir, la boutique de fleurs devient un salon de thé. Il a son propre accueil, ses horaires et des fruits pour le thé sur chaque table.",
-  "shops/flower/name": "Salon de thé",
-  "shops/flower/greeting": "Bienvenue au salon de thé ! Chaque fruit ici se marie bien avec une tasse. Prends ton temps.",
-  "shops/flower/stock_line": "Des fruits frais, les six sortes, sur les tables près des murs. Montre-m'en un et je te dis le prix."
-}

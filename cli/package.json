@@ -23,7 +23,7 @@
   "homepage": "https://playaconline.com/modding/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/christophermarek/playac-mods.git",
+    "url": "git+https://github.com/Play-AC-Online/playac-mods.git",
     "directory": "cli"
   },
   "scripts": {

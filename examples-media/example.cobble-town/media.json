@@ -1,8 +1,0 @@
-{
-  "stills": [
-    { "file": "before.webp", "caption": "Before: the square by the houses with no mods and the HD texture pack: grass and the blue stone paving." },
-    { "file": "after.webp", "caption": "After: the same spot with Cobble Town installed. The ground is the mod's cobblestone, with brick where the stone paving was." },
-    { "file": "houses.webp", "caption": "Around the houses the whole town is paved: trees, fences and houses stand on the mod's cobbles." }
-  ],
-  "film": { "file": "film.mp4", "poster": "film.webp", "caption": "A walk past the houses with Cobble Town installed: the town ground is cobblestone and brick everywhere you go." }
-}

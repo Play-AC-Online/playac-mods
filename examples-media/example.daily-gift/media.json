@@ -1,8 +1,0 @@
-{
-  "stills": [
-    { "file": "at-the-mailbox.webp", "caption": "The day's first visit to town: the mod's script has already mailed today's letter, so there is mail waiting at the house." },
-    { "file": "letter-in-pockets.webp", "caption": "Taken from the mailbox, it is a letter to you from \"A friend\", sent with the send_letter command." },
-    { "file": "the-letter.webp", "caption": "The letter is the mod's own text, from its messages file, with a little present attached." }
-  ],
-  "film": { "file": "film.mp4", "poster": "film.webp", "caption": "Walking up to the mailbox, taking out the Daily Gift letter and reading it." }
-}

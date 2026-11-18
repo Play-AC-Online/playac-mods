@@ -6,7 +6,7 @@ body:
     id: which
     attributes:
       label: Which one
-      description: Its folder, like examples/example.tea-house.
+      description: Its name or folder, like the Tea House example or templates/shop-kit.
     validations:
       required: true
   - type: textarea
