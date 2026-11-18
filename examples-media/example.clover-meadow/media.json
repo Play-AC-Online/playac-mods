@@ -1,0 +1,8 @@
+{
+  "stills": [
+    { "file": "before.webp", "caption": "Before: a corner of town on a September afternoon, with no mods and the HD texture pack." },
+    { "file": "after.webp", "caption": "After: the same spot with Clover Meadow installed. The grass is the mod's, drawn with clover and tiny white flowers; the trees, houses and paths are untouched." },
+    { "file": "close-up.webp", "caption": "A closer look at the mod's grass: clover leaves and small white flowers, drawn from scratch." }
+  ],
+  "film": { "file": "film.mp4", "poster": "film.webp", "caption": "A walk past the houses with Clover Meadow installed: every grass tile in town is the mod's clover." }
+}

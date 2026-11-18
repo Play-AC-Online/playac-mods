@@ -1,0 +1,9 @@
+{
+  "stills": [
+    { "file": "sign-at-noon.webp", "caption": "At noon the flower shop is shut and its sign is the mod's: Night Market, open 7:00 PM to 1:00 AM." },
+    { "file": "villager-hint.webp", "caption": "A villager who has heard mentions tonight's special. Hints is a client setting: each player switches it off for themselves, and the shop stays as it is." },
+    { "file": "greeting.webp", "caption": "Joan greets you with the mod's words: the lanterns are lit, so the Night Market is open." },
+    { "file": "stock-line.webp", "caption": "Ask what's in stock and she names the night's goods: peaches, coconuts, moon candy, a rare mushroom, a fan and a pinwheel." }
+  ],
+  "film": { "file": "film.mp4", "poster": "film.webp", "caption": "Knocking at noon gets the Night Market sign; at 8 PM the shop is open, and Joan's greeting and stock line are the mod's." }
+}

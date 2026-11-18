@@ -1,0 +1,8 @@
+{
+  "stills": [
+    { "file": "before.webp", "caption": "Before: a corner of town on a September afternoon, with no mods and the HD texture pack." },
+    { "file": "after.webp", "caption": "After: the same spot with Blossom Lane installed. The fruit trees wear pink blossom (cherries still on them) and fallen petals dot the grass. The cedar in front is not a fruit tree and stays green." },
+    { "file": "fruit-trees.webp", "caption": "Further along, the pear trees blossom too and keep their fruit among the pink flowers." }
+  ],
+  "film": { "file": "film.mp4", "poster": "film.webp", "caption": "A walk past the houses with Blossom Lane installed: the fruit trees are in pink blossom, with petals on the grass all around." }
+}

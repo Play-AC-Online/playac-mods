@@ -1,0 +1,9 @@
+{
+  "stills": [
+    { "file": "sign-at-noon.webp", "caption": "At noon the flower shop's door stays shut and its sign is the mod's: Tea House, open 3:00 PM to 1:00 AM." },
+    { "file": "shop-at-six.webp", "caption": "Inside at 6 PM: the tables hold the mod's six fruits, at the mod's prices." },
+    { "file": "greeting.webp", "caption": "Joan greets you with the mod's words from shops.json." },
+    { "file": "stock-line.webp", "caption": "Ask her what's in stock and she answers with the mod's stock line." }
+  ],
+  "film": { "file": "film.mp4", "poster": "film.webp", "caption": "Knocking at noon gets the Tea House sign and its hours; in the evening the shop is open, and a chat with Joan is the mod's greeting and stock line." }
+}

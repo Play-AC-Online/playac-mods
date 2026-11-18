@@ -1,0 +1,8 @@
+{
+  "stills": [
+    { "file": "the-wish.webp", "caption": "Twiggy has a tiny wish today: a seashell. About two villagers in five wish each day, picked from the date." },
+    { "file": "shell-picked-up.webp", "caption": "A lion's paw shell, dropped from the pockets and picked up off the ground: the script hears item_picked_up and grants the wish." },
+    { "file": "thank-you.webp", "caption": "The next talk opens on her thank-you, and the script counts your wish streak with her." }
+  ],
+  "film": { "file": "film.mp4", "poster": "film.webp", "caption": "Twiggy wishes for a seashell; one is picked up, and her next talk thanks you for the first wish granted." }
+}
