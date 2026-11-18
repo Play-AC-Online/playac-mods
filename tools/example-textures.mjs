@@ -547,7 +547,7 @@ export function perPalette(files) {
   return out;
 }
 
-/* The starter kits' drawn files, by kit folder (templates/<kit>). The
+/* The starter kits' drawn files, by kit folder (templates/<kit> of playac-mods). The
  * frontend's downloads route and build-examples.mjs add them. */
 export const GENERATED_KITS = {
   'texture-kit': textureKitFiles,

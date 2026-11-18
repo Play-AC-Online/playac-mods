@@ -8,7 +8,7 @@
  * drops junk entries, strips one top folder and runs validateManifest. So this
  * prints what the Mods tab would refuse, from the same code.
  *
- * readMod also checks shops.json and messages against the mod contract, so a bad
+ * readMod also checks shops.json and messages against playac-mods CONTRACT.md, so a bad
  * shop is refused here, as at install. The item rules (shelf models,
  * money, turnips, tickets, fossils, price floors) need the game's item tables:
  * the game drops or re-prices such a good, it does not refuse the mod.

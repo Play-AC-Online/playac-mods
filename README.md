@@ -5,7 +5,8 @@ Starter kits, the mod API and the `playac-mod` tool for
 
 **The docs site and the tool's download go live with the game's next release. Until then the links to playaconline.com/modding/ and the install line below do not work yet.**
 
-This repository is generated from the game's sources on every release. It
+The guides, the starter kits, the mod contract and the AI skill are written
+here. The rest is generated from the game's sources on every release. It
 matches mod API level 1.
 
 | Folder | What it is |
@@ -19,6 +20,7 @@ matches mod API level 1.
 | [`cli/`](cli/) | The source of the `playac-mod` tool, with its [changelog](cli/CHANGELOG.md). |
 | [`tools/`](tools/) | The program that draws the texture kit's pictures, and a ZIP checker. |
 | [`MAKING-A-MOD.md`](MAKING-A-MOD.md) | The file formats and the script API on one page, for reading offline. |
+| [`CONTRACT.md`](CONTRACT.md) | The full rule list every part of the game checks a mod against. |
 
 ## Examples
 
@@ -87,9 +89,9 @@ New to this? Start with the [setup guides](setup/):
 - A bug in the game: the feedback button on https://playaconline.com.
 - A way for a mod to do what it must not: report it privately, see [SECURITY.md](SECURITY.md).
 
-This repository is generated, so we cannot merge pull requests. Open one anyway
-if it shows the fix best. We make the change in the game's sources and it
-arrives here with the next release. See [CONTRIBUTING.md](CONTRIBUTING.md).
+A pull request to a guide, a starter kit, the contract or the AI skill can be
+merged here. The other folders are generated, so a pull request there is read
+as a suggestion. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
