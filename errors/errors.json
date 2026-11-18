@@ -85,6 +85,10 @@
       "title": "Mod commands"
     },
     {
+      "id": "timer",
+      "title": "Timers"
+    },
+    {
       "id": "upload",
       "title": "Sharing a mod"
     },
@@ -102,6 +106,126 @@
     }
   ],
   "entries": [
+    {
+      "code": "translations-folder",
+      "area": "data",
+      "title": "A translations folder holds a file it cannot use",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload"
+      ],
+      "messages": {
+        "page": [
+          "\"content.translations\": translations/en.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)",
+          "\"content.translations\": translations/de.txt is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)",
+          "\"content.translations\": translations/ja.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)"
+        ],
+        "registry": [
+          "content.translations: translations/ja.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)."
+        ]
+      },
+      "api": [],
+      "meaning": "\"content.translations\" names a folder that holds only de.json, es.json, fr.json and it.json. English has no file there: it is the text in the mod's own files.",
+      "fix": "Remove or rename the file the message names. Put the English text in the data file itself.",
+      "good": {
+        "file": "mod.json",
+        "text": "\"content\": { \"letters\": \"letters.json\", \"translations\": \"translations/\" }"
+      }
+    },
+    {
+      "code": "translations-not-object",
+      "area": "data",
+      "title": "A translations file is not key to text",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "translations/de: the file is not a JSON object of key to text"
+        ],
+        "registry": [
+          "translations/de.json: a translations file must be a JSON object of key to text."
+        ],
+        "game": [
+          "translations: a file is not a JSON object of key to text: de"
+        ]
+      },
+      "api": [],
+      "meaning": "A translations file is one flat object. Each key is the path of a text in the mod, and each value is that text in the file's language.",
+      "fix": "Write it as { \"shops/flower/greeting\": \"Willkommen!\" }."
+    },
+    {
+      "code": "translations-key",
+      "area": "data",
+      "title": "A translation names a text the mod does not have",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "translations/de: \"letters/helo/body\" names no text in this mod",
+          "translations/de: \"calendar/quiet/board\" names no text in this mod",
+          "translations/de: \"calendar/tea-day/talk/3\" names no text in this mod",
+          "translations/de: \"greet\" names no text in this mod",
+          "translations/de: \"items/mug/name\" names no text in this mod",
+          "translations/de: \"letters/hello/item\" names no text in this mod"
+        ],
+        "registry": [
+          "translations/de.json: \"letters/helo/body\" names no text in this mod."
+        ],
+        "game": [
+          "translations: a key names no text in this mod, left out: de letters/helo/body"
+        ]
+      },
+      "api": [],
+      "meaning": "A key in a translations file is the path of a text in the mod's own files. This key matches none: the id is misspelt, the count is past the end of the list, or the mod's own file does not have that text.",
+      "fix": "Use one of: mod/name, mod/description, settings/<name>/label, settings/<name>/description, items/<id>/name, shops/flower/name, shops/flower/greeting, shops/flower/stock_line, letters/<id>/header, letters/<id>/body, letters/<id>/footer, letters/<id>/sender, calendar/<id>/board, calendar/<id>/talk/<n>, talk/<pool>/<line>. The counts start at 1. A text can be translated only when the English file has it, so a letter without \"sender\" has no letters/<id>/sender.",
+      "bad": {
+        "file": "translations/de.json",
+        "text": "{ \"letters/helo/body\": \"Hallo!\" }"
+      },
+      "good": {
+        "file": "translations/de.json",
+        "text": "{ \"letters/hello/body\": \"Hallo!\" }"
+      }
+    },
+    {
+      "code": "translations-text",
+      "area": "data",
+      "title": "A translation breaks the rule of the text it replaces",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "translations/de: \"letters/hello/body\" must be 1 to 192 plain characters on at most 6 lines: \"ü\" at character 3 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })",
+          "translations/fr: \"shops/flower/name\" must be 1 to 40 characters on one line",
+          "translations/de: \"calendar/tea-day/board\" must be 1 to 192 plain characters on at most 6 lines: \"„\" at character 11 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })",
+          "translations/de: \"calendar/tea-day/talk/1\" must be 1 to 160 characters with at most 3 line breaks",
+          "translations/de: \"items/cup/name\" must be 1 to 16 letters, digits, spaces or ' . , ! & -, starting with a letter or digit and not ending with a space",
+          "translations/de: \"letters/hello/body\" must be 1 to 192 plain characters on at most 6 lines"
+        ],
+        "registry": [
+          "translations/de.json: the translation \"letters/hello/footer\" must be 1 to 32 plain characters."
+        ],
+        "game": [
+          "translations: a text breaks the rule of the text it replaces, left out: de letters/hello/body"
+        ]
+      },
+      "api": [],
+      "meaning": "A translation follows the rule of the text it replaces: the same length, the same lines and the same characters. A letter and a board notice take plain US keyboard characters in every language, because the letter font has no others. The game also measures a translated letter body or board notice on the paper, and leaves out one that does not fit six lines.",
+      "fix": "Shorten the text, or write it without accents where the message says the letter paper refuses a character (\"ue\" for \"ü\"). Shop lines and villager lines may use the accented letters the game's font has."
+    },
     {
       "code": "visit-lend-wont-load",
       "area": "visit",
@@ -154,7 +278,8 @@
       "messages": {
         "page": [
           "this is not a ZIP the game can open (invalid zip data)",
-          "that is not a file the game can read"
+          "that is not a file the game can read",
+          "my-mod.zip is not a ZIP the game can read (invalid zip data)."
         ],
         "registry": [
           "This is not a ZIP file we can read.",
@@ -399,12 +524,13 @@
         ],
         "registry": [
           "mod.json is larger than 64 KB.",
-          "\"main.lua\" is larger than 512 KB, the most a .lua file may be."
+          "\"main.lua\" is larger than 512 KB, the most a .lua file may be.",
+          "\"notes.txt\" is larger than 512 KB, the most a .txt or .md file may be."
         ]
       },
       "api": [],
-      "meaning": "mod.json can be at most 64 KB, any other .json file 256 KB and any .lua file 512 KB.",
-      "fix": "Split a big messages file into several mods, or move data out of mod.json. A mod has one script file, so shorten a big script or move part of it into a second mod."
+      "meaning": "mod.json can be at most 64 KB, any other .json file 256 KB and any .lua file 512 KB. The mod list also takes a .txt or .md file of at most 512 KB. The game does not read those files, so a bigger one still installs from a file.",
+      "fix": "Split a big messages file into several mods, or move data out of mod.json. A mod has one script file, so shorten a big script or move part of it into a second mod. Shorten a big README, or link to the long version from it."
     },
     {
       "code": "json-duplicate-key",
@@ -479,15 +605,19 @@
           "mod.json is not valid JSON",
           "shops.json: a number is out of range",
           "data/x.json is not valid JSON",
+          "notes.json: a number is out of range",
+          "translations/de.json: a number is out of range",
           "x.json is not valid JSON"
         ],
         "registry": [
           "mod.json is not valid JSON.",
-          "shops.json is not valid JSON: a syntax error at byte 42."
+          "shops.json is not valid JSON: a syntax error at byte 42.",
+          "notes.json is not valid JSON: a number is out of range.",
+          "notes.json is not valid JSON: it is not UTF-8 text."
         ]
       },
       "api": [],
-      "meaning": "The file is not valid JSON. The usual causes are a missing comma or quote, a comma after the last item, a comment, single quotes, or a byte order mark at the start.",
+      "meaning": "The file is not valid JSON. The usual causes are a missing comma or quote, a comma after the last item, a comment, single quotes, or a byte order mark at the start. A file saved in an encoding other than UTF-8 is refused as well. So is a number too large to hold, such as 1e999, in any .json file of the mod.",
       "fix": "Open the file in VS Code, which underlines the mistake, or paste it into a JSON checker. JSON has no comments and no trailing commas, and strings use double quotes. Save as UTF-8 without BOM.",
       "bad": {
         "file": "mod.json",
@@ -510,7 +640,8 @@
       "messages": {
         "page": [
           "d.json: nested more than 32 levels deep",
-          "mod.json: nested more than 32 levels deep"
+          "mod.json: nested more than 32 levels deep",
+          "translations/de.json: nested more than 32 levels deep"
         ],
         "registry": [
           "d.json is nested more than 32 levels deep."
@@ -700,7 +831,7 @@
           "shops: unknown key \"shop\" (did you mean \"shops\"?)",
           "talk: pool 1: unknown key \"chanse\" (did you mean \"chance\"?)",
           "shops: shop 1: stock 2: unknown key \"cost\"",
-          "calendar: day 1: unknown key \"bord\" (did you mean \"board\"?)"
+          "calendar: day 1: date: unknown key \"wek\" (did you mean \"week\"?)"
         ],
         "registry": [
           "mod.json: unknown key \"permisions\" (did you mean \"permissions\"?)",
@@ -1005,7 +1136,7 @@
           "\"content.Shops\" is not something a mod can add yet",
           "\"content.acres\" is not something a mod can add yet",
           "\"content.furniture\" is not something a mod can add yet",
-          "\"content.weather\" is not something a mod can add yet"
+          "\"content.quests\" is not something a mod can add yet"
         ],
         "registry": [
           "content.buildings is not something a mod can add yet. Use textures, messages, shops, items, letters, calendar, talk."
@@ -1028,7 +1159,8 @@
       "messages": {
         "page": [
           "\"content.messages\" must be a path inside the mod",
-          "\"content.talk\" must be a path inside the mod"
+          "\"content.talk\" must be a path inside the mod",
+          "\"content.translations\" must be a path inside the mod"
         ],
         "registry": [
           "content.messages must be a path inside the mod."
@@ -1101,7 +1233,8 @@
       "messages": {
         "page": [
           "\"scripts.entry\" is not a scripts setting (only main and events)",
-          "\"scripts.Main\" is not a scripts setting (only main and events)"
+          "\"scripts.Main\" is not a scripts setting (only main and events)",
+          "\"scripts.hooks\" is not a scripts setting (only main and events)"
         ],
         "registry": [
           "scripts.entry is not a scripts setting. Use main and events."
@@ -1174,11 +1307,11 @@
       ],
       "messages": {
         "page": [
-          "\"scripts.events\" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered"
+          "\"scripts.events\" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired"
         ],
         "registry": [
-          "scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered.",
-          "scripts.events lists \"every_frame\", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered.",
+          "scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.",
+          "scripts.events lists \"every_frame\", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.",
           "scripts.events lists \"day_started\" twice."
         ]
       },
@@ -1205,16 +1338,16 @@
       ],
       "messages": {
         "page": [
-          "\"permissions\" must list one or more commands, each once, from: send_letter, give_item, show_line, ask"
+          "\"permissions\" must list one or more commands, each once, from: send_letter, give_item, show_line, ask, take_item, take_bells"
         ],
         "registry": [
-          "permissions must list at least one of send_letter, give_item, show_line, ask.",
-          "permissions lists \"teleport\", which is not a command. Use send_letter, give_item, show_line, ask.",
+          "permissions must list at least one of send_letter, give_item, show_line, ask, take_item, take_bells.",
+          "permissions lists \"teleport\", which is not a command. Use send_letter, give_item, show_line, ask, take_item, take_bells.",
           "permissions lists \"ask\" twice."
         ]
       },
       "api": [],
-      "meaning": "\"permissions\" lists the commands your script may use, each once, from send_letter, give_item, show_line and ask. Players see the list on the Mods tab.",
+      "meaning": "\"permissions\" lists the commands your script may use, each once, from send_letter, give_item, show_line, ask, take_item and take_bells. Players see the list on the Mods tab.",
       "fix": "List only the commands your script calls, for example \"permissions\": [\"send_letter\"].",
       "bad": {
         "file": "mod.json",
@@ -2701,21 +2834,22 @@
           "\"depends\" must be an object of mod id to version range, like {\"author.mod\": \">=1.0.0\"}",
           "\"depends\" names the mod itself",
           "\"bean.lib\" is in both \"depends\" and \"conflicts\"",
-          "\"conflicts\" must be an object of mod id to version range, like {\"author.mod\": \">=1.0.0\"}",
-          "\"depends\" may name at most 16 mods",
-          "\"depends\": \"Bean.Lib\" is not a mod id"
+          "\"optional_depends\" must be an object of mod id to version range, like {\"author.mod\": \">=1.0.0\"}",
+          "\"bean.lib\" is in both \"depends\" and \"optional_depends\"",
+          "\"bean.lib\" is in both \"optional_depends\" and \"conflicts\""
         ],
         "registry": [
           "depends must be an object of mod id to version range, like {\"author.mod\": \">=1.0.0\"}.",
-          "\"bean.lib\" is in both depends and conflicts."
+          "\"bean.lib\" is in both depends and conflicts.",
+          "\"bean.lib\" is in both optional_depends and conflicts."
         ]
       },
       "api": [],
-      "meaning": "\"depends\" and \"conflicts\" are objects of mod id to version range. Each holds at most 16 mods, never your own, and one mod cannot be in both.",
-      "fix": "Write them as { \"author.mod\": \">=1.0.0\" }.",
+      "meaning": "\"depends\", \"optional_depends\" and \"conflicts\" are objects of mod id to version range. Each holds at most 16 mods, never your own. One mod can be in only one of the three: needed, used when it is there, or never run with.",
+      "fix": "Write them as { \"author.mod\": \">=1.0.0\" }. Keep each mod id in one of the three.",
       "good": {
         "file": "mod.json",
-        "text": "\"depends\": { \"yourname.tea-lib\": \">=1.0.0 <2.0.0\" },\n\"conflicts\": { \"someone.other-shop\": \"*\" }"
+        "text": "\"depends\": { \"yourname.tea-lib\": \">=1.0.0 <2.0.0\" },\n\"optional_depends\": { \"yourname.weather\": \"*\" },\n\"conflicts\": { \"someone.other-shop\": \"*\" }"
       }
     },
     {
@@ -2730,6 +2864,7 @@
       "messages": {
         "page": [
           "\"depends\": the range for bean.lib must be \"*\" or up to 4 of >=, <=, >, <, = and a version, like \">=1.0.0 <2.0.0\"",
+          "\"optional_depends\": the range for bean.lib must be \"*\" or up to 4 of >=, <=, >, <, = and a version, like \">=1.0.0 <2.0.0\"",
           "\"conflicts\": the range for bean.lib must be \"*\" or up to 4 of >=, <=, >, <, = and a version, like \">=1.0.0 <2.0.0\""
         ],
         "registry": [
@@ -2809,18 +2944,22 @@
           "settings: setting 1 \"name\" must be 1 to 32 of a-z 0-9 _, starting with a letter",
           "settings: \"greet\" is declared twice",
           "settings: \"x\" has \"min\", which a bool setting does not take",
-          "settings: \"x\" \"description\" must be text of at most 200 characters",
-          "settings: \"x\" \"label\" must be 1 to 60 characters"
+          "settings: \"greet\" \"scope\" must be \"world\" or \"client\"",
+          "settings: \"greet\" \"description\" must be text of at most 200 characters, with no invisible, text-direction or control character but a line break"
         ],
         "registry": [
           "settings must be a list of at most 16 settings.",
           "settings: \"x\" type must be one of bool, number, choice, text.",
-          "settings: \"x\" label must be 1 to 60 characters."
+          "settings: \"x\" label must be 1 to 60 characters.",
+          "settings: \"greet\" scope must be \"world\" or \"client\"."
+        ],
+        "game": [
+          "settings: a \"scope\" must be \"world\" or \"client\": greet"
         ]
       },
       "api": [],
       "meaning": "\"settings\" is a list of at most 16 settings. Each has a name, a type, a label and only the keys its type takes.",
-      "fix": "Fix the setting the message names. A name is a-z, 0-9 and _, starts with a letter and is used once. A type is bool, number, choice or text. A label is 1 to 60 characters, and an optional description is at most 200. A bool takes default. A number takes default, min and max. A choice takes default and choices. A text takes default and max_length."
+      "fix": "Fix the setting the message names. A name is a-z, 0-9 and _, starts with a letter and is used once. A type is bool, number, choice or text. A label is 1 to 60 characters, and an optional description is at most 200. An optional scope is \"world\" or \"client\". A bool takes default. A number takes default, min and max. A choice takes default and choices. A text takes default and max_length."
     },
     {
       "code": "messages-translations",
@@ -3344,7 +3483,7 @@
         ]
       },
       "api": [],
-      "meaning": "Lines, the shop, talk, letters, the calendar, the items file, the script and textures reload while you play. A change to mod.json waits for a restart, because the game reads mod.json once, when it starts.",
+      "meaning": "Lines, the shop, talk, letters, the calendar, the items file, the script, textures and translations reload while you play. A change to mod.json waits for a restart, because the game reads mod.json once, when it starts.",
       "fix": "Choose Restart now in the Developer section. Save your town first."
     },
     {
@@ -3549,7 +3688,7 @@
         ]
       },
       "api": [],
-      "meaning": "The game stopped responding with these mods on, so this start ran once without them. One start that froze is enough. A freeze or crash later, during play, counts the second time in a row. Nothing was switched off or removed.",
+      "meaning": "The game stopped responding with these mods on, so this start ran once without them. One start that froze is enough. A freeze or crash later, during play, counts the second time in a row. The model viewer loads mods too, and the same rules watch it, so a viewer that froze as it started counts as well. Nothing was switched off or removed.",
       "fix": "If you installed it, switch the named mod off, or one of them at a time, then restart. If you made it, test the mod alone. The usual causes are a script that does heavy work at start and textures too big for the device. A phone has 24 MB for all mods."
     },
     {
@@ -3710,6 +3849,104 @@
       "fix": "Restart the game. If the message stays, remove the mod and install it again."
     },
     {
+      "code": "timer-no-town",
+      "area": "timer",
+      "title": "timer.after before a town is loaded",
+      "where": [
+        "what timer.after returns when it is refused, and the Mod log"
+      ],
+      "messages": {
+        "game": [
+          "load: timer.after refused: no town is loaded yet (the script's main part runs before the save loads): set it from an event"
+        ]
+      },
+      "api": [],
+      "meaning": "A timer is kept in the mod's town store, and the main part of a script runs before the town loads. So there is nowhere to keep a timer yet.",
+      "fix": "Set the timer from an event, such as scene_entered or day_started.",
+      "bad": {
+        "file": "main.lua",
+        "text": "timer.after(30, \"tea\")"
+      },
+      "good": {
+        "file": "main.lua",
+        "text": "on(\"day_started\", function(e) timer.after(30, \"tea\") end)"
+      }
+    },
+    {
+      "code": "timer-no-clock",
+      "area": "timer",
+      "title": "timer.after while the game clock is not set",
+      "where": [
+        "what timer.after returns when it is refused, and the Mod log"
+      ],
+      "messages": {
+        "game": [
+          "day_started: timer.after refused: the game clock is not set (it reads a date before the year 2000): try again later"
+        ]
+      },
+      "api": [],
+      "meaning": "A timer is counted in game minutes from the start of the year 2000. The game clock read a date before that, which happens only when the clock was never set. A timer set then could never come due, so it is refused and nothing is stored.",
+      "fix": "Nothing in the mod is wrong. Set the timer again from a later event, once the game has its date."
+    },
+    {
+      "code": "timer-limit",
+      "area": "timer",
+      "title": "Too many timers waiting",
+      "where": [
+        "what timer.after returns when it is refused, and the Mod log"
+      ],
+      "messages": {
+        "game": [
+          "day_started: timer.after refused: this mod already has 16 timers waiting in this town"
+        ]
+      },
+      "api": [],
+      "meaning": "A mod may have 16 timers waiting in one town.",
+      "fix": "Cancel one with timer.cancel, or wait for one to fire. One timer that sets the next one when it fires needs only one slot."
+    },
+    {
+      "code": "timer-store-full",
+      "area": "timer",
+      "title": "The timer does not fit in the town store",
+      "where": [
+        "what timer.after returns when it is refused, and the Mod log"
+      ],
+      "messages": {
+        "game": [
+          "day_started: timer.after refused: the timer does not fit in this mod's town store, or the store could not be written"
+        ]
+      },
+      "api": [],
+      "meaning": "A waiting timer is kept in the mod's town store, with its name and data, and counts toward the store's 8 KB. This one would take the store over that, or the store could not be written. Nothing changed.",
+      "fix": "Free some room with store.set(key, nil), or give the timer shorter data."
+    },
+    {
+      "code": "timer-args",
+      "area": "timer",
+      "title": "timer.after was called with a value it cannot use",
+      "where": [
+        "what timer.after returns when it is refused, and the Mod log"
+      ],
+      "messages": {
+        "game": [
+          "day_started: timer.after refused: minutes must be a whole number 1 to 10080 (game minutes)",
+          "day_started: timer.after refused: name must be 1 to 40 bytes of letters, digits, _, - and .",
+          "day_started: timer.after refused: this script has no timer_fired handler (list timer_fired in scripts.events and add on(\"timer_fired\", ...))"
+        ]
+      },
+      "api": [],
+      "meaning": "minutes is a whole number of game minutes, 1 to 10080. name is 1 to 40 bytes of letters, digits, _, - and . only. data is text of up to 240 bytes, a number, true, false or nil. The script must also handle timer_fired, or the timer would fire to nobody.",
+      "fix": "Fix the call. List \"timer_fired\" in scripts.events and add on(\"timer_fired\", ...) in the main part of the script.",
+      "bad": {
+        "file": "main.lua",
+        "text": "timer.after(0.5, \"tea time\")"
+      },
+      "good": {
+        "file": "main.lua",
+        "text": "timer.after(30, \"tea-time\")"
+      }
+    },
+    {
       "code": "script-budget",
       "area": "script",
       "title": "Script took too long",
@@ -3719,12 +3956,12 @@
       "messages": {
         "game": [
           "script took too long (over 200000 instructions)",
-          "script took too long (over 33 ms)",
-          "script took too long (over 100 ms)"
+          "script took too long (over 125 ms)",
+          "script took too long (over 250 ms)"
         ]
       },
       "api": [],
-      "meaning": "One event gets 200,000 Lua instructions per mod and 33 ms, and the main chunk gets 100 ms when the game starts. A script that goes over is stopped for the rest of the session, so it cannot freeze the game.",
+      "meaning": "One event gets 200,000 Lua instructions per mod, and the main chunk gets the same when the game starts. Library work and memory use count towards it. That count is the same on every device, and a script that goes over it is stopped for the rest of the session, so it cannot freeze the game. \"over ... ms\" is the wall-clock backstop instead: 125 ms for an event run, 250 ms for the main chunk, stretched up to 8 times on a slow or busy device. Only time the count cannot see reaches it, such as one call that does a lot of work at once.",
       "fix": "Do less per event. Avoid long loops and patterns like \".-.-.-\" on long text, and cache results in local variables or the store. String patterns, table.sort, table.concat and memory use count towards the budget, and pcall does not get around it.",
       "bad": {
         "file": "main.lua",
@@ -3744,11 +3981,11 @@
       ],
       "messages": {
         "game": [
-          "script kept the game waiting (3 runs over 8 ms)"
+          "script kept the game waiting (3 runs in a row over 8 ms)"
         ]
       },
       "api": [],
-      "meaning": "All mods together get 4 ms of Lua time a frame. An event run over 8 ms is a strike, and 3 strikes stop the script for the session, even when each run stayed inside its instruction budget.",
+      "meaning": "An event run over 8 ms is a strike, and 3 strikes in a row stop the script for the session, even when each run stayed inside its instruction budget. A run under the limit clears the strikes. On a slow or busy device the limit is stretched by how slow the game itself runs there, so the number in the message can be larger than 8.",
       "fix": "Do less per event. Spread work over several events, cache results in local variables or the store, and avoid long loops and patterns on long text."
     },
     {
@@ -3846,6 +4083,30 @@
       "good": {
         "file": "main.lua",
         "text": "on(\"day_started\", function(e) store.set(\"days\", (store.get(\"days\") or 0) + 1) end)"
+      }
+    },
+    {
+      "code": "script-store-no-player",
+      "area": "script",
+      "title": "store.player.set with no player in the game",
+      "where": [
+        "Mods tab, \"Script stopped\" on the mod's row"
+      ],
+      "messages": {
+        "game": [
+          "@yourname.my-mod/main.lua:8: store.player.set: no player is in the game yet (game.player() is nil): save once a player is in the town, or use store for the town's own data"
+        ]
+      },
+      "api": [],
+      "meaning": "\"store.player\" is kept per resident. A town can be loaded before a resident is in it, for example on the title screen. game.player() is nil then, so store.player.set has no one to save for and store.player.get returns nil.",
+      "fix": "Check game.player() first, or save from an event a player takes part in, such as villager_talked or item_picked_up. For data that belongs to the whole town, use store.",
+      "bad": {
+        "file": "main.lua",
+        "text": "on(\"day_started\", function() store.player.set(\"gift\", \"given\") end)"
+      },
+      "good": {
+        "file": "main.lua",
+        "text": "on(\"day_started\", function() if game.player() then store.player.set(\"gift\", \"given\") end end)"
       }
     },
     {
@@ -3958,7 +4219,11 @@
       "messages": {
         "page": [
           "main.lua:4: unfinished string near '\"hello'",
-          "main.lua:7: ')' expected near 'log'"
+          "main.lua:7: ')' expected near 'log'",
+          "main.lua:2: <name> expected near '='",
+          "main.lua:9: break outside a loop at line 9",
+          "main.lua:3: no visible label 'done' for goto at line 3",
+          "main.lua:6: attempt to assign to const variable 'limit'"
         ],
         "game": [
           "@yourname.my-mod/main.lua:5: 'end' expected (to close 'function' at line 2) near <eof>",
@@ -4060,11 +4325,12 @@
       ],
       "messages": {
         "game": [
-          "send_letter: at most 3 a day for each mod"
+          "send_letter: at most 3 a day for each mod",
+          "take_bells: at most 6 a day for each mod"
         ]
       },
       "api": [],
-      "meaning": "Each game day in each town, a mod may send 3 letters, give 5 items, show 20 lines and ask 10 questions. The caps are per town, not per player, and a reload does not reset them.",
+      "meaning": "Each game day in each town, a mod may send 3 letters, give 5 items, show 20 lines and ask 10 questions. It may also ask for items 6 times and for Bells 6 times. A take counts when its question is shown, whatever the player answers. The caps are per town, not per player, and a reload does not reset them.",
       "fix": "Try again on the next game day. Remember in the store what you already sent today, so the script does not ask again."
     },
     {
@@ -4079,12 +4345,16 @@
           "give_item: item 0x2100 is money",
           "send_letter: item 0xF000 is not an item or furniture the game has",
           "give_item: a mod can only give its own new items, by \"<this mod's id>:<item id>\"",
-          "give_item: no item by that id in this mod's items file"
+          "give_item: no item by that id in this mod's items file",
+          "take_item: item 0x2503 is a villager's errand item",
+          "take_item: a mod can only take its own new items, by \"<this mod's id>:<item id>\"",
+          "the item is not this town's to give (its mod is off, or this is not your town)",
+          "the letter is gone (its mod's letters file did not load)"
         ]
       },
       "api": [],
-      "meaning": "Items follow the shop's rules, so a command cannot hand out money, turnips, tickets, grab bags, fossils or reserved numbers. An item is \"0x\" and four hex digits, or one of this mod's own new items by its full id.",
-      "fix": "Pick another item. Write it as \"0x2800\" or \"yourname.my-mod:thing\"."
+      "meaning": "Items follow the shop's rules, so a command cannot hand out money, turnips, tickets, grab bags, fossils or reserved numbers. take_item follows the same rules, and never takes the goods of a villager's errand. An item is \"0x\" and four hex digits, or one of this mod's own new items by its full id. A letter id must be one in this mod's own letters file. The last two messages come in command_finished, when the game applies the command. They mean the mod's item or letter was there at the call and gone when the game applied the command, because its mod was switched off, its file did not load or the town is not yours.",
+      "fix": "Pick another item. Write it as \"0x2800\" or \"yourname.my-mod:thing\". An item that is not a number or one of those forms is command-args instead."
     },
     {
       "code": "command-args",
@@ -4098,7 +4368,12 @@
           "send_letter: text must be 1 to 192 characters",
           "send_letter: the text does not fit a letter (6 lines)",
           "ask: choices must be a list of 2 to 4 answers",
-          "show_line: text must be 1 to 400 bytes"
+          "show_line: text must be 1 to 400 bytes",
+          "take_item: count must be a whole number 1 to 15",
+          "take_bells: amount must be a whole number 1 to 99999",
+          "take_bells: takes a table: { amount = ... }",
+          "give_item: item must be an item number, \"0x\" and four hex digits, or this mod's \"author.mod:thing\"",
+          "send_letter: item must be an item number or \"0x\" and four hex digits"
         ]
       },
       "api": [],
@@ -4123,6 +4398,83 @@
       "fix": "Nothing to fix. Handle the nil return or the failed command_finished, and try again at home, for example from scene_entered."
     },
     {
+      "code": "command-client-setting",
+      "area": "command",
+      "title": "A client setting cannot decide what the town gets",
+      "where": [
+        "what cmd.<name> returns when a command is refused, the command_finished event and the Mod log"
+      ],
+      "messages": {
+        "game": [
+          "give_item: this event read the client setting \"gift\", and a client setting cannot decide what the town gets (make it a world setting)"
+        ]
+      },
+      "api": [],
+      "meaning": "A setting whose \"scope\" is \"client\" is the player's own. It may decide only what that player sees or hears. In an event that read one with settings.get, cmd.send_letter, cmd.give_item, cmd.take_item and cmd.take_bells are refused, because they change what the town or the player has.",
+      "fix": "If the setting decides what a letter says, what is given or taken, or when, take \"scope\": \"client\" off it: it is then a world setting, and a friend who visits runs the host's value. If it only decides what the player sees, read it in the event that shows the line, not in the one that sends, gives or takes. Trying again does not help.",
+      "bad": {
+        "file": "mod.json",
+        "text": "\"settings\": [{ \"name\": \"gift\", \"type\": \"choice\", \"label\": \"Gift\", \"choices\": [\"apple\", \"pear\"], \"default\": \"apple\", \"scope\": \"client\" }]"
+      },
+      "good": {
+        "file": "mod.json",
+        "text": "\"settings\": [{ \"name\": \"gift\", \"type\": \"choice\", \"label\": \"Gift\", \"choices\": [\"apple\", \"pear\"], \"default\": \"apple\" }]"
+      }
+    },
+    {
+      "code": "dependency-absent",
+      "area": "script",
+      "title": "A mod this one can use is not there",
+      "where": [
+        "what remote.version returns, and remote.call for an optional dependency"
+      ],
+      "messages": {
+        "game": [
+          "yourname.weather is not loaded",
+          "yourname.weather is loaded, but it has no running script"
+        ]
+      },
+      "api": [],
+      "meaning": "The mod is named in \"depends\" or \"optional_depends\", and it is not installed, is switched off, did not load, or has no running script. This is not an error. remote.version returns nil, this message and this code, and remote.call to an optional dependency returns the same three without calling anything.",
+      "fix": "Nothing to fix. Do what the mod does on its own when the code comes back."
+    },
+    {
+      "code": "dependency-version",
+      "area": "script",
+      "title": "A mod this one can use is another version",
+      "where": [
+        "what remote.version returns, and remote.call for an optional dependency"
+      ],
+      "messages": {
+        "game": [
+          "yourname.weather is loaded, but its version is outside the range this mod names"
+        ]
+      },
+      "api": [],
+      "meaning": "The mod loaded, but its version is not inside the range \"optional_depends\" gives for it, so it counts as absent. A needed dependency outside its range stops the mod from loading instead.",
+      "fix": "Widen the range in mod.json if your mod works with that version. Otherwise do what the mod does on its own."
+    },
+    {
+      "code": "dependency-undeclared",
+      "area": "script",
+      "title": "remote.version asked about a mod mod.json does not name",
+      "where": [
+        "what remote.version returns, and remote.call for an optional dependency"
+      ],
+      "messages": {
+        "game": [
+          "yourname.weather is not in this mod's \"depends\" or \"optional_depends\""
+        ]
+      },
+      "api": [],
+      "meaning": "remote.version answers only for the mods this mod names in \"depends\" or \"optional_depends\".",
+      "fix": "Add the mod to \"optional_depends\" in mod.json, with the range of versions your script works with.",
+      "good": {
+        "file": "mod.json",
+        "text": "\"optional_depends\": { \"yourname.weather\": \">=1.0.0\" }"
+      }
+    },
+    {
       "code": "command-visiting",
       "area": "command",
       "title": "Only the town's owner changes a town",
@@ -4136,7 +4488,7 @@
         ]
       },
       "api": [],
-      "meaning": "On a visit, send_letter and give_item are refused, because only the town owner's game changes a town. They do not count against the daily caps, and show_line and ask still work.",
+      "meaning": "On a visit, send_letter, give_item, take_item and take_bells are refused, because only the town owner's game changes a town or a save. They do not count against the daily caps, and show_line and ask still work.",
       "fix": "Nothing to fix. Handle the nil return or the failed command_finished, and send it once the player is home."
     },
     {
@@ -4152,7 +4504,7 @@
         ]
       },
       "api": [],
-      "meaning": "This mod was lent to a visitor for one visit. At the visitor's home its commands are refused and its shop, Nook goods, board notices, items and renames do nothing, so it never changes the visitor's own town or save.",
+      "meaning": "This mod was lent to a visitor for one visit. At the visitor's home its commands are refused and its shop, Nook goods, board notices, items and renames do nothing, so it never changes the visitor's own town or save. The game refuses the command when it applies it, not at the call. So cmd.<name> returns an id, and this code arrives in command_finished.",
       "fix": "Nothing to fix. Your mod runs normally for players who installed it."
     },
     {
@@ -4171,24 +4523,65 @@
       },
       "api": [],
       "meaning": "There was no room for the letter or the item. One of the game's items can go to the pockets or come by mail, and one of the mod's own new items can only go to the pockets.",
-      "fix": "Try again later. Watch command_finished and send it again when it failed."
+      "fix": "Try again later, from a later event and not in a loop. A command refused for no room still counts against the day's cap, because it reached the game. Three letters refused for a full mailbox use up the day's letters, and the next one is command-day-cap."
     },
     {
       "code": "command-not-shown",
       "area": "command",
-      "title": "A line or a gift could not be done",
+      "title": "A line or a question could not be drawn",
       "where": [
         "what cmd.<name> returns when a command is refused, the command_finished event and the Mod log"
       ],
       "messages": {
         "game": [
-          "the text cannot be drawn in the window (too many pages?)",
-          "the item is not this town's to give (its mod is off, or this is not your town)"
+          "the text cannot be drawn in the window (too many pages?)"
         ]
       },
       "api": [],
-      "meaning": "The game could not carry the command out. The line is too long to page, or the item's mod is off.",
-      "fix": "Shorten the line, or keep the mod on. Trying the same command again does not help."
+      "meaning": "The game could not draw the line or the question in the window, because the text has too many pages. It arrives in command_finished. The command still counts against the day's cap, because it reached the game.",
+      "fix": "Shorten the text. Trying the same command again does not help."
+    },
+    {
+      "code": "command-not-held",
+      "area": "command",
+      "title": "The player does not hold what a take asks for",
+      "where": [
+        "what cmd.<name> returns when a command is refused, the command_finished event and the Mod log"
+      ],
+      "messages": {
+        "game": [
+          "take_item: the pockets do not hold 3 of that item in plain slots",
+          "take_bells: the wallet holds fewer than 500 Bells",
+          "the wallet no longer holds that many Bells"
+        ]
+      },
+      "api": [],
+      "meaning": "take_item counts only plain pocket slots. A wrapped present, an item held for a villager's errand and a mod item standing on the same piece do not count. take_bells reads the wallet only, never the bank or a money bag. When the player holds less than the take asks for, nothing is asked and nothing is taken. It does not count against the daily cap.",
+      "fix": "Check game.pockets() or game.bells() first, and tell the player what to bring with cmd.show_line. Try again from a later event.",
+      "bad": {
+        "file": "main.lua",
+        "text": "cmd.take_bells{ amount = 500 }"
+      },
+      "good": {
+        "file": "main.lua",
+        "text": "if (game.bells() or 0) >= 500 then cmd.take_bells{ amount = 500 } end"
+      }
+    },
+    {
+      "code": "command-declined",
+      "area": "command",
+      "title": "The player said no to a take",
+      "where": [
+        "what cmd.<name> returns when a command is refused, the command_finished event and the Mod log"
+      ],
+      "messages": {
+        "game": [
+          "the player said no, nothing was taken"
+        ]
+      },
+      "api": [],
+      "meaning": "Before take_item or take_bells takes anything, the game asks the player in its own words, with the true item, count or amount. The player answered no, or closed the window with no pick. Nothing was taken. The question still counts against the daily cap, so a mod cannot ask again and again.",
+      "fix": "Nothing to fix. Carry on without the item or the Bells, and do not ask again in the same event."
     },
     {
       "code": "upload-name-word",
@@ -4207,6 +4600,22 @@
       "fix": "Change \"name\" in mod.json, raise the version and upload again."
     },
     {
+      "code": "upload-translation-word",
+      "area": "upload",
+      "title": "A translated name has a word the site does not allow",
+      "where": [
+        "Share a mod, when you upload"
+      ],
+      "messages": {
+        "registry": [
+          "translations/de.json: \"mod/name\" has a word the site does not allow. Pick another name."
+        ]
+      },
+      "api": [],
+      "meaning": "The mod list shows a mod's name in the reader's language when the mod has one, so each translated name goes through the same word filter as the name in mod.json. The message names the translations file.",
+      "fix": "Change \"mod/name\" in that translations file, raise the version and upload again."
+    },
+    {
       "code": "upload-author-word",
       "area": "upload",
       "title": "An author name has a word the site does not allow",
@@ -4221,6 +4630,60 @@
       "api": [],
       "meaning": "Author names show on the mod list, so they go through the site's word filter.",
       "fix": "Change the name in \"authors\" in mod.json, raise the version and upload again."
+    },
+    {
+      "code": "upload-not-text",
+      "area": "upload",
+      "title": "A text file is not text",
+      "where": [
+        "Share a mod, when you upload"
+      ],
+      "messages": {
+        "registry": [
+          "\"notes.txt\" is not text. A .txt, .md or .lua file must be plain UTF-8 text."
+        ]
+      },
+      "api": [],
+      "meaning": "A reviewer reads every .txt, .md and .lua file of a shared mod, and the site's word filter reads them too. So each one must be plain text: UTF-8, with no zero byte. A picture, an archive or any other data under a text name is refused. A file saved as UTF-16 is refused as well.",
+      "fix": "Save the file as UTF-8 in your editor. Take out a file that is not text, or give a picture its real .png or .dds name."
+    },
+    {
+      "code": "file-lone-cr",
+      "area": "zip",
+      "title": "A line ends with a lone carriage return",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload"
+      ],
+      "messages": {
+        "page": [
+          "\"main.lua\" has a carriage return with no line feed after it. Save it with LF or CRLF line endings",
+          "\"en.json\" has a carriage return with no line feed after it. Save it with LF or CRLF line endings"
+        ],
+        "registry": [
+          "\"main.lua\" has a carriage return with no line feed after it. Save it with LF or CRLF line endings."
+        ]
+      },
+      "api": [],
+      "meaning": "Lua ends a line at a carriage return (CR) on its own, but the review shows a file broken at line feeds (LF) only. Code after a lone CR would look like part of the line before it, a comment for example, while the game runs it. So a mod's .lua and .json files must end lines with LF or CRLF. The Mods tab, playac-mod check and the mod list all refuse it.",
+      "fix": "Set your editor to LF (or CRLF) line endings and save the file again. Old Mac editors write CR alone."
+    },
+    {
+      "code": "upload-text-too-much",
+      "area": "upload",
+      "title": "The mod carries too much text",
+      "where": [
+        "Share a mod, when you upload"
+      ],
+      "messages": {
+        "registry": [
+          "The text files of the mod add up to more than 4 MB. A mod may carry at most that much text."
+        ]
+      },
+      "api": [],
+      "meaning": "The .json, .lua, .txt and .md files of a shared mod can be at most 4 MB together. The site's word filter reads all of it at upload and a reviewer may have to read it. An upload whose text takes the filter too long to read is refused with the same words.",
+      "fix": "Take out text the mod does not need, such as generated lists or logs. Split the mod in two when all of it is needed."
     },
     {
       "code": "upload-sign-in",
@@ -4304,7 +4767,7 @@
       ],
       "messages": {
         "registry": [
-          "This version of the mod is already uploaded. Raise the version in mod.json."
+          "This version of the mod is already uploaded: a version is never replaced, and its number is not used again, even after it is removed (only a rejected version's number is free again). Raise the version in mod.json."
         ]
       },
       "api": [
@@ -4544,16 +5007,18 @@
           "Enter the code from your authenticator app to share a mod.",
           "Enter the code from your authenticator app to approve playac-mod.",
           "Sharing mods is switched off on this server for now.",
-          "Too many wrong codes in a row, so code checks are paused for a while. Wait, then try again with a fresh code. We emailed the account."
+          "Too many wrong codes in a row, so code checks are paused for a while. Wait, then try again with a fresh code. We emailed the account.",
+          "That code is not right, or it was used already. Wait for the next one and try again."
         ]
       },
       "api": [
         "two_factor_required",
         "two_factor_code",
         "two_factor_unavailable",
-        "two_factor_locked"
+        "two_factor_locked",
+        "bad_code"
       ],
-      "meaning": "Sharing a mod, importing one from GitHub and approving a playac-mod sign-in all need two-factor sign-in and a recent code from your authenticator app. After 5 wrong codes in a row, code checks pause for a minute or longer, and we email the account.",
+      "meaning": "Sharing a mod, importing one from GitHub and approving a playac-mod sign-in all need two-factor sign-in and a recent code from your authenticator app. A code works once. After 5 wrong codes in a row, code checks pause for a minute or longer, and we email the account.",
       "fix": "Switch on two-factor sign-in on your Profile page, then enter a code from your authenticator app when asked. If codes are paused, wait, check that the phone's clock is right and use a fresh code."
     },
     {
@@ -4661,14 +5126,53 @@
       "messages": {
         "registry": [
           "A moderator took this version out of the list. Upload a fixed version, or ask the moderators to look again.",
+          "The moderators are looking at this version, so it can't be listed again for now.",
           "Another decision on this version came first. Reload and look again."
         ]
       },
       "api": [
         "mod_conflict"
       ],
-      "meaning": "The version's state does not allow that change. Only a moderator can list again a version that a moderator withdrew, and a decision made first wins.",
-      "fix": "Reload the Mods tab. If a moderator withdrew the version, read the reason, fix the mod and upload a new version."
+      "meaning": "The version's state does not allow that change. Only a moderator can list again a version that a moderator withdrew, and a decision made first wins. A version the moderators are looking at cannot be listed again until they decide.",
+      "fix": "Reload the Mods tab. If a moderator withdrew the version, read the reason, fix the mod and upload a new version. If the moderators are looking at it, wait for their decision."
+    },
+    {
+      "code": "cli-sign-in-code",
+      "area": "upload",
+      "title": "The sign-in code is not waiting",
+      "where": [
+        "the playac-mod tool, and the page that approves its sign-in (/cli/)"
+      ],
+      "messages": {
+        "registry": [
+          "No sign-in is waiting with that code. Codes last 10 minutes: run the command again for a new one.",
+          "That code was already approved or denied."
+        ]
+      },
+      "api": [
+        "code_not_found",
+        "code_used"
+      ],
+      "meaning": "playac-mod prints a code of 8 letters and waits for you to approve it on the site. A code lasts 10 minutes and is answered once.",
+      "fix": "Run the playac-mod command again. It prints a new address and a new code. Approve that one."
+    },
+    {
+      "code": "cli-token-scope",
+      "area": "upload",
+      "title": "The tool's sign-in cannot do that",
+      "where": [
+        "the playac-mod tool, and the page that approves its sign-in (/cli/)"
+      ],
+      "messages": {
+        "registry": [
+          "A playac-mod sign-in can only upload mods and see, yank or list again your own versions. Do this on the site instead."
+        ]
+      },
+      "api": [
+        "token_scope"
+      ],
+      "meaning": "A playac-mod sign-in is narrower than your account. It uploads mods and manages your own versions. Every other request made with it is refused.",
+      "fix": "Do it in a browser where you are signed in to the site. If playac-mod itself printed this, update the tool."
     },
     {
       "code": "status-update-available",
@@ -4695,11 +5199,11 @@
       ],
       "messages": {
         "site": [
-          "No longer offered in the mod list. It still works."
+          "This version was withdrawn from the mod list. It still works."
         ]
       },
       "api": [],
-      "meaning": "The author withdrew this version. It still works and friend visits still match it, but new players cannot install it.",
+      "meaning": "The author or a moderator withdrew this version. It still works and friends who both have it can still visit, but new players cannot install it.",
       "fix": "Nothing to do. If the author shares a newer version, update to it."
     },
     {
@@ -4933,7 +5437,7 @@
       ],
       "messages": {},
       "api": [],
-      "meaning": "The mod does not load or does not do what it says. Fix it and upload it again as a new version.",
+      "meaning": "The mod does not load or does not do what it says. Fix it and upload it again.",
       "fix": "Test it with `playac-mod check`, then in the game with developer mode and the Mod log. Fix it and upload a higher version.",
       "decisions": [
         "refusal",

@@ -112,11 +112,11 @@ A mod that changes the flower shop is a World mod:
 - `scripts.events`: one or more of `villager_talked`, `day_started`,
   `item_picked_up`, `scene_entered`, `data_migrated`, `hour_changed`,
   `item_bought`, `item_sold`, `fish_caught`, `bug_caught`, `letter_read`,
-  `villager_moved_in`, `visitor_arrived`, `command_finished` and
-  `question_answered`, each once.
+  `villager_moved_in`, `visitor_arrived`, `command_finished`,
+  `question_answered` and `timer_fired`, each once.
 - `permissions` (optional): the commands your script may use, each once, from
-  `send_letter`, `give_item`, `show_line` and `ask`. The game refuses any
-  command the list leaves out. The Mods tab shows players what the list lets
+  `send_letter`, `give_item`, `show_line`, `ask`, `take_item` and
+  `take_bells`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -168,8 +168,9 @@ A visitor can borrow the host's mods for one visit:
 
 - This works when every World mod of the host that counts is a reviewed
   version from the mod list. A mod installed from a file cannot be lent.
-- Nothing is installed. The mods run with the host's settings and an empty
-  store that is never kept.
+- Nothing is installed. The mods run with the host's world settings and an
+  empty store that is never kept. A client setting stays the visitor's own (see
+  Settings, below).
 - The game restarts before and after the trip. In the visitor's own town a
   lent mod's shop, Nook goods, board notices, items, renames and commands do
   nothing.
@@ -190,16 +191,18 @@ The Mods tab lists mods in load order. The arrows change it.
   returns a line, the data lines get their turn: calendar days first, then
   talk pools.
 - A mod that needs another (`depends`, below) always loads after it, whatever
-  the list says.
+  the list says. So does a mod that uses another (`optional_depends`), when
+  that other mod is installed and on.
 
 ### Settings, dependencies and data
 
 ```json
 "depends":   { "yourname.tea-lib": ">=1.0.0 <2.0.0" },
+"optional_depends": { "yourname.weather": ">=1.0.0" },
 "conflicts": { "someone.other-shop": "*" },
 "data_version": 2,
 "settings": [
-  { "name": "greet", "type": "bool", "label": "Say hello", "default": true },
+  { "name": "greet", "type": "bool", "label": "Say hello", "default": true, "scope": "client" },
   { "name": "price", "type": "number", "label": "Fruit price", "default": 600, "min": 100, "max": 5000 },
   { "name": "drink", "type": "choice", "label": "Drink", "default": "tea", "choices": ["tea", "coffee"] },
   { "name": "motto", "type": "text", "label": "Shop motto", "default": "", "max_length": 40 }
@@ -213,13 +216,43 @@ The Mods tab lists mods in load order. The arrows change it.
     wrong version. Its row says why.
   - A mod does not load when it lists a conflict with a mod that is switched
     on.
+- `optional_depends`: mods yours can use but does not need. Same shape and
+  ranges as `depends`, at most 16. A mod id goes in only one of the three keys.
+  - Your mod always loads. An optional dependency that is installed, switched
+    on, loading and inside the range is present, and loads before your mod.
+  - One that is missing, off, not loading or outside the range is absent.
+    Nothing waits for it.
+  - `remote.version(id)` returns its version, such as `"1.2.0"`, when it is
+    present. When it is absent it returns `nil`, a message and a code:
+    `dependency-absent`, `dependency-version` or `dependency-undeclared`.
+  - `remote.call` to an absent optional dependency returns the same three. It
+    raises no error and calls nothing.
+  - Two mods can use each other. A circle through an optional dependency never
+    stops a mod. The earlier mod in the player's order loads first, and the
+    other loads after it. Both are present in events. Ask in an event, not at
+    the top of the script.
+  - An optional dependency is a mod like any other for friend visits. When it
+    is a World mod that counts, both towns need it.
 - `settings`: at most 16. Names are `a-z 0-9 _` and start with a letter.
   - The player changes them on the mod's row in the Mods tab. They take effect
     from the next start.
   - Your script reads them with `settings.get(name)`.
-  - A friend visit compares every setting of a World mod. Two players with
-    different settings run different towns. Keep cosmetic switches out of
-    World mods.
+  - A setting may say `"scope"`: `"world"` (the default) or `"client"`.
+  - A world setting is part of the town. A friend visit compares it, and a
+    visitor who borrows your mods plays with your value.
+  - A client setting is the player's own. A visit never compares or sends it.
+    On a visit each player keeps their own value.
+  - Use `client` for a choice that only changes what its own player sees or
+    hears. A client setting may not decide what the town gets. In an event
+    that read one, `cmd.send_letter`, `cmd.give_item`, `cmd.take_item` and
+    `cmd.take_bells` are refused with the code `command-client-setting`.
+  - The game checks that rule one event at a time. Do not keep a client
+    setting's value in a variable, in `store` or in a timer's `data` and use
+    it later to send, give or take. Nothing stops that, and nothing warns.
+    Your town gets what your value says, and a visitor's copy of the mod
+    runs their value. `timer.after` itself is not refused.
+  - The rule holds on every mod, a Just you mod too. Leave `scope` off a
+    setting that decides what is sent, given or taken.
 - `data_version`: a whole number for the shape of what your script saves. When
   it changes, `data_migrated` runs (see Scripts).
 
@@ -317,6 +350,49 @@ name your mod needs. You need no Dolphin and no texture dump.
   on a European disc. The US and Australian discs are English.
 - A key a translation does not have falls back to `en.json`.
 - A translation may only hold keys that `en.json` has.
+
+### Translating the other files
+
+Messages are a script's lines. Every other text a mod shows is in a data file:
+a shop's name and lines, a letter, a board notice, villager lines, an item's
+name, a setting's label, the mod's own name and description.
+`content.translations` names a folder that holds those texts in other
+languages: `"translations": "translations/"`.
+
+- The folder holds any of `de.json`, `es.json`, `fr.json` and `it.json`. There
+  is no `en.json`. English is the text in the data file itself.
+- Each file is one object of key to text. A key is the path of a text:
+
+  | key | the text |
+  |---|---|
+  | `mod/name`, `mod/description` | the mod's name and description, on the Mods tab |
+  | `settings/<name>/label`, `settings/<name>/description` | a setting, on the Mods tab |
+  | `items/<id>/name` | an item's name |
+  | `shops/flower/name`, `shops/flower/greeting`, `shops/flower/stock_line` | the flower shop |
+  | `letters/<id>/header`, `/body`, `/footer`, `/sender` | a letter |
+  | `calendar/<id>/board` | a day's board notice |
+  | `calendar/<id>/talk/<n>` | a day's line number `<n>` |
+  | `talk/<pool>/<line>` | line `<line>` of pool `<pool>` |
+
+  `<n>`, `<pool>` and `<line>` count from 1, in the order of the file.
+- A key must name a text the mod has. A letter with no `sender` has no
+  `letters/<id>/sender`.
+- A translation follows the rule of the text it replaces: the same length, the
+  same line breaks, the same characters. A letter and a board notice stay plain
+  US keyboard characters in every language, so write "fuer", not "für". Shop
+  lines and villager lines can use the accented letters the game's font has.
+- The game shows a text in its own language when that language's file has it.
+  It shows the English text when not. Each text is decided alone.
+- The game measures a translated letter body and board notice on the paper. One
+  that does not fit six lines is left out, and the English shows.
+
+```json
+{
+  "shops/flower/greeting": "Willkommen im Teehaus!",
+  "letters/thanks/body": "Danke fuer deine Hilfe.",
+  "calendar/harvest/talk/1": "Frohes Erntefest!"
+}
+```
 
 ## Shops
 
@@ -567,6 +643,7 @@ Scripts are Lua 5.4 with a small API:
 | `remote.add(name, fn)` | offer a function to other mods, while the script loads |
 | `remote.call(mod, name, ...)` | call another mod's function |
 | `remote.has(mod, name)` | whether that mod offers it |
+| `remote.version(mod)` | the version of a mod in `depends` or `optional_depends`, or `nil`, a message and a code |
 | `store.town()` | which town the store is now (opaque text, `nil` before a town loads): read your locals again when it changes |
 
 Every handler gets exactly one table, `e`, of plain values. They are copies,
@@ -587,13 +664,14 @@ strings. A `cmd.*` call takes a number, `"0x2800"` or your mod's own
 | `hour_changed` | `{ year, month, day, hour }`, when the clock reaches a new hour | nothing |
 | `item_bought` | `{ item, mod_item, price, shop, ordered }`, when you buy a good for Bells anywhere | nothing |
 | `item_sold` | `{ item, mod_item, count, bells, shop }`, when you sell for Bells | nothing |
-| `fish_caught` | `{ item, mod_item, pocketed }` | nothing |
-| `bug_caught` | `{ item, mod_item, pocketed }` | nothing |
-| `letter_read` | `{ sender, item, mod_item, first_time }`, when you read a letter | nothing |
+| `fish_caught` | `{ item, pocketed }` | nothing |
+| `bug_caught` | `{ item, pocketed }` | nothing |
+| `letter_read` | `{ sender, item, mod_item, first_time, letter }`, when you read a letter | nothing |
 | `villager_moved_in` | `{ villager }`, when a new villager's house goes up | nothing |
 | `visitor_arrived` | `{ kind = "friend" }`, a friend riding into your own town | nothing |
 | `command_finished` | `{ id, command, ok, via, code, message }` (see Commands) | nothing |
 | `question_answered` | `{ id, choice, text }` (see Commands) | nothing |
+| `timer_fired` | `{ id, name, data }`, when a timer you set is due (see Timers) | nothing |
 
 No event runs in the title screen demo.
 
@@ -610,6 +688,13 @@ No event runs in the title screen demo.
   `nil`.
 - For `item_sold`, `item` and `mod_item` are about the first piece sold.
 - For `letter_read`, `item` is the present. It is `nil` when there is none.
+  `mod_item` is set when the present is a mod item. `letter` is the full id
+  of the letters file letter that was read, such as `"your.mod:welcome"`. It
+  is `nil` for any other letter. The game finds it by the letter's words.
+- `item_picked_up` also fires for a piece picked up off a room's floor. That
+  is how a mod item is picked up, and `mod_item` is set for it.
+- `fish_caught` and `bug_caught` have no `mod_item`. A fish or a bug is never
+  a mod item.
 - `scene` is the scene number. `name` is its name from
   https://playaconline.com/schemas/scenes.json, such as `"player_house"` or
   `"museum"`. It is `nil` for a scene with no published name.
@@ -658,6 +743,9 @@ No event runs in the title screen demo.
 - `item_picked_up` runs once an item is really in the pockets or the wallet.
   That covers an item picked up from the ground, caught with the net or the
   rod, or dug up. Buying does not fire it.
+- A fish or a bug that goes into the pockets fires `item_picked_up` and then
+  `fish_caught` or `bug_caught`. A script that counts in both counts that
+  catch twice.
 - `item_bought` and `item_sold` are for goods. A haircut, a fortune from
   Katrina, a dream or an Able Sisters design is a service, so it fires
   nothing.
@@ -676,6 +764,9 @@ No event runs in the title screen demo.
   resident earns alone, such as a quest or today's gift. It takes the same
   keys and values as `store` and shares the same 8 KB. `game.player().id` is
   the number that tells residents apart.
+- When a resident is deleted, the game deletes what your mod saved for them in
+  `store.player` and gives the room back. A new resident in that save slot
+  starts with nothing, even when the game gives them the same id.
 - `store.client` is one per mod per browser.
 - Whole numbers come back as whole numbers.
 - A key cannot start with a control character.
@@ -725,6 +816,53 @@ on from where it was, so it cannot reroll. A new game day starts new numbers.
 `math.random` and `math.randomseed` are not available. Calling one stops the
 script with an error that says to use `rng()`.
 
+### Timers
+
+A script cannot wait. It asks to be called later.
+
+| | |
+|---|---|
+| `timer.after(minutes, name, data)` | sets a timer that fires once, at least that many game minutes from now. It returns the timer's id, or `nil`, a message and a code |
+| `timer.cancel(id)` | cancels a waiting timer. `true` when there was one |
+
+```lua
+-- mod.json: "events": ["day_started", "timer_fired"], "permissions": ["show_line"]
+on("day_started", function(e)
+  timer.after(30, "tea", "ready")
+end)
+on("timer_fired", function(e)
+  -- e = { id, name, data }
+  if e.name == "tea" then cmd.show_line("Your tea is " .. e.data .. ".") end
+end)
+```
+
+- List `timer_fired` in `scripts.events` and add its handler. Without one,
+  `timer.after` is refused.
+- `minutes` is a whole number of game minutes, 1 to 10080 (7 game days).
+  `name` is 1 to 40 bytes of letters, digits, `_`, `-` and `.`. `data` is
+  optional: text of up to 240 bytes, a number, `true` or `false`. Empty
+  text comes back as `nil`.
+- Time is counted on the game's clock, the one `game.time()` reads. A timer
+  keeps counting while the game is closed. One that came due in the meantime
+  fires soon after the town loads.
+- A waiting timer is kept in your mod's town store. It survives a save and a
+  reload and counts toward the store's 8 KB. A mod may have 16 waiting in one
+  town.
+- The main part of a script runs before a town loads, so set timers from
+  events.
+- On a visit and in The City timers live in memory only. They are gone when
+  the player leaves.
+- `timer_fired` is an event like any other: the same budget, and its commands
+  count against the same caps. At most one timer per mod fires in a frame.
+- The timer is gone before the handler runs. To repeat, set the next one in
+  the handler.
+
+- A timer never fires at the title screen or at player select. Nothing of a
+  mod runs there. A timer that came due fires once play has started.
+
+`timer.after` refusal codes: `timer-args` (never), `timer-limit` (later),
+`timer-no-town` (later), `timer-no-clock` (later), `timer-store-full` (later).
+
 ### Commands: changing the game
 
 An event handler never changes the game while it runs. It QUEUES a command.
@@ -739,6 +877,8 @@ a cutscene or walking through a door. Each command needs its name in
 | `cmd.give_item(item)` | Puts an item into your pockets. With full pockets it comes by letter instead. |
 | `cmd.show_line(text)` | Shows a line in your own thought window. |
 | `cmd.ask{ text, choices }` | Asks a question with 2 to 4 answers. The pick comes back as a `question_answered` event. |
+| `cmd.take_item{ item, count? }` | Asks the player to hand over items from their pockets. The game writes the question and takes only on yes. |
+| `cmd.take_bells{ amount }` | Asks the player to pay Bells from their wallet. The game writes the question and takes only on yes. |
 
 Each call returns the command's number. When the command is refused it returns
 `nil`, a message and a code.
@@ -747,7 +887,7 @@ What happened later comes back as a `command_finished` event, to your mod
 only:
 
 - When it worked: `{ id, command, ok = true, via }`. `via` is `"mailbox"`,
-  `"post_office"`, `"pockets"`, `"mail"` or `"shown"`.
+  `"post_office"`, `"pockets"`, `"mail"`, `"shown"` or `"taken"`.
 - When it did not: `{ id, command, ok = false, code, message }`.
 
 A `question_answered` event is `{ id, choice, text }`, with `choice` counted
@@ -768,6 +908,8 @@ The code says whether to try again:
 | `command-lent-home` | never | a lent mod acting outside the host's town |
 | `command-no-room` | later | no room now (mailbox and post office full, or pockets full for a mod item) |
 | `command-not-shown` | never | the line or question cannot be drawn |
+| `command-not-held` | later | a take the player cannot meet: too few of the item in plain pocket slots, or too few Bells in the wallet |
+| `command-declined` | later | the player said no to a take's question, or closed it. Nothing was taken |
 
 Mark a reward as given only when the game says it arrived:
 
@@ -809,10 +951,43 @@ end)
   - The caps are per town, for every resident together. They are a safety
     limit, not a game rule.
 - In The City every command is refused.
-- On a visit to a friend, a letter or an item is refused, because only the
-  town's owner changes a town. Lines and questions still work.
+- On a visit to a friend, a letter, an item or a take is refused, because only
+  the town's owner changes a town or a save. Lines and questions still work.
 - `example.daily-gift` is a whole working mod that sends each resident a
-  letter with a fruit once a game day.
+  letter with a fruit once a game day. A letter that found no room is tried
+  again by a timer.
+
+#### Taking items or Bells
+
+`cmd.take_item` and `cmd.take_bells` never take on a script's word. The player
+agrees each time.
+
+- The game shows its own question, such as `Give 3 x apple to the mod "Tea
+  House"?` or `Pay 300 Bells to the mod "Tea House"?`. The item's name, the
+  count and the amount come from the game, and the mod's name from its
+  `mod.json`. The name stands between quotes. A translated name
+  (`mod/name`, `items/<id>/name`) is shown in the game's language.
+  A script passes no text and cannot change the question.
+- The answers are "No, keep it" and "Yes, give" or "Yes, pay". The cursor
+  starts on No.
+- On yes the items or Bells are taken and `command_finished` says
+  `via = "taken"`. On no, or a window closed with no pick, nothing is taken
+  and the code is `command-declined`.
+- `item` is a number, `"0x2800"` or your own `"author.mod:thing"`. `count` is
+  1 to 15, and 1 when left out. `amount` is 1 to 99999.
+- Only plain pocket slots count. A wrapped present, an item held for a
+  villager's errand and a villager's errand goods are never taken. Neither is
+  anything `give_item` refuses.
+- Bells come from the wallet only, never the bank or a money bag. The wallet
+  never goes below zero.
+- When the player holds too little, the take is refused with
+  `command-not-held` and no question is shown.
+- Each game day, per mod and per town, the game shows 6 `take_item` questions
+  and 6 `take_bells` questions. A take counts when its question is shown,
+  whatever the answer.
+- Both are refused on a visit and in The City. A mod lent for a visit can
+  never take anything.
+- Every take that happened is written to the Mod log.
 
 ### What a script cannot do
 
@@ -836,8 +1011,10 @@ as the town's owner. The reasons:
   `day_started`, `item_picked_up` and `scene_entered` run on the next frame,
   in order. A `villager_talked` is skipped, and the villager says their own
   hello.
-- A script that holds the game up is stopped. That means one event over 33 ms,
-  or three over 8 ms.
+- The instruction budget (200,000 per event) is what stops a script, the same
+  on every device. Wall-clock time is only a backstop: one event run over
+  125 ms, or three runs in a row over 8 ms, also stop it. A slow or busy
+  device stretches both, by how slow the game itself runs there (up to 8x).
 - The built-in libraries and functions are read-only. `string.rep = ...`,
   `pcall = ...` or `rawset(string, ...)` stop the script with "read-only" or
   "is a built-in". Your own globals work as usual, and a `local` may use any
@@ -846,12 +1023,19 @@ as the town's owner. The reasons:
   first runs, not from inside a handler.
 - `__gc` metamethods are refused, because they would run outside the time
   budget.
-- `log()` prints at most 20 lines per event and 500 per session.
+- `log()` prints at most 20 lines per event and 500 per session. A refused
+  `cmd.*` or `timer.*` call writes a line too, and those lines count toward
+  the same limits.
 
 A script that errors or runs too long is stopped for that session. The Mods
 tab says why. The **Mod log** in the Mods tab shows the error with a Lua
 traceback: the file and line of each call it came through. It also shows your
 `log()` lines and anything the game refused.
+
+The Mod log is at the bottom of the Mods tab, under **For mod authors**. The
+section shows when a mod you installed from a file has a script, when the
+game was opened with `?moddev=1`, or once a script logged an error, a stop or
+a refusal.
 
 ## Developer mode
 
@@ -859,10 +1043,12 @@ Developer mode loads a mod from its folder. You do not zip and restart for
 every change.
 
 1. Open the game with `?moddev=1`, then Settings, Mods. The **Developer**
-   section is at the bottom.
+   section is at the bottom. The address alone loads nothing.
 2. Press **Choose folder** and pick the folder with mod.json in it. Or run
-   `playac-mod dev` there and **Connect** to the address it prints.
-3. Press **Restart now**.
+   `playac-mod dev` there, leave it running and press **Connect** beside
+   **playac-mod dev address**. The box holds `http://127.0.0.1:2604`. Put in
+   the address the tool printed if it is another one.
+3. Press **Restart now** once.
 4. Edit and save:
 
 | You change | What happens |
@@ -926,6 +1112,10 @@ How the game tells that it stopped responding:
   second in a row with the SAME mods makes the next start run without them.
   One alone may be a phone dropping the tab for memory.
 - A reload, a closed tab or a switch to another app does not trigger it.
+- The model viewer (`/viewer/`) loads your mods too, and the same rules watch
+  it. Its start counts as finished after 300 drawn frames. A viewer that
+  freezes before that makes the next start of the game or the viewer run
+  without mods.
 - When you test a mod that hangs at start on purpose, expect exactly one start
   without mods after the hang. A mod that hangs during play needs two hangs in
   a row. To clear the count, change which mods are on or start without mods

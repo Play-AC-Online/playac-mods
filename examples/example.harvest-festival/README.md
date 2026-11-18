@@ -36,3 +36,24 @@ The film (click the picture): The Harvest Fair notice on the bulletin board, the
 
 Letter and notice text is plain ASCII and must fit six lines of the paper. The
 game measures it in its own font and refuses text that does not fit.
+
+## In German and French
+
+`translations/de.json` and `translations/fr.json` hold the same texts in German
+and French (`"translations": "translations/"` in `mod.json`).
+
+- A key is the path of a text. `calendar/harvest-fair/board` is that day's
+  notice. `calendar/harvest-fair/talk/2` is its second line.
+  `letters/fair-thanks/body` is the letter's body.
+- The game shows a text in its own language when that language's file has it.
+  It shows the English text from `calendar.json` or `letters.json` when not.
+  Each text is decided alone.
+- A translation follows the rule of the text it replaces. The notices and the
+  letter stay plain ASCII in every language, so the German notice says "fuer"
+  and the German letter says "waechst". The villager lines can use the accented letters the game's font
+  has, so they say "glänzt" and "fête".
+- `mod/name` and `mod/description` are the mod's own name and description. The
+  Mods tab shows them. The game does not.
+- There is no `en.json`. English is the text in the mod's own files.
+- To try a language on any disc, turn developer mode on and add `?modlang=de`
+  to the game's address.

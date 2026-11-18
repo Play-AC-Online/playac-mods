@@ -12,6 +12,10 @@ import { readDds } from '../lib/dds.mjs';
 import { scanScript, stripLua } from '../lib/scriptscan.mjs';
 import { itemTable, shopItemWarnings } from '../lib/items.mjs';
 import { dds } from '../lib/scaffold.mjs';
+import { exportHints, findLibraries } from '../lib/types.mjs';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 const enc = (s) => (typeof s === 'string' ? new TextEncoder().encode(s) : s);
 const js = (v) => enc(JSON.stringify(v));
@@ -161,9 +165,15 @@ test('the script scan: on() against scripts.events and the events, cmd.* against
    * problem; math.random raises where it is called, which stops it too */
   assert.deepEqual(w.map((x) => !!x.error), [true, true, false, false, true, true]);
   assert.equal(w[2].message, 'line 5: cmd.ask: "ask" is not in "permissions" in mod.json, so the game refuses every call. Each call returns nil, the reason and the code command-permission. It logs: cmd.ask refused: ask is not in this mod\'s "permissions" in mod.json');
-  assert.match(w[3].message, /^line 7: cmd\.teleport is not a command, so calling it stops that handler with an error\. The commands are send_letter, give_item, show_line, ask\.$/);
+  assert.match(w[3].message, /^line 7: cmd\.teleport is not a command, so calling it raises an error and the script stops for the session\. The commands are send_letter, give_item, show_line, ask, take_item, take_bells\.$/);
   assert.equal(w[4].message, 'line 12: math.random is not available: use rng() (seeded, so a reload cannot reroll). The game stops your script where it calls math.random.');
   assert.match(w[5].message, /^line 13: math\.randomseed is not available: use rng\(\)/);
+  /* timer.after with no timer_fired in scripts.events is refused by the game every time */
+  const t1 = scanScript('on("day_started", function(e) timer.after(5, "tea") end)', { ...ctx, listed: ['day_started'] });
+  assert.equal(t1.length, 1);
+  assert.match(t1[0].message, /^line 1: timer\.after is used, but "timer_fired" is not in "scripts\.events" in mod\.json, so the game refuses every call\. Each call returns nil, the reason and the code timer-args\./);
+  assert.deepEqual(scanScript('on("timer_fired", function(e) end)\non("day_started", function(e) timer.after(5, "tea") end)', { ...ctx, listed: ['day_started', 'timer_fired'] }), []);
+  assert.deepEqual(scanScript('local my = { timer = {} }\nmy.timer.after(1)', { ...ctx, listed: [] }), []);
   /* the engine's own words, so the catalogue entry links */
   assert.equal(mods.errorCode(w[0].message), 'script-on-event');
   assert.equal(mods.errorCode(w[2].message), 'command-permission');
@@ -343,10 +353,66 @@ test('check warns on shop goods and passes the mod; without items.json it says n
   if (real.warnings.some((w) => w.file === 'shops.json')) assert.ok(warned(real, 'shops.json', /0x7777 is not an item or furniture the game has/));
 });
 
-test('a JSON file with bytes that are not UTF-8 passes, as in readMod, with a warning', async () => {
-  const r = await check({ 'mod.json': js({ ...base, content: { messages: 'm.json' } }), 'm.json': new Uint8Array([0x7b, 0x22, 0x61, 0x22, 0x3a, 0x22, 0xff, 0x22, 0x7d]) });
+/* the page, the registry and the engine each read a bad byte another
+ * way, so all three refuse the file now, and so does check, once, in its own words. */
+test('a JSON file with bytes that are not UTF-8 is refused, as in readMod, and says so', async () => {
+  const bad = new Uint8Array([0x7b, 0x22, 0x61, 0x22, 0x3a, 0x22, 0xff, 0x22, 0x7d]);
+  for (const files of [
+    { 'mod.json': js({ ...base, content: { messages: 'm.json' } }), 'm.json': bad },
+    { 'mod.json': js({ ...base, content: { messages: 'm.txt' } }), 'm.txt': bad },
+    { 'mod.json': js(base), 'notes.json': bad },
+  ]) {
+    const name = Object.keys(files)[1];
+    const r = await check(files);
+    assert.equal(r.ok, false);
+    const mine = r.problems.filter((p) => p.file === name);
+    assert.equal(mine.length, 1, JSON.stringify(r.problems));
+    assert.match(mine[0].message, /this file is not UTF-8 text\. The game and the site refuse it\. Save it as UTF-8\.$/);
+  }
+});
+
+/* (file-lone-cr): Lua ends a -- comment at a lone CR and a review's diff
+ * does not, so code can hide as a comment. check refuses it as readMod and the
+ * mod list do, in the same words; CRLF and a CR in a .txt pass. */
+test('a .lua or .json file with a lone carriage return is refused, once, in the site\'s words', async () => {
+  const lua = { ...base, scripts: { main: 'main.lua', events: ['villager_talked'] } };
+  for (const [files, name] of [
+    [{ 'mod.json': js(lua), 'main.lua': enc("-- tidy the list\ron('villager_talked', function() return 'ran' end)\n") }, 'main.lua'],
+    [{ 'mod.json': js({ ...base, content: { messages: 'm.json' } }), 'm.json': enc('{"a":"b",\r"c":"d"}') }, 'm.json'],
+  ]) {
+    const r = await check(files);
+    assert.equal(r.ok, false, name);
+    assert.equal(gameOk(files), false, 'readMod refuses it too');
+    const mine = r.problems.filter((p) => p.file === name || p.message.includes(name));
+    assert.equal(mine.length, 1, JSON.stringify(r.problems));
+    assert.match(mine[0].message, /has a carriage return with no line feed after it\. Save it with LF or CRLF line endings/);
+  }
+  const fine = { 'mod.json': js(lua), 'main.lua': enc("-- a comment\r\non('villager_talked', function() return 'ran' end)\r\n"), 'notes.txt': enc('old\rMac') };
+  const r = await check(fine);
   assert.equal(r.ok, true, JSON.stringify(r.problems));
-  assert.ok(warned(r, 'm.json', /^is not UTF-8 text\. The game reads each bad byte as a replacement character/));
+});
+
+/* a setting's label and description take no character a reader cannot
+ * see (control, format, text-direction, blank filler), in check as in the game
+ * and the mod list; a line break stays fine in a description. */
+test('a setting label or description with a hidden character is refused, as readMod refuses it', async () => {
+  const mk = (st, tr) => ({
+    'mod.json': js({ ...base, content: tr ? { translations: 'translations/' } : undefined, settings: [{ name: 'greet', type: 'bool', default: true, label: 'Say hello', ...st }] }),
+    ...(tr ? { 'translations/de.json': js(tr) } : {}),
+  });
+  for (const [files, re] of [
+    [mk({ label: 'Say\u200bhello' }), /"label" must be 1 to 60 characters on one line, with no invisible, text-direction or control character/],
+    [mk({ label: 'Say \u202ehello' }), /"label" must be 1 to 60 characters on one line, with no invisible, text-direction or control character/],
+    [mk({ description: 'A hello\u200e here.' }), /"description" must be text of at most 200 characters, with no invisible, text-direction or control character but a line break/],
+    [mk({ description: 'A hello here.' }, { 'settings/greet/label': 'Hal\u2060lo' }), /"settings\/greet\/label" must be 1 to 60 characters on one line, with no invisible/],
+  ]) {
+    const r = await check(files);
+    assert.equal(r.ok, false, JSON.stringify(files['mod.json'].length));
+    assert.equal(gameOk(files), false, 'readMod refuses it too');
+    assert.ok(r.problems.some((p) => re.test(p.message)), JSON.stringify(r.problems));
+  }
+  const r = await check(mk({ label: 'Café ☕', description: 'A hello.\nÜber alles.' }));
+  assert.equal(r.ok, true, JSON.stringify(r.problems));
 });
 
 
@@ -364,4 +430,75 @@ test('a letter footer over 8 characters with no sender warns: the mailbox list s
   const long = await check(mk(letter({ sender: 'Lanterns!' })));
   assert.equal(long.ok, false);
   assert.ok(said(long, 'letters.json', /"sender" must be 1 to 8 plain characters/), JSON.stringify(long.problems));
+});
+
+/* ── translations of the data files, optional dependencies, a setting's scope ── */
+
+test('check reads a translations folder: the game\'s rules, by file, and its files are not "unused"', async () => {
+  const mod = (de) => ({
+    'mod.json': js({ ...base, content: { letters: 'letters.json', translations: 'translations/' } }),
+    'letters.json': js({ letters: [{ id: 'hello', header: 'Dear {player},', body: 'Hi.', footer: 'A friend' }] }),
+    'translations/de.json': js(de),
+  });
+  let r = await check(mod({ 'mod/name': 'Testmod', 'letters/hello/body': 'Hallo.' }));
+  assert.equal(r.ok, true, JSON.stringify(r.problems));
+  assert.ok(!r.warnings.some((w) => w.file === 'translations/de.json'), 'a file of the translations folder is read by the game: no "nothing points at it"');
+  r = await check(mod({ 'letters/helo/body': 'Hallo.' }));
+  assert.ok(said(r, 'translations/de.json', /"letters\/helo\/body" names no text in this mod/), JSON.stringify(r.problems));
+  r = await check(mod({ 'letters/hello/body': 'Grüße!' }));
+  assert.ok(said(r, 'translations/de.json', /must be 1 to 192 plain characters.*"ü" at character 3/), JSON.stringify(r.problems));
+  r = await check({ ...mod({}), 'translations/en.json': js({}) });
+  assert.ok(said(r, 'mod.json', /translations\/en\.json is not one of de\.json es\.json fr\.json it\.json/), JSON.stringify(r.problems));
+});
+
+test('check reads optional_depends by the game\'s rules', async () => {
+  let r = await check({ 'mod.json': js({ ...base, optional_depends: { 'bean.lib': '>=1.0.0' } }) });
+  assert.equal(r.ok, true, JSON.stringify(r.problems));
+  r = await check({ 'mod.json': js({ ...base, depends: { 'bean.lib': '*' }, optional_depends: { 'bean.lib': '*' } }) });
+  assert.ok(said(r, 'mod.json', /is in both "depends" and "optional_depends"/), JSON.stringify(r.problems));
+  r = await check({ 'mod.json': js({ ...base, optional_depends: { 'bean.lib': '^1.0.0' } }) });
+  assert.ok(said(r, 'mod.json', /"optional_depends": the range for bean\.lib must be/), JSON.stringify(r.problems));
+});
+
+test('the script scan: a client setting read in a script that also sends or gives is warned about', async () => {
+  const ctx = { listed: ['villager_talked'], permissions: ['give_item', 'show_line'], events: mods.EVENTS, commands: mods.PERMISSIONS, clientSettings: ['hello'] };
+  const src = 'on("villager_talked", function(e)\n  if settings.get("hello") then cmd.show_line("Hi") end\n  cmd.give_item(0x2800)\nend)\n';
+  const w = scanScript(src, ctx);
+  assert.equal(w.length, 1, JSON.stringify(w));
+  assert.equal(w[0].line, 2);
+  assert.match(w[0].message, /settings\.get\("hello"\) reads a client setting, and this script also calls cmd\.give_item/);
+  assert.match(w[0].message, /command-client-setting/);
+  assert.ok(!w[0].error, 'a warning: the scan cannot tell which event a line runs in');
+  /* a world setting, a script with no town command, a commented call, no client settings: nothing */
+  assert.deepEqual(scanScript(src.replace('"hello"', '"price"'), ctx), []);
+  assert.deepEqual(scanScript(src.replace('cmd.give_item(0x2800)', ''), ctx), []);
+  assert.deepEqual(scanScript('local h = settings.get("hello")\n-- cmd.give_item(0x2800)\n', ctx), []);
+  assert.deepEqual(scanScript(src, { ...ctx, clientSettings: [] }), []);
+  /* a take changes what the player has: the same warning (the engine's guard covers it too) */
+  const take = scanScript('local h = settings.get("hello")\ncmd.take_bells{ amount = 10 }\n', { ...ctx, permissions: ['take_bells'] });
+  assert.equal(take.length, 1, JSON.stringify(take));
+  assert.match(take[0].message, /also calls cmd\.take_bells/);
+  /* through check, from mod.json's own scope */
+  const r = await check({
+    'mod.json': js({ ...base, scripts: { main: 'main.lua', events: ['villager_talked'] }, permissions: ['give_item', 'show_line'],
+      settings: [{ name: 'hello', type: 'bool', label: 'Say hello', default: true, scope: 'client' }] }),
+    'main.lua': enc(src),
+  });
+  assert.equal(r.ok, true, JSON.stringify(r.problems));
+  assert.ok(warned(r, 'main.lua', /reads a client setting/), JSON.stringify(r.warnings));
+  const bad = await check({ 'mod.json': js({ ...base, settings: [{ name: 'hello', type: 'bool', label: 'Say hello', default: true, scope: 'player' }] }) });
+  assert.ok(said(bad, 'mod.json', /"scope" must be "world" or "client"/), JSON.stringify(bad.problems));
+});
+
+test('types offers the functions of a mod named in optional_depends, as for depends', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-opt-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'app'));
+    fs.mkdirSync(path.join(dir, 'weather'));
+    fs.writeFileSync(path.join(dir, 'weather', 'mod.json'), JSON.stringify({ ...base, id: 'bean.weather', exports: { today: 'The weather today.' } }));
+    const libs = findLibraries(path.join(dir, 'app'), { ...base, optional_depends: { 'bean.weather': '*' } }, {});
+    assert.deepEqual(Object.keys(libs), ['bean.weather']);
+    assert.match(exportHints(libs), /---@param mod "bean\.weather"/);
+    assert.deepEqual(findLibraries(path.join(dir, 'app'), { ...base }, {}), {});
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });

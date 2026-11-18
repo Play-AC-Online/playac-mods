@@ -76,12 +76,12 @@
 
   const QUOTA_MARGIN = 16 * MIB;
 
-  const EVENTS = ['villager_talked', 'day_started', 'item_picked_up', 'scene_entered', 'data_migrated', 'hour_changed', 'item_bought', 'item_sold', 'fish_caught', 'bug_caught', 'letter_read', 'villager_moved_in', 'visitor_arrived', 'command_finished', 'question_answered'];
+  const EVENTS = ['villager_talked', 'day_started', 'item_picked_up', 'scene_entered', 'data_migrated', 'hour_changed', 'item_bought', 'item_sold', 'fish_caught', 'bug_caught', 'letter_read', 'villager_moved_in', 'visitor_arrived', 'command_finished', 'question_answered', 'timer_fired'];
 
-  const PERMISSIONS = ['send_letter', 'give_item', 'show_line', 'ask'];
+  const PERMISSIONS = ['send_letter', 'give_item', 'show_line', 'ask', 'take_item', 'take_bells'];
   const EXTS = ['.json', '.lua', '.dds', '.png', '.txt', '.md'];
 
-  const CONTENT_KEYS = ['textures', 'messages', 'shops', 'items', 'letters', 'calendar', 'talk'];
+  const CONTENT_KEYS = ['textures', 'messages', 'shops', 'items', 'letters', 'calendar', 'talk', 'translations'];
   const BASE_CONTENT_KEYS = ['textures', 'messages', 'shops'];
   const TARGET_CONTENT_KEYS = ['letters', 'calendar', 'talk'];
 
@@ -93,7 +93,7 @@
 
   const UNBUILT_KEYS = ['game', 'save'];
 
-  const MANIFEST_KEYS = ['$schema', 'schema', 'api', 'id', 'name', 'version', 'authors', 'description', 'tags', 'scope', 'content', 'scripts', 'permissions', 'exports', 'assets_original', 'renames', 'depends', 'conflicts', 'data_version', 'settings'];
+  const MANIFEST_KEYS = ['$schema', 'schema', 'api', 'id', 'name', 'version', 'authors', 'description', 'tags', 'scope', 'content', 'scripts', 'permissions', 'exports', 'assets_original', 'renames', 'depends', 'optional_depends', 'conflicts', 'data_version', 'settings'];
 
   const SHOPS_FILE_KEYS = ['$schema', 'shops'];
   const SHOP_KEYS = ['target', 'name', 'hours', 'greeting', 'stock_line', 'stock', 'mode'];
@@ -103,10 +103,15 @@
   const LETTER_KEYS = ['id', 'header', 'body', 'footer', 'sender', 'item', 'paper'];
   const CALENDAR_FILE_KEYS = ['$schema', 'days'];
   const CALENDAR_DAY_KEYS = ['id', 'date', 'board', 'talk', 'letter'];
+  const CALENDAR_DATE_KEYS = ['month', 'day', 'week', 'weekday'];
   const TALK_FILE_KEYS = ['$schema', 'pools'];
   const TALK_POOL_KEYS = ['personality', 'villager', 'chance', 'lines'];
 
   const LANGS = ['en', 'de', 'es', 'fr', 'it'];
+
+  const TRANSLATION_LANGS = ['de', 'es', 'fr', 'it'];
+
+  const SETTING_SCOPES = ['world', 'client'];
   const SCRIPT_KEYS = ['main', 'events'];
   const ID_RE = /^[a-z0-9][a-z0-9-]{0,31}\.[a-z0-9][a-z0-9-]{0,47}$/;
   const VERSION_RE = /^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$/;
@@ -131,9 +136,13 @@
 
   const ERROR_DOCS = "https://playaconline.com/modding/errors/";
   const ERROR_CODES = [
+    ["translations-folder", [new RegExp("\"?content\\.translations\"?: .* is not one of de\\.json")]],
+    ["translations-not-object", [new RegExp("^translations/[a-z]{2}: the file is not a JSON object"), new RegExp("a translations file must be a JSON object"), new RegExp("^translations: a file is not a JSON object")]],
+    ["translations-key", [new RegExp("names no text in this mod"), new RegExp("^translations: a key names no text")]],
+    ["translations-text", [new RegExp("^translations/[a-z]{2}: \"[^\"]*\" must be "), new RegExp(": the translation \"[^\"]*\" "), new RegExp("^translations: a text breaks the rule")]],
     ["visit-lend-wont-load", [new RegExp("^the friend.s mods (would not|did not) all load"), new RegExp("^a lent mod is missing from this tab")]],
     ["zip-too-big", [new RegExp("the ZIP is over 16 MB"), new RegExp("^The (ZIP|zip) is larger than \\d+ MB")]],
-    ["zip-unreadable", [new RegExp("not a ZIP the game can open"), new RegExp("that is not a file the game can read"), new RegExp("^This is not a ZIP file we can read"), new RegExp("^The upload is empty"), new RegExp("can't be read from the ZIP"), new RegExp("not the size its ZIP header says"), new RegExp("^The upload did not arrive whole")]],
+    ["zip-unreadable", [new RegExp("not a ZIP the game can (open|read)"), new RegExp("that is not a file the game can read"), new RegExp("^This is not a ZIP file we can read"), new RegExp("^The upload is empty"), new RegExp("can't be read from the ZIP"), new RegExp("not the size its ZIP header says"), new RegExp("^The upload did not arrive whole")]],
     ["browser-no-zip", [new RegExp("ZIP support is unavailable")]],
     ["zip-no-manifest", [new RegExp("no mod\\.json at the top")]],
     ["zip-too-many-files", [new RegExp("^more than \\d+ files"), new RegExp("^The ZIP holds \\d+ files, more than"), new RegExp("^The ZIP has more than \\d+ entries")]],
@@ -168,8 +177,8 @@
     ["shops-need-world", [new RegExp("changes what visitors see, so \"scope\" must be \"world\""), new RegExp("content\\.shops changes what visitors see"), new RegExp("^shops change what visitors see")]],
     ["content-not-object", [new RegExp("^\"content\" must be an object"), new RegExp("^content must be an object")]],
     ["content-unknown", [new RegExp("^\"content\\.[^\"]*\" is not something a mod can add yet"), new RegExp("^content\\.\\S+ is not something a mod can add yet")]],
-    ["content-path", [new RegExp("^\"content\\.[^\"]*\" must be a path inside the mod"), new RegExp("^content\\.\\S+ must be a path inside the mod"), new RegExp("^(textures|messages|shops|items|letters|calendar|talk) path is not inside the mod"), new RegExp("^content: a value must be a path inside the mod")]],
-    ["content-missing", [new RegExp("^\"content\\.[^\"]*\" names .*, which is not"), new RegExp("^content\\.\\S+ names \".*\", which is not"), new RegExp("^cannot open ")]],
+    ["content-path", [new RegExp("^\"content\\.[^\"]*\" must be a path inside the mod"), new RegExp("^content\\.\\S+ must be a path inside the mod"), new RegExp("^(textures|messages|shops|items|letters|calendar|talk|translations) path is not inside the mod"), new RegExp("^content: a value must be a path inside the mod")]],
+    ["content-missing", [new RegExp("^\"content\\.[^\"]*\" names .*, which is not"), new RegExp("^content\\.\\S+ names \".*\", which is not"), new RegExp("^cannot open "), new RegExp("^translations: the folder is not in the mod")]],
     ["scripts-not-object", [new RegExp("^\"scripts\" must be an object"), new RegExp("^scripts must be an object")]],
     ["scripts-unknown-key", [new RegExp("is not a scripts setting")]],
     ["scripts-main-missing", [new RegExp("^\"scripts\\.main\" names .*, which is not in the mod"), new RegExp("^scripts\\.main names \".*\", which is not in the ZIP"), new RegExp("^scripts\\.main could not be read")]],
@@ -236,11 +245,11 @@
     ["shop-item", [new RegExp("\"item\" must be \"0x\" and 4 hex"), new RegExp("'s stock entries must be objects with an item"), new RegExp("'s stock item .* must be a string like"), new RegExp("^shops: a stock item must be")]],
     ["shop-price", [new RegExp("\"price\" must be a whole number"), new RegExp("'s price for .* must be a whole number"), new RegExp("^shops: a price must be")]],
     ["shop-price-floor", [new RegExp("is under the floor for")]],
-    ["manifest-depends", [new RegExp(" must be an object of mod id to version range"), new RegExp(" may name at most \\d+ mods"), new RegExp("\" is not a mod id"), new RegExp(" names the mod itself$"), new RegExp(" names the mod itself\\."), new RegExp("^\"?(depends|conflicts)\"? must be an object of mod id"), new RegExp("^\"?(depends|conflicts)\"? may name at most"), new RegExp("^\"?(depends|conflicts)\"?: \".*\" is not a mod id"), new RegExp("^\"?(depends|conflicts)\"? names the mod itself"), new RegExp("is in both \"?depends\"? and \"?conflicts\"?")]],
+    ["manifest-depends", [new RegExp(" must be an object of mod id to version range"), new RegExp(" may name at most \\d+ mods"), new RegExp("\" is not a mod id"), new RegExp(" names the mod itself$"), new RegExp(" names the mod itself\\."), new RegExp("^\"?(depends|optional_depends|conflicts)\"? must be an object of mod id"), new RegExp("^\"?(depends|optional_depends|conflicts)\"? may name at most"), new RegExp("^\"?(depends|optional_depends|conflicts)\"?: \".*\" is not a mod id"), new RegExp("^\"?(depends|optional_depends|conflicts)\"? names the mod itself"), new RegExp("\" is in both \"?[a-z_]+\"? and \"?[a-z_]+\"?\\.?$")]],
     ["manifest-depends-range", [new RegExp("the range for .* must be \"\\*\" or up to 4")]],
     ["manifest-data-version", [new RegExp("^\"?data_version\"? must be a whole number"), new RegExp("which needs a \"?data_version\"?")]],
     ["manifest-setting-value", [new RegExp(" default must be true or false"), new RegExp(" min and max must be whole numbers from"), new RegExp(" default must be a whole number from min to max"), new RegExp(" choices must list 2 to 16 different texts"), new RegExp(" default must be one of its choices"), new RegExp(" max_length must be a whole number from 1 to 200"), new RegExp(" default must be text of at most max_length"), new RegExp("^settings: \".*\" \"?(default|min|choices|max_length)\"?( and \"?max\"?)? must")]],
-    ["manifest-settings", [new RegExp(" is declared twice"), new RegExp(" type must be one of bool, number, choice, text"), new RegExp(", which a [a-z]+ setting does not take"), new RegExp(" label must be 1 to 60 characters"), new RegExp(" description must be text of at most 200 characters"), new RegExp("^\"?settings\"? must be a list of at most"), new RegExp("^settings: setting \\d+ "), new RegExp("^settings: \".*\" (is declared twice|\"?type\"? must be one of|has \".*\", which a|\"?label\"? must be|\"?description\"? must be)")]],
+    ["manifest-settings", [new RegExp(" is declared twice"), new RegExp(" type must be one of bool, number, choice, text"), new RegExp(", which a [a-z]+ setting does not take"), new RegExp(" label must be 1 to 60 characters"), new RegExp(" description must be text of at most 200 characters"), new RegExp(" \"?scope\"? must be \"world\" or \"client\""), new RegExp("^\"?settings\"? must be a list of at most"), new RegExp("^settings: setting \\d+ "), new RegExp("^settings: \".*\" (is declared twice|\"?type\"? must be one of|has \".*\", which a|\"?label\"? must be|\"?description\"? must be)")]],
     ["messages-translations", [new RegExp("\"?content\\.messages\"?: .* is not one of en\\.json"), new RegExp("names a folder without en\\.json"), new RegExp("is not in en\\.json \\(a translation")]],
     ["setting-refused", [new RegExp(" must be on or off$"), new RegExp(" must be a whole number from -?\\d+ to -?\\d+$"), new RegExp(" must be one of: "), new RegExp(" characters, on one line$"), new RegExp(" has no setting \"")]],
     ["boot-dependency", [new RegExp("^needs .*, which (is not installed|is switched off|did not load)$"), new RegExp("^needs .* is installed$"), new RegExp("is in a dependency cycle"), new RegExp("^cannot run with .*: switch one of them off")]],
@@ -250,7 +259,7 @@
     ["messages-too-many", [new RegExp("at most 256 lines per mod"), new RegExp("has \\d+ lines, more than"), new RegExp("^messages: a mod has at most")]],
     ["messages-key", [new RegExp("^messages(/[a-z]{2})?: key .* must be 1 to 48"), new RegExp(": the line id \".*\" must be"), new RegExp("^messages: a key must be")]],
     ["messages-text", [new RegExp("^messages(/[a-z]{2})?: \".*\" must be text of 1 to 400"), new RegExp(": the line \".*\" must be text of 1 to"), new RegExp("^messages: a line must be text")]],
-    ["messages-out-of-memory", [new RegExp("^messages: out of memory")]],
+    ["messages-out-of-memory", [new RegExp("^messages: out of memory"), new RegExp("^translations: out of memory")]],
     ["texture-copied", [new RegExp("is an unchanged copy of a texture from")]],
     ["texture-mipmaps", [new RegExp("mip levels\\. Save it with one level"), new RegExp("bytes after its image")]],
     ["texture-size", [new RegExp("A texture is 1 to \\d+ pixels a side"), new RegExp("A PNG in a mod is at most"), new RegExp("\" is a \\d+x\\d+ \\S+\\.$"), new RegExp("^PNG texture is over \\d+x\\d+")]],
@@ -289,6 +298,11 @@
     ["mods-size-cap", [new RegExp("more than the \\d+ MB"), new RegExp("already fill the \\d+ MB"), new RegExp("^Your mods would unpack to more than")]],
     ["mod-removed", [new RegExp("^Removed by the moderators")]],
     ["boot-failed", [new RegExp("^the stored mod is gone"), new RegExp("^the stored mod does not match its id"), new RegExp("^could not be unpacked"), new RegExp("the mod list could not be (finished|written)")]],
+    ["timer-no-town", [new RegExp("timer\\.after refused: no town is loaded")]],
+    ["timer-no-clock", [new RegExp("timer\\.after refused: the game clock is not set")]],
+    ["timer-limit", [new RegExp("timer\\.after refused: this mod already has \\d+ timers waiting")]],
+    ["timer-store-full", [new RegExp("timer\\.after refused: the timer does not fit")]],
+    ["timer-args", [new RegExp("timer\\.after refused: ")]],
     ["script-budget", [new RegExp("took too long"), new RegExp(" \\(in a call to [^)]*\\)$")]],
     ["script-slow", [new RegExp("kept the game waiting")]],
     ["script-memory", [new RegExp("^out of memory"), new RegExp("not enough memory")]],
@@ -296,25 +310,36 @@
     ["script-on-late", [new RegExp("handlers can only be added while the script loads")]],
     ["script-on-too-many", [new RegExp("on\\(\\): at most \\d+ handlers")]],
     ["script-store-no-town", [new RegExp("no town is loaded yet")]],
+    ["script-store-no-player", [new RegExp("no player is in the game yet")]],
     ["remote-not-exported", [new RegExp("is not in mod\\.json \"exports\"")]],
     ["script-remote", [new RegExp("remote\\.(add|call|has): "), new RegExp("remote\\.call "), new RegExp("it offers no function"), new RegExp("can be passed, not a"), new RegExp("cannot be passed$"), new RegExp("a table key must be a string"), new RegExp("values in one call$"), new RegExp("KB of data in one call$"), new RegExp("^its script failed$")]],
     ["script-store", [new RegExp("store\\.set: "), new RegExp("store\\.client\\.set: "), new RegExp("store\\.player\\.set: "), new RegExp("a key cannot start with a control character"), new RegExp("only strings, numbers and booleans can be saved"), new RegExp("key longer than \\d+ bytes"), new RegExp("a key cannot hold a zero byte"), new RegExp("value longer than \\d+ bytes"), new RegExp("a value cannot hold a zero byte"), new RegExp("NaN cannot be saved"), new RegExp("the store would be over"), new RegExp("the store could not be written")]],
     ["script-sandbox", [new RegExp("__gc is not allowed"), new RegExp("__len metamethod are not supported"), new RegExp("is not allowed in mod scripts"), new RegExp("is not available: use rng\\(\\)")]],
     ["script-state-failed", [new RegExp("Lua state failed"), new RegExp("^script closed$"), new RegExp("raised an error that is not a string")]],
-    ["script-syntax", [new RegExp("'[^']+' expected"), new RegExp("unexpected symbol near"), new RegExp("near <eof>"), new RegExp("unfinished (long )?(string|comment)"), new RegExp("malformed number near"), new RegExp("syntax error near"), new RegExp("invalid escape sequence"), new RegExp("expected \\(to close")]],
+    ["script-syntax", [new RegExp("'[^']+' expected"), new RegExp("unexpected symbol near"), new RegExp("near <eof>"), new RegExp("unfinished (long )?(string|comment)"), new RegExp("malformed number near"), new RegExp("syntax error near"), new RegExp("invalid escape sequence"), new RegExp("expected \\(to close"), new RegExp("<name> expected"), new RegExp("function arguments expected"), new RegExp("hexadecimal digit expected"), new RegExp("break outside a loop"), new RegExp("no visible label"), new RegExp("label '[^']+' already defined"), new RegExp("jumps into the scope of local"), new RegExp("attempt to assign to const variable"), new RegExp("outside a vararg function"), new RegExp("ambiguous syntax"), new RegExp("unknown attribute"), new RegExp("multiple to-be-closed variables"), new RegExp("decimal escape too large"), new RegExp("UTF-8 value too large"), new RegExp("invalid long string delimiter")]],
     ["command-permission", [new RegExp("is not in this mod's \"permissions\"")]],
     ["command-event-cap", [new RegExp("commands in one event")]],
     ["command-queue-full", [new RegExp("commands waiting"), new RegExp("command queue is full")]],
     ["command-day-cap", [new RegExp("a day for each mod")]],
-    ["command-item", [new RegExp("^(give_item|send_letter): item "), new RegExp("can only give its own new items"), new RegExp("no item by that id in this mod's items file"), new RegExp("item must be an item number"), new RegExp("can only send its own letters\\.json letters"), new RegExp("no letter by that id in this mod's letters file")]],
-    ["command-args", [new RegExp("^(send_letter|give_item|show_line|ask): (takes a table|text must|from must|paper must|choices must|each choice must|the text does not fit|template must|template takes no)"), new RegExp("item: that item id is too long")]],
+    ["command-item", [new RegExp("^(?:\\w+: cmd\\.\\w+ refused: )?(give_item|send_letter|take_item): item 0x"), new RegExp("can only (give|take) its own new items"), new RegExp("no item by that id in this mod's items file"), new RegExp("can only send its own letters\\.json letters"), new RegExp("no letter by that id in this mod's letters file"), new RegExp("the item is not this town's to give"), new RegExp("the letter is gone")]],
+    ["command-args", [new RegExp("^(?:\\w+: cmd\\.\\w+ refused: )?(send_letter|give_item|show_line|ask|take_item|take_bells): (takes a table|text must|from must|paper must|choices must|each choice must|the text does not fit|template must|template takes no|item must be an item number|count must|amount must)"), new RegExp("item: that item id is too long")]],
     ["command-city", [new RegExp("commands are switched off in The City")]],
+    ["command-client-setting", [new RegExp("this event read the client setting")]],
+    ["dependency-absent", [new RegExp("^[a-z0-9.-]+ is not loaded$"), new RegExp("^[a-z0-9.-]+ is loaded, but it has no running script$")]],
+    ["dependency-version", [new RegExp("is loaded, but its version is outside the range this mod names$")]],
+    ["dependency-undeclared", [new RegExp("is not in this mod's \"depends\" or \"optional_depends\"$")]],
     ["command-visiting", [new RegExp("only the town owner's game can change the town")]],
     ["command-lent-home", [new RegExp("lent for a visit acts only in their town")]],
     ["command-no-room", [new RegExp("post office are (both|all) full"), new RegExp("the pockets are full \\(a new item")]],
-    ["command-not-shown", [new RegExp("cannot be drawn in the window"), new RegExp("the item is not this town's to give"), new RegExp("the mod's script (is not running|stopped)"), new RegExp("the letter is gone")]],
+    ["command-not-shown", [new RegExp("cannot be drawn in the window")]],
+    ["command-not-held", [new RegExp("the pockets do not hold \\d+ of that item"), new RegExp("the wallet holds fewer than \\d+ Bells"), new RegExp("the pockets no longer hold those items"), new RegExp("the wallet no longer holds that many Bells")]],
+    ["command-declined", [new RegExp("the player said no, nothing was taken")]],
     ["upload-name-word", [new RegExp("^The mod's name has a word the site does not allow")]],
+    ["upload-translation-word", [new RegExp("^[^ ]+: \"mod/name\" has a word the site does not allow")]],
     ["upload-author-word", [new RegExp("^An author name has a word the site does not allow")]],
+    ["upload-not-text", [new RegExp("is not text\\. A \\.txt, \\.md or \\.lua file must be")]],
+    ["file-lone-cr", [new RegExp("has a carriage return with no line feed after it")]],
+    ["upload-text-too-much", [new RegExp("^The text files of the mod add up to more than")]],
     ["upload-sign-in", [new RegExp("^Sign in to share a mod")]],
     ["upload-publisher-terms", [new RegExp("accept the mod rules before you share")]],
     ["upload-under-13", [new RegExp("^Sharing mods is for players 13 or older")]],
@@ -331,15 +356,17 @@
     ["upload-refused", [new RegExp("^This upload can't be accepted")]],
     ["upload-closed", [new RegExp("^Sharing mods is not open yet")]],
     ["upload-paused", [new RegExp("^New mod uploads are paused")]],
-    ["upload-two-factor", [new RegExp("^Turn on two-factor sign-in"), new RegExp("^Enter the code from your authenticator app"), new RegExp("Sharing mods is switched off (on this server )?for now"), new RegExp("^Two-factor sign-in is not available"), new RegExp("^Too many wrong codes in a row")]],
+    ["upload-two-factor", [new RegExp("^Turn on two-factor sign-in"), new RegExp("^Enter the code from your authenticator app"), new RegExp("Sharing mods is switched off (on this server )?for now"), new RegExp("^Two-factor sign-in is not available"), new RegExp("^Too many wrong codes in a row"), new RegExp("^That code is not right, or it was used already")]],
     ["upload-prefix-taken", [new RegExp("before the dot belongs to another player")]],
     ["upload-content-taken-down", [new RegExp("were removed from the mod list, so they")]],
     ["upload-too-many-attempts", [new RegExp("^You can try \\d+ uploads an hour"), new RegExp("a lot of upload tries for one hour"), new RegExp("hourly limit for upload tries")]],
     ["upload-too-many-images", [new RegExp("different pictures. Split it"), new RegExp("pictures add up to more than")]],
     ["import-bad-source", [new RegExp("github.com/<owner>/<repo>@<tag>"), new RegExp("^That is not a GitHub owner")]],
-    ["mod-conflict", [new RegExp("^A moderator took this version out of the list"), new RegExp("Another decision on this version came first")]],
+    ["mod-conflict", [new RegExp("^A moderator took this version out of the list"), new RegExp("Another decision on this version came first"), new RegExp("^The moderators are looking at this version")]],
+    ["cli-sign-in-code", [new RegExp("^No sign-in is waiting with that code"), new RegExp("^That code was already approved or denied")]],
+    ["cli-token-scope", [new RegExp("^A playac-mod sign-in can only upload mods")]],
     ["status-update-available", [new RegExp("^Update available")]],
-    ["status-yanked", [new RegExp("^No longer offered in the mod list")]],
+    ["status-yanked", [new RegExp("^This version was withdrawn from the mod list")]],
     ["status-mods-switched-off", [new RegExp("^Mods are switched off for everyone")]],
     ["visit-modset-mismatch", [new RegExp("World mods don.t match"), new RegExp("Visits need the same World mods")]],
     ["visit-lend-failed", [new RegExp("does not match the friend.s copy"), new RegExp("is a different mod$"), new RegExp("do not add up to their town.s mod set"), new RegExp("does not need to be lent for a visit"), new RegExp("friend.s mod list could not be read"), new RegExp("cannot keep a friend.s mods for one visit"), new RegExp("friend.s settings for .* are not ones that mod takes"), new RegExp("^Couldn.t load .* mods for this visit"), new RegExp("^Invalid mod list")]],
@@ -387,8 +414,10 @@
   }
 
   function closestKey(key, known) {
-    const low = key.toLowerCase();
-    for (const k of known) if (k.toLowerCase() === low) return k;
+
+    const fold = function (s) { return s.replace(/[A-Z]/g, function (c) { return c.toLowerCase(); }); };
+    const low = fold(key);
+    for (const k of known) if (fold(k) === low) return k;
     const kc = Array.from(key);
     let best = '';
     let bestD = Infinity;
@@ -451,8 +480,14 @@
             if (!/^[0-9a-fA-F]{4}$/.test(h)) fail();
             const cp = parseInt(h, 16);
             if (cp === 0) fail('a string holds a NUL character (\\u0000)');
-            out += String.fromCharCode(cp);
             i += 4;
+
+            if (cp >= 0xD800 && cp <= 0xDBFF) {
+              const lo = text[i] === '\\' && text[i + 1] === 'u' && /^[0-9a-fA-F]{4}$/.test(text.slice(i + 2, i + 6)) ? parseInt(text.slice(i + 2, i + 6), 16) : 0;
+              if (lo >= 0xDC00 && lo <= 0xDFFF) { out += String.fromCharCode(cp, lo); i += 6; }
+              else out += '\uFFFD';
+            } else if (cp >= 0xDC00 && cp <= 0xDFFF) out += '\uFFFD';
+            else out += String.fromCharCode(cp);
           } else fail();
           start = i;
           continue;
@@ -528,7 +563,7 @@
 
   function decodeUtf8(bytes) {
 
-    return new TextDecoder('utf-8', { ignoreBOM: true }).decode(bytes);
+    return new TextDecoder('utf-8', { ignoreBOM: true, fatal: true }).decode(bytes);
   }
 
   function parseFile(name, bytes) {
@@ -558,8 +593,6 @@
     return '';
   }
 
-  function segmentOk(s) { return pathProblem(s) === '' && s.indexOf('/') < 0; }
-
   function normalizeEntries(raw) {
     let names = Object.keys(raw).filter(function (n) { return !n.endsWith('/') && !isJunk(n); }).sort();
     let entries = {};
@@ -568,7 +601,8 @@
     if (names.indexOf('mod.json') < 0) {
       const slash = names.length ? names[0].indexOf('/') : -1;
       const top = slash > 0 ? names[0].slice(0, slash + 1) : '';
-      if (top && segmentOk(top.slice(0, -1)) &&
+
+      if (top && top !== './' && top !== '../' &&
           names.every(function (n) { return n.startsWith(top); }) && names.indexOf(top + 'mod.json') >= 0) {
         const out = {};
         for (const n of names) out[n.slice(top.length)] = entries[n];
@@ -606,9 +640,24 @@
       if (n === 'mod.json' && size > MAX_MANIFEST) problems.push('mod.json is over ' + (MAX_MANIFEST / KIB) + ' KB');
       else if (ext === '.json' && n !== 'mod.json' && size > MAX_JSON) problems.push(JSON.stringify(n) + ' is over ' + (MAX_JSON / KIB) + ' KB');
       else if (ext === '.lua' && size > MAX_LUA) problems.push(JSON.stringify(n) + ' is over ' + (MAX_LUA / KIB) + ' KB');
+
+      else if ((ext === '.lua' || ext === '.json') && hasLoneCR(entries[n])) {
+        problems.push(JSON.stringify(n) + ' has a carriage return with no line feed after it. Save it with LF or CRLF line endings');
+      }
     }
     if (total > MAX_UNPACKED) problems.push('it unpacks to more than ' + (MAX_UNPACKED / MIB) + ' MB');
     return { entries: entries, names: names, problems: problems };
+  }
+
+  const HIDDEN_LINE_RE = /[\u0000-\u001f\u007f-\u009f\u2028\u2029\u115f\u1160\u3164\uffa0\u2800\p{Cf}]/u;
+  const HIDDEN_TEXT_RE = /[\u0000-\u0009\u000b-\u001f\u007f-\u009f\u2028\u2029\u115f\u1160\u3164\uffa0\u2800\p{Cf}]/u;
+  const HIDDEN_LINE_RULE = 'on one line, with no invisible, text-direction or control character';
+  const HIDDEN_TEXT_RULE = 'with no invisible, text-direction or control character but a line break';
+  function hiddenChar(s, lines) { return (lines ? HIDDEN_TEXT_RE : HIDDEN_LINE_RE).test(s); }
+
+  function hasLoneCR(b) {
+    for (let i = 0; i < b.length; i++) if (b[i] === 13 && b[i + 1] !== 10) return true;
+    return false;
   }
 
   function apiStatus(m) {
@@ -742,7 +791,7 @@
     choice: ['default', 'choices'],
     text: ['default', 'max_length']
   };
-  const SETTING_COMMON = ['name', 'type', 'label', 'description'];
+  const SETTING_COMMON = ['name', 'type', 'label', 'description', 'scope'];
   const RANGE_CMP_RE = /^(>=|<=|>|<|=)?((?:0|[1-9][0-9]{0,8})\.(?:0|[1-9][0-9]{0,8})\.(?:0|[1-9][0-9]{0,8}))$/;
 
   function compareVersions(a, b) {
@@ -803,9 +852,17 @@
     }
     if (typeof s.label !== 'string' || cpLen(s.label.trim()) < 1 || cpLen(s.label.trim()) > SETTING_LABEL_CHARS) {
       errs.push(at + ' "label" must be 1 to ' + SETTING_LABEL_CHARS + ' characters');
+    } else if (hiddenChar(s.label.trim(), false)) {
+      errs.push(at + ' "label" must be 1 to ' + SETTING_LABEL_CHARS + ' characters ' + HIDDEN_LINE_RULE);
     }
     if (has(s, 'description') && (typeof s.description !== 'string' || cpLen(s.description) > SETTING_DESC_CHARS)) {
       errs.push(at + ' "description" must be text of at most ' + SETTING_DESC_CHARS + ' characters');
+    } else if (has(s, 'description') && hiddenChar(s.description, true)) {
+      errs.push(at + ' "description" must be text of at most ' + SETTING_DESC_CHARS + ' characters, ' + HIDDEN_TEXT_RULE);
+    }
+
+    if (has(s, 'scope') && SETTING_SCOPES.indexOf(s.scope) < 0) {
+      errs.push(at + ' "scope" must be "world" or "client"');
     }
     if (s.type === 'bool') {
       if (typeof s.default !== 'boolean') errs.push(at + ' "default" must be true or false');
@@ -860,10 +917,15 @@
   }
 
   function dataRules(m, names) {
-    let errs = linkProblems(m, 'depends').concat(linkProblems(m, 'conflicts'));
-    if (isObj(m.depends) && isObj(m.conflicts)) {
-      for (const id of Object.keys(m.depends)) {
-        if (has(m.conflicts, id)) errs.push('"' + id + '" is in both "depends" and "conflicts"');
+    let errs = linkProblems(m, 'depends').concat(linkProblems(m, 'optional_depends'), linkProblems(m, 'conflicts'));
+
+    const LINKS = ['depends', 'optional_depends', 'conflicts'];
+    for (let a = 0; a < LINKS.length; a++) {
+      for (let b = a + 1; b < LINKS.length; b++) {
+        if (!isObj(m[LINKS[a]]) || !isObj(m[LINKS[b]])) continue;
+        for (const id of Object.keys(m[LINKS[a]])) {
+          if (has(m[LINKS[b]], id)) errs.push('"' + id + '" is in both "' + LINKS[a] + '" and "' + LINKS[b] + '"');
+        }
       }
     }
     if (has(m, 'data_version') && !wholeIn(m.data_version, 1, DATA_VERSION_MAX)) {
@@ -979,13 +1041,23 @@
   }
 
   async function settingsSha(manifest, values) {
-    const decl = declaredSettings(manifest);
-    if (!decl.length) return '';
-    const eff = effectiveSettings(manifest, values);
+    const eff = worldSettings(manifest, values);
     const names = Object.keys(eff).sort(function (a, b) { return a < b ? -1 : a > b ? 1 : 0; });
+    if (!names.length) return '';
     let text = '';
     for (const n of names) text += n + '=' + String(eff[n]) + '\n';
     return sha256Hex(new TextEncoder().encode(text));
+  }
+
+  function settingScope(s) { return isObj(s) && s.scope === 'client' ? 'client' : 'world'; }
+
+  function worldSettings(manifest, values) {
+    const eff = effectiveSettings(manifest, values);
+    const out = {};
+    for (const s of declaredSettings(manifest)) {
+      if (isObj(s) && typeof s.name === 'string' && settingScope(s) === 'world' && has(eff, s.name)) out[s.name] = eff[s.name];
+    }
+    return out;
   }
 
   function resolveLoad(rows) {
@@ -1058,16 +1130,61 @@
     const order = [];
     const placed = new Set();
     let left = live.slice();
+    const loading = new Set(live.map(function (r) { return r.id; }));
+    const optional = {};
+    const wants = new Map();
+
+    const pinAt = new Map();
+    const pinPrev = new Map();
+    let lastPin = null;
+    for (const r of live) {
+      if (!r.pinned) continue;
+      pinAt.set(r.id, pinAt.size);
+      if (lastPin !== null) pinPrev.set(r.id, lastPin);
+      lastPin = r.id;
+    }
+    for (const r of live) {
+      const o = r.manifest && isObj(r.manifest.optional_depends) ? r.manifest.optional_depends : {};
+      const st = {};
+      const present = [];
+      for (const id of Object.keys(o)) {
+        const t = byId.get(id);
+        if (!t || !loading.has(id)) st[id] = 'absent';
+        else if (!inRange(t.manifest && t.manifest.version, o[id])) st[id] = 'range';
+        else if (pinAt.has(r.id) && pinAt.has(id)) st[id] = pinAt.get(id) < pinAt.get(r.id) ? 'present' : 'late';
+        else { st[id] = 'present'; present.push(id); }
+      }
+      if (Object.keys(st).length) optional[r.id] = st;
+      wants.set(r.id, present);
+    }
+    const needed = function (r) {
+      return Object.keys(deps(r)).every(function (id) { return placed.has(id); }) &&
+        (!pinPrev.has(r.id) || placed.has(pinPrev.get(r.id)));
+    };
     while (left.length) {
-      const next = left.find(function (r) { return Object.keys(deps(r)).every(function (id) { return placed.has(id); }); });
-      if (!next) break;
+      let next = left.find(function (r) { return needed(r) && wants.get(r.id).every(function (id) { return placed.has(id); }); });
+      if (!next) {
+
+        next = left.find(needed);
+        if (!next) break;
+        for (const id of wants.get(next.id)) if (!placed.has(id)) optional[next.id][id] = 'late';
+      }
       order.push(next);
       placed.add(next.id);
       left = left.filter(function (r) { return r !== next; });
     }
-    for (const r of left) why.set(r.id, 'is in a dependency cycle (' + left.map(function (x) { return x.id; }).join(', ') + '): none of them can load');
+    for (const r of left) {
+      why.set(r.id, 'is in a dependency cycle (' + left.map(function (x) { return x.id; }).join(', ') + '): none of them can load');
+      delete optional[r.id];
+    }
+
+    for (const id of Object.keys(optional)) {
+      for (const dep of Object.keys(optional[id])) {
+        if ((optional[id][dep] === 'late' || optional[id][dep] === 'present') && !placed.has(dep)) optional[id][dep] = 'absent';
+      }
+    }
     for (const r of on) if (why.has(r.id)) skip.push({ id: r.id, error: why.get(r.id) });
-    return { order: order, skip: skip };
+    return { order: order, skip: skip, optional: optional };
   }
 
   function modItemBaseOk(v) {
@@ -1122,7 +1239,162 @@
       if (typeof p !== 'string' || !p.length || pathProblem(p)) errs.push(what + ' must be a path inside the mod');
       else if (names.indexOf(p) < 0) errs.push(what + ' names ' + p + ', which is not in the mod');
     }
+
+    if (has(m.content, 'translations')) {
+      delete base.content.translations;
+      errs.push.apply(errs, translationFolderProblems(m, names));
+    }
     return { base: base, errs: errs };
+  }
+
+  function translationFiles(m, names) {
+    const p = m && m.content && m.content.translations;
+    if (typeof p !== 'string' || !p.length) return [];
+    const dir = p.replace(/\/$/, '') + '/';
+    return names.filter(function (n) { return n.startsWith(dir); })
+      .map(function (n) { return { lang: n.slice(dir.length).replace(/\.json$/, ''), path: n }; });
+  }
+
+  function translationFolderProblems(m, names) {
+    const p = m.content.translations;
+    const what = '"content.translations"';
+    if (typeof p !== 'string' || !p.length || pathProblem(p.replace(/\/$/, ''))) return [what + ' must be a path inside the mod'];
+    const files = translationFiles(m, names);
+    if (!files.length) return [what + ' names ' + p + ', which is not a folder with files in the mod'];
+    const errs = [];
+    for (const f of files) {
+      if (TRANSLATION_LANGS.indexOf(f.lang) < 0 || f.path.slice(-5) !== '.json') {
+        errs.push(what + ': ' + f.path + ' is not one of ' + TRANSLATION_LANGS.map(function (l) { return l + '.json'; }).join(' ') +
+          ' (English is the text in the mod\'s own files)');
+      }
+    }
+    return errs;
+  }
+
+  const TR_NUMBER_RE = /^[1-9][0-9]{0,3}$/;
+
+  function translationRule(key, m, docs) {
+    const parts = typeof key === 'string' ? key.split('/') : [];
+    const lines = function (max, newlines) {
+      return function (v) {
+        return typeof v === 'string' && cpLen(v) >= 1 && cpLen(v) <= max && v.split('\n').length - 1 <= newlines ? ''
+          : 'must be 1 to ' + max + ' characters with at most ' + newlines + ' line breaks';
+      };
+    };
+    const paper = function (v) {
+      return paperOk(v) ? '' : 'must be 1 to ' + PAPER_BYTES + ' plain characters on at most ' + PAPER_LINES + ' lines' + paperCharNote(v);
+    };
+    const plain = function (max) {
+      return function (v) { const n = plainLen(v, false, false); return n >= 1 && n <= max ? '' : 'must be 1 to ' + max + ' plain characters'; };
+    };
+    const trimmed = function (max) {
+      return function (v) {
+        return typeof v === 'string' && cpLen(v.trim()) >= 1 && cpLen(v.trim()) <= max && !hasControl(v.trim()) ? '' : 'must be 1 to ' + max + ' characters';
+      };
+    };
+    const text = function (max) {
+      return function (v) { return typeof v === 'string' && cpLen(v) >= 1 && cpLen(v) <= max ? '' : 'must be text of 1 to ' + max + ' characters'; };
+    };
+    const list = function (doc, k) { return isObj(doc) && Array.isArray(doc[k]) ? doc[k] : []; };
+    const byId = function (l, id) { return l.filter(function (e) { return isObj(e) && e.id === id; })[0]; };
+    const nth = function (l, n) { return TR_NUMBER_RE.test(n) && Array.isArray(l) ? l[Number(n) - 1] : undefined; };
+    if (parts[0] === 'mod' && parts.length === 2) {
+      if (parts[1] === 'name' && typeof m.name === 'string') return trimmed(NAME_CHARS);
+      if (parts[1] === 'description' && typeof m.description === 'string' && m.description.length) return text(DESCRIPTION_CHARS);
+      return null;
+    }
+    if (parts[0] === 'settings' && parts.length === 3) {
+      const st = declaredSettings(m).filter(function (x) { return isObj(x) && x.name === parts[1]; })[0];
+      if (!st) return null;
+
+      if (parts[2] === 'label') {
+        return function (v) {
+          return trimmed(SETTING_LABEL_CHARS)(v) === '' && !hiddenChar(v.trim(), false) ? ''
+            : 'must be 1 to ' + SETTING_LABEL_CHARS + ' characters ' + HIDDEN_LINE_RULE;
+        };
+      }
+      if (parts[2] === 'description' && typeof st.description === 'string' && st.description.length) {
+        return function (v) {
+          return text(SETTING_DESC_CHARS)(v) === '' && !hiddenChar(v, true) ? ''
+            : 'must be text of 1 to ' + SETTING_DESC_CHARS + ' characters, ' + HIDDEN_TEXT_RULE;
+        };
+      }
+      return null;
+    }
+    if (parts[0] === 'items' && parts.length === 3 && parts[2] === 'name') {
+      if (!byId(list(docs.items, 'items'), parts[1])) return null;
+      return function (v) {
+        return typeof v === 'string' && MOD_ITEM_NAME_RE.test(v) ? ''
+          : 'must be 1 to 16 letters, digits, spaces or \' . , ! & -, starting with a letter or digit and not ending with a space';
+      };
+    }
+    if (parts[0] === 'shops' && parts.length === 3 && parts[1] === 'flower') {
+      const shop = list(docs.shops, 'shops').filter(function (x) { return isObj(x) && x.target === 'flower'; })[0];
+      if (!shop || typeof shop[parts[2]] !== 'string') return null;
+      if (parts[2] === 'name') {
+        return function (v) {
+          return typeof v === 'string' && cpLen(v) >= 1 && cpLen(v) <= SHOP_NAME_CHARS && v.indexOf('\n') < 0 ? ''
+            : 'must be 1 to ' + SHOP_NAME_CHARS + ' characters on one line';
+        };
+      }
+      if (parts[2] === 'greeting' || parts[2] === 'stock_line') return lines(SHOP_LINE_CHARS, SHOP_LINE_NEWLINES);
+      return null;
+    }
+    if (parts[0] === 'letters' && parts.length === 3) {
+      const L = byId(list(docs.letters, 'letters'), parts[1]);
+      if (!L || typeof L[parts[2]] !== 'string') return null;
+      if (parts[2] === 'header') {
+        return function (v) {
+          const h = plainLen(v, false, true);
+          return h >= 1 && h <= LETTER_HEADER_MAX && v.indexOf('{player}') === v.lastIndexOf('{player}') ? ''
+            : 'must be 1 to ' + LETTER_HEADER_MAX + ' plain characters besides one {player}';
+        };
+      }
+      if (parts[2] === 'body') return paper;
+      if (parts[2] === 'footer') return plain(LETTER_FOOTER_MAX);
+      if (parts[2] === 'sender') return plain(LETTER_SENDER_MAX);
+      return null;
+    }
+    if (parts[0] === 'calendar' && (parts.length === 3 || parts.length === 4)) {
+      const day = byId(list(docs.calendar, 'days'), parts[1]);
+      if (!day) return null;
+      if (parts.length === 3 && parts[2] === 'board' && typeof day.board === 'string') return paper;
+      if (parts.length === 4 && parts[2] === 'talk' && typeof nth(day.talk, parts[3]) === 'string') return lines(TALK_LINE_CHARS, TALK_LINE_NEWLINES);
+      return null;
+    }
+    if (parts[0] === 'talk' && parts.length === 3) {
+      const pool = nth(list(docs.talk, 'pools'), parts[1]);
+      if (isObj(pool) && typeof nth(pool.lines, parts[2]) === 'string') return lines(TALK_LINE_CHARS, TALK_LINE_NEWLINES);
+      return null;
+    }
+    return null;
+  }
+
+  function validateTranslations(doc, lang, m, docs) {
+    const at = 'translations/' + lang + ': ';
+    if (!isObj(doc)) return [at + 'the file is not a JSON object of key to text'];
+    const errs = [];
+    for (const k of Object.keys(doc)) {
+      const rule = translationRule(k, m, docs || {});
+      if (!rule) { errs.push(at + JSON.stringify(k) + ' names no text in this mod'); continue; }
+      const why = rule(doc[k]);
+      if (why) errs.push(at + JSON.stringify(k) + ' ' + why);
+    }
+    return errs;
+  }
+
+  function displayTranslations(m, names, read) {
+    const out = {};
+    for (const f of translationFiles(m, names)) {
+      const r = read(f.path);
+      if (!r || !isObj(r.value)) continue;
+      const keep = {};
+      for (const k of Object.keys(r.value)) {
+        if ((k.indexOf('mod/') === 0 || k.indexOf('settings/') === 0) && typeof r.value[k] === 'string') keep[k] = r.value[k];
+      }
+      if (Object.keys(keep).length) out[f.lang] = keep;
+    }
+    return out;
   }
 
   function contentProblems(manifest, names, read) {
@@ -1138,8 +1410,10 @@
       return r.value;
     };
     let ctx = null;
+    const docs = {};
     if (c.items) {
       const d = doc(c.items);
+      docs.items = d;
       if (d !== undefined) {
         const r = validateItems(d);
         add(c.items, r.errs);
@@ -1152,12 +1426,12 @@
         }
       }
     }
-    if (c.shops) { const d = doc(c.shops); if (d !== undefined) add(c.shops, validateShops(d, ctx)); }
+    if (c.shops) { const d = doc(c.shops); docs.shops = d; if (d !== undefined) add(c.shops, validateShops(d, ctx)); }
 
     let letters = null;
-    if (c.letters) { const d = doc(c.letters); if (d !== undefined) { add(c.letters, validateLetters(d)); letters = letterIds(d); } else letters = undefined; }
-    if (c.calendar) { const d = doc(c.calendar); if (d !== undefined) add(c.calendar, validateCalendar(d, m.scope, letters)); }
-    if (c.talk) { const d = doc(c.talk); if (d !== undefined) add(c.talk, validateTalk(d)); }
+    if (c.letters) { const d = doc(c.letters); docs.letters = d; if (d !== undefined) { add(c.letters, validateLetters(d)); letters = letterIds(d); } else letters = undefined; }
+    if (c.calendar) { const d = doc(c.calendar); docs.calendar = d; if (d !== undefined) add(c.calendar, validateCalendar(d, m.scope, letters)); }
+    if (c.talk) { const d = doc(c.talk); docs.talk = d; if (d !== undefined) add(c.talk, validateTalk(d)); }
     if (c.messages) {
 
       const files = messageFiles(m, names);
@@ -1176,6 +1450,14 @@
           const at = files.filter(function (f) { return f.lang === lang; })[0];
           if (extra.length) add(at ? at.path : c.messages, ['messages/' + lang + ': ' + JSON.stringify(extra[0]) + ' is not in en.json (a translation holds only keys en.json has)']);
         }
+      }
+    }
+
+    if (c.translations) {
+      for (const f of translationFiles(m, names)) {
+        if (TRANSLATION_LANGS.indexOf(f.lang) < 0) continue;
+        const d = doc(f.path);
+        if (d !== undefined) add(f.path, validateTranslations(d, f.lang, m, docs));
       }
     }
     return out;
@@ -1383,6 +1665,7 @@
       if (!isObj(e)) { errs.push(at + 'is not an object'); return; }
       errs = errs.concat(unknownKeyErrs(e, CALENDAR_DAY_KEYS, 'calendar: day ' + (k + 1) + ': '));
       const d = e.date;
+      if (isObj(d)) errs = errs.concat(unknownKeyErrs(d, CALENDAR_DATE_KEYS, 'calendar: day ' + (k + 1) + ': date: '));
       let dateOk = isObj(d) && wholeIn(d.month, 1, 12);
       if (dateOk && has(d, 'day')) dateOk = !has(d, 'week') && !has(d, 'weekday') && wholeIn(d.day, 1, DAYS[d.month - 1]);
       else if (dateOk) dateOk = (d.week === 'last' || wholeIn(d.week, 1, 4)) && wholeIn(d.weekday, 0, 6);
@@ -1455,7 +1738,7 @@
     return sha256Hex(new TextEncoder().encode(lines.join('\n')));
   }
 
-  const VANILLA_OUTPUT_COMMANDS = ['send_letter', 'give_item', 'show_line', 'ask'];
+  const VANILLA_OUTPUT_COMMANDS = ['send_letter', 'give_item', 'show_line', 'ask', 'take_item', 'take_bells'];
 
   function countsForVisits(m) {
     if (!isObj(m) || m.scope !== 'world') return false;
@@ -1479,7 +1762,7 @@
       const ss = await settingsSha(m.manifest, m.settings);
       if (ss) {
         e.settings_sha = ss;
-        e.settings = effectiveSettings(m.manifest, m.settings);
+        e.settings = worldSettings(m.manifest, m.settings);
       }
       out.push(e);
     }
@@ -1585,6 +1868,7 @@
     if (problems.length) fail(problems);
     const manifest = json['mod.json'];
     let errs = validateManifest(manifest, n.names);
+    let display = {};
     if (!errs.length) {
 
       const read = function (p) {
@@ -1593,11 +1877,12 @@
         return parseFile(p, n.entries[p]);
       };
       errs = contentProblems(manifest, n.names, read).map(function (x) { return x.message; });
+      if (!errs.length) display = displayTranslations(manifest, n.names, read);
     }
     if (errs.length) fail(errs);
     let unpacked = 0;
     for (const name of n.names) unpacked += n.entries[name].length;
-    return { manifest: manifest, entries: n.entries, names: n.names, unpacked: unpacked };
+    return { manifest: manifest, entries: n.entries, names: n.names, unpacked: unpacked, display: display };
   }
 
   function lowMemoryDevice() {
@@ -1874,7 +2159,7 @@
   function summary(r) {
     return { id: r.id, manifest: r.manifest, sha256: r.sha256, contentSha: r.contentSha, size: r.size,
              unpacked: r.unpacked, enabled: r.enabled, order: r.order, source: r.source, installedAt: r.installedAt,
-             removed: r.removed, registry: r.registry, settings: r.settings || {} };
+             removed: r.removed, registry: r.registry, settings: r.settings || {}, display: r.display || {} };
   }
 
   async function refreshModset(db) {
@@ -1980,6 +2265,7 @@
           size: bytes.length, unpacked: mod.unpacked, enabled: stillRemoved ? false : (prev && !unkilled ? prev.enabled : true), order: order,
           source: (opts && opts.source) || 'file', installedAt: Date.now()
         };
+        if (Object.keys(mod.display).length) row.display = mod.display;
         if (stillRemoved) { row.removed = prev.removed; row.registry = prev.registry; }
 
         if (prev && isObj(prev.settings)) row.settings = prev.settings;
@@ -1993,6 +2279,8 @@
         ctl.result = summary(row);
         if (notice) ctl.result.notice = notice;
       });
+
+      try { ensureFlag(); } catch (_) {   }
       await refreshModset(db);
       askPersist();
       notifyChanged();
@@ -2672,10 +2960,31 @@
     return { cap: enabledCap(), own: own.reduce(function (n, r) { return n + (r.unpacked || 0); }, 0) };
   }
 
+  async function ownSettingsOf(ids) {
+    const out = {};
+    if (!flagOn()) return out;
+    const db = await openDb();
+    try {
+      const rows = await bootRows(db);
+      for (const r of rows) if (ids.indexOf(r.id) >= 0 && isObj(r.settings)) out[r.id] = r.settings;
+    } finally { db.close(); }
+    return out;
+  }
+
+  function clientSettings(manifest, stored) {
+    const out = {};
+    for (const s of declaredSettings(manifest)) {
+      if (!isObj(s) || typeof s.name !== 'string' || settingScope(s) !== 'client') continue;
+      if (isObj(stored) && has(stored, s.name) && settingValueOk(s, stored[s.name])) out[s.name] = stored[s.name];
+    }
+    return out;
+  }
+
   function wontLoad(why) { return ruleError('the friend\'s mods would not all load here: ' + why); }
 
   function lentSettings(manifest, sent) {
-    const decl = declaredSettings(manifest).filter(function (s) { return isObj(s) && typeof s.name === 'string'; });
+
+    const decl = declaredSettings(manifest).filter(function (s) { return isObj(s) && typeof s.name === 'string' && settingScope(s) === 'world'; });
     const bad = function () { return ruleError('the friend\'s settings for ' + manifest.id + ' are not ones that mod takes'); };
     if (!decl.length) {
       if (sent !== undefined && sent !== null && !(isObj(sent) && Object.keys(sent).length === 0)) throw bad();
@@ -2705,6 +3014,8 @@
     }
     const cap = enabledCap();
     const ownUnpacked = own.reduce(function (n, r) { return n + (r.unpacked || 0); }, 0);
+    let mine = {};
+    if (!city) { try { mine = await ownSettingsOf(lentIds); } catch (_) { mine = {};   } }
     const rows = [];
     const seen = {};
     let unpacked = 0;
@@ -2729,20 +3040,43 @@
         throw wontLoad('they unpack to ' + mbWords(unpacked) + (ownUnpacked ? ' beside ' + mbWords(ownUnpacked) + ' of your own mods' : '') +
           ', and the game keeps ' + mbWords(cap) + ' for mods' + (cap < MAX_ENABLED_UNPACKED ? ' on a phone' : ''));
       }
-      const row = { id: m.id, manifest: m, zip: bytes.slice().buffer, contentSha: csha, unpacked: mod.unpacked, order: 1e6 + k, enabled: true };
+
+      const row = { id: m.id, manifest: m, zip: bytes.slice().buffer, contentSha: csha, unpacked: mod.unpacked, order: 1e6 + k, enabled: true, pinned: !city };
 
       if (!city) {
         const st = lentSettings(m, want.settings);
-        if (st) row.settings = st;
+
+        const both = Object.assign(clientSettings(m, mine[m.id]), st || {});
+        if (Object.keys(both).length) row.settings = both;
       }
       rows.push(row);
     }
     const hash = await modsetHash(rows);
     if (!city && hash !== expect.modset) throw ruleError('the friend\'s mods do not add up to their town\'s mod set');
 
+    if (!city) {
+      for (let k = 0; k < rows.length; k++) {
+        const need = isObj(rows[k].manifest.depends) ? rows[k].manifest.depends : {};
+        const after = rows.slice(k + 1).find(function (x) { return has(need, x.id); });
+        if (after) throw wontLoad(rows[k].id + ' needs ' + after.id + ', and the friend\'s list loads ' + after.id + ' after it');
+      }
+    }
+
     const plan = loadPlan(own.concat(rows), cap);
     const lentSkip = plan.skip.filter(function (x) { return seen[x.id]; });
-    if (lentSkip.length) throw wontLoad(lentSkip[0].id + ' ' + lentSkip[0].error);
+    if (lentSkip.length) {
+
+      const cyc = /^is in a dependency cycle/;
+      const inWay = plan.skip.filter(function (x) { return !seen[x.id] && cyc.test(x.error); }).map(function (x) { return x.id; });
+      if (inWay.length && cyc.test(lentSkip[0].error)) {
+        throw wontLoad('your own mod ' + inWay[0] + ' and the friend\'s mods need each other in an order the friend\'s town does not load them in. Switch ' + inWay[0] + ' off for this visit');
+      }
+      throw wontLoad(lentSkip[0].id + ' ' + lentSkip[0].error);
+    }
+
+    if (!city && await modsetHash(plan.load) !== expect.modset) {
+      throw wontLoad('they would not load in the order the friend\'s town loads them in');
+    }
     const prev = lentState();
     if (prev) await deleteLentDb(prev.db);
     const at = Date.now();
@@ -2783,6 +3117,8 @@
         if (!r || r.contentSha !== lent.set[k].contentSha) throw ruleError('a lent mod is missing from this tab');
         r.lent = true;
         r.order = 1e6 + k;
+
+        r.pinned = lent.kind !== 'city';
         return r;
       });
     } finally { db.close(); }
@@ -2822,32 +3158,101 @@
   const WATCH_KEY = 'acweb.mods.boot';
   const WATCH_FREEZE_MS = 8000;
   const WATCH_BEAT_MS = 2000;
+  const WATCH_LIVE_MS = 3 * WATCH_BEAT_MS;
   const WATCH_MAX_MS = 5 * 60 * 1000;
   const WATCH_UNFINISHED_MAX = 2;
+  const WATCH_RUN_KEY = 'acweb.mods.run';
 
-  function readWatchMark() {
+  function watchKey(rid) { return WATCH_KEY + '.' + rid; }
+  function newRunId() {
+    let r = '';
     try {
-      const text = root.localStorage.getItem(WATCH_KEY);
-      if (!text) return null;
-      const m = JSON.parse(text);
-      return isObj(m) && typeof m.set === 'string' ? m : null;
-    } catch (_) { return null; }
-  }
-  function writeWatchMark(m) {
-    try { root.localStorage.setItem(WATCH_KEY, JSON.stringify(m)); } catch (_) {   }
-  }
-  function clearWatchMark() {
-    try { root.localStorage.removeItem(WATCH_KEY); } catch (_) {   }
+      const a = new Uint32Array(2);
+      root.crypto.getRandomValues(a);
+      r = a[0].toString(36) + a[1].toString(36);
+    } catch (_) { r = Math.floor(Math.random() * 0x7fffffff).toString(36); }
+    return Date.now().toString(36) + '-' + r;
   }
 
-  function watchdogVerdict(mark, set, now) {
-    if (!isObj(mark) || typeof mark.set !== 'string' || mark.set !== set || !set) return { trip: false, n: 0 };
-    const n = typeof mark.n === 'number' && mark.n >= 1 ? Math.floor(mark.n) : 1;
-    const beat = typeof mark.alive === 'number' ? mark.alive : (typeof mark.at === 'number' ? mark.at : now);
-    const ids = Array.isArray(mark.ids) ? mark.ids.filter(function (x) { return typeof x === 'string'; }) : [];
-    const names = Array.isArray(mark.names) ? mark.names.filter(function (x) { return typeof x === 'string'; }) : [];
-    const trip = n >= WATCH_UNFINISHED_MAX || (mark.phase !== 'run' && now - beat >= WATCH_FREEZE_MS);
-    return { trip: trip, n: n, ids: ids, names: names };
+  function readWatchMarks() {
+    const out = [];
+    try {
+      const ls = root.localStorage;
+      const keys = [];
+      for (let i = 0; i < ls.length; i++) {
+        const k = ls.key(i);
+        if (typeof k === 'string' && (k === WATCH_KEY || k.indexOf(WATCH_KEY + '.') === 0)) keys.push(k);
+      }
+      for (const k of keys) {
+        let m = null;
+        try { m = JSON.parse(ls.getItem(k)); } catch (_) { m = null; }
+        out.push({ key: k, mark: isObj(m) && typeof m.set === 'string' ? m : null });
+      }
+    } catch (_) {   }
+    return out;
+  }
+
+  function pageReloaded() {
+    try { if (root.location && new URLSearchParams(root.location.search).get('tabnav') === 'reload') return true; } catch (_) {   }
+    try {
+      const p = root.performance;
+      const nav = p && typeof p.getEntriesByType === 'function' ? p.getEntriesByType('navigation')[0] : null;
+      if (nav && typeof nav.type === 'string') return nav.type === 'reload';
+      return !!(p && p.navigation && p.navigation.type === 1);
+    } catch (_) { return false; }
+  }
+
+  let ownPrevRun;
+  function prevRunOfThisTab() {
+    if (ownPrevRun !== undefined) return ownPrevRun;
+    ownPrevRun = null;
+    try {
+      const ss = root.sessionStorage;
+      if (ss) {
+        const v = ss.getItem(WATCH_RUN_KEY);
+        ss.removeItem(WATCH_RUN_KEY);
+        if (typeof v === 'string' && v && pageReloaded()) ownPrevRun = v;
+      }
+    } catch (_) {   }
+    return ownPrevRun;
+  }
+  function writeWatchMark(key, m) {
+    try { root.localStorage.setItem(key, JSON.stringify(m)); } catch (_) {   }
+  }
+  function dropWatchMarks(keys) {
+    for (const k of keys) {
+      try { root.localStorage.removeItem(k); } catch (_) {   }
+    }
+  }
+
+  function watchdogVerdict(marks, set, now, own) {
+    const out = { trip: false, n: 0, dead: [] };
+    let chosen = null;
+    let chosenTrips = false;
+    for (const e of Array.isArray(marks) ? marks : []) {
+      if (!e || typeof e.key !== 'string') continue;
+      const mark = e.mark;
+      const beat = !isObj(mark) ? null : (typeof mark.alive === 'number' ? mark.alive : (typeof mark.at === 'number' ? mark.at : null));
+
+      const gone = typeof own === 'string' && own !== '' && e.key === watchKey(own);
+      if (!gone && beat !== null && Math.abs(now - beat) < WATCH_LIVE_MS) continue;
+      out.dead.push(e.key);
+      if (!isObj(mark) || !set || mark.set !== set) continue;
+      const n = typeof mark.n === 'number' && mark.n >= 1 ? Math.floor(mark.n) : 1;
+      const trips = n >= WATCH_UNFINISHED_MAX || (mark.phase !== 'run' && beat !== null && now - beat >= WATCH_FREEZE_MS);
+      if (!chosen || (trips && !chosenTrips) || (trips === chosenTrips && n > out.n)) { chosen = mark; chosenTrips = trips; }
+      if (n > out.n) out.n = n;
+      if (trips) out.trip = true;
+    }
+    if (chosen) {
+      out.ids = Array.isArray(chosen.ids) ? chosen.ids.filter(function (x) { return typeof x === 'string'; }) : [];
+      out.names = Array.isArray(chosen.names) ? chosen.names.filter(function (x) { return typeof x === 'string'; }) : [];
+    }
+    return out;
+  }
+
+  function sweepWatchMarks() {
+    dropWatchMarks(watchdogVerdict(readWatchMarks(), '', Date.now(), prevRunOfThisTab()).dead);
   }
 
   function watchSet(rows) {
@@ -2870,7 +3275,7 @@
     if (!w || w.done) return;
     w.done = true;
     w.mark.phase = 'run';
-    if (w.armed) { w.mark.alive = Date.now(); writeWatchMark(w.mark); }
+    if (w.armed) { w.mark.alive = Date.now(); writeWatchMark(w.key, w.mark); }
     if (root._acwebModsHealthy === engineHealthy) root._acwebModsHealthy = undefined;
   }
 
@@ -2880,23 +3285,36 @@
     bootHealthy();
   }
 
+  function pageVisible() {
+    try { return !root.document || root.document.visibilityState !== 'hidden'; } catch (_) { return true; }
+  }
+
   function armWatchdog(set, mods, n) {
     const now = Date.now();
+    const rid = newRunId();
     const mark = {
-      v: 1, set: set, n: n, phase: 'boot', at: now, alive: now,
+      v: 2, rid: rid, set: set, n: n, phase: 'boot', at: now, alive: now,
       ids: mods.map(function (m) { return m.id; }),
       names: mods.map(function (m) { return String((m.manifest && m.manifest.name) || m.id).slice(0, 60); })
     };
-    const w = { mark: mark, done: false, away: null, back: null, vis: null, timer: null, armed: true };
+    if (watch) { watch.over = true; dropWatchMarks([watch.key]); }
+    const w = { mark: mark, key: watchKey(rid), done: false, away: null, back: null, vis: null, timer: null, armed: false, over: false };
     watch = w;
-    writeWatchMark(mark);
-    const put = function () { w.armed = true; mark.alive = Date.now(); writeWatchMark(mark); };
-    const take = function () { w.armed = false; clearWatchMark(); };
+    prevRunOfThisTab();
+    try { if (root.sessionStorage) root.sessionStorage.setItem(WATCH_RUN_KEY, rid); } catch (_) {   }
+    const take = function () { w.armed = false; dropWatchMarks([w.key]); };
+
+    const put = function () {
+      if (w.over) return;
+      if (!pageVisible()) { take(); return; }
+      w.armed = true;
+      mark.alive = Date.now();
+      writeWatchMark(w.key, mark);
+    };
+    put();
     w.away = take;
     w.back = put;
-    w.vis = function () {
-      try { if (root.document.visibilityState === 'hidden') take(); else put(); } catch (_) {   }
-    };
+    w.vis = put;
     try {
       if (root.addEventListener) {
         root.addEventListener('pagehide', w.away);
@@ -2931,10 +3349,16 @@
     return watch ? { done: !!watch.done, by: watch.by || null } : null;
   }
 
+  function watchMark() {
+    if (!watch) return null;
+    for (const e of readWatchMarks()) if (e.key === watch.key) return e.mark;
+    return null;
+  }
+
   async function bootLoad(FS) {
     const state = { ready: false, mods: [], modset: '', modlist: [], skipped: [], safeMode: false, removed: [] };
     if (consumeSkip()) {
-      clearWatchMark();
+      sweepWatchMarks();
       state.safeMode = true;
       console.log('[Mods] safe mode: starting without mods');
       return publish(state);
@@ -2946,7 +3370,7 @@
     if (sweepDue) sweepLentDbs(lent ? lent.db : null).catch(function () {   });
     if (lent) state.lent = { visitId: lent.visitId, modset: lent.modset, kind: lent.kind || 'visit', mods: lent.set.map(function (m) { return m.id; }) };
     if (!flagOn() && !lent && !devTainted()) {
-      clearWatchMark();
+      sweepWatchMarks();
       rememberModset('', []);
 
       const wipe = pendingWipe();
@@ -2963,6 +3387,7 @@
     let written = false;
     let set = '';
     let prevBoots = 0;
+    let watchDead = null;
     if (devOn()) state.modLang = modLangInUrl() || undefined;
 
     const sources = new Map();
@@ -2992,6 +3417,11 @@
           console.warn('[Mods] the browser cleared the mods database; the Mods tab says so once');
         }
         clearFlag();
+
+        try {
+          const again = await openDb();
+          try { if ((await bootRows(again)).length) ensureFlag(); } finally { again.close(); }
+        } catch (_) {   }
       }
 
       let lentList = [];
@@ -3074,9 +3504,9 @@
       }));
 
       set = watchSet(plan.load.filter(function (r) { return !r.dev; }));
-      const verdict = watchdogVerdict(readWatchMark(), set, Date.now());
+      const verdict = watchdogVerdict(readWatchMarks(), set, Date.now(), prevRunOfThisTab());
       if (verdict.trip) {
-        clearWatchMark();
+        dropWatchMarks(verdict.dead);
         state.safeMode = true;
         state.watchdog = { ids: verdict.ids, names: verdict.names };
         console.warn('[Mods] the last start with these mods stopped responding; starting without mods: ' + verdict.ids.join(', '));
@@ -3084,6 +3514,7 @@
         return publish(state);
       }
       prevBoots = verdict.n;
+      watchDead = verdict.dead;
       mkdirs(FS, MOD_ROOT);
       let total = 0;
       for (let k = 0; k < plan.load.length; k++) {
@@ -3220,8 +3651,10 @@
     }
 
     await after('arming the boot watchdog', function () {
-      if (written && state.mods.length && set) armWatchdog(set, state.mods, prevBoots + 1);
-      else clearWatchMark();
+      if (written && state.mods.length && set) {
+        if (watchDead) dropWatchMarks(watchDead);
+        armWatchdog(set, state.mods, prevBoots + 1);
+      } else sweepWatchMarks();
     });
     await after('naming sources', tagSources);
     await after('the boot log', function () {
@@ -3243,10 +3676,24 @@
   const LOG_KINDS = ['log', 'error', 'stop', 'refused', 'info'];
   const modLog = { lines: [], seq: 0, dropped: 0 };
 
+  function logEvict() {
+    const count = Object.create(null);
+    let most = 0;
+    for (const l of modLog.lines) {
+      const n = (count[l.id] || 0) + 1;
+      count[l.id] = n;
+      if (n > most) most = n;
+    }
+    for (let i = 0; i < modLog.lines.length; i++) {
+      if (count[modLog.lines[i].id] === most) { modLog.lines.splice(i, 1); break; }
+    }
+    modLog.dropped++;
+  }
+
   function logPush(kind, id, text) {
     modLog.seq++;
     modLog.lines.push({ seq: modLog.seq, kind: kind, id: String(id || ''), text: String(text || '').slice(0, LOG_TEXT_MAX), at: Date.now() });
-    if (modLog.lines.length > LOG_MAX) { modLog.lines.shift(); modLog.dropped++; }
+    if (modLog.lines.length > LOG_MAX) logEvict();
   }
 
   root._acwebModLogPush = function (seq, kind, id, text) {
@@ -3432,11 +3879,12 @@
     const c = (manifest && manifest.content) || {};
     const tex = typeof c.textures === 'string' ? c.textures.replace(/\/+$/, '') + '/' : null;
     const msgDir = typeof c.messages === 'string' && c.messages ? c.messages.replace(/\/+$/, '') + '/' : null;
+    const trDir = typeof c.translations === 'string' && c.translations ? c.translations.replace(/\/+$/, '') + '/' : null;
     let what = 0;
     for (const p of paths) {
       if (p === c.items) what |= DEV_ITEMS;
       else if (p === c.messages || p === c.shops || p === c.letters || p === c.calendar || p === c.talk ||
-               (msgDir && p.startsWith(msgDir))) what |= DEV_DATA;
+               (msgDir && p.startsWith(msgDir)) || (trDir && p.startsWith(trDir))) what |= DEV_DATA;
       else if (lowerExt(p) === '.lua') what |= DEV_LUA;
       else if (tex && p.startsWith(tex)) what |= DEV_TEXTURES;
     }
@@ -3542,6 +3990,10 @@
 
     LANGS: LANGS, setSetting: setSetting, exportAll: exportAll,
     effectiveSettings: effectiveSettings, settingValueOk: settingValueOk, settingsSha: settingsSha,
+
+    TRANSLATION_LANGS: TRANSLATION_LANGS, translationFiles: translationFiles, translationRule: translationRule,
+    validateTranslations: validateTranslations, SETTING_SCOPES: SETTING_SCOPES, settingScope: settingScope,
+    worldSettings: worldSettings, clientSettings: clientSettings,
     resolveLoad: resolveLoad, parseRange: parseRange, inRange: inRange, compareVersions: compareVersions,
     pendingWipe: pendingWipe,
     savedData: savedData, deleteSavedData: deleteSavedData,
@@ -3549,7 +4001,7 @@
     killSwitch: killNow, KILL_KEY: KILL_KEY,
     problemCodes: problemCodes, errorCode: errorCode, ERROR_DOCS: ERROR_DOCS,
     watchdogVerdict: watchdogVerdict, bootHealthy: bootHealthy, engineHealthy: engineHealthy,
-    WATCH: { KEY: WATCH_KEY, FREEZE_MS: WATCH_FREEZE_MS, BEAT_MS: WATCH_BEAT_MS, MAX_MS: WATCH_MAX_MS }, watchState: watchState,
+    WATCH: { KEY: WATCH_KEY, FREEZE_MS: WATCH_FREEZE_MS, BEAT_MS: WATCH_BEAT_MS, LIVE_MS: WATCH_LIVE_MS, MAX_MS: WATCH_MAX_MS }, watchState: watchState, watchMark: watchMark,
 
     log: readLog, logPush: logPush, readEntries: readEntries,
     devLoad: devLoad, devApply: devApply, devUnload: devUnload, devState: devState, devTainted: devTainted,

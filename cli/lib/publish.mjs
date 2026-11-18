@@ -258,22 +258,42 @@ export function changelogSection(md, version) {
   return s;
 }
 
-/* What else the registry refuses a screenshot for, from its header: 'deep'
- * for a PNG with 16 bit samples (IHDR bit depth), 'progressive' for a
- * progressive JPEG (its start-of-frame marker is C2, C6, CA or CE), else ''. */
+/* A JPEG without the segments a decoder only skips: APP1 to APP13 and APP15
+ * (EXIF, XMP, ICC, Photoshop) and comments, up to the first scan. APP0 (JFIF)
+ * and APP14 (Adobe) stay. Only a file whose segments follow one another with
+ * nothing between them is rewritten; anything else comes back as it was.
+ * THE SERVER'S OWN FUNCTION, line for line (backend mods
+ * jpegWithoutMetadata, storefront.go): both run the shared cases in
+ * the contract's jpeg-progressive-cases.json. */
+export function jpegWithoutMetadata(raw) {
+  if (raw.length < 4 || raw[0] !== 0xff || raw[1] !== 0xd8) return raw;
+  const out = [raw.subarray(0, 2)];
+  for (let i = 2; ;) {
+    if (i + 4 > raw.length || raw[i] !== 0xff) return raw;
+    const m = raw[i + 1];
+    const n = (raw[i + 2] << 8) | raw[i + 3];
+    if (m < 0xc0 || m === 0xff || (m >= 0xd0 && m <= 0xd9) || n < 2 || i + 2 + n > raw.length) return raw;
+    if (m === 0xda) { out.push(raw.subarray(i)); return Buffer.concat(out); }
+    if (!(m >= 0xe1 && m <= 0xed) && m !== 0xef && m !== 0xfe) out.push(raw.subarray(i, i + 2 + n));
+    i += 2 + n;
+  }
+}
+
+const SOF2 = Buffer.from([0xff, 0xc2]);
+
+/* What else the registry refuses a screenshot for: 'deep' for a PNG with 16
+ * bit samples (IHDR bit depth), 'progressive' for a JPEG a decoder could
+ * take for a progressive one, else ''.
+ *
+ * The server's rule for a JPEG (jpegMayBeProgressive): the bytes FF C2
+ * occur anywhere in what is left once the metadata is dropped. It errs one
+ * way only: a file without FF C2 has no progressive frame header at all.
+ * This used to walk the markers and answer "not progressive" at the first
+ * byte it could not follow, so one junk byte after the start passed here
+ * and was refused by the site, after the sign-in. */
 export function imageKind(b, type) {
   if (type === 'image/png') return b.length > 24 && b[24] === 16 ? 'deep' : '';
-  let i = 2;
-  while (i + 3 < b.length) {
-    if (b[i] !== 0xff) return '';
-    const m = b[i + 1];
-    if (m === 0xff) { i++; continue; }
-    if (m === 0xd8 || m === 0x01 || (m >= 0xd0 && m <= 0xd7)) { i += 2; continue; }
-    if (m === 0xc2 || m === 0xc6 || m === 0xca || m === 0xce) return 'progressive';
-    if (m === 0xc0 || m === 0xc1 || m === 0xc3 || m === 0xda || m === 0xd9) return '';
-    i += 2 + b.readUInt16BE(i + 2);
-  }
-  return '';
+  return Buffer.from(jpegWithoutMetadata(b)).includes(SOF2) ? 'progressive' : '';
 }
 
 /* Why the registry would refuse a screenshot of this size and kind, or ''.

@@ -7,8 +7,8 @@ up and a new scene. It keeps a count in the store and logs what happens.
 It also queues one command, an apple for each resident, once. It reads the
 result in command_finished.
 
-Read the log lines in Settings, Mods, Mod log. They are also in the
-browser's developer console. Open it with F12, or Cmd+Option+J on a Mac,
+Read the log lines in the Mod log. It is at the bottom of Settings, Mods,
+under For mod authors. They are also in the browser's developer console. Open it with F12, or Cmd+Option+J on a Mac,
 and type [Mods] in its filter box.
 
 The store is kept per town. The top of main.lua runs before any town is

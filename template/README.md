@@ -3,21 +3,28 @@
 A mod for [Play AC Online](https://playaconline.com), made from the
 playac-mod template.
 
-These are the files `playac-mod new <id> --github` writes. To use them without
-the tool, copy this folder out, make it a Git repository of your own and push
-it to GitHub.
+This folder is a whole mod repository. It holds a working mod with lines and
+a script, the check workflow, VS Code settings and a `CHANGELOG.md`. To use it,
+copy this folder out, make it a Git repository of your own and push it to
+GitHub.
+
+`playac-mod new yourname.mod-name --github` writes the same workflow, changelog
+and settings around a new mod of the kind you choose.
 
 ## First steps
 
 0. Install the `playac-mod` tool: https://playaconline.com/modding/cli/#install
 1. Open `mod.json`. Change `"id"` to `yourname.mod-name`, using lowercase
    letters, digits and dashes. Set `"name"`, `"authors"` and `"description"`.
-2. Run `playac-mod types` once. Your editor then knows the game's script API
-   and the shape of every JSON file. In VS Code, install the recommended Lua
-   extension when it asks.
-3. Run `playac-mod dev` and open the game with `?moddev=1` on the address,
-   for example `https://playaconline.com/play/?moddev=1`. Edits to lines, the
-   shop and scripts show without a restart.
+2. Run `playac-mod types` once. It writes `.playac/`, which holds the game's
+   script API and the shape of every JSON file for your editor. In VS Code,
+   install the recommended Lua extension when it asks.
+3. Run `playac-mod dev` and leave it running. Open the game with `?moddev=1`
+   on the address, for example `https://playaconline.com/play/?moddev=1`. Go
+   to Settings, Mods, Load a mod you are making. Press Connect beside
+   "playac-mod dev address", then Restart now once. After that, edits to
+   lines, the shop and scripts show as you save. Press Connect again after
+   you reload the page.
 4. Run `playac-mod check`. It lists every problem the game would find, per file.
 
 ## Share it
@@ -32,8 +39,9 @@ Sharing needs three things:
   `CHANGELOG.md` or in `.playac/changelog.txt`
 
 The screenshots and the changelog line are not part of the mod, but they are
-read from the same tag, so commit them. `.gitignore` leaves out only what
-`playac-mod types` writes: `.playac/playac.lua` and `.playac/schemas/`.
+read from the same tag, so commit them. `.gitignore` leaves out what
+`playac-mod types` writes, `.playac/playac.lua` and `.playac/schemas/`. It
+also leaves out `dist/` and `node_modules/`.
 
 ### From GitHub
 

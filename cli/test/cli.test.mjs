@@ -21,8 +21,9 @@ import { checkEntries, checkFolder, TEXTURE_NAME_RE } from '../lib/check.mjs';
 import { leftOutReason, readFolder } from '../lib/files.mjs';
 import { pack, zipEntries } from '../lib/pack.mjs';
 import { KINDS, scaffoldFiles, writeFiles, GRASS_TEXTURE, dds } from '../lib/scaffold.mjs';
-import { writeTypes, TYPE_FILES } from '../lib/types.mjs';
-import { main, nodeTooOld, parseArgs, typesFrom } from '../bin/playac-mod.mjs';
+import { writeEditorSettings, writeTypes, TYPE_FILES } from '../lib/types.mjs';
+import { commandText } from '../lib/help.mjs';
+import { devSteps, main, nodeTooOld, parseArgs, typesFrom } from '../bin/playac-mod.mjs';
 
 /* A test that reads the game's source checkout (the contract cases, the examples,
  * the build scripts) is skipped in a copy that has none. */
@@ -479,7 +480,7 @@ test('new --github pins the workflow to a release from the list; with no list it
     const dir = path.join(tmp(), 'bean.nopin');
     const out = await quiet(() => main(['new', 'bean.nopin', '--dir', dir, '--github', '--no-ai']));
     assert.equal(out.code, 1);
-    assert.match(out.out, /releases, to pin the check workflow/);
+    assert.match(out.out, /pins the check workflow to a release of playac-mod by its SHA-256/);
     assert.ok(!fs.existsSync(path.join(dir, '.github/workflows/mod.yml')), 'no unpinned workflow is written');
   } finally {
     if (was === undefined) delete process.env.PLAYAC_MOD_RELEASES; else process.env.PLAYAC_MOD_RELEASES = was;
@@ -710,3 +711,55 @@ test('pack says one hash in words, and every schema names its own file', async (
     if (id) assert.equal(id.split('/').pop(), f, `${f} says it is ${id}`);
   }
 });
+
+/* every place said only "open the game with ?moddev=1". The game reads
+ * from the dev server only after the author presses Connect in the dev panel
+ * (DevModPanel.svelte is the one caller of useServer), so the loop as written
+ * loaded nothing. Each place that tells the loop must name Connect and the one
+ * restart. */
+test('dev: what it prints, its help, the new mod\'s README and the template name Connect and the restart', () => {
+  const told = (text, what) => {
+    assert.match(text, /\?moddev=1/, `${what}: the address`);
+    assert.match(text, /Settings, Mods, Load a mod you are making/, `${what}: where`);
+    assert.match(text, /Connect/, `${what}: Connect`);
+    assert.match(text, /Restart now once/, `${what}: the restart`);
+    assert.match(text, /after\s+you reload the page/, `${what}: Connect again after a reload`);
+  };
+  const usual = devSteps('http://127.0.0.1:2604', 2604, false).join('\n');
+  told(usual, 'dev on the usual port');
+  assert.match(usual, /Press Connect beside "playac-mod dev address"\. The box already holds http:\/\/127\.0\.0\.1:2604\./);
+  assert.doesNotMatch(usual, /was taken/);
+  const moved = devSteps('http://127.0.0.1:2605', 2605, false).join('\n');
+  told(moved, 'dev on the next free port');
+  assert.match(moved, /^NOTE: Port 2604 was taken/);
+  assert.match(moved, /Put http:\/\/127\.0\.0\.1:2605 in "playac-mod dev address" and press Connect\./);
+  /* the author chose the port: nothing "was taken" */
+  const chosen = devSteps('http://127.0.0.1:3000', 3000, true).join('\n');
+  told(chosen, 'dev --port');
+  assert.doesNotMatch(chosen, /was taken/);
+  assert.match(chosen, /Put http:\/\/127\.0\.0\.1:3000 in/);
+  told(commandText('dev'), 'dev --help');
+  for (const kind of KINDS) told(scaffoldFiles('me.loop', kind)['README.md'], `the ${kind} README`);
+  const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  told(fs.readFileSync(path.join(pkg, 'template', 'README.md'), 'utf8'), 'the template README');
+  told(fs.readFileSync(path.join(pkg, 'README.md'), 'utf8'), 'the tool README');
+});
+
+/* the guides send an author who copied an example to `types` "for the
+ * editor files". It wrote .playac/ only, so the editor had no settings that
+ * point at it. */
+test('types: writes the VS Code settings when the folder has none, and keeps the author\'s', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-editor-'));
+  try {
+    assert.deepEqual(writeEditorSettings(dir).sort(), ['.vscode/extensions.json', '.vscode/settings.json']);
+    const settings = JSON.parse(fs.readFileSync(path.join(dir, '.vscode/settings.json'), 'utf8'));
+    assert.deepEqual(settings['Lua.workspace.library'], ['.playac/playac.lua']);
+    assert.ok(!fs.existsSync(path.join(dir, '.gitignore')), 'a repository\'s .gitignore is not touched');
+    fs.writeFileSync(path.join(dir, '.vscode/settings.json'), '{"mine": true}');
+    assert.deepEqual(writeEditorSettings(dir), []);
+    assert.equal(fs.readFileSync(path.join(dir, '.vscode/settings.json'), 'utf8'), '{"mine": true}');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+

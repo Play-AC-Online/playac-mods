@@ -20,5 +20,8 @@
       "day_started"
     ]
   },
+  "optional_depends": {
+    "example.tea-house": ">=1.0.0"
+  },
   "assets_original": true
 }

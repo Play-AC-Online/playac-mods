@@ -72,6 +72,9 @@ nothing in your town.
 **Check it worked:** at the bottom of the Mods tab there is a **Developer**
 section with **Load a mod you are making** and **Record textures**.
 
+Opening the game with `?moddev=1` only shows the section. It loads no mod.
+The next step does that.
+
 The browser remembers developer mode, so the section stays on later visits. To
 hide it again, press **Hide developer tools** or open the game with
 `?moddev=0`.
@@ -116,8 +119,13 @@ Firefox and Safari read the folder once. Choose it again after a change.
    `http://127.0.0.1:2604` unless that port was busy. Leave that window open.
    Ctrl+C stops it.
 2. In the game's **Developer** section, put that address in **playac-mod dev
-   address** and press **Connect**.
+   address** and press **Connect**. The box already holds
+   `http://127.0.0.1:2604`. The page reaches the tool only after you press
+   **Connect**.
 3. Press **Restart now** once.
+
+After you reload the page, press **Connect** again. Until you do, the game
+runs the last copy it loaded and does not follow your edits.
 
 **Check it worked:** the terminal prints a line when you save a file, and the
 change shows in the game. If the folder breaks a rule, the terminal and the

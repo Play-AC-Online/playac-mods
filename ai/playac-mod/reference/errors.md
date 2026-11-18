@@ -40,6 +40,7 @@ In the game page (install, check tool):
 
     this is not a ZIP the game can open (invalid zip data)
     that is not a file the game can read
+    my-mod.zip is not a ZIP the game can read (invalid zip data).
 
 From the mod list (upload):
 
@@ -266,10 +267,30 @@ From the mod list (upload):
 
     mod.json is larger than 64 KB.
     "main.lua" is larger than 512 KB, the most a .lua file may be.
+    "notes.txt" is larger than 512 KB, the most a .txt or .md file may be.
 
-What it means: mod.json can be at most 64 KB, any other .json file 256 KB and any .lua file 512 KB.
+What it means: mod.json can be at most 64 KB, any other .json file 256 KB and any .lua file 512 KB. The mod list also takes a .txt or .md file of at most 512 KB. The game does not read those files, so a bigger one still installs from a file.
 
-How to fix it: Split a big messages file into several mods, or move data out of mod.json. A mod has one script file, so shorten a big script or move part of it into a second mod.
+How to fix it: Split a big messages file into several mods, or move data out of mod.json. A mod has one script file, so shorten a big script or move part of it into a second mod. Shorten a big README, or link to the long version from it.
+
+### file-lone-cr
+
+**A line ends with a lone carriage return**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
+
+In the game page (install, check tool):
+
+    "main.lua" has a carriage return with no line feed after it. Save it with LF or CRLF line endings
+    "en.json" has a carriage return with no line feed after it. Save it with LF or CRLF line endings
+
+From the mod list (upload):
+
+    "main.lua" has a carriage return with no line feed after it. Save it with LF or CRLF line endings.
+
+What it means: Lua ends a line at a carriage return (CR) on its own, but the review shows a file broken at line feeds (LF) only. Code after a lone CR would look like part of the line before it, a comment for example, while the game runs it. So a mod's .lua and .json files must end lines with LF or CRLF. The Mods tab, playac-mod check and the mod list all refuse it.
+
+How to fix it: Set your editor to LF (or CRLF) line endings and save the file again. Old Mac editors write CR alone.
 
 ## JSON files
 
@@ -346,14 +367,18 @@ In the game page (install, check tool):
     mod.json is not valid JSON
     shops.json: a number is out of range
     data/x.json is not valid JSON
+    notes.json: a number is out of range
+    translations/de.json: a number is out of range
     x.json is not valid JSON
 
 From the mod list (upload):
 
     mod.json is not valid JSON.
     shops.json is not valid JSON: a syntax error at byte 42.
+    notes.json is not valid JSON: a number is out of range.
+    notes.json is not valid JSON: it is not UTF-8 text.
 
-What it means: The file is not valid JSON. The usual causes are a missing comma or quote, a comma after the last item, a comment, single quotes, or a byte order mark at the start.
+What it means: The file is not valid JSON. The usual causes are a missing comma or quote, a comma after the last item, a comment, single quotes, or a byte order mark at the start. A file saved in an encoding other than UTF-8 is refused as well. So is a number too large to hold, such as 1e999, in any .json file of the mod.
 
 How to fix it: Open the file in VS Code, which underlines the mistake, or paste it into a JSON checker. JSON has no comments and no trailing commas, and strings use double quotes. Save as UTF-8 without BOM.
 
@@ -393,6 +418,7 @@ In the game page (install, check tool):
 
     d.json: nested more than 32 levels deep
     mod.json: nested more than 32 levels deep
+    translations/de.json: nested more than 32 levels deep
 
 From the mod list (upload):
 
@@ -583,7 +609,7 @@ In the game page (install, check tool):
     shops: unknown key "shop" (did you mean "shops"?)
     talk: pool 1: unknown key "chanse" (did you mean "chance"?)
     shops: shop 1: stock 2: unknown key "cost"
-    calendar: day 1: unknown key "bord" (did you mean "board"?)
+    calendar: day 1: date: unknown key "wek" (did you mean "week"?)
 
 From the mod list (upload):
 
@@ -904,7 +930,7 @@ In the game page (install, check tool):
     "content.Shops" is not something a mod can add yet
     "content.acres" is not something a mod can add yet
     "content.furniture" is not something a mod can add yet
-    "content.weather" is not something a mod can add yet
+    "content.quests" is not something a mod can add yet
 
 From the mod list (upload):
 
@@ -924,6 +950,7 @@ In the game page (install, check tool):
 
     "content.messages" must be a path inside the mod
     "content.talk" must be a path inside the mod
+    "content.translations" must be a path inside the mod
 
 From the mod list (upload):
 
@@ -991,6 +1018,7 @@ In the game page (install, check tool):
 
     "scripts.entry" is not a scripts setting (only main and events)
     "scripts.Main" is not a scripts setting (only main and events)
+    "scripts.hooks" is not a scripts setting (only main and events)
 
 From the mod list (upload):
 
@@ -1054,12 +1082,12 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    "scripts.events" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered
+    "scripts.events" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired
 
 From the mod list (upload):
 
-    scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered.
-    scripts.events lists "every_frame", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered.
+    scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.
+    scripts.events lists "every_frame", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.
     scripts.events lists "day_started" twice.
 
 What it means: "events" lists every event your script listens to with on(), each once, in lowercase. A library mod that only offers functions to other mods still lists one event, and need not register a handler for it.
@@ -1086,15 +1114,15 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    "permissions" must list one or more commands, each once, from: send_letter, give_item, show_line, ask
+    "permissions" must list one or more commands, each once, from: send_letter, give_item, show_line, ask, take_item, take_bells
 
 From the mod list (upload):
 
-    permissions must list at least one of send_letter, give_item, show_line, ask.
-    permissions lists "teleport", which is not a command. Use send_letter, give_item, show_line, ask.
+    permissions must list at least one of send_letter, give_item, show_line, ask, take_item, take_bells.
+    permissions lists "teleport", which is not a command. Use send_letter, give_item, show_line, ask, take_item, take_bells.
     permissions lists "ask" twice.
 
-What it means: "permissions" lists the commands your script may use, each once, from send_letter, give_item, show_line and ask. Players see the list on the Mods tab.
+What it means: "permissions" lists the commands your script may use, each once, from send_letter, give_item, show_line, ask, take_item and take_bells. Players see the list on the Mods tab.
 
 How to fix it: List only the commands your script calls, for example "permissions": ["send_letter"].
 
@@ -2435,6 +2463,120 @@ How to fix it: Shorten the lines or the list.
 
 ## Settings, translations, dependencies
 
+### translations-folder
+
+**A translations folder holds a file it cannot use**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
+
+In the game page (install, check tool):
+
+    "content.translations": translations/en.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)
+    "content.translations": translations/de.txt is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)
+    "content.translations": translations/ja.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)
+
+From the mod list (upload):
+
+    content.translations: translations/ja.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files).
+
+What it means: "content.translations" names a folder that holds only de.json, es.json, fr.json and it.json. English has no file there: it is the text in the mod's own files.
+
+How to fix it: Remove or rename the file the message names. Put the English text in the data file itself.
+
+Fixed (mod.json):
+
+```
+"content": { "letters": "letters.json", "translations": "translations/" }
+```
+
+### translations-not-object
+
+**A translations file is not key to text**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    translations/de: the file is not a JSON object of key to text
+
+From the mod list (upload):
+
+    translations/de.json: a translations file must be a JSON object of key to text.
+
+From the game (Mods tab row):
+
+    translations: a file is not a JSON object of key to text: de
+
+What it means: A translations file is one flat object. Each key is the path of a text in the mod, and each value is that text in the file's language.
+
+How to fix it: Write it as { "shops/flower/greeting": "Willkommen!" }.
+
+### translations-key
+
+**A translation names a text the mod does not have**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    translations/de: "letters/helo/body" names no text in this mod
+    translations/de: "calendar/quiet/board" names no text in this mod
+    translations/de: "calendar/tea-day/talk/3" names no text in this mod
+    translations/de: "greet" names no text in this mod
+    translations/de: "items/mug/name" names no text in this mod
+    translations/de: "letters/hello/item" names no text in this mod
+
+From the mod list (upload):
+
+    translations/de.json: "letters/helo/body" names no text in this mod.
+
+From the game (Mods tab row):
+
+    translations: a key names no text in this mod, left out: de letters/helo/body
+
+What it means: A key in a translations file is the path of a text in the mod's own files. This key matches none: the id is misspelt, the count is past the end of the list, or the mod's own file does not have that text.
+
+How to fix it: Use one of: mod/name, mod/description, settings/<name>/label, settings/<name>/description, items/<id>/name, shops/flower/name, shops/flower/greeting, shops/flower/stock_line, letters/<id>/header, letters/<id>/body, letters/<id>/footer, letters/<id>/sender, calendar/<id>/board, calendar/<id>/talk/<n>, talk/<pool>/<line>. The counts start at 1. A text can be translated only when the English file has it, so a letter without "sender" has no letters/<id>/sender.
+
+Bad (translations/de.json):
+
+```
+{ "letters/helo/body": "Hallo!" }
+```
+
+Fixed (translations/de.json):
+
+```
+{ "letters/hello/body": "Hallo!" }
+```
+
+### translations-text
+
+**A translation breaks the rule of the text it replaces**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    translations/de: "letters/hello/body" must be 1 to 192 plain characters on at most 6 lines: "ü" at character 3 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })
+    translations/fr: "shops/flower/name" must be 1 to 40 characters on one line
+    translations/de: "calendar/tea-day/board" must be 1 to 192 plain characters on at most 6 lines: "„" at character 11 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })
+    translations/de: "calendar/tea-day/talk/1" must be 1 to 160 characters with at most 3 line breaks
+    translations/de: "items/cup/name" must be 1 to 16 letters, digits, spaces or ' . , ! & -, starting with a letter or digit and not ending with a space
+    translations/de: "letters/hello/body" must be 1 to 192 plain characters on at most 6 lines
+
+From the mod list (upload):
+
+    translations/de.json: the translation "letters/hello/footer" must be 1 to 32 plain characters.
+
+From the game (Mods tab row):
+
+    translations: a text breaks the rule of the text it replaces, left out: de letters/hello/body
+
+What it means: A translation follows the rule of the text it replaces: the same length, the same lines and the same characters. A letter and a board notice take plain US keyboard characters in every language, because the letter font has no others. The game also measures a translated letter body or board notice on the paper, and leaves out one that does not fit six lines.
+
+How to fix it: Shorten the text, or write it without accents where the message says the letter paper refuses a character ("ue" for "ü"). Shop lines and villager lines may use the accented letters the game's font has.
+
 ### manifest-depends
 
 **depends or conflicts is not a list of mods**
@@ -2446,23 +2588,25 @@ In the game page (install, check tool):
     "depends" must be an object of mod id to version range, like {"author.mod": ">=1.0.0"}
     "depends" names the mod itself
     "bean.lib" is in both "depends" and "conflicts"
-    "conflicts" must be an object of mod id to version range, like {"author.mod": ">=1.0.0"}
-    "depends" may name at most 16 mods
-    "depends": "Bean.Lib" is not a mod id
+    "optional_depends" must be an object of mod id to version range, like {"author.mod": ">=1.0.0"}
+    "bean.lib" is in both "depends" and "optional_depends"
+    "bean.lib" is in both "optional_depends" and "conflicts"
 
 From the mod list (upload):
 
     depends must be an object of mod id to version range, like {"author.mod": ">=1.0.0"}.
     "bean.lib" is in both depends and conflicts.
+    "bean.lib" is in both optional_depends and conflicts.
 
-What it means: "depends" and "conflicts" are objects of mod id to version range. Each holds at most 16 mods, never your own, and one mod cannot be in both.
+What it means: "depends", "optional_depends" and "conflicts" are objects of mod id to version range. Each holds at most 16 mods, never your own. One mod can be in only one of the three: needed, used when it is there, or never run with.
 
-How to fix it: Write them as { "author.mod": ">=1.0.0" }.
+How to fix it: Write them as { "author.mod": ">=1.0.0" }. Keep each mod id in one of the three.
 
 Fixed (mod.json):
 
 ```
 "depends": { "yourname.tea-lib": ">=1.0.0 <2.0.0" },
+"optional_depends": { "yourname.weather": "*" },
 "conflicts": { "someone.other-shop": "*" }
 ```
 
@@ -2475,6 +2619,7 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 In the game page (install, check tool):
 
     "depends": the range for bean.lib must be "*" or up to 4 of >=, <=, >, <, = and a version, like ">=1.0.0 <2.0.0"
+    "optional_depends": the range for bean.lib must be "*" or up to 4 of >=, <=, >, <, = and a version, like ">=1.0.0 <2.0.0"
     "conflicts": the range for bean.lib must be "*" or up to 4 of >=, <=, >, <, = and a version, like ">=1.0.0 <2.0.0"
 
 From the mod list (upload):
@@ -2549,18 +2694,23 @@ In the game page (install, check tool):
     settings: setting 1 "name" must be 1 to 32 of a-z 0-9 _, starting with a letter
     settings: "greet" is declared twice
     settings: "x" has "min", which a bool setting does not take
-    settings: "x" "description" must be text of at most 200 characters
-    settings: "x" "label" must be 1 to 60 characters
+    settings: "greet" "scope" must be "world" or "client"
+    settings: "greet" "description" must be text of at most 200 characters, with no invisible, text-direction or control character but a line break
 
 From the mod list (upload):
 
     settings must be a list of at most 16 settings.
     settings: "x" type must be one of bool, number, choice, text.
     settings: "x" label must be 1 to 60 characters.
+    settings: "greet" scope must be "world" or "client".
+
+From the game (Mods tab row):
+
+    settings: a "scope" must be "world" or "client": greet
 
 What it means: "settings" is a list of at most 16 settings. Each has a name, a type, a label and only the keys its type takes.
 
-How to fix it: Fix the setting the message names. A name is a-z, 0-9 and _, starts with a letter and is used once. A type is bool, number, choice or text. A label is 1 to 60 characters, and an optional description is at most 200. A bool takes default. A number takes default, min and max. A choice takes default and choices. A text takes default and max_length.
+How to fix it: Fix the setting the message names. A name is a-z, 0-9 and _, starts with a letter and is used once. A type is bool, number, choice or text. A label is 1 to 60 characters, and an optional description is at most 200. An optional scope is "world" or "client". A bool takes default. A number takes default, min and max. A choice takes default and choices. A text takes default and max_length.
 
 ### messages-translations
 
@@ -3049,7 +3199,7 @@ On the site:
     The script cannot reload: it was not in mod.json at boot. Restart the game.
     Textures cannot reload: the mod had no textures folder at boot. Restart the game.
 
-What it means: Lines, the shop, talk, letters, the calendar, the items file, the script and textures reload while you play. A change to mod.json waits for a restart, because the game reads mod.json once, when it starts.
+What it means: Lines, the shop, talk, letters, the calendar, the items file, the script, textures and translations reload while you play. A change to mod.json waits for a restart, because the game reads mod.json once, when it starts.
 
 How to fix it: Choose Restart now in the Developer section. Save your town first.
 
@@ -3294,7 +3444,7 @@ On the site:
 
     The game stopped responding the last time it started with this mod on: Tea House. It started without mods this time. Your mods are still installed.
 
-What it means: The game stopped responding with these mods on, so this start ran once without them. One start that froze is enough. A freeze or crash later, during play, counts the second time in a row. Nothing was switched off or removed.
+What it means: The game stopped responding with these mods on, so this start ran once without them. One start that froze is enough. A freeze or crash later, during play, counts the second time in a row. The model viewer loads mods too, and the same rules watch it, so a viewer that froze as it started counts as well. Nothing was switched off or removed.
 
 How to fix it: If you installed it, switch the named mod off, or one of them at a time, then restart. If you made it, test the mod alone. The usual causes are a script that does heavy work at start and textures too big for the device. A phone has 24 MB for all mods.
 
@@ -3325,10 +3475,10 @@ Seen in: Mods tab, "Script stopped" on the mod's row.
 From the game (Mods tab row):
 
     script took too long (over 200000 instructions)
-    script took too long (over 33 ms)
-    script took too long (over 100 ms)
+    script took too long (over 125 ms)
+    script took too long (over 250 ms)
 
-What it means: One event gets 200,000 Lua instructions per mod and 33 ms, and the main chunk gets 100 ms when the game starts. A script that goes over is stopped for the rest of the session, so it cannot freeze the game.
+What it means: One event gets 200,000 Lua instructions per mod, and the main chunk gets the same when the game starts. Library work and memory use count towards it. That count is the same on every device, and a script that goes over it is stopped for the rest of the session, so it cannot freeze the game. "over ... ms" is the wall-clock backstop instead: 125 ms for an event run, 250 ms for the main chunk, stretched up to 8 times on a slow or busy device. Only time the count cannot see reaches it, such as one call that does a lot of work at once.
 
 How to fix it: Do less per event. Avoid long loops and patterns like ".-.-.-" on long text, and cache results in local variables or the store. String patterns, table.sort, table.concat and memory use count towards the budget, and pcall does not get around it.
 
@@ -3357,9 +3507,9 @@ Seen in: Mods tab, "Script stopped" on the mod's row.
 
 From the game (Mods tab row):
 
-    script kept the game waiting (3 runs over 8 ms)
+    script kept the game waiting (3 runs in a row over 8 ms)
 
-What it means: All mods together get 4 ms of Lua time a frame. An event run over 8 ms is a strike, and 3 strikes stop the script for the session, even when each run stayed inside its instruction budget.
+What it means: An event run over 8 ms is a strike, and 3 strikes in a row stop the script for the session, even when each run stayed inside its instruction budget. A run under the limit clears the strikes. On a slow or busy device the limit is stretched by how slow the game itself runs there, so the number in the message can be larger than 8.
 
 How to fix it: Do less per event. Spread work over several events, cache results in local variables or the store, and avoid long loops and patterns on long text.
 
@@ -3457,6 +3607,32 @@ Fixed (main.lua):
 
 ```
 on("day_started", function(e) store.set("days", (store.get("days") or 0) + 1) end)
+```
+
+### script-store-no-player
+
+**store.player.set with no player in the game**
+
+Seen in: Mods tab, "Script stopped" on the mod's row.
+
+From the game (Mods tab row):
+
+    @yourname.my-mod/main.lua:8: store.player.set: no player is in the game yet (game.player() is nil): save once a player is in the town, or use store for the town's own data
+
+What it means: "store.player" is kept per resident. A town can be loaded before a resident is in it, for example on the title screen. game.player() is nil then, so store.player.set has no one to save for and store.player.get returns nil.
+
+How to fix it: Check game.player() first, or save from an event a player takes part in, such as villager_talked or item_picked_up. For data that belongs to the whole town, use store.
+
+Bad (main.lua):
+
+```
+on("day_started", function() store.player.set("gift", "given") end)
+```
+
+Fixed (main.lua):
+
+```
+on("day_started", function() if game.player() then store.player.set("gift", "given") end end)
 ```
 
 ### remote-not-exported
@@ -3562,6 +3738,10 @@ In the game page (install, check tool):
 
     main.lua:4: unfinished string near '"hello'
     main.lua:7: ')' expected near 'log'
+    main.lua:2: <name> expected near '='
+    main.lua:9: break outside a loop at line 9
+    main.lua:3: no visible label 'done' for goto at line 3
+    main.lua:6: attempt to assign to const variable 'limit'
 
 From the game (Mods tab row):
 
@@ -3602,6 +3782,55 @@ From the game (Mods tab row):
 What it means: Your script raised a Lua error, and the text gives the file and line. The script is stopped for the rest of the session, and the rest of the mod keeps working.
 
 How to fix it: Open the file at the line shown and fix it, then reinstall and restart. The usual causes are a typo in a name, a call to something the API does not have, and indexing nil. Use log() to print values, and pcall around code that may fail.
+
+### dependency-absent
+
+**A mod this one can use is not there**
+
+Seen in: what remote.version returns, and remote.call for an optional dependency.
+
+From the game (Mods tab row):
+
+    yourname.weather is not loaded
+    yourname.weather is loaded, but it has no running script
+
+What it means: The mod is named in "depends" or "optional_depends", and it is not installed, is switched off, did not load, or has no running script. This is not an error. remote.version returns nil, this message and this code, and remote.call to an optional dependency returns the same three without calling anything.
+
+How to fix it: Nothing to fix. Do what the mod does on its own when the code comes back.
+
+### dependency-version
+
+**A mod this one can use is another version**
+
+Seen in: what remote.version returns, and remote.call for an optional dependency.
+
+From the game (Mods tab row):
+
+    yourname.weather is loaded, but its version is outside the range this mod names
+
+What it means: The mod loaded, but its version is not inside the range "optional_depends" gives for it, so it counts as absent. A needed dependency outside its range stops the mod from loading instead.
+
+How to fix it: Widen the range in mod.json if your mod works with that version. Otherwise do what the mod does on its own.
+
+### dependency-undeclared
+
+**remote.version asked about a mod mod.json does not name**
+
+Seen in: what remote.version returns, and remote.call for an optional dependency.
+
+From the game (Mods tab row):
+
+    yourname.weather is not in this mod's "depends" or "optional_depends"
+
+What it means: remote.version answers only for the mods this mod names in "depends" or "optional_depends".
+
+How to fix it: Add the mod to "optional_depends" in mod.json, with the range of versions your script works with.
+
+Fixed (mod.json):
+
+```
+"optional_depends": { "yourname.weather": ">=1.0.0" }
+```
 
 ## Mod commands
 
@@ -3670,8 +3899,9 @@ Seen in: what cmd.<name> returns when a command is refused, the command_finished
 From the game (Mods tab row):
 
     send_letter: at most 3 a day for each mod
+    take_bells: at most 6 a day for each mod
 
-What it means: Each game day in each town, a mod may send 3 letters, give 5 items, show 20 lines and ask 10 questions. The caps are per town, not per player, and a reload does not reset them.
+What it means: Each game day in each town, a mod may send 3 letters, give 5 items, show 20 lines and ask 10 questions. It may also ask for items 6 times and for Bells 6 times. A take counts when its question is shown, whatever the player answers. The caps are per town, not per player, and a reload does not reset them.
 
 How to fix it: Try again on the next game day. Remember in the store what you already sent today, so the script does not ask again.
 
@@ -3687,10 +3917,14 @@ From the game (Mods tab row):
     send_letter: item 0xF000 is not an item or furniture the game has
     give_item: a mod can only give its own new items, by "<this mod's id>:<item id>"
     give_item: no item by that id in this mod's items file
+    take_item: item 0x2503 is a villager's errand item
+    take_item: a mod can only take its own new items, by "<this mod's id>:<item id>"
+    the item is not this town's to give (its mod is off, or this is not your town)
+    the letter is gone (its mod's letters file did not load)
 
-What it means: Items follow the shop's rules, so a command cannot hand out money, turnips, tickets, grab bags, fossils or reserved numbers. An item is "0x" and four hex digits, or one of this mod's own new items by its full id.
+What it means: Items follow the shop's rules, so a command cannot hand out money, turnips, tickets, grab bags, fossils or reserved numbers. take_item follows the same rules, and never takes the goods of a villager's errand. An item is "0x" and four hex digits, or one of this mod's own new items by its full id. A letter id must be one in this mod's own letters file. The last two messages come in command_finished, when the game applies the command. They mean the mod's item or letter was there at the call and gone when the game applied the command, because its mod was switched off, its file did not load or the town is not yours.
 
-How to fix it: Pick another item. Write it as "0x2800" or "yourname.my-mod:thing".
+How to fix it: Pick another item. Write it as "0x2800" or "yourname.my-mod:thing". An item that is not a number or one of those forms is command-args instead.
 
 ### command-args
 
@@ -3704,6 +3938,11 @@ From the game (Mods tab row):
     send_letter: the text does not fit a letter (6 lines)
     ask: choices must be a list of 2 to 4 answers
     show_line: text must be 1 to 400 bytes
+    take_item: count must be a whole number 1 to 15
+    take_bells: amount must be a whole number 1 to 99999
+    take_bells: takes a table: { amount = ... }
+    give_item: item must be an item number, "0x" and four hex digits, or this mod's "author.mod:thing"
+    send_letter: item must be an item number or "0x" and four hex digits
 
 What it means: The command was called with a value it cannot use.
 
@@ -3724,6 +3963,32 @@ What it means: In The City every command is refused, because other players there
 
 How to fix it: Nothing to fix. Handle the nil return or the failed command_finished, and try again at home, for example from scene_entered.
 
+### command-client-setting
+
+**A client setting cannot decide what the town gets**
+
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
+
+From the game (Mods tab row):
+
+    give_item: this event read the client setting "gift", and a client setting cannot decide what the town gets (make it a world setting)
+
+What it means: A setting whose "scope" is "client" is the player's own. It may decide only what that player sees or hears. In an event that read one with settings.get, cmd.send_letter, cmd.give_item, cmd.take_item and cmd.take_bells are refused, because they change what the town or the player has.
+
+How to fix it: If the setting decides what a letter says, what is given or taken, or when, take "scope": "client" off it: it is then a world setting, and a friend who visits runs the host's value. If it only decides what the player sees, read it in the event that shows the line, not in the one that sends, gives or takes. Trying again does not help.
+
+Bad (mod.json):
+
+```
+"settings": [{ "name": "gift", "type": "choice", "label": "Gift", "choices": ["apple", "pear"], "default": "apple", "scope": "client" }]
+```
+
+Fixed (mod.json):
+
+```
+"settings": [{ "name": "gift", "type": "choice", "label": "Gift", "choices": ["apple", "pear"], "default": "apple" }]
+```
+
 ### command-visiting
 
 **Only the town's owner changes a town**
@@ -3735,7 +4000,7 @@ From the game (Mods tab row):
     only the town owner's game can change the town (you are visiting)
     give_item: only the town owner's game can change the town (you are visiting)
 
-What it means: On a visit, send_letter and give_item are refused, because only the town owner's game changes a town. They do not count against the daily caps, and show_line and ask still work.
+What it means: On a visit, send_letter, give_item, take_item and take_bells are refused, because only the town owner's game changes a town or a save. They do not count against the daily caps, and show_line and ask still work.
 
 How to fix it: Nothing to fix. Handle the nil return or the failed command_finished, and send it once the player is home.
 
@@ -3749,7 +4014,7 @@ From the game (Mods tab row):
 
     a friend's mod lent for a visit acts only in their town
 
-What it means: This mod was lent to a visitor for one visit. At the visitor's home its commands are refused and its shop, Nook goods, board notices, items and renames do nothing, so it never changes the visitor's own town or save.
+What it means: This mod was lent to a visitor for one visit. At the visitor's home its commands are refused and its shop, Nook goods, board notices, items and renames do nothing, so it never changes the visitor's own town or save. The game refuses the command when it applies it, not at the call. So cmd.<name> returns an id, and this code arrives in command_finished.
 
 How to fix it: Nothing to fix. Your mod runs normally for players who installed it.
 
@@ -3767,22 +4032,161 @@ From the game (Mods tab row):
 
 What it means: There was no room for the letter or the item. One of the game's items can go to the pockets or come by mail, and one of the mod's own new items can only go to the pockets.
 
-How to fix it: Try again later. Watch command_finished and send it again when it failed.
+How to fix it: Try again later, from a later event and not in a loop. A command refused for no room still counts against the day's cap, because it reached the game. Three letters refused for a full mailbox use up the day's letters, and the next one is command-day-cap.
 
 ### command-not-shown
 
-**A line or a gift could not be done**
+**A line or a question could not be drawn**
 
 Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
 
 From the game (Mods tab row):
 
     the text cannot be drawn in the window (too many pages?)
-    the item is not this town's to give (its mod is off, or this is not your town)
 
-What it means: The game could not carry the command out. The line is too long to page, or the item's mod is off.
+What it means: The game could not draw the line or the question in the window, because the text has too many pages. It arrives in command_finished. The command still counts against the day's cap, because it reached the game.
 
-How to fix it: Shorten the line, or keep the mod on. Trying the same command again does not help.
+How to fix it: Shorten the text. Trying the same command again does not help.
+
+### command-not-held
+
+**The player does not hold what a take asks for**
+
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
+
+From the game (Mods tab row):
+
+    take_item: the pockets do not hold 3 of that item in plain slots
+    take_bells: the wallet holds fewer than 500 Bells
+    the wallet no longer holds that many Bells
+
+What it means: take_item counts only plain pocket slots. A wrapped present, an item held for a villager's errand and a mod item standing on the same piece do not count. take_bells reads the wallet only, never the bank or a money bag. When the player holds less than the take asks for, nothing is asked and nothing is taken. It does not count against the daily cap.
+
+How to fix it: Check game.pockets() or game.bells() first, and tell the player what to bring with cmd.show_line. Try again from a later event.
+
+Bad (main.lua):
+
+```
+cmd.take_bells{ amount = 500 }
+```
+
+Fixed (main.lua):
+
+```
+if (game.bells() or 0) >= 500 then cmd.take_bells{ amount = 500 } end
+```
+
+### command-declined
+
+**The player said no to a take**
+
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
+
+From the game (Mods tab row):
+
+    the player said no, nothing was taken
+
+What it means: Before take_item or take_bells takes anything, the game asks the player in its own words, with the true item, count or amount. The player answered no, or closed the window with no pick. Nothing was taken. The question still counts against the daily cap, so a mod cannot ask again and again.
+
+How to fix it: Nothing to fix. Carry on without the item or the Bells, and do not ask again in the same event.
+
+## Timers
+
+### timer-no-town
+
+**timer.after before a town is loaded**
+
+Seen in: what timer.after returns when it is refused, and the Mod log.
+
+From the game (Mods tab row):
+
+    load: timer.after refused: no town is loaded yet (the script's main part runs before the save loads): set it from an event
+
+What it means: A timer is kept in the mod's town store, and the main part of a script runs before the town loads. So there is nowhere to keep a timer yet.
+
+How to fix it: Set the timer from an event, such as scene_entered or day_started.
+
+Bad (main.lua):
+
+```
+timer.after(30, "tea")
+```
+
+Fixed (main.lua):
+
+```
+on("day_started", function(e) timer.after(30, "tea") end)
+```
+
+### timer-no-clock
+
+**timer.after while the game clock is not set**
+
+Seen in: what timer.after returns when it is refused, and the Mod log.
+
+From the game (Mods tab row):
+
+    day_started: timer.after refused: the game clock is not set (it reads a date before the year 2000): try again later
+
+What it means: A timer is counted in game minutes from the start of the year 2000. The game clock read a date before that, which happens only when the clock was never set. A timer set then could never come due, so it is refused and nothing is stored.
+
+How to fix it: Nothing in the mod is wrong. Set the timer again from a later event, once the game has its date.
+
+### timer-limit
+
+**Too many timers waiting**
+
+Seen in: what timer.after returns when it is refused, and the Mod log.
+
+From the game (Mods tab row):
+
+    day_started: timer.after refused: this mod already has 16 timers waiting in this town
+
+What it means: A mod may have 16 timers waiting in one town.
+
+How to fix it: Cancel one with timer.cancel, or wait for one to fire. One timer that sets the next one when it fires needs only one slot.
+
+### timer-store-full
+
+**The timer does not fit in the town store**
+
+Seen in: what timer.after returns when it is refused, and the Mod log.
+
+From the game (Mods tab row):
+
+    day_started: timer.after refused: the timer does not fit in this mod's town store, or the store could not be written
+
+What it means: A waiting timer is kept in the mod's town store, with its name and data, and counts toward the store's 8 KB. This one would take the store over that, or the store could not be written. Nothing changed.
+
+How to fix it: Free some room with store.set(key, nil), or give the timer shorter data.
+
+### timer-args
+
+**timer.after was called with a value it cannot use**
+
+Seen in: what timer.after returns when it is refused, and the Mod log.
+
+From the game (Mods tab row):
+
+    day_started: timer.after refused: minutes must be a whole number 1 to 10080 (game minutes)
+    day_started: timer.after refused: name must be 1 to 40 bytes of letters, digits, _, - and .
+    day_started: timer.after refused: this script has no timer_fired handler (list timer_fired in scripts.events and add on("timer_fired", ...))
+
+What it means: minutes is a whole number of game minutes, 1 to 10080. name is 1 to 40 bytes of letters, digits, _, - and . only. data is text of up to 240 bytes, a number, true, false or nil. The script must also handle timer_fired, or the timer would fire to nobody.
+
+How to fix it: Fix the call. List "timer_fired" in scripts.events and add on("timer_fired", ...) in the main part of the script.
+
+Bad (main.lua):
+
+```
+timer.after(0.5, "tea time")
+```
+
+Fixed (main.lua):
+
+```
+timer.after(30, "tea-time")
+```
 
 ## Sharing a mod
 
@@ -3814,6 +4218,20 @@ What it means: The mod list is public, so a mod's name goes through the site's w
 
 How to fix it: Change "name" in mod.json, raise the version and upload again.
 
+### upload-translation-word
+
+**A translated name has a word the site does not allow**
+
+Seen in: Share a mod, when you upload.
+
+From the mod list (upload):
+
+    translations/de.json: "mod/name" has a word the site does not allow. Pick another name.
+
+What it means: The mod list shows a mod's name in the reader's language when the mod has one, so each translated name goes through the same word filter as the name in mod.json. The message names the translations file.
+
+How to fix it: Change "mod/name" in that translations file, raise the version and upload again.
+
 ### upload-author-word
 
 **An author name has a word the site does not allow**
@@ -3827,6 +4245,34 @@ From the mod list (upload):
 What it means: Author names show on the mod list, so they go through the site's word filter.
 
 How to fix it: Change the name in "authors" in mod.json, raise the version and upload again.
+
+### upload-not-text
+
+**A text file is not text**
+
+Seen in: Share a mod, when you upload.
+
+From the mod list (upload):
+
+    "notes.txt" is not text. A .txt, .md or .lua file must be plain UTF-8 text.
+
+What it means: A reviewer reads every .txt, .md and .lua file of a shared mod, and the site's word filter reads them too. So each one must be plain text: UTF-8, with no zero byte. A picture, an archive or any other data under a text name is refused. A file saved as UTF-16 is refused as well.
+
+How to fix it: Save the file as UTF-8 in your editor. Take out a file that is not text, or give a picture its real .png or .dds name.
+
+### upload-text-too-much
+
+**The mod carries too much text**
+
+Seen in: Share a mod, when you upload.
+
+From the mod list (upload):
+
+    The text files of the mod add up to more than 4 MB. A mod may carry at most that much text.
+
+What it means: The .json, .lua, .txt and .md files of a shared mod can be at most 4 MB together. The site's word filter reads all of it at upload and a reviewer may have to read it. An upload whose text takes the filter too long to read is refused with the same words.
+
+How to fix it: Take out text the mod does not need, such as generated lists or logs. Split the mod in two when all of it is needed.
 
 ### upload-sign-in
 
@@ -3900,7 +4346,7 @@ Seen in: Share a mod, when you upload.
 
 From the mod list (upload):
 
-    This version of the mod is already uploaded. Raise the version in mod.json.
+    This version of the mod is already uploaded: a version is never replaced, and its number is not used again, even after it is removed (only a rejected version's number is free again). Raise the version in mod.json.
 
 Registry codes: `version_exists`
 
@@ -4112,10 +4558,11 @@ From the mod list (upload):
     Enter the code from your authenticator app to approve playac-mod.
     Sharing mods is switched off on this server for now.
     Too many wrong codes in a row, so code checks are paused for a while. Wait, then try again with a fresh code. We emailed the account.
+    That code is not right, or it was used already. Wait for the next one and try again.
 
-Registry codes: `two_factor_required`, `two_factor_code`, `two_factor_unavailable`, `two_factor_locked`
+Registry codes: `two_factor_required`, `two_factor_code`, `two_factor_unavailable`, `two_factor_locked`, `bad_code`
 
-What it means: Sharing a mod, importing one from GitHub and approving a playac-mod sign-in all need two-factor sign-in and a recent code from your authenticator app. After 5 wrong codes in a row, code checks pause for a minute or longer, and we email the account.
+What it means: Sharing a mod, importing one from GitHub and approving a playac-mod sign-in all need two-factor sign-in and a recent code from your authenticator app. A code works once. After 5 wrong codes in a row, code checks pause for a minute or longer, and we email the account.
 
 How to fix it: Switch on two-factor sign-in on your Profile page, then enter a code from your authenticator app when asked. If codes are paused, wait, check that the phone's clock is right and use a fresh code.
 
@@ -4214,13 +4661,47 @@ Seen in: the Mods tab.
 From the mod list (upload):
 
     A moderator took this version out of the list. Upload a fixed version, or ask the moderators to look again.
+    The moderators are looking at this version, so it can't be listed again for now.
     Another decision on this version came first. Reload and look again.
 
 Registry codes: `mod_conflict`
 
-What it means: The version's state does not allow that change. Only a moderator can list again a version that a moderator withdrew, and a decision made first wins.
+What it means: The version's state does not allow that change. Only a moderator can list again a version that a moderator withdrew, and a decision made first wins. A version the moderators are looking at cannot be listed again until they decide.
 
-How to fix it: Reload the Mods tab. If a moderator withdrew the version, read the reason, fix the mod and upload a new version.
+How to fix it: Reload the Mods tab. If a moderator withdrew the version, read the reason, fix the mod and upload a new version. If the moderators are looking at it, wait for their decision.
+
+### cli-sign-in-code
+
+**The sign-in code is not waiting**
+
+Seen in: the playac-mod tool, and the page that approves its sign-in (/cli/).
+
+From the mod list (upload):
+
+    No sign-in is waiting with that code. Codes last 10 minutes: run the command again for a new one.
+    That code was already approved or denied.
+
+Registry codes: `code_not_found`, `code_used`
+
+What it means: playac-mod prints a code of 8 letters and waits for you to approve it on the site. A code lasts 10 minutes and is answered once.
+
+How to fix it: Run the playac-mod command again. It prints a new address and a new code. Approve that one.
+
+### cli-token-scope
+
+**The tool's sign-in cannot do that**
+
+Seen in: the playac-mod tool, and the page that approves its sign-in (/cli/).
+
+From the mod list (upload):
+
+    A playac-mod sign-in can only upload mods and see, yank or list again your own versions. Do this on the site instead.
+
+Registry codes: `token_scope`
+
+What it means: A playac-mod sign-in is narrower than your account. It uploads mods and manages your own versions. Every other request made with it is refused.
+
+How to fix it: Do it in a browser where you are signed in to the site. If playac-mod itself printed this, update the tool.
 
 ## Review decisions
 
@@ -4320,7 +4801,7 @@ How to fix it: Make the name, description and pictures match what the mod does.
 
 Seen in: the review decision on your upload.
 
-What it means: The mod does not load or does not do what it says. Fix it and upload it again as a new version.
+What it means: The mod does not load or does not do what it says. Fix it and upload it again.
 
 How to fix it: Test it with `playac-mod check`, then in the game with developer mode and the Mod log. Fix it and upload a higher version.
 
@@ -4402,9 +4883,9 @@ Seen in: Mods tab, on the mod's row after a restart.
 
 On the site:
 
-    No longer offered in the mod list. It still works.
+    This version was withdrawn from the mod list. It still works.
 
-What it means: The author withdrew this version. It still works and friend visits still match it, but new players cannot install it.
+What it means: The author or a moderator withdrew this version. It still works and friends who both have it can still visit, but new players cannot install it.
 
 How to fix it: Nothing to do. If the author shares a newer version, update to it.
 

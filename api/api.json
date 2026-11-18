@@ -15,7 +15,7 @@
       {
         "level": 1,
         "date": "2026-11-16",
-        "summary": "The first level. Content is textures, lines (a messages file or a folder of translations), shops (the flower shop and Nook's stock), new furniture on a vanilla base (an items file, renames), letter templates, calendar days and villager line pools. Scripts get fifteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods and a seeded rng. Four commands (cmd.send_letter, give_item, show_line, ask) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event."
+        "summary": "The first level. Content is textures, lines (a messages file or a folder of translations), shops (the flower shop and Nook's stock), new furniture on a vanilla base (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Six commands (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Texts of the data files can be translated in a translations folder. Mods can name optional_depends, and a setting can be world or client."
       }
     ]
   },
@@ -283,10 +283,10 @@
     },
     {
       "name": "lua.deadline_ms",
-      "value": 100,
+      "value": 250,
       "unit": "milliseconds",
       "since": 1,
-      "description": "Wall-clock limit on a script's main chunk when the game starts.",
+      "description": "Wall-clock backstop on a script's main chunk, for time the instruction count cannot see: one long call into C, or a garbage collection. The instruction budget is what stops a main chunk that does too much. On a slow device it is stretched by the device's pace (lua.pace_frame_ms).",
       "sources": {
         "c": "PC_MOD_LUA_DEADLINE_MS"
       }
@@ -306,7 +306,7 @@
       "value": 20,
       "unit": "lines",
       "since": 1,
-      "description": "log() lines kept per event. The rest are dropped.",
+      "description": "Mod log lines kept per event for one mod: its log() lines and the refusals written when it called cmd.* or timer.*. The rest are dropped, and the log says so once.",
       "sources": {
         "c": "PC_MOD_LUA_LOG_PER_RUN"
       }
@@ -316,7 +316,7 @@
       "value": 500,
       "unit": "lines",
       "since": 1,
-      "description": "log() lines kept per mod per session.",
+      "description": "Mod log lines kept per mod per session: log() lines and every refusal of its commands and timers. A script stop is always written.",
       "sources": {
         "c": "PC_MOD_LUA_LOG_SESSION"
       }
@@ -387,10 +387,10 @@
     },
     {
       "name": "lua.event_deadline_ms",
-      "value": 33,
+      "value": 125,
       "unit": "milliseconds",
       "since": 1,
-      "description": "One event run longer than this stops the script. It is two 60 Hz frames.",
+      "description": "Wall-clock backstop on one event run, for time the instruction count cannot see: one long call into C, or a garbage collection. The instruction budget is what stops an event run that does too much, and it counts the same on every device. On a slow device it is stretched by the device's pace (lua.pace_frame_ms). A busy device does not stop a mod that stays inside its budget.",
       "sources": {
         "c": "PC_MOD_LUA_EVENT_DEADLINE_MS"
       }
@@ -400,7 +400,7 @@
       "value": 4,
       "unit": "milliseconds",
       "since": 1,
-      "description": "Lua time all mods together get per frame. Once it is spent, every game event without an answer waits for the next frame, and villager_talked is skipped for the rest of that frame. command_finished and question_answered always run.",
+      "description": "Lua time all mods together get per frame. Once it is spent, every game event without an answer waits for the next frame, and villager_talked is skipped for the rest of that frame. command_finished and question_answered always run. It never stops or strikes a mod. At least one waiting event runs each frame, so on a slow device events wait longer but still run.",
       "sources": {
         "c": "PC_MOD_LUA_FRAME_BUDGET_MS"
       }
@@ -410,7 +410,7 @@
       "value": 8,
       "unit": "milliseconds",
       "since": 1,
-      "description": "An event run longer than this is a strike.",
+      "description": "An event run longer than this is a strike. On a slow device it is stretched by the device's pace (lua.pace_frame_ms).",
       "sources": {
         "c": "PC_MOD_LUA_SLOW_RUN_MS"
       }
@@ -420,9 +420,29 @@
       "value": 3,
       "unit": "strikes",
       "since": 1,
-      "description": "Strikes before the script is stopped (\"kept the game waiting\").",
+      "description": "Strikes in a row before the script is stopped (\"kept the game waiting\"). A run under the limit clears the strikes.",
       "sources": {
         "c": "PC_MOD_LUA_SLOW_RUNS_MAX"
+      }
+    },
+    {
+      "name": "lua.pace_frame_ms",
+      "value": 4,
+      "unit": "milliseconds",
+      "since": 1,
+      "description": "The game's own work per frame that counts as full speed. Mods' Lua time is left out of it. When the game's recent frames take longer (a slow phone, a busy machine), the wall-clock limits are stretched. The stretch is recent frame work divided by this, from 1 up to lua.pace_stretch_max. It applies to lua.deadline_ms, lua.event_deadline_ms and lua.slow_run_ms. The frame cap and the instruction budget are never stretched.",
+      "sources": {
+        "c": "PC_MOD_LUA_PACE_FRAME_MS"
+      }
+    },
+    {
+      "name": "lua.pace_stretch_max",
+      "value": 8,
+      "unit": "times",
+      "since": 1,
+      "description": "The most a slow device stretches the wall-clock limits. At this stretch an event run's backstop is 1 second and a strike is a run over 64 ms.",
+      "sources": {
+        "c": "PC_MOD_LUA_PACE_STRETCH_MAX"
       }
     },
     {
@@ -501,10 +521,11 @@
       "value": 16,
       "unit": "mods",
       "since": 1,
-      "description": "Mods in depends, and in conflicts, each.",
+      "description": "Mods in depends, in optional_depends and in conflicts, each.",
       "sources": {
         "js": "MAX_DEPS",
-        "go": "maxLinks"
+        "go": "maxLinks",
+        "c": "PC_MOD_LINKS_MAX"
       }
     },
     {
@@ -772,7 +793,7 @@
       "value": 20,
       "unit": "commands",
       "since": 1,
-      "description": "show_line per mod per game day in each town. The count is per town and shared by its residents, not per player. It is a safety limit, not a game rule.",
+      "description": "show_line per mod per game day in each town. One that cannot be drawn (command-not-shown) does not count. The count is per town and shared by its residents, not per player. It is a safety limit, not a game rule.",
       "sources": {
         "c": "PC_MOD_FX_DAY_LINES"
       }
@@ -782,9 +803,89 @@
       "value": 10,
       "unit": "commands",
       "since": 1,
-      "description": "ask per mod per game day in each town. The count is per town and shared by its residents, not per player. It is a safety limit, not a game rule.",
+      "description": "ask per mod per game day in each town. One that cannot be drawn (command-not-shown) does not count. The count is per town and shared by its residents, not per player. It is a safety limit, not a game rule.",
       "sources": {
         "c": "PC_MOD_FX_DAY_ASKS"
+      }
+    },
+    {
+      "name": "commands.take_items_per_day",
+      "value": 6,
+      "unit": "commands",
+      "since": 1,
+      "description": "take_item per mod per game day in each town. A take counts when its question is shown, whatever the player answers. One that cannot be drawn (command-not-shown) does not count. The count is per town and shared by its residents, not per player. It is a safety limit, not a game rule.",
+      "sources": {
+        "c": "PC_MOD_FX_DAY_TAKE_ITEMS"
+      }
+    },
+    {
+      "name": "commands.take_bells_per_day",
+      "value": 6,
+      "unit": "commands",
+      "since": 1,
+      "description": "take_bells per mod per game day in each town. A take counts when its question is shown, whatever the player answers. One that cannot be drawn (command-not-shown) does not count. The count is per town and shared by its residents, not per player. It is a safety limit, not a game rule.",
+      "sources": {
+        "c": "PC_MOD_FX_DAY_TAKE_BELLS"
+      }
+    },
+    {
+      "name": "commands.take_item_count",
+      "value": 15,
+      "unit": "items",
+      "since": 1,
+      "description": "The most pieces of one item a single take_item may ask for. It is the number of pockets.",
+      "sources": {
+        "c": "PC_MOD_FX_TAKE_ITEM_MAX"
+      }
+    },
+    {
+      "name": "commands.take_bells_amount",
+      "value": 99999,
+      "unit": "Bells",
+      "since": 1,
+      "description": "The most Bells a single take_bells may ask for. It is the most a wallet holds.",
+      "sources": {
+        "c": "PC_MOD_FX_TAKE_BELLS_MAX"
+      }
+    },
+    {
+      "name": "timers.per_mod",
+      "value": 16,
+      "unit": "timers",
+      "since": 1,
+      "description": "The most timers one mod may have waiting in one town.",
+      "sources": {
+        "c": "PC_MOD_TIMERS_MAX"
+      }
+    },
+    {
+      "name": "timers.minutes_max",
+      "value": 10080,
+      "unit": "minutes",
+      "since": 1,
+      "description": "The longest a timer may wait, in game minutes. It is 7 game days. A timer never waits longer than this from any moment, so a clock set back cannot strand one.",
+      "sources": {
+        "c": "PC_MOD_TIMER_MINUTES_MAX"
+      }
+    },
+    {
+      "name": "timers.name_bytes",
+      "value": 40,
+      "unit": "bytes",
+      "since": 1,
+      "description": "The longest timer name. A name is letters, digits, _, - and . only.",
+      "sources": {
+        "c": "PC_MOD_TIMER_NAME_MAX"
+      }
+    },
+    {
+      "name": "timers.data_bytes",
+      "value": 240,
+      "unit": "bytes",
+      "since": 1,
+      "description": "The longest text a timer's data may be.",
+      "sources": {
+        "c": "PC_MOD_TIMER_DATA_MAX"
       }
     },
     {
@@ -933,7 +1034,8 @@
       "description": "The longest mod \"name\", in Unicode code points, spaces at the ends not counted.",
       "sources": {
         "js": "NAME_CHARS",
-        "go": "maxNameRunes"
+        "go": "maxNameRunes",
+        "c": "PC_MOD_NAME_CHARS"
       }
     },
     {
@@ -966,7 +1068,8 @@
       "description": "The longest \"description\".",
       "sources": {
         "js": "DESCRIPTION_CHARS",
-        "go": "maxDescriptionRunes"
+        "go": "maxDescriptionRunes",
+        "c": "PC_MOD_DESCRIPTION_CHARS"
       }
     },
     {
@@ -988,7 +1091,8 @@
       "description": "A setting's \"label\", spaces at the ends not counted.",
       "sources": {
         "js": "SETTING_LABEL_CHARS",
-        "go": "maxSettingLabel"
+        "go": "maxSettingLabel",
+        "c": "PC_MOD_SETTING_LABEL_CHARS"
       }
     },
     {
@@ -999,7 +1103,8 @@
       "description": "A setting's \"description\".",
       "sources": {
         "js": "SETTING_DESC_CHARS",
-        "go": "maxSettingDesc"
+        "go": "maxSettingDesc",
+        "c": "PC_MOD_SETTING_DESC_CHARS"
       }
     },
     {
@@ -1228,7 +1333,7 @@
       "name": "content",
       "since": 1,
       "required": false,
-      "description": "What the mod adds, each a path inside the mod: textures, messages, shops, items, letters, calendar and talk. Anything else is refused. messages may name a folder of translations. In a folder, en.json is required and de, es, fr and it are optional.",
+      "description": "What the mod adds, each a path inside the mod: textures, messages, shops, items, letters, calendar, talk and translations. Anything else is refused. messages may name a folder of translations. In a folder, en.json is required and de, es, fr and it are optional. translations names a folder that holds the other files' texts in de, es, fr and it.",
       "example": {
         "messages": "messages/en.json"
       },
@@ -1270,6 +1375,11 @@
             "type": "string",
             "minLength": 1,
             "description": "The talk pools file."
+          },
+          "translations": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A folder of <lang>.json files (de, es, fr, it) that translate the text of the other files. English is the text in those files, so there is no en.json."
           }
         }
       },
@@ -1280,7 +1390,8 @@
         "items",
         "letters",
         "calendar",
-        "talk"
+        "talk",
+        "translations"
       ]
     },
     {
@@ -1328,7 +1439,7 @@
       "name": "permissions",
       "since": 1,
       "required": false,
-      "description": "The commands the mod's script may queue, each once. The game refuses any command the list leaves out. The Mods tab and the moderators' review show what the list lets the mod do. Needs scripts.",
+      "description": "The commands the mod's script may queue, each once. The game refuses any command the list leaves out. The Mods tab and the moderators' review show what the list lets the mod do. take_item and take_bells let the mod ask the player for items or Bells. The game itself shows the question with the true item and amount, and nothing is taken unless the player says yes. Needs scripts.",
       "example": [
         "send_letter"
       ],
@@ -1341,7 +1452,9 @@
             "send_letter",
             "give_item",
             "show_line",
-            "ask"
+            "ask",
+            "take_item",
+            "take_bells"
           ]
         }
       },
@@ -1349,7 +1462,9 @@
         "send_letter",
         "give_item",
         "show_line",
-        "ask"
+        "ask",
+        "take_item",
+        "take_bells"
       ]
     },
     {
@@ -1426,6 +1541,27 @@
       }
     },
     {
+      "name": "optional_depends",
+      "since": 1,
+      "required": false,
+      "description": "Mods this one can use but does not need, as mod id to version range. Ranges are written as in depends. At most 16. This mod always loads. An optional dependency is present when it is installed, switched on, loading and inside the range. A present one loads before this mod. One that is missing, off, not loading or outside the range is absent, and nothing waits for it. A script asks with remote.version(id). remote.call to an absent one returns nil, a message and a code. It is not an error. A mod id may be in only one of depends, optional_depends and conflicts.",
+      "example": {
+        "yourname.tea-lib": ">=1.0.0 <2.0.0"
+      },
+      "schema": {
+        "type": "object",
+        "maxProperties": 16,
+        "propertyNames": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}$"
+        },
+        "additionalProperties": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^(\\*|((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))( ((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))){0,3})$"
+        }
+      }
+    },
+    {
       "name": "conflicts",
       "since": 1,
       "required": false,
@@ -1462,13 +1598,14 @@
       "name": "settings",
       "since": 1,
       "required": false,
-      "description": "At most 16 settings the player sets on the Mods tab and scripts read with settings.get. The types are bool, number (whole, with min and max), choice (2 to 16 choices) and text (max_length 1 to 200). Every setting of a World mod counts for visit matching, because its values are part of what a friend visit compares. Keep cosmetic toggles out of World mods.",
+      "description": "At most 16 settings the player sets on the Mods tab and scripts read with settings.get. The types are bool, number (whole, with min and max), choice (2 to 16 choices) and text (max_length 1 to 200). A setting may say \"scope\". \"world\" is the default: the value is part of the town, a friend visit compares it, and a visitor lent the mod runs the host's value. \"client\" is the player's own: it is never compared or sent, and each player keeps theirs on a visit. Use client for a choice that only changes what its own player sees or hears.",
       "example": [
         {
           "name": "greet",
           "type": "bool",
           "label": "Say hello",
-          "default": true
+          "default": true,
+          "scope": "client"
         }
       ],
       "schema": {
@@ -1493,11 +1630,20 @@
                 "label": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 60
+                  "maxLength": 60,
+                  "description": "1 to 60 characters, trimmed, on one line. No control, format (zero width, text-direction) or blank filler character."
                 },
                 "description": {
                   "type": "string",
-                  "maxLength": 200
+                  "maxLength": 200,
+                  "description": "At most 200 characters. Line breaks are allowed. No other control, format (zero width, text-direction) or blank filler character."
+                },
+                "scope": {
+                  "enum": [
+                    "world",
+                    "client"
+                  ],
+                  "description": "Whose the value is on a friend visit. world (the default): the host's. client: each player's own."
                 },
                 "type": {
                   "const": "bool"
@@ -1526,11 +1672,20 @@
                 "label": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 60
+                  "maxLength": 60,
+                  "description": "1 to 60 characters, trimmed, on one line. No control, format (zero width, text-direction) or blank filler character."
                 },
                 "description": {
                   "type": "string",
-                  "maxLength": 200
+                  "maxLength": 200,
+                  "description": "At most 200 characters. Line breaks are allowed. No other control, format (zero width, text-direction) or blank filler character."
+                },
+                "scope": {
+                  "enum": [
+                    "world",
+                    "client"
+                  ],
+                  "description": "Whose the value is on a friend visit. world (the default): the host's. client: each player's own."
                 },
                 "type": {
                   "const": "number"
@@ -1570,11 +1725,20 @@
                 "label": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 60
+                  "maxLength": 60,
+                  "description": "1 to 60 characters, trimmed, on one line. No control, format (zero width, text-direction) or blank filler character."
                 },
                 "description": {
                   "type": "string",
-                  "maxLength": 200
+                  "maxLength": 200,
+                  "description": "At most 200 characters. Line breaks are allowed. No other control, format (zero width, text-direction) or blank filler character."
+                },
+                "scope": {
+                  "enum": [
+                    "world",
+                    "client"
+                  ],
+                  "description": "Whose the value is on a friend visit. world (the default): the host's. client: each player's own."
                 },
                 "type": {
                   "const": "choice"
@@ -1613,11 +1777,20 @@
                 "label": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 60
+                  "maxLength": 60,
+                  "description": "1 to 60 characters, trimmed, on one line. No control, format (zero width, text-direction) or blank filler character."
                 },
                 "description": {
                   "type": "string",
-                  "maxLength": 200
+                  "maxLength": 200,
+                  "description": "At most 200 characters. Line breaks are allowed. No other control, format (zero width, text-direction) or blank filler character."
+                },
+                "scope": {
+                  "enum": [
+                    "world",
+                    "client"
+                  ],
+                  "description": "Whose the value is on a friend visit. world (the default): the host's. client: each player's own."
                 },
                 "type": {
                   "const": "text"
@@ -1687,22 +1860,24 @@
     {
       "name": "depends_not_conflicts",
       "since": 1,
-      "description": "A mod id may not be in both depends and conflicts, nor name the mod itself."
+      "description": "A mod id may be in only one of depends, optional_depends and conflicts. None of them may name the mod itself."
     },
     {
       "name": "settings_world_hash",
       "since": 1,
-      "description": "A World mod that declares settings adds a hash of their values to its entry in the list of mods a friend visit compares. The entry gains +<sha256 of \"name=value\\n\" per setting, sorted>. The visit's list of mods carries that hash and the values too, so two towns on one mod with different settings are told \"same mod, different settings\". Every setting of a World mod counts. There is no per-setting scope, so keep cosmetic toggles out of World mods."
+      "description": "A World mod that declares world settings adds a hash of their values to its entry in the list of mods a friend visit compares. The entry gains +<sha256 of \"name=value\\n\" per world setting, sorted>. The visit's list of mods carries that hash and the values too, so two towns on one mod with different settings are told \"same mod, different settings\". A setting whose scope is client is not in the hash, and its value is never in the list. A mod with only client settings adds no hash. A mod with no client setting hashes as it did before scopes existed."
     },
     {
       "name": "visit_scope",
       "since": 1,
-      "description": "Which mods a friend visit compares. A Just you mod never counts. A World mod counts if its content has textures, shops or items (visit_scope_content), or if its permissions are not a list of strings. Every other World mod does not count. That covers a mod with only lines, letters, calendar days or talk pools. The commands send_letter, give_item, show_line and ask never make a mod count. Only mods that count must match between the two towns.",
+      "description": "Which mods a friend visit compares. A Just you mod never counts. A World mod counts if its content has textures, shops or items (visit_scope_content), or if its permissions are not a list of strings. Every other World mod does not count. That covers a mod with only lines, letters, calendar days or talk pools. No command makes a mod count. send_letter, give_item, take_item and take_bells are refused on a visit, and show_line and ask show only to their own player. Only mods that count must match between the two towns. An optional dependency is a mod like any other here. When it is a World mod that counts, it is in the list, and installing it changes what a visit compares.",
       "values": [
         "send_letter",
         "give_item",
         "show_line",
-        "ask"
+        "ask",
+        "take_item",
+        "take_bells"
       ]
     },
     {
@@ -1753,7 +1928,8 @@
         "calendar",
         "items",
         "scripts",
-        "textures"
+        "textures",
+        "translations"
       ]
     },
     {
@@ -1767,7 +1943,7 @@
     {
       "name": "visit_lend",
       "since": 1,
-      "description": "Visiting with the host's mods. When every World mod of the host that counts is a reviewed version from the mod list, a visitor can load them for that visit only, after agreeing. They run with the host's settings. Each mod's values travel with the visit, are checked against what its mod.json allows, and are never kept on the visitor's game. A text setting the host changed from its default must pass the site's word checks (no rude words, contact details or risky phrases). If it does not, the visit is refused instead of lent. Nothing is installed. The game restarts with the lent mods, and their scripts start with an empty store that is never saved. A lent mod acts only in the host's town. At home, in the restart before the trip and the one after it, its shop, Nook goods, board notices, items, renames and commands do nothing. It therefore never changes the visitor's own town or save. A mod installed from a file cannot be lent. Nothing is lent while mods are switched off for everyone. A set that would not load whole on the visitor's game, with the visitor's own Just you mods and under the same limits, is refused before the restart."
+      "description": "Visiting with the host's mods. When every World mod of the host that counts is a reviewed version from the mod list, a visitor can load them for that visit only, after agreeing. They run with the host's world settings. Each mod's world values travel with the visit, are checked against what its mod.json allows, and are never kept on the visitor's game. A text setting the host changed from its default must pass the site's word checks (no rude words, contact details or risky phrases). If it does not, the visit is refused instead of lent. A client setting is the visitor's own. It keeps the value the visitor set on their installed copy of the mod, and it is the default when the visitor does not have the mod. Nothing is installed. The game restarts with the lent mods, and their scripts start with an empty store that is never saved. A lent mod acts only in the host's town. At home, in the restart before the trip and the one after it, its shop, Nook goods, board notices, items, renames and commands do nothing. It therefore never changes the visitor's own town or save. A mod installed from a file cannot be lent. Nothing is lent while mods are switched off for everyone. A set that would not load whole on the visitor's game, in the host's order, with the visitor's own Just you mods and under the same limits, is refused before the restart."
     },
     {
       "name": "city_set",
@@ -1875,6 +2051,11 @@
       "description": "exports requires scripts, because only a script offers functions."
     },
     {
+      "name": "own_game_only",
+      "since": 1,
+      "description": "Nothing of a mod runs outside the player's own game. At the title screen, at player select and in the intro no event fires, no timer fires, no command is applied, no calendar letter goes out and no town data is loaded, so data_migrated does not run there either. The title screen plays a demo in the player's own save with the clock set to a date in 2001. A script never sees that date. Whatever was waiting keeps waiting and carries on when play starts: a timer that came due fires then, and a command queued before a save and quit is applied then. The one part of a script that runs outside the game is its main chunk, at start, before a town loads."
+    },
+    {
       "name": "commands_between_frames",
       "since": 1,
       "description": "An event handler never changes the game. Each cmd.* call queues a command. The game applies the queue at one point in each frame: at the end of the game's update, after the world moves and before that frame is drawn. It applies commands only while the player is free, which means not in a talk, menu, cutscene, door or scene change. A command's result comes back as a command_finished event to the mod that queued it."
@@ -1893,6 +2074,44 @@
       "name": "ids_are_numbers",
       "since": 1,
       "description": "In Lua an id is always a number, never a hex string. That holds for an item, a villager and a scene. JSON data files write an item as a string, \"0x2800\". The commands take an item as a number, as \"0x2800\", or as the mod's own \"author.mod:thing\"."
+    },
+    {
+      "name": "settings_scope",
+      "since": 1,
+      "description": "A setting is world or client. A world setting is part of the town. A friend visit compares it, and a visitor lent the mod runs the host's value. A client setting is the player's own. It is never compared and never sent, and on a visit each player runs their own value. A client setting may decide only what its own player sees or hears: a line, a question, a display choice. It may not decide what the town gets or gives up. The game checks this where it can. In an event that read a client setting with settings.get, a command that changes the town is refused with the code command-client-setting. Those commands are the values of this rule. The check covers one event. A value kept in a variable, in store or in a timer's data and used in a later event is not caught, and neither is a value passed through remote.call. timer.after is not refused after a client setting was read, because a timer that only shows its player a line later is a proper use. Those cases are the modder's to avoid. Their failure is silent: the host's town gets what the host's value says, while a visitor's copy of the mod runs the visitor's value and can show a line that does not match.",
+      "values": [
+        "send_letter",
+        "give_item",
+        "take_item",
+        "take_bells"
+      ]
+    },
+    {
+      "name": "translations_fallback",
+      "since": 1,
+      "description": "Which text the game shows for a translated mod. The game has one language: the disc's, which is en, de, es, fr or it. A US or Australian disc is en. For each text the game looks in that language first: the language's file in the messages folder for a script line, and the language's file in content.translations for every other text. When that file has no entry for the text, the game shows the English text: en.json for a script line, and the text in the mod's own data file for the rest. The order is the same for every text and in every part of the site. Each text falls back alone.",
+      "values": [
+        "en",
+        "de",
+        "es",
+        "fr",
+        "it"
+      ]
+    },
+    {
+      "name": "translations_same_rules",
+      "since": 1,
+      "description": "A translation follows the rule of the text it replaces. The limit on length, the limit on lines and the characters allowed are the same in every language. A letter's header, body, footer and sender and a board notice take plain US keyboard characters only, because the letter font has no others. Only the game knows the width of the paper, so it alone refuses a translated body or notice that does not fit. It leaves that one text out and shows the English."
+    },
+    {
+      "name": "optional_depends_order",
+      "since": 1,
+      "description": "Load order with optional dependencies. A present optional dependency loads before the mod that names it, exactly as a needed one does. An absent one changes nothing. Present means installed, switched on, loading and inside the range. A mod whose optional dependency is outside the range still loads, and that dependency counts as absent for it."
+    },
+    {
+      "name": "optional_depends_cycle",
+      "since": 1,
+      "description": "A cycle through an optional dependency never stops a mod from loading. When every mod left to place waits for another, the earliest of them in the player's order whose needed dependencies are all placed loads next. It loads before the optional dependencies it was waiting for, and they load after it. Such a dependency is still present. remote.version and remote.call work in events. Only the promise that it loads first is dropped for that one mod, so its main chunk must not count on the dependency. A cycle made only of needed dependencies is still refused."
     }
   ],
   "files": [
@@ -2332,6 +2551,7 @@
                 },
                 "date": {
                   "type": "object",
+                  "additionalProperties": false,
                   "required": [
                     "month"
                   ],
@@ -2508,6 +2728,30 @@
           }
         ]
       }
+    },
+    {
+      "name": "translations",
+      "since": 1,
+      "manifest_key": "content.translations",
+      "format": "json",
+      "schema_file": "translations.schema.json",
+      "description": "The text of a mod's other files in another language. content.translations names a folder of <lang>.json files: de, es, fr and it. English is the text in the mod's own files, so the folder holds no en.json. Each file is one object of key to text. A key is the path of a text: mod/name, mod/description, settings/<name>/label, settings/<name>/description, items/<id>/name, shops/flower/name, shops/flower/greeting, shops/flower/stock_line, letters/<id>/header, letters/<id>/body, letters/<id>/footer, letters/<id>/sender, calendar/<id>/board, calendar/<id>/talk/<n> and talk/<pool>/<line>. <n>, <pool> and <line> count from 1 in the order of the file. A key must name a text the mod has. Its text follows the rule of the text it replaces: the same length, the same lines and the same characters. A letter and a board notice stay plain US keyboard characters in every language. The game shows a text in its own language when the file for that language has the key. It shows the English text when it does not. This is decided for each text alone. A file cannot carry a $schema key, because every key is a text. Point your editor at translations.schema.json in its settings instead.",
+      "schema": {
+        "type": "object",
+        "propertyNames": {
+          "pattern": "^(mod/(name|description)|settings/[a-z][a-z0-9_]{0,31}/(label|description)|items/[a-z0-9][a-z0-9-]{0,31}/name|shops/flower/(name|greeting|stock_line)|letters/[a-z0-9_.-]{1,48}/(header|body|footer|sender)|calendar/[a-z0-9_.-]{1,48}/(board|talk/[1-9][0-9]{0,3})|talk/[1-9][0-9]{0,3}/[1-9][0-9]{0,3})$"
+        },
+        "additionalProperties": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The text in this file's language. It follows the rule of the text its key names."
+        }
+      },
+      "example": {
+        "mod/name": "Laternenfest",
+        "letters/lanterns/body": "Das Laternenfest ist heute.\nKomm zum Wunschbrunnen!",
+        "calendar/lantern-night/talk/1": "Hast du die Laternen gesehen?"
+      }
     }
   ],
   "globals": [
@@ -2536,7 +2780,7 @@
       "name": "log",
       "kind": "function",
       "since": 1,
-      "description": "Writes a line to the Mods tab's Mod log and the browser console as \"[Mods] <id>: ...\". Arguments are joined with spaces. A line is cut at 300 bytes. At most 20 lines per event and 500 per session. A script error or stop is written to the Mod log too, with a Lua traceback.",
+      "description": "Writes a line to the Mods tab's Mod log and the browser console as \"[Mods] <id>: ...\". Arguments are joined with spaces. A line is cut at 299 bytes. At most 20 lines per event and 500 per session. A refused cmd.* or timer.* call writes a line of its own, and those lines count toward the same two limits. A script error or stop is written to the Mod log too, with a Lua traceback, whatever the limits. The log keeps the newest 400 lines of all mods. When it is full, the oldest line of the mod with the most lines goes first, so one mod cannot push out another mod's lines.",
       "params": [
         {
           "name": "...",
@@ -2764,7 +3008,7 @@
               {
                 "name": "id",
                 "type": "integer",
-                "description": "Stays the same for that resident in that town. A new resident who later takes a freed slot gets a different id. On a visit it is the visitor's own number, never equal to a resident's."
+                "description": "Stays the same for that resident in that town. It holds the resident's save slot. A new resident who later takes a freed slot can get the same id, and never gets the old resident's store.player data: the game deletes that when a resident is deleted and again when a new one is made in the slot. On a visit it is the visitor's own number, never equal to a resident's."
               }
             ]
           }
@@ -2880,7 +3124,7 @@
           "name": "player",
           "kind": "table",
           "since": 1,
-          "description": "This player's part of the town store. It has the same get and set, per mod, per town, per player (game.player().id). It lives inside the mod's town store and shares its 8 KB. Before a town is loaded, get answers nil and set raises an error. On a visit it lives in memory only.",
+          "description": "This player's part of the town store. It has the same get and set, per mod, per town, per player (game.player().id). It lives inside the mod's town store and shares its 8 KB. Before a town is loaded, get answers nil and set raises an error. With a town but no player in the game yet, get answers nil and set raises its own error (no player is in the game yet). When a resident is deleted, everything mods saved for them here is deleted too and its room is given back. A new resident in that save slot starts with nothing. On a visit it lives in memory only.",
           "members": [
             {
               "name": "get",
@@ -2972,7 +3216,7 @@
           "name": "call",
           "kind": "function",
           "since": 1,
-          "description": "Calls a function another running mod offers. Its errors come back as yours, and it keeps running.",
+          "description": "Calls a function another running mod offers. Its errors come back as yours, and it keeps running. When the mod is one of this mod's optional_depends and it is absent, nothing is called and nothing is raised: the call returns nil, a message and a code from dependency_codes.",
           "params": [
             {
               "name": "mod",
@@ -3010,6 +3254,33 @@
           "returns": {
             "type": "boolean"
           }
+        },
+        {
+          "name": "version",
+          "kind": "function",
+          "since": 1,
+          "description": "Whether a mod this one names in depends or optional_depends is present, and at what version. Returns its version, such as \"1.2.0\", when it loaded inside the range. Returns nil, a message and a code from dependency_codes when it did not. Ask in an event. In the main chunk an optional dependency that the cycle rule placed after this mod has loaded no script yet.",
+          "params": [
+            {
+              "name": "mod",
+              "type": "string"
+            }
+          ],
+          "returns": {
+            "type": "string|nil",
+            "name": "version",
+            "description": "The version, or nil.",
+            "more": [
+              {
+                "name": "message",
+                "type": "string|nil"
+              },
+              {
+                "name": "code",
+                "type": "DependencyCode|nil"
+              }
+            ]
+          }
         }
       ]
     },
@@ -3017,7 +3288,7 @@
       "name": "cmd",
       "kind": "table",
       "since": 1,
-      "description": "The commands. Each queues an effect that the game applies at the end of a frame's update, before the frame is drawn. Each needs its name in mod.json permissions. A call returns the command's id. When it is refused at once, it returns nil, a message and a code (command_codes). In The City every command is refused at once. On a visit send_letter and give_item are refused at once. A command refused at once counts against no daily limit. A command queued at home and applied after the player left comes back as a failed command_finished, and its count is given back.",
+      "description": "The commands. Each queues an effect that the game applies at the end of a frame's update, before the frame is drawn. Each needs its name in mod.json permissions. A call returns the command's id. When it is refused at once, it returns nil, a message and a code (command_codes). In The City every command is refused at once. On a visit send_letter, give_item, take_item and take_bells are refused at once. A command refused at once counts against no daily limit. A command queued at home and applied after the player left comes back as a failed command_finished, and its count is given back.",
       "members": [
         {
           "name": "send_letter",
@@ -3134,6 +3405,64 @@
               }
             ]
           }
+        },
+        {
+          "name": "take_item",
+          "kind": "function",
+          "since": 1,
+          "description": "Asks the player to hand over items from their pockets. The game shows its own question, which names the item, the count and this mod. The mod's name stands between quotes, and a mod item is named as the pockets show it, both in the game's language where the mod has a translation. A script cannot change that text. On yes the items leave the pockets and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the pockets do not hold that many. Only plain pocket slots count. A wrapped present or an item held for a villager's errand is never taken. Items a command cannot give cannot be taken either (money bags, turnips, tickets, grab bags, fossils). It is refused on a visit and in The City, so a lent mod can never take anything.",
+          "params": [
+            {
+              "name": "t",
+              "type": "table",
+              "description": "{ item, count? }. item is an item number, \"0x\" and four hex digits, or this mod's own \"author.mod:thing\". count is 1 to 15 and is 1 when left out. An item number matches plain pieces only, never a mod item standing on that piece."
+            }
+          ],
+          "returns": {
+            "type": "integer|nil",
+            "description": "The command's id. When it is refused at once: nil, then a message and a code.",
+            "more": [
+              {
+                "name": "message",
+                "type": "string|nil",
+                "description": "Why it was refused, in words."
+              },
+              {
+                "name": "code",
+                "type": "CommandCode|nil",
+                "description": "The refusal's stable code (command_codes)."
+              }
+            ]
+          }
+        },
+        {
+          "name": "take_bells",
+          "kind": "function",
+          "since": 1,
+          "description": "Asks the player to pay Bells from their wallet. The game shows its own question, which names the amount and this mod. The mod's name stands between quotes, in the game's language where the mod translates it. A script cannot change that text. On yes the Bells leave the wallet and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the wallet holds less than the amount, so the wallet never goes below zero. The bank account and money bags in the pockets are never touched. It is refused on a visit and in The City, so a lent mod can never take anything.",
+          "params": [
+            {
+              "name": "t",
+              "type": "table",
+              "description": "{ amount }. amount is a whole number of Bells, 1 to 99999."
+            }
+          ],
+          "returns": {
+            "type": "integer|nil",
+            "description": "The command's id. When it is refused at once: nil, then a message and a code.",
+            "more": [
+              {
+                "name": "message",
+                "type": "string|nil",
+                "description": "Why it was refused, in words."
+              },
+              {
+                "name": "code",
+                "type": "CommandCode|nil",
+                "description": "The refusal's stable code (command_codes)."
+              }
+            ]
+          }
         }
       ]
     },
@@ -3155,6 +3484,69 @@
       "returns": {
         "type": "number|integer"
       }
+    },
+    {
+      "name": "timer",
+      "kind": "table",
+      "since": 1,
+      "description": "Timers. A script asks to be called later, and the game sends it a timer_fired event. Time is counted on the game's clock in whole game minutes, so a timer keeps counting while the game is closed and fires at the first chance after it is due. A timer never fires at the title screen or at player select. It fires once play has started (the rule own_game_only). Timers belong to the town. They are kept in this mod's town store, count toward its store.bytes and survive a save and a reload. On a visit, in The City and for a lent mod they live in memory only and are gone when the town changes. Scene changes do not touch them. A mod may have timers.per_mod waiting in one town.",
+      "members": [
+        {
+          "name": "after",
+          "kind": "function",
+          "since": 1,
+          "description": "Sets a timer that fires once, at least that many game minutes from now. It returns the timer's id. When it is refused it returns nil, a message and a code (timer_codes). Setting a timer rewrites the town store, so it is charged to the event's budget like store.set.",
+          "params": [
+            {
+              "name": "minutes",
+              "type": "integer",
+              "description": "Game minutes to wait, 1 to 10080 (7 days)."
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "description": "What the timer is for, 1 to 40 bytes of letters, digits, _, - and . only. It comes back in timer_fired."
+            },
+            {
+              "name": "data",
+              "type": "string|number|boolean|nil",
+              "description": "A value handed back in timer_fired. Text is up to 240 bytes with no zero byte. Empty text comes back as nil, like every empty event text."
+            }
+          ],
+          "returns": {
+            "type": "integer|nil",
+            "description": "The timer's id, a whole number that is never reused in this town. When it is refused: nil, then a message and a code.",
+            "more": [
+              {
+                "name": "message",
+                "type": "string|nil",
+                "description": "Why it was refused, in words."
+              },
+              {
+                "name": "code",
+                "type": "TimerCode|nil",
+                "description": "The refusal's stable code (timer_codes)."
+              }
+            ]
+          }
+        },
+        {
+          "name": "cancel",
+          "kind": "function",
+          "since": 1,
+          "description": "Cancels a waiting timer of this mod in this town. It answers true when there was one. A timer that already fired, or an id from another town, answers false.",
+          "params": [
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "The id timer.after returned."
+            }
+          ],
+          "returns": {
+            "type": "boolean"
+          }
+        }
+      ]
     }
   ],
   "sandbox": {
@@ -3428,7 +3820,7 @@
     {
       "name": "item_picked_up",
       "since": 1,
-      "description": "The player got an item. They picked it up, caught it with the net or rod, or dug it up. Fires after it is in their pockets.",
+      "description": "The player got an item. They picked it up, outdoors or off a room's floor, caught it with the net or the rod, or dug it up with the shovel. It fires once the item is in their pockets, or in the wallet for Bells. It does not fire for anything bought. A fish or a bug that goes into the pockets fires this event and then fish_caught or bug_caught, so a script that counts both counts that catch twice. It does not fire when the pockets were full. Outdoors the game then offers to swap the item for one in the pockets, and no event is sent whatever the player chooses. Indoors a full pocket refuses the pickup.",
       "params": [
         {
           "name": "e",
@@ -3442,7 +3834,7 @@
             {
               "name": "mod_item",
               "type": "string|nil",
-              "description": "The full id (\"author.mod:thing\") when the pocket slot it landed in holds a mod item. nil for a plain item, or when the game cannot tell."
+              "description": "The full id (\"author.mod:thing\") when the pocket slot it landed in holds a mod item. That is a mod item picked up in the player's own house, the one place a mod item stands. nil for a plain item, on a visit and in The City."
             }
           ]
         }
@@ -3454,7 +3846,7 @@
     {
       "name": "scene_entered",
       "since": 1,
-      "description": "A scene starts, such as the town, a house or a shop. Not in the title demo.",
+      "description": "A scene starts, such as the town, a house or a shop. Not in the title demo, at player select or in the intro (the rule own_game_only).",
       "params": [
         {
           "name": "e",
@@ -3621,7 +4013,7 @@
     {
       "name": "fish_caught",
       "since": 1,
-      "description": "A fish was landed. pocketed says whether it went into the pockets. There is no size or length, because the game keeps none for a caught fish. Each kind has one fixed shadow size. Only the fishing tourney makes up a length, when the fish is shown to its host.",
+      "description": "A fish was landed. pocketed says whether it went into the pockets. There is no size or length, because the game keeps none for a caught fish. Each kind has one fixed shadow size. Only the fishing tourney makes up a length, when the fish is shown to its host. When pocketed is true, item_picked_up fired for the same catch just before this event.",
       "params": [
         {
           "name": "e",
@@ -3630,12 +4022,7 @@
             {
               "name": "item",
               "type": "integer",
-              "description": "The item number (items.json). For a mod item, it is the base piece the item stands on."
-            },
-            {
-              "name": "mod_item",
-              "type": "string|nil",
-              "description": "Always nil today, because no fish is a mod item."
+              "description": "The fish's item number (items.json). A fish is never a mod item, so this event has no mod_item."
             },
             {
               "name": "pocketed",
@@ -3651,7 +4038,7 @@
     {
       "name": "bug_caught",
       "since": 1,
-      "description": "A bug was netted. pocketed says whether it went into the pockets.",
+      "description": "A bug was netted. pocketed says whether it went into the pockets. When pocketed is true, item_picked_up fired for the same catch just before this event.",
       "params": [
         {
           "name": "e",
@@ -3660,12 +4047,7 @@
             {
               "name": "item",
               "type": "integer",
-              "description": "The item number (items.json). For a mod item, it is the base piece the item stands on."
-            },
-            {
-              "name": "mod_item",
-              "type": "string|nil",
-              "description": "Always nil today, because no bug is a mod item."
+              "description": "The bug's item number (items.json). A bug is never a mod item, so this event has no mod_item."
             },
             {
               "name": "pocketed",
@@ -3681,7 +4063,7 @@
     {
       "name": "letter_read",
       "since": 1,
-      "description": "The player chose Read on a letter. item is the present, nil when the letter carries none.",
+      "description": "The player chose Read on a letter. item is the present, nil when the letter carries none. letter names the letters file letter it is, when a mod sent it.",
       "params": [
         {
           "name": "e",
@@ -3689,8 +4071,8 @@
           "fields": [
             {
               "name": "sender",
-              "type": "string",
-              "description": "The name the letter is from."
+              "type": "string|nil",
+              "description": "The name the letter is from, as game.player().name spells a name. nil when the letter carries no sender name."
             },
             {
               "name": "item",
@@ -3700,12 +4082,17 @@
             {
               "name": "mod_item",
               "type": "string|nil",
-              "description": "The present's full id when it is a mod item, else nil. A letter does not carry a mod item's identity today, so nil."
+              "description": "The present's full id (\"author.mod:thing\") when it is a mod item, else nil. A letter keeps its mod item present while it moves between the pockets, the mailbox and the post office. nil on a visit and in The City."
             },
             {
               "name": "first_time",
               "type": "boolean",
               "description": "true the first time this letter is read."
+            },
+            {
+              "name": "letter",
+              "type": "string|nil",
+              "description": "The letter's full id (\"<mod id>:<letter id>\") when it is a letter from an enabled mod's letters file, sent by cmd.send_letter{ template } or a calendar day. Nothing is written into the save for it. The game finds it by what the saved letter holds: its words (body and footer), the sender name in the mailbox list and the paper, and only among letters the game itself mailed. So it still answers after a save and a reload, and a letter a player wrote by hand with the same words is never named. nil for the game's letters, a player's letters and a cmd.send_letter{ text } letter. Two mod letters with the same words, sender and paper are told apart by nothing, and the first in load order is named. A letter mailed before its mod changed its words, sender or paper is no longer named."
             }
           ]
         }
@@ -3781,7 +4168,7 @@
     {
       "name": "command_finished",
       "since": 1,
-      "description": "A command this mod queued was applied or refused. When applied, ok is true and via says how (mailbox, post_office, pockets, mail or shown). When refused, ok is false, with a code (command_codes) and a message. Sent only to that mod.",
+      "description": "A command this mod queued was applied or refused. When applied, ok is true and via says how (mailbox, post_office, pockets, mail, shown or taken). When refused, ok is false, with a code (command_codes) and a message. Sent only to that mod.",
       "params": [
         {
           "name": "e",
@@ -3795,7 +4182,7 @@
             {
               "name": "command",
               "type": "string",
-              "description": "send_letter, give_item, show_line or ask."
+              "description": "send_letter, give_item, show_line, ask, take_item or take_bells."
             },
             {
               "name": "ok",
@@ -3804,7 +4191,7 @@
             {
               "name": "via",
               "type": "string|nil",
-              "description": "How it was applied: mailbox, post_office, pockets, mail or shown. nil when refused."
+              "description": "How it was applied: mailbox, post_office, pockets, mail, shown or taken. nil when refused."
             },
             {
               "name": "code",
@@ -3846,6 +4233,37 @@
               "name": "text",
               "type": "string|nil",
               "description": "The answer's text. nil with no pick."
+            }
+          ]
+        }
+      ],
+      "returns": {
+        "type": "nil"
+      }
+    },
+    {
+      "name": "timer_fired",
+      "since": 1,
+      "description": "A timer this mod set with timer.after is due. It fires once, at the end of a frame's update, in whatever scene the player is in, and the timer is gone before the handler runs. It is an event like any other. Its handlers share one instruction budget, it waits for a later frame when the frame's time is spent, and the commands it queues count against the per-event and per-day caps. At most one timer per mod fires in a frame. A timer that came due while the game was closed fires soon after the town loads. Sent only to that mod.",
+      "params": [
+        {
+          "name": "e",
+          "type": "table",
+          "fields": [
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "The id timer.after returned."
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "description": "The name given to timer.after."
+            },
+            {
+              "name": "data",
+              "type": "string|number|boolean|nil",
+              "description": "The data given to timer.after. nil when none was given."
             }
           ]
         }
@@ -3975,6 +4393,66 @@
         ]
       },
       "permission": "ask"
+    },
+    {
+      "name": "take_item",
+      "kind": "function",
+      "since": 1,
+      "description": "Asks the player to hand over items from their pockets. The game shows its own question, which names the item, the count and this mod. The mod's name stands between quotes, and a mod item is named as the pockets show it, both in the game's language where the mod has a translation. A script cannot change that text. On yes the items leave the pockets and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the pockets do not hold that many. Only plain pocket slots count. A wrapped present or an item held for a villager's errand is never taken. Items a command cannot give cannot be taken either (money bags, turnips, tickets, grab bags, fossils). It is refused on a visit and in The City, so a lent mod can never take anything.",
+      "params": [
+        {
+          "name": "t",
+          "type": "table",
+          "description": "{ item, count? }. item is an item number, \"0x\" and four hex digits, or this mod's own \"author.mod:thing\". count is 1 to 15 and is 1 when left out. An item number matches plain pieces only, never a mod item standing on that piece."
+        }
+      ],
+      "returns": {
+        "type": "integer|nil",
+        "description": "The command's id. When it is refused at once: nil, then a message and a code.",
+        "more": [
+          {
+            "name": "message",
+            "type": "string|nil",
+            "description": "Why it was refused, in words."
+          },
+          {
+            "name": "code",
+            "type": "CommandCode|nil",
+            "description": "The refusal's stable code (command_codes)."
+          }
+        ]
+      },
+      "permission": "take_item"
+    },
+    {
+      "name": "take_bells",
+      "kind": "function",
+      "since": 1,
+      "description": "Asks the player to pay Bells from their wallet. The game shows its own question, which names the amount and this mod. The mod's name stands between quotes, in the game's language where the mod translates it. A script cannot change that text. On yes the Bells leave the wallet and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the wallet holds less than the amount, so the wallet never goes below zero. The bank account and money bags in the pockets are never touched. It is refused on a visit and in The City, so a lent mod can never take anything.",
+      "params": [
+        {
+          "name": "t",
+          "type": "table",
+          "description": "{ amount }. amount is a whole number of Bells, 1 to 99999."
+        }
+      ],
+      "returns": {
+        "type": "integer|nil",
+        "description": "The command's id. When it is refused at once: nil, then a message and a code.",
+        "more": [
+          {
+            "name": "message",
+            "type": "string|nil",
+            "description": "Why it was refused, in words."
+          },
+          {
+            "name": "code",
+            "type": "CommandCode|nil",
+            "description": "The refusal's stable code (command_codes)."
+          }
+        ]
+      },
+      "permission": "take_bells"
     }
   ],
   "command_codes": [
@@ -3991,7 +4469,7 @@
     {
       "code": "command-item",
       "retry": "never",
-      "description": "An item the command cannot hand out, or an unknown item or letter id of the mod's own."
+      "description": "An item the command cannot hand out, or an unknown item or letter id of the mod's own. Also sent in command_finished when the mod's item or letter was gone by the time the game applied the command."
     },
     {
       "code": "command-event-cap",
@@ -4021,17 +4499,32 @@
     {
       "code": "command-lent-home",
       "retry": "never",
-      "description": "A lent mod acting outside the host's town."
+      "description": "A lent mod acting outside the host's town. It arrives in command_finished, never as the return of a cmd call."
     },
     {
       "code": "command-no-room",
       "retry": "later",
-      "description": "No room now. The mailbox and the post office are full, or the pockets are full for a mod item."
+      "description": "No room now. The mailbox and the post office are full, or the pockets are full for a mod item. The command still counts against the day's cap, so do not try again in a loop."
     },
     {
       "code": "command-not-shown",
       "retry": "never",
-      "description": "The line or question cannot be drawn."
+      "description": "The line or question cannot be drawn in the window, because the text has too many pages. The command still counts against the day's cap."
+    },
+    {
+      "code": "command-not-held",
+      "retry": "later",
+      "description": "A take the player cannot meet. The pockets do not hold that many of the item in plain slots, or the wallet holds fewer Bells."
+    },
+    {
+      "code": "command-declined",
+      "retry": "later",
+      "description": "The player said no to a take's question, or closed it with no pick. Nothing was taken."
+    },
+    {
+      "code": "command-client-setting",
+      "retry": "never",
+      "description": "The event read a client setting, and a client setting cannot decide what the town gets or gives up. Make the setting world, or do not read it in an event that sends a letter, gives an item, or takes an item or Bells."
     }
   ],
   "reference_lists": [
@@ -4087,5 +4580,46 @@
       ]
     }
   ],
-  "shims": []
+  "shims": [],
+  "timer_codes": [
+    {
+      "code": "timer-args",
+      "retry": "never",
+      "description": "Wrong arguments, such as the minutes, the name or the data. Also when the script has no timer_fired handler."
+    },
+    {
+      "code": "timer-limit",
+      "retry": "later",
+      "description": "The mod already has timers.per_mod timers waiting in this town."
+    },
+    {
+      "code": "timer-no-town",
+      "retry": "later",
+      "description": "No town is loaded yet. The script's main chunk runs before the save loads."
+    },
+    {
+      "code": "timer-no-clock",
+      "retry": "later",
+      "description": "The game clock is not set. It reads a date before the year 2000, so there is no minute to count from."
+    },
+    {
+      "code": "timer-store-full",
+      "retry": "later",
+      "description": "The timer does not fit in this mod's town store (store.bytes), or the store could not be written."
+    }
+  ],
+  "dependency_codes": [
+    {
+      "code": "dependency-absent",
+      "description": "The mod is not installed, is switched off, did not load, or has no running script."
+    },
+    {
+      "code": "dependency-version",
+      "description": "The mod loaded, but its version is outside the range this mod names."
+    },
+    {
+      "code": "dependency-undeclared",
+      "description": "The mod is not in this mod's depends or optional_depends."
+    }
+  ]
 }

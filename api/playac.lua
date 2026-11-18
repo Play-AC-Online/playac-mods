@@ -3,21 +3,38 @@
 -- Reference: https://playaconline.com/modding/reference/  Put this file where your editor's Lua language server finds it
 -- (for example a "types" folder listed in .luarc.json "workspace.library").
 
----@alias PlayacEvent "villager_talked"|"day_started"|"item_picked_up"|"scene_entered"|"data_migrated"|"hour_changed"|"item_bought"|"item_sold"|"fish_caught"|"bug_caught"|"letter_read"|"villager_moved_in"|"visitor_arrived"|"command_finished"|"question_answered"
+---@alias PlayacEvent "villager_talked"|"day_started"|"item_picked_up"|"scene_entered"|"data_migrated"|"hour_changed"|"item_bought"|"item_sold"|"fish_caught"|"bug_caught"|"letter_read"|"villager_moved_in"|"visitor_arrived"|"command_finished"|"question_answered"|"timer_fired"
 
 ---The stable code of a refused command: what cmd.* returns third, and command_finished's e.code.
 --- - `command-permission` (retry: never): The command is not in mod.json permissions.
 --- - `command-args` (retry: never): Wrong arguments, such as their shape, a length, the paper or the choices.
---- - `command-item` (retry: never): An item the command cannot hand out, or an unknown item or letter id of the mod's own.
+--- - `command-item` (retry: never): An item the command cannot hand out, or an unknown item or letter id of the mod's own. Also sent in command_finished when the mod's item or letter was gone by the time the game applied the command.
 --- - `command-event-cap` (retry: next-event): More than commands.per_event commands in one event.
 --- - `command-queue-full` (retry: later): The mod's queue, or the game's, is full.
 --- - `command-day-cap` (retry: tomorrow): The per-day limit for this command in this town is used up.
 --- - `command-city` (retry: later): Commands are off in The City.
 --- - `command-visiting` (retry: later): On a visit, only the town owner's game changes the town.
---- - `command-lent-home` (retry: never): A lent mod acting outside the host's town.
---- - `command-no-room` (retry: later): No room now. The mailbox and the post office are full, or the pockets are full for a mod item.
---- - `command-not-shown` (retry: never): The line or question cannot be drawn.
----@alias playac.CommandCode "command-permission"|"command-args"|"command-item"|"command-event-cap"|"command-queue-full"|"command-day-cap"|"command-city"|"command-visiting"|"command-lent-home"|"command-no-room"|"command-not-shown"
+--- - `command-lent-home` (retry: never): A lent mod acting outside the host's town. It arrives in command_finished, never as the return of a cmd call.
+--- - `command-no-room` (retry: later): No room now. The mailbox and the post office are full, or the pockets are full for a mod item. The command still counts against the day's cap, so do not try again in a loop.
+--- - `command-not-shown` (retry: never): The line or question cannot be drawn in the window, because the text has too many pages. The command still counts against the day's cap.
+--- - `command-not-held` (retry: later): A take the player cannot meet. The pockets do not hold that many of the item in plain slots, or the wallet holds fewer Bells.
+--- - `command-declined` (retry: later): The player said no to a take's question, or closed it with no pick. Nothing was taken.
+--- - `command-client-setting` (retry: never): The event read a client setting, and a client setting cannot decide what the town gets or gives up. Make the setting world, or do not read it in an event that sends a letter, gives an item, or takes an item or Bells.
+---@alias playac.CommandCode "command-permission"|"command-args"|"command-item"|"command-event-cap"|"command-queue-full"|"command-day-cap"|"command-city"|"command-visiting"|"command-lent-home"|"command-no-room"|"command-not-shown"|"command-not-held"|"command-declined"|"command-client-setting"
+
+---The stable code of a refused timer: what timer.after returns third.
+--- - `timer-args` (retry: never): Wrong arguments, such as the minutes, the name or the data. Also when the script has no timer_fired handler.
+--- - `timer-limit` (retry: later): The mod already has timers.per_mod timers waiting in this town.
+--- - `timer-no-town` (retry: later): No town is loaded yet. The script's main chunk runs before the save loads.
+--- - `timer-no-clock` (retry: later): The game clock is not set. It reads a date before the year 2000, so there is no minute to count from.
+--- - `timer-store-full` (retry: later): The timer does not fit in this mod's town store (store.bytes), or the store could not be written.
+---@alias playac.TimerCode "timer-args"|"timer-limit"|"timer-no-town"|"timer-no-clock"|"timer-store-full"
+
+---Why a mod named in depends or optional_depends is not there: what remote.version returns third, and remote.call for an absent optional dependency.
+--- - `dependency-absent`: The mod is not installed, is switched off, did not load, or has no running script.
+--- - `dependency-version`: The mod loaded, but its version is outside the range this mod names.
+--- - `dependency-undeclared`: The mod is not in this mod's depends or optional_depends.
+---@alias playac.DependencyCode "dependency-absent"|"dependency-version"|"dependency-undeclared"
 
 ---The villager. It is a copy, so changing it changes nothing.
 ---@class PlayacVillager
@@ -40,7 +57,7 @@
 ---The one table a handler of item_picked_up gets, as e.
 ---@class PlayacItemPickedUpEvent
 ---@field item integer The item number (items.json). For a mod item, it is the base piece the item stands on.
----@field mod_item string? The full id ("author.mod:thing") when the pocket slot it landed in holds a mod item. nil for a plain item, or when the game cannot tell.
+---@field mod_item string? The full id ("author.mod:thing") when the pocket slot it landed in holds a mod item. That is a mod item picked up in the player's own house, the one place a mod item stands. nil for a plain item, on a visit and in The City.
 
 ---The one table a handler of scene_entered gets, as e.
 ---@class PlayacSceneEnteredEvent
@@ -77,22 +94,21 @@
 
 ---The one table a handler of fish_caught gets, as e.
 ---@class PlayacFishCaughtEvent
----@field item integer The item number (items.json). For a mod item, it is the base piece the item stands on.
----@field mod_item string? Always nil today, because no fish is a mod item.
+---@field item integer The fish's item number (items.json). A fish is never a mod item, so this event has no mod_item.
 ---@field pocketed boolean
 
 ---The one table a handler of bug_caught gets, as e.
 ---@class PlayacBugCaughtEvent
----@field item integer The item number (items.json). For a mod item, it is the base piece the item stands on.
----@field mod_item string? Always nil today, because no bug is a mod item.
+---@field item integer The bug's item number (items.json). A bug is never a mod item, so this event has no mod_item.
 ---@field pocketed boolean
 
 ---The one table a handler of letter_read gets, as e.
 ---@class PlayacLetterReadEvent
----@field sender string The name the letter is from.
+---@field sender string? The name the letter is from, as game.player().name spells a name. nil when the letter carries no sender name.
 ---@field item integer? The present's item number. nil when the letter carries none.
----@field mod_item string? The present's full id when it is a mod item, else nil. A letter does not carry a mod item's identity today, so nil.
+---@field mod_item string? The present's full id ("author.mod:thing") when it is a mod item, else nil. A letter keeps its mod item present while it moves between the pockets, the mailbox and the post office. nil on a visit and in The City.
 ---@field first_time boolean true the first time this letter is read.
+---@field letter string? The letter's full id ("<mod id>:<letter id>") when it is a letter from an enabled mod's letters file, sent by cmd.send_letter{ template } or a calendar day. Nothing is written into the save for it. The game finds it by what the saved letter holds: its words (body and footer), the sender name in the mailbox list and the paper, and only among letters the game itself mailed. So it still answers after a save and a reload, and a letter a player wrote by hand with the same words is never named. nil for the game's letters, a player's letters and a cmd.send_letter{ text } letter. Two mod letters with the same words, sender and paper are told apart by nothing, and the first in load order is named. A letter mailed before its mod changed its words, sender or paper is no longer named.
 
 ---The one table a handler of villager_moved_in gets, as e.
 ---@class PlayacVillagerMovedInEvent
@@ -105,9 +121,9 @@
 ---The one table a handler of command_finished gets, as e.
 ---@class PlayacCommandFinishedEvent
 ---@field id integer The id the cmd.* call returned.
----@field command string send_letter, give_item, show_line or ask.
+---@field command string send_letter, give_item, show_line, ask, take_item or take_bells.
 ---@field ok boolean
----@field via string? How it was applied: mailbox, post_office, pockets, mail or shown. nil when refused.
+---@field via string? How it was applied: mailbox, post_office, pockets, mail, shown or taken. nil when refused.
 ---@field code playac.CommandCode? The refusal's stable code (command_codes). nil when applied.
 ---@field message string? Why it was refused, in words. nil when applied.
 
@@ -116,6 +132,12 @@
 ---@field id integer The id cmd.ask returned.
 ---@field choice integer? Which answer, counting from 1. nil with no pick.
 ---@field text string? The answer's text. nil with no pick.
+
+---The one table a handler of timer_fired gets, as e.
+---@class PlayacTimerFiredEvent
+---@field id integer The id timer.after returned.
+---@field name string The name given to timer.after.
+---@field data (string|number|boolean)? The data given to timer.after. nil when none was given.
 
 ---@class PlayacGameTimeResult
 ---@field year integer
@@ -143,7 +165,7 @@
 
 ---@class PlayacGamePlayerResult
 ---@field name string
----@field id integer Stays the same for that resident in that town. A new resident who later takes a freed slot gets a different id. On a visit it is the visitor's own number, never equal to a resident's.
+---@field id integer Stays the same for that resident in that town. It holds the resident's save slot. A new resident who later takes a freed slot can get the same id, and never gets the old resident's store.player data: the game deletes that when a resident is deleted and again when a new one is made in the slot. On a visit it is the visitor's own number, never equal to a resident's.
 
 ---Registers a handler for an event. Call it while the mod's own script loads, not from inside a handler and not from a function another mod calls with remote.call. The event must be in mod.json's scripts.events. At most 16 handlers per event. A handler gets one table, e, holding the event's fields.
 ---@overload fun(event: "villager_talked", fn: fun(e: PlayacVillagerTalkedEvent): string?)
@@ -161,11 +183,12 @@
 ---@overload fun(event: "visitor_arrived", fn: fun(e: PlayacVisitorArrivedEvent))
 ---@overload fun(event: "command_finished", fn: fun(e: PlayacCommandFinishedEvent))
 ---@overload fun(event: "question_answered", fn: fun(e: PlayacQuestionAnsweredEvent))
+---@overload fun(event: "timer_fired", fn: fun(e: PlayacTimerFiredEvent))
 ---@param event PlayacEvent An event name.
 ---@param fn function Called with one table, e, holding the event's fields.
 function on(event, fn) end
 
----Writes a line to the Mods tab's Mod log and the browser console as "[Mods] <id>: ...". Arguments are joined with spaces. A line is cut at 300 bytes. At most 20 lines per event and 500 per session. A script error or stop is written to the Mod log too, with a Lua traceback.
+---Writes a line to the Mods tab's Mod log and the browser console as "[Mods] <id>: ...". Arguments are joined with spaces. A line is cut at 299 bytes. At most 20 lines per event and 500 per session. A refused cmd.* or timer.* call writes a line of its own, and those lines count toward the same two limits. A script error or stop is written to the Mod log too, with a Lua traceback, whatever the limits. The log keeps the newest 400 lines of all mods. When it is full, the oldest line of the mod with the most lines goes first, so one mod cannot push out another mod's lines.
 ---@param ... any Values to print.
 function log(...) end
 
@@ -242,7 +265,7 @@ function store.client.get(key) end
 ---@param value (string|number|boolean)?
 function store.client.set(key, value) end
 
----This player's part of the town store. It has the same get and set, per mod, per town, per player (game.player().id). It lives inside the mod's town store and shares its 8 KB. Before a town is loaded, get answers nil and set raises an error. On a visit it lives in memory only.
+---This player's part of the town store. It has the same get and set, per mod, per town, per player (game.player().id). It lives inside the mod's town store and shares its 8 KB. Before a town is loaded, get answers nil and set raises an error. With a town but no player in the game yet, get answers nil and set raises its own error (no player is in the game yet). When a resident is deleted, everything mods saved for them here is deleted too and its room is given back. A new resident in that save slot starts with nothing. On a visit it lives in memory only.
 ---@class PlayacStorePlayer
 store.player = {}
 
@@ -274,7 +297,7 @@ remote = {}
 ---@param fn function
 function remote.add(name, fn) end
 
----Calls a function another running mod offers. Its errors come back as yours, and it keeps running.
+---Calls a function another running mod offers. Its errors come back as yours, and it keeps running. When the mod is one of this mod's optional_depends and it is absent, nothing is called and nothing is raised: the call returns nil, a message and a code from dependency_codes.
 ---@param mod string
 ---@param name string
 ---@param ... any Copied arguments.
@@ -287,7 +310,14 @@ function remote.call(mod, name, ...) end
 ---@return boolean
 function remote.has(mod, name) end
 
----The commands. Each queues an effect that the game applies at the end of a frame's update, before the frame is drawn. Each needs its name in mod.json permissions. A call returns the command's id. When it is refused at once, it returns nil, a message and a code (command_codes). In The City every command is refused at once. On a visit send_letter and give_item are refused at once. A command refused at once counts against no daily limit. A command queued at home and applied after the player left comes back as a failed command_finished, and its count is given back.
+---Whether a mod this one names in depends or optional_depends is present, and at what version. Returns its version, such as "1.2.0", when it loaded inside the range. Returns nil, a message and a code from dependency_codes when it did not. Ask in an event. In the main chunk an optional dependency that the cycle rule placed after this mod has loaded no script yet.
+---@param mod string
+---@return string? version The version, or nil.
+---@return string? message
+---@return playac.DependencyCode? code
+function remote.version(mod) end
+
+---The commands. Each queues an effect that the game applies at the end of a frame's update, before the frame is drawn. Each needs its name in mod.json permissions. A call returns the command's id. When it is refused at once, it returns nil, a message and a code (command_codes). In The City every command is refused at once. On a visit send_letter, give_item, take_item and take_bells are refused at once. A command refused at once counts against no daily limit. A command queued at home and applied after the player left comes back as a failed command_finished, and its count is given back.
 ---@class PlayacCmd
 cmd = {}
 
@@ -319,8 +349,40 @@ function cmd.show_line(text) end
 ---@return playac.CommandCode? code The refusal's stable code (command_codes).
 function cmd.ask(t) end
 
+---Asks the player to hand over items from their pockets. The game shows its own question, which names the item, the count and this mod. The mod's name stands between quotes, and a mod item is named as the pockets show it, both in the game's language where the mod has a translation. A script cannot change that text. On yes the items leave the pockets and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the pockets do not hold that many. Only plain pocket slots count. A wrapped present or an item held for a villager's errand is never taken. Items a command cannot give cannot be taken either (money bags, turnips, tickets, grab bags, fossils). It is refused on a visit and in The City, so a lent mod can never take anything.
+---@param t table { item, count? }. item is an item number, "0x" and four hex digits, or this mod's own "author.mod:thing". count is 1 to 15 and is 1 when left out. An item number matches plain pieces only, never a mod item standing on that piece.
+---@return integer? id The command's id. When it is refused at once: nil, then a message and a code.
+---@return string? message Why it was refused, in words.
+---@return playac.CommandCode? code The refusal's stable code (command_codes).
+function cmd.take_item(t) end
+
+---Asks the player to pay Bells from their wallet. The game shows its own question, which names the amount and this mod. The mod's name stands between quotes, in the game's language where the mod translates it. A script cannot change that text. On yes the Bells leave the wallet and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the wallet holds less than the amount, so the wallet never goes below zero. The bank account and money bags in the pockets are never touched. It is refused on a visit and in The City, so a lent mod can never take anything.
+---@param t table { amount }. amount is a whole number of Bells, 1 to 99999.
+---@return integer? id The command's id. When it is refused at once: nil, then a message and a code.
+---@return string? message Why it was refused, in words.
+---@return playac.CommandCode? code The refusal's stable code (command_codes).
+function cmd.take_bells(t) end
+
 ---Seeded random numbers. rng() gives a number in [0,1), rng(n) a whole number 1..n and rng(m, n) a whole number m..n. The seed is the mod, the town, the game day and how many numbers this mod has drawn in this town on this game day. Each call in a day therefore gives another number, and a reload cannot reroll. The count is saved with the town store at the end of a run that drew numbers, and a reload carries on from it. If the tab closes before that write, the same numbers come again, never new ones. A new game day starts the count at 0, and changing the game's clock gives other numbers. The count is kept in memory only away from home, for a lent mod and before a town loads. Inside a remote.call, the called mod draws from its own counter. math.random and math.randomseed are not available. Use rng().
 ---@param m integer?
 ---@param n integer?
 ---@return number|integer
 function rng(m, n) end
+
+---Timers. A script asks to be called later, and the game sends it a timer_fired event. Time is counted on the game's clock in whole game minutes, so a timer keeps counting while the game is closed and fires at the first chance after it is due. A timer never fires at the title screen or at player select. It fires once play has started (the rule own_game_only). Timers belong to the town. They are kept in this mod's town store, count toward its store.bytes and survive a save and a reload. On a visit, in The City and for a lent mod they live in memory only and are gone when the town changes. Scene changes do not touch them. A mod may have timers.per_mod waiting in one town.
+---@class PlayacTimer
+timer = {}
+
+---Sets a timer that fires once, at least that many game minutes from now. It returns the timer's id. When it is refused it returns nil, a message and a code (timer_codes). Setting a timer rewrites the town store, so it is charged to the event's budget like store.set.
+---@param minutes integer Game minutes to wait, 1 to 10080 (7 days).
+---@param name string What the timer is for, 1 to 40 bytes of letters, digits, _, - and . only. It comes back in timer_fired.
+---@param data (string|number|boolean)? A value handed back in timer_fired. Text is up to 240 bytes with no zero byte. Empty text comes back as nil, like every empty event text.
+---@return integer? id The timer's id, a whole number that is never reused in this town. When it is refused: nil, then a message and a code.
+---@return string? message Why it was refused, in words.
+---@return playac.TimerCode? code The refusal's stable code (timer_codes).
+function timer.after(minutes, name, data) end
+
+---Cancels a waiting timer of this mod in this town. It answers true when there was one. A timer that already fired, or an id from another town, answers false.
+---@param id integer The id timer.after returned.
+---@return boolean
+function timer.cancel(id) end

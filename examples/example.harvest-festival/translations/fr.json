@@ -1,0 +1,15 @@
+{
+  "mod/name": "Fête des récoltes",
+  "mod/description": "Deux jours de calendrier à nous. La fête des récoltes est le troisième mercredi de septembre et le jour de la pomme est le 21 octobre. Un avis est affiché au panneau et les habitants en parlent toute la journée. Il y a aussi un modèle de lettre de remerciement.",
+  "calendar/harvest-fair/board": "FETE DES RECOLTES !\nApporte tes plus beaux\nfruits et montre-les aux\nvoisins. La plus grosse\npomme gagne la gloire.",
+  "calendar/harvest-fair/talk/1": "C'est la fête des récoltes ! Je fais briller mes poires depuis l'aube.",
+  "calendar/harvest-fair/talk/2": "La fête des récoltes ! Tu as apporté des fruits ? Les miens brillent le plus, j'ai vérifié.",
+  "calendar/harvest-fair/talk/3": "Ça sent la pomme et le feu de bois. Le plus beau jour de la saison !",
+  "calendar/apple-day/board": "JOUR DE LA POMME\nPartage une pomme avec\nun ami. Toutes vont bien,\nmais une rouge le dit\nmieux.",
+  "calendar/apple-day/talk/1": "Joyeux jour de la pomme ! As-tu déjà partagé une pomme ?",
+  "calendar/apple-day/talk/2": "Une pomme par jour, dit-on. Aujourd'hui, une pomme pour tout le monde !",
+  "letters/fair-thanks/header": "Bonjour {player},",
+  "letters/fair-thanks/body": "Merci d'etre venu a la fete\ndes recoltes ! Voici une pomme\nde la table des prix. Plante-la\net regarde ce qui pousse.",
+  "letters/fair-thanks/footer": "Le comite de la fete",
+  "letters/fair-thanks/sender": "La fete"
+}

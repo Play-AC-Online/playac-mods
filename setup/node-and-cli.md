@@ -135,7 +135,7 @@ npm install -g https://playaconline.com/modding/downloads/playac-mod-0.2.0.tgz
 
 This installs release 0.2.0 of the tool from the game's site. `npm` comes with Node.js.
 
-The SHA-256 of that file is `a1e2daac2e65e55b6ed465f3f576ad463573a478e2ec547886a8b67d030162f2`. To check it yourself, download
+The SHA-256 of that file is `c1fb50329ec8b248fe8915505ea011ddcf1eca18e31480801bb1fe89c34ce0e6`. To check it yourself, download
 the file, compare, and install the file you checked:
 
 ```bash
@@ -180,8 +180,9 @@ playac-mod new yourname.first-lines --kind lines
 cd yourname.first-lines
 ```
 
-It prints `made yourname.first-lines: a lines mod, yourname.first-lines`. The
-kinds are `texture`, `lines`, `shop` and `script`.
+It prints `Made yourname.first-lines, a lines mod with the id
+yourname.first-lines.` and the next command to run. The kinds are `texture`,
+`lines`, `shop` and `script`.
 
 **Check it and pack it:**
 
@@ -208,7 +209,7 @@ to** the folder, never inside it.
 
 **Editor types.** `new` already wrote `.playac/` and VS Code settings.
 `.playac/` holds the game's Lua types and a JSON schema for every mod file.
-After a game update, refresh them with:
+The types come with the tool. After you update the tool, refresh them with:
 
 ```bash
 playac-mod types
@@ -221,10 +222,10 @@ Next: [set up your editor](editor.md) to use them.
 | Command | What it does |
 |---|---|
 | `new <id> --kind <kind>` | Makes a new mod folder that already passes `check`. |
-| `check` | Runs every rule the game checks. Gives each problem with its file and line. |
+| `check` | Runs every rule the game checks. Gives each problem with its file, and the line where there is one. |
 | `pack` | Makes the ZIP, the same bytes every time, next to the folder. |
-| `dev` | Serves the folder to the game's developer mode. |
-| `types` | Refreshes `.playac/` (Lua types, JSON schemas). |
+| `dev` | Serves the folder to the game's developer mode. In the game, press **Connect** to reach it ([The game](game.md#4-load-a-mod-you-are-making)). |
+| `types` | Refreshes `.playac/` (Lua types, JSON schemas). Writes the VS Code settings when the folder has none. |
 | `publish` | Signs in with a code and sends the mod for review ([Publishing](publishing.md)). |
 | `status` | Lists your uploaded versions. |
 | `yank` | Withdraws a version from the mod list. |

@@ -64,8 +64,15 @@ cd yourname.tea-house
 - `.github/workflows/mod.yml`, a check that runs on every push
 - a `CHANGELOG.md`
 
-The `.gitignore` it writes leaves out only the generated editor types.
-Everything else is committed.
+`--github` needs to be online. The workflow runs one release of
+`playac-mod`, pinned by its SHA-256. The tool reads that release from the
+list on playaconline.com. When it cannot read the list, it stops and writes
+nothing. Run the same line again online, or leave out `--github` and add the
+files later.
+
+The `.gitignore` every new mod gets leaves out the generated editor types,
+`.playac/playac.lua` and `.playac/schemas/`. It also leaves out `dist/` and
+`node_modules/`. Everything else is committed.
 
 Put the mod on GitHub. The repository must be **public** for the site to
 import from it.
@@ -93,7 +100,7 @@ clean`, and the repository page on GitHub shows `mod.json`.
 - It never looks the tool up on npm by name, so no other package called
   playac-mod can run in your repository.
 - To move to a newer release, copy the three lines from a fresh
-  `playac-mod new x --github`. Or copy the version and SHA-256 from
+  `playac-mod new yourname.pin --github`. Or copy the version and SHA-256 from
   https://playaconline.com/modding/downloads/playac-mod-releases.json.
 
 ### Or start from an example
@@ -103,7 +110,8 @@ This repository (`playac-mods`) holds every example mod and starter kit.
 1. Copy one folder out of `examples/` or `templates/` into a repository of
    your own.
 2. Change the `id` in `mod.json` to `yourname.something`.
-3. Run `playac-mod types` in it for the editor files.
+3. Run `playac-mod types` in it for the editor files. It writes `.playac/`,
+   and the VS Code settings in `.vscode/` when the folder has none.
 4. Carry on from the commit step above.
 
 ## 4. Share a version from a tag

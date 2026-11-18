@@ -88,7 +88,7 @@ for review**. An email confirms every upload under your account.
 From the mod's folder:
 
 ```bash
-playac-mod publish --shot shots/in-game.png --changelog "First version"
+playac-mod publish --shot .playac/screenshots/in-game.png --changelog "First version"
 ```
 
 Without the flags it uses these files:
@@ -112,7 +112,7 @@ has ended.
 5. The page says **Approved**. The terminal carries on by itself and uploads.
 
 **Check it worked:** the terminal ends with
-`uploaded yourname.my-mod 1.0.0 (content hash ...): waiting for review`.
+`Uploaded yourname.my-mod 1.0.0 with content hash <64 hex digits>. It is waiting for review.`
 `playac-mod status` lists your versions and their state.
 
 About the saved sign-in:

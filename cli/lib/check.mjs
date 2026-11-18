@@ -40,7 +40,7 @@ export const PNG_MAX_SIDE = 2048;
 export const PNG_BUDGET = 96 * 1024 * 1024;
 export const PNG_BUDGET_PHONE = 24 * 1024 * 1024;
 
-const NOT_UTF8 = 'is not UTF-8 text. The game reads each bad byte as a replacement character (U+FFFD), so its text may show wrong in the game. Save it as UTF-8.';
+const NOT_UTF8 = 'this file is not UTF-8 text. The game and the site refuse it. Save it as UTF-8.';
 const UPLOAD_REFUSES = 'the mod list refuses it when you upload it';
 
 /* A PNG's size from its header (signature + IHDR), as pc_png_size reads it, or null. */
@@ -176,13 +176,15 @@ export function lineCol(text, at) {
  * the fault is found), said is the line readMod prints for the same fault, so
  * it is not listed twice. */
 function parseJson(name, bytes) {
-  /* As mods.js decodeUtf8: not fatal, so bad bytes do not refuse the file
-   * there; here they are a warning (notUtf8). */
-  let notUtf8 = false;
-  try { new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch { notUtf8 = true; }
+  /* As mods.js decodeUtf8: bytes that are not UTF-8 refuse the file,
+   * in the game, on the site and here. Said in its own words, since "not
+   * valid JSON" sends an author looking for a comma. */
+  try { new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch {
+    return { error: `${name}: ${NOT_UTF8}`, said: `${name} is not valid JSON` };
+  }
   const text = new TextDecoder('utf-8', { ignoreBOM: true }).decode(bytes);
   try {
-    return { value: mods.parseJsonStrict(text), notUtf8 };
+    return { value: mods.parseJsonStrict(text) };
   } catch (e) {
     /* The words mods.js parseFile uses. */
     const said = e && e.jsonRule ? `${name}: ${e.message}` : `${name} is not valid JSON`;
@@ -215,6 +217,8 @@ export function unusedFileWarnings(manifest, names) {
     used.add(c[k]);
     if (k === 'messages') dirs.push(c[k].replace(/\/$/, '') + '/');
   }
+  /* the translations folder is read whole */
+  if (typeof c.translations === 'string' && c.translations) dirs.push(c.translations.replace(/\/$/, '') + '/');
   if (typeof c.textures === 'string' && c.textures) dirs.push(c.textures.replace(/\/$/, '') + '/');
   const out = [];
   for (const name of names) {
@@ -331,7 +335,6 @@ export async function checkEntries(entries, opts = {}) {
     const r = parseJson(name, ents[name]);
     parsed.set(name, r);
     if (r.error) { add(problems, name, r.error); said.add(r.said); } else json[name] = r.value;
-    if (r.notUtf8) warn(name, NOT_UTF8);
   }
   /* A content file by its path, as readMod's doc() reads it: parsed whatever
    * its name, with the .json size cap. undefined when it is missing or bad. */
@@ -346,7 +349,6 @@ export async function checkEntries(entries, opts = {}) {
       } else parsed.set(p, parseJson(p, ents[p]));
       const r = parsed.get(p);
       if (r.error) { add(problems, p, r.error); said.add(r.said); }
-      if (r.notUtf8) warn(p, NOT_UTF8);
     }
     return parsed.get(p).value;
   };
@@ -383,19 +385,27 @@ export async function checkEntries(entries, opts = {}) {
     for (const name of names.filter((x) => x.endsWith('.lua'))) {
       if (name !== main) warn(name, 'is not scripts.main. The game runs only the main script, and there is no require.');
     }
-    if (typeof main === 'string' && ents[main]) {
+    /* An own-property read: "main": "toString" found a function on
+     * the object's prototype, the decoder threw, and the whole report was
+     * lost to one line about an ArrayBuffer. */
+    if (typeof main === 'string' && Object.prototype.hasOwnProperty.call(ents, main)) {
       const src = new TextDecoder('utf-8').decode(ents[main]);
       const ctxs = {
         listed: Array.isArray(scripts.events) ? scripts.events : [],
         permissions: Array.isArray(manifest.permissions) ? manifest.permissions : [],
         events: mods.EVENTS,
         commands: mods.PERMISSIONS,
+        /* the settings whose "scope" is "client", for the scope rule */
+        clientSettings: (Array.isArray(manifest.settings) ? manifest.settings : [])
+          .filter((s) => isObj(s) && typeof s.name === 'string' && s.scope === 'client').map((s) => s.name),
       };
       /* An on() the game refuses stops the whole script at load (the game engine
        * api_on raises): the mod installs, but its script is dead, so that is a
        * problem, not a warning. */
       for (const w of scanScript(src, ctxs)) {
-        if (w.error) problems.push({ file: main, message: w.message, script: true });
+        /* scan: a guess from a pattern read, not the game's word.
+         * check lists it as a problem. pack and publish go ahead on it. */
+        if (w.error) problems.push({ file: main, message: w.message, script: true, scan: true });
         else warn(main, w.message);
       }
     }
@@ -421,12 +431,16 @@ export async function checkEntries(entries, opts = {}) {
       if (!said.has(s) && !problems.some((p) => p.message === s)) add(problems, fileOf(s, names), s);
     }
   }
-  if (result && problems.length) result = null;
+  /* A packed result stands when every problem is a guess of the script scan
+   *: the game installs that mod, and the scan can be wrong. `ok`
+   * stays false, so check still fails on it. */
+  const guessesOnly = problems.length > 0 && problems.every((p) => p.scan);
+  if (result && problems.length && !guessesOnly) result = null;
   /* installs: what readMod says (the Mods tab takes the mod); ok also needs a
    * script the game would run. A problem with `script: true` is one the game
    * installs but whose script it stops at load. */
   const installs = problems.every((p) => p.script);
-  return { ok: problems.length === 0, installs, problems, warnings, manifest, result, luaChecked };
+  return { ok: problems.length === 0, installs, guessesOnly: guessesOnly && !!result, problems, warnings, manifest, result, luaChecked };
 }
 
 /* Would a hand-made ZIP of the folder be refused for this left-out file? The

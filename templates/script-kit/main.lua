@@ -1,7 +1,8 @@
 -- My Script: the four everyday events in one file, a little saved data, and
 -- one command. Every event used here is listed in mod.json under "scripts" >
--- "events". log() lines show in Settings, Mods, Mod log, and in the browser
--- console as "[Mods] yourname.my-script: ...". There are more events
+-- "events". log() lines show in the Mod log, at the bottom of Settings, Mods,
+-- under For mod authors. They are also in the browser console, as
+-- "[Mods] yourname.my-script: ...". There are more events
 -- (fish_caught, item_bought, letter_read and others): see the scripts guide.
 -- Every handler gets one table, e, with the event's fields.
 
@@ -22,7 +23,9 @@ on("day_started", function(e)
   log("day", today, "days seen in this town:", store.get("days"))
 end)
 
--- You picked an item up. It is already in your pockets.
+-- You got an item: picked up, caught with the net or the rod, or dug up. It
+-- is already in your pockets, or in the wallet for Bells. A fish or a bug
+-- also fires fish_caught or bug_caught, so count a catch in one place only.
 on("item_picked_up", function(e)
   local n = (store.get("picked") or 0) + 1
   store.set("picked", n)
@@ -66,7 +69,8 @@ on("scene_entered", function(e)
 end)
 
 -- Mark the apple as given only here, when the game says it was. A refusal has
--- a code that says whether to try again: the full list is in the scripts guide.
+-- a code that says whether to try again: the full list is in the commands
+-- guide, https://playaconline.com/modding/guides/commands/#codes
 on("command_finished", function(e)
   waiting = false
   if e.ok then

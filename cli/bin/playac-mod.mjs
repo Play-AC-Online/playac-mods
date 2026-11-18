@@ -16,12 +16,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkFolder, formatReport } from '../lib/check.mjs';
 import { KINDS, scaffoldFiles, writeFiles } from '../lib/scaffold.mjs';
-import { writeTypes } from '../lib/types.mjs';
+import { writeEditorSettings, writeTypes } from '../lib/types.mjs';
 import { DEFAULT_PORT, startDevFree } from '../lib/dev.mjs';
 import { DEFAULT_API, forgetToken, githubPreflight, importGitHub, listingFor, myVersions, parseGitHubSource, revoke, savedToken,
   setYanked, stateWord, statusLines, upload, withToken } from '../lib/publish.mjs';
 import { githubFiles } from '../lib/scaffold.mjs';
-import { findRelease } from '../lib/pin.mjs';
+import { findRelease, SITE_RELEASES_URL } from '../lib/pin.mjs';
 import { spawnSync } from 'node:child_process';
 import { mods } from '../lib/contract.mjs';
 import { commandHelp, commandText, optionSpec, overview } from '../lib/help.mjs';
@@ -99,7 +99,7 @@ async function cmdNew(a) {
   if (a.flags.github) {
     /* the workflow runs one release, pinned by its SHA-256 */
     const release = await findRelease(VERSION);
-    if (!release) throw new Error('--github needs the list of playac-mod releases, to pin the check workflow to one. The list could not be read. Go online and run the same line again, or leave out --github.');
+    if (!release) throw new Error(`--github pins the check workflow to a release of playac-mod by its SHA-256, read from ${SITE_RELEASES_URL}. That list could not be read, or does not have playac-mod ${VERSION} or newer yet. Nothing was written. Go online and run the same line again, or leave out --github.`);
     Object.assign(files, githubFiles(release));
   }
   writeFiles(dir, files, { force: !!a.flags.force });
@@ -156,6 +156,14 @@ async function packed(dir, a, cmd = 'pack') {
   const why = notAModFolder(dir, cmd);
   if (why) throw usage(why);
   const r = await checkFolder(dir, { lua: !a.flags['no-lua'] });
+  if (!r.ok && r.guessesOnly) {
+    /* Every problem is a guess of the script scan. The game and the
+     * site take this mod, and the scan reads patterns, so it can be wrong.
+     * Say it loudly and go on. */
+    console.error(formatReport(r));
+    console.error(`WARNING: check found ${r.problems.length} problem(s) in the script, listed above. They come from reading the script's text, which can be wrong, so the mod was ${cmd === 'publish' ? 'sent' : 'packed'} anyway. If they are right, the game stops the script when it loads. Run the mod before you share it.`);
+    return r.result;
+  }
   if (!r.ok) {
     console.error(formatReport(r));
     throw new Error('The mod does not pass check, so it was not packed.');
@@ -204,11 +212,7 @@ async function cmdDev(a) {
   }
   const s = dev.state();
   console.log(`serving ${path.relative(process.cwd(), dir) || '.'} (${s.id || 'no id'} ${s.version}) at ${dev.url}`);
-  if (dev.port !== DEFAULT_PORT) {
-    console.log(`NOTE: Port ${DEFAULT_PORT} was taken, maybe by another playac-mod dev, so this one is on ${dev.port}.`);
-    console.log(`      In the game, go to Settings, Mods, Load a mod you are making. Put ${dev.url} in "playac-mod dev address" and press Connect.`);
-  }
-  console.log('Open the game with ?moddev=1, for example https://playaconline.com/play/?moddev=1. Ctrl+C stops.');
+  for (const line of devSteps(dev.url, dev.port, chosen)) console.log(line);
   if (!s.ok) console.log(formatReport({ problems: s.problems, warnings: [] }));
   await new Promise((resolve) => {
     const stop = () => { dev.close().then(resolve); };
@@ -216,6 +220,27 @@ async function cmdDev(a) {
     process.once('SIGTERM', stop);
   });
   return 0;
+}
+
+/* What `dev` prints after "serving": how to load the folder in the game.
+ * it said only "Open the game with ?moddev=1", and the game reads from
+ * this computer only after the author presses Connect, so nothing loaded.
+ * chosen: the author gave --port, so no port "was taken". */
+export function devSteps(url, port, chosen) {
+  const usual = port === DEFAULT_PORT;
+  const out = [];
+  if (!usual && !chosen) out.push(`NOTE: Port ${DEFAULT_PORT} was taken, maybe by another playac-mod dev, so this one is on ${port}.`);
+  out.push(
+    'To load it in the game:',
+    '  1. Open the game with ?moddev=1, for example https://playaconline.com/play/?moddev=1',
+    '  2. Go to Settings, Mods, Load a mod you are making.',
+    usual
+      ? `  3. Press Connect beside "playac-mod dev address". The box already holds ${url}.`
+      : `  3. Put ${url} in "playac-mod dev address" and press Connect.`,
+    '  4. Press Restart now once. After that, edits show as you save.',
+    'Press Connect again after you reload the page. Ctrl+C stops.',
+  );
+  return out;
 }
 
 /* Where a types file came from, in words: the installed package's own copy
@@ -231,6 +256,8 @@ export function typesFrom(from, cwd = process.cwd()) {
 async function cmdTypes(a) {
   const dir = dirOf(a);
   for (const w of writeTypes(dir)) console.log(`wrote ${w.file}  (from ${typesFrom(w.from)})`);
+  /* a copied example has no .vscode/, so the types alone gave no completion */
+  for (const file of writeEditorSettings(dir)) console.log(`wrote ${file}  (VS Code settings that point at .playac/)`);
   return 0;
 }
 

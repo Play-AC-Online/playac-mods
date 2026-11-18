@@ -8,9 +8,9 @@ A World mod (`"scope": "world"`) that puts a shop and a script together.
 
 At noon the flower shop is shut and its sign is the mod's: Night Market, open 7:00 PM to 1:00 AM.
 
-![shop at eight](../../examples-media/example.night-market/shop-at-eight.webp)
+![villager hint](../../examples-media/example.night-market/villager-hint.webp)
 
-At 8 PM the shop is open, and the tables hold the night market's own goods from shops.json.
+A villager who has heard mentions tonight's special. Hints is a client setting: each player switches it off for themselves, and the shop stays as it is.
 
 ![greeting](../../examples-media/example.night-market/greeting.webp)
 
@@ -67,6 +67,24 @@ it opens soon. After 7 they say it is open, and name "tonight's special".
   `rng()`.
 - Everyone else is left for other mods' lines. The first mod that returns a
   line wins a talk.
+
+## The setting
+
+`mod.json` declares one setting, "Villagers mention the market". The player
+switches it on the Mods tab.
+
+- It is a client setting (`"scope": "client"`). It decides only what its own
+  player hears, so it is the player's own.
+- A friend visit does not compare it. Two friends with the Night Market can
+  visit each other with different choices. A visitor who borrows the host's
+  mods keeps their own choice too.
+- A setting with no `scope` is a world setting. A visit compares those, because
+  they are part of the town.
+- The script reads it in `villager_talked`, an event that only talks. In an
+  event that read a client setting, the game refuses `cmd.send_letter`,
+  `cmd.give_item`, `cmd.take_item` and `cmd.take_bells` with the code
+  `command-client-setting`. A client setting may not decide what the town gets
+  or gives up.
 
 ## What it can't do
 

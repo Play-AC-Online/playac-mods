@@ -56,31 +56,38 @@ const newer = (a, b) => {
 };
 
 /* The release a new workflow pins: this version when it is released, else the
- * newest. A record must carry a 64-hex sha256. */
-export function pickRelease(list, version) {
+ * newest. A record must carry a 64-hex sha256. notOlder: never a release
+ * older than version (null instead). An older release's check can refuse
+ * what a newer tool scaffolds: 0.1.0 fails 0.2.0's script mod on three event
+ * names, so a workflow pinned to it could never pass. */
+export function pickRelease(list, version, { notOlder = false } = {}) {
   const ok = (list?.releases || []).filter((r) => r && typeof r.version === 'string' && /^[0-9a-f]{64}$/.test(r.sha256 || ''));
   if (!ok.length) return null;
-  return ok.find((r) => r.version === version) || ok.reduce((a, b) => (newer(b.version, a.version) ? b : a));
+  const got = ok.find((r) => r.version === version) || ok.reduce((a, b) => (newer(b.version, a.version) ? b : a));
+  return notOlder && newer(version, got.version) ? null : got;
 }
 
 /* Where the release list comes from, in order: $PLAYAC_MOD_RELEASES (a file),
- * the checkout's releases.json, the site's list (fetched), the list the
- * package carries (vendor/releases.json: the releases before this one, as a
- * release cannot list its own hash). */
-export async function findRelease(version, { fetchFn = globalThis.fetch, env = process.env } = {}) {
+ * the list beside the source (releases/releases.json: the game's checkout
+ * and the public repository have one, an installed package does not), then
+ * the site's list, fetched.
+ *
+ * Never from inside the package. A release cannot carry its own hash (the
+ * hash is of the file that would carry it), and the releases before it are
+ * no pin (pickRelease notOlder). So with no list to read, offline or behind
+ * a proxy, the answer is null and `new --github` says to go online: a
+ * workflow with a hash that cannot match is worse than none. local: the
+ * list beside the source (tests pass null to stand in for an installed
+ * package). */
+export async function findRelease(version, { fetchFn = globalThis.fetch, env = process.env, local = RELEASES_JSON } = {}) {
   if (env.PLAYAC_MOD_RELEASES) return pickRelease(readReleases(env.PLAYAC_MOD_RELEASES), version);
-  const local = readReleases(RELEASES_JSON);
-  if (local) return pickRelease(local, version);
-  if (fetchFn) {
-    try {
-      const r = await fetchFn(SITE_RELEASES_URL, { signal: AbortSignal.timeout(8000) });
-      if (r.ok) {
-        const got = pickRelease(await r.json(), version);
-        if (got) return got;
-      }
-    } catch { /* offline: the bundled list */ }
-  }
-  return pickRelease(readReleases(path.join(VENDOR, 'releases.json')), version);
+  const beside = local ? readReleases(local) : null;
+  if (beside) return pickRelease(beside, version);
+  if (!fetchFn) return null;
+  try {
+    const r = await fetchFn(SITE_RELEASES_URL, { signal: AbortSignal.timeout(8000) });
+    return r.ok ? pickRelease(await r.json(), version, { notOlder: true }) : null;
+  } catch { return null; }
 }
 
 /* The workflow text with the pin filled in. */

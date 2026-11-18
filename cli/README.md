@@ -66,12 +66,25 @@ Every `.json .lua .dds .png .txt .md` file goes in, except:
 
 `new` and `types` write `.playac/` and `.vscode/settings.json`, so your editor
 knows the script API. `.playac/` holds LuaLS annotations and a JSON schema for
-every content file.
+every content file. `types` writes over `.playac/` every time. It writes the
+`.vscode/` files only when the folder has none, so your own settings stay.
+The types come with the tool. Update the tool, then run `types` again.
 
 ## dev
 
 `dev` serves on port 2604. When that port is taken it uses the next free one
-and prints the address. Put that address in the game's "playac-mod dev address" box.
+and prints the address.
+
+Leave it running, then load the folder in the game:
+
+1. Open the game with `?moddev=1`, for example https://playaconline.com/play/?moddev=1
+2. Go to Settings, Mods, Load a mod you are making.
+3. Put the address `dev` printed in "playac-mod dev address" and press Connect.
+   The box already holds the usual one, `http://127.0.0.1:2604`.
+4. Press Restart now once. After that, edits show as you save.
+
+The game reads from your computer only after you press Connect. Press it
+again after you reload the page.
 
 ## publish
 

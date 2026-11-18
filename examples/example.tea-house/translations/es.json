@@ -1,0 +1,7 @@
+{
+  "mod/name": "Casa de té",
+  "mod/description": "Por la tarde, la floristería se convierte en una casa de té. Tiene su propio saludo, su horario y fruta para el té en cada mesa.",
+  "shops/flower/name": "Casa de té",
+  "shops/flower/greeting": "Bienvenido a la casa de té. Aquí toda la fruta va muy bien con una taza. Tómate tu tiempo.",
+  "shops/flower/stock_line": "Fruta fresca, las seis clases, en las mesas junto a las paredes. Señala una y te digo el precio."
+}

@@ -8,7 +8,7 @@ it:
 
 ![the find](../../examples-media/example.field-notes/the-find.webp)
 
-An apple on the ground by Twiggy's house, about to be picked up. Every bug, fish, fossil, shell and fruit you pick up goes in your field notes.
+Picking an apple up by Twiggy's house. Every bug, fish, fossil, shell and fruit you pick up goes in your field notes.
 
 ![villager notices](../../examples-media/example.field-notes/villager-notices.webp)
 

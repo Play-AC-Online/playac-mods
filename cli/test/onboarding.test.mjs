@@ -205,6 +205,33 @@ test('a screenshot the registry would refuse for its area, depth or scan order i
   assert.throws(() => tryShot(shot('prog.jpg', jpeg(0xc2, 2560, 1440))), /is a progressive JPEG of 2560x1440\. One larger than 1920 by 1080 is refused/);
   assert.equal(tryShot(shot('prog-hd.jpg', jpeg(0xc2, 1920, 1080))).shots.length, 1);
   assert.equal(tryShot(shot('base.jpg', jpeg(0xc0, 3840, 2160))).shots.length, 1);
+  /* The server's rule, byte for byte: over 1920x1080 a JPEG is refused when
+   * FF C2 occurs anywhere in what is left after the EXIF, ICC and comment
+   * segments are dropped. The tool used to walk the markers and stop at the
+   * first byte it could not follow, saying "not progressive": one junk byte
+   * after the start passed here and was refused by the site after the sign-in. */
+  const big = jpeg(0xc0, 2560, 1440);
+  const junk = Buffer.concat([big.subarray(0, 2), Buffer.from([0x00]), jpeg(0xc2, 2560, 1440).subarray(2)]);
+  assert.equal(imageKind(junk, 'image/jpeg'), 'progressive', 'a progressive frame behind a junk byte');
+  /* FF C2 in EXIF only is no progressive JPEG: the server drops EXIF first, so a 4K baseline photo passes */
+  const exif = Buffer.concat([big.subarray(0, 2), Buffer.from([0xff, 0xe1, 0, 6, 0xff, 0xc2, 0, 0x11]), big.subarray(2, big.length - 2), Buffer.from([0xff, 0xda, 0, 2, 0x11])]);
+  assert.equal(imageKind(exif, 'image/jpeg'), '');
+  /* in a segment the server keeps (JFIF), it counts */
+  const jfif = Buffer.concat([big.subarray(0, 2), Buffer.from([0xff, 0xe0, 0, 4, 0xff, 0xc2]), big.subarray(2, big.length - 2), Buffer.from([0xff, 0xda, 0, 2, 0x11])]);
+  assert.equal(imageKind(jfif, 'image/jpeg'), 'progressive');
+  /* and a small one is never held to it */
+  assert.equal(tryShot(shot('junk-hd.jpg', Buffer.concat([jpeg(0xc2, 1920, 1080), Buffer.from([0xff, 0xc2])]))).shots.length, 1);
+});
+
+test('a JPEG over 1920x1080: the tool and the server give the same answer for the same bytes', { skip: !CHECKOUT && 'needs the game\'s source checkout' }, async () => {
+  const { jpegWithoutMetadata } = await import('../lib/publish.mjs');
+  const { cases } = JSON.parse(fs.readFileSync(path.join(CHECKOUT.contract, 'jpeg-progressive-cases.json'), 'utf8'));
+  assert.ok(cases.length >= 15, `only ${cases.length} cases`);
+  for (const c of cases) {
+    const raw = Buffer.from(c.hex, 'hex');
+    assert.equal(Buffer.from(jpegWithoutMetadata(raw)).toString('hex'), c.stripped, `${c.name}: what is left after the metadata is dropped`);
+    assert.equal(imageKind(raw, 'image/jpeg') === 'progressive', c.progressive, c.name);
+  }
 });
 
 test('publish --github: the tag is checked against mod.json, the listing and git first', () => {

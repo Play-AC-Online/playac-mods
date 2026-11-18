@@ -54,6 +54,12 @@
         "/talk.json"
       ],
       "url": "./.playac/schemas/talk.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/translations/*.json"
+      ],
+      "url": "./.playac/schemas/translations.schema.json"
     }
   ]
 }

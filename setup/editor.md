@@ -77,9 +77,9 @@ check two things:
   `json.schemaDownload.enable` is on, as it is by default.
 
 The file name decides which schema checks a file. The names are `mod.json`,
-`shops.json`, `items.json`, `letters.json`, `calendar.json`, `talk.json` and
-any `.json` in a `messages/` folder. Name your files that way and they are
-checked.
+`shops.json`, `items.json`, `letters.json`, `calendar.json`, `talk.json`,
+any `.json` in a `messages/` folder and any `.json` in a `translations/`
+folder. Name your files that way and they are checked.
 
 A `mod.json` or `shops.json` can also name its own schema. This works in any
 editor that reads `$schema`. The game ignores the key.
@@ -97,8 +97,9 @@ editor that reads `$schema`. The game ignores the key.
    pop-up at the bottom right. **Install** there does the same.
 3. The extension reads the game's API from `.playac/playac.lua` in your mod
    folder. Put the file there in one of two ways:
-   - With the tool: run `playac-mod types` in the mod folder. A mod made with
-     `playac-mod new` has the file already.
+   - With the tool: run `playac-mod types` in the mod folder. It also writes
+     the settings of step 5 when the folder has no `.vscode/settings.json`. A
+     mod made with `playac-mod new` has both already.
    - By hand: make a `.playac` folder inside your mod folder. Download
      https://playaconline.com/schemas/playac.lua and save it there as
      `.playac/playac.lua`.
@@ -118,8 +119,9 @@ extension did not find `.playac/playac.lua`. Check that the file is there and
 that the folder you opened is the mod folder.
 
 The `.playac/` folder is hidden, so the game and `playac-mod pack` never put
-it in your mod's ZIP. After a game update, refresh it the same way: run
-`playac-mod types` or download the file again.
+it in your mod's ZIP. The tool carries its own copy of the file. When the
+mod API gains something, update the tool and run `playac-mod types`, or
+download the file again.
 
 ## 5. The settings by hand
 
@@ -135,7 +137,8 @@ file `.vscode/settings.json` with this in it:
     { "fileMatch": ["/items.json"], "url": "https://playaconline.com/schemas/mod-items.schema.json" },
     { "fileMatch": ["/letters.json"], "url": "https://playaconline.com/schemas/letters.schema.json" },
     { "fileMatch": ["/calendar.json"], "url": "https://playaconline.com/schemas/calendar.schema.json" },
-    { "fileMatch": ["/talk.json"], "url": "https://playaconline.com/schemas/talk.schema.json" }
+    { "fileMatch": ["/talk.json"], "url": "https://playaconline.com/schemas/talk.schema.json" },
+    { "fileMatch": ["/translations/*.json"], "url": "https://playaconline.com/schemas/translations.schema.json" }
   ],
   "Lua.runtime.version": "Lua 5.4",
   "Lua.workspace.library": [".playac/playac.lua"],

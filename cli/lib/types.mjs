@@ -14,7 +14,7 @@
  *   4. fallback/ in this package (the same files, written by api-gen)
  * Each file falls back on its own.
  *
- * then, for a mod with "depends", each dependency's mod.json "exports"
+ * then, for a mod with "depends" or "optional_depends", each dependency's mod.json "exports"
  * (a library's remote functions, one line each) is appended to the copied
  * .playac/playac.lua as remote.call hints: the editor offers the library's
  * function names with their descriptions. A dependency is found in a folder
@@ -24,7 +24,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { PKG, VENDOR } from './contract.mjs';
 import { CHECKOUT } from './checkout.mjs';
-import { TYPES_DIR } from './scaffold.mjs';
+import { TYPES_DIR, editorFiles } from './scaffold.mjs';
 
 export const TYPE_FILES = [
   'playac.lua',
@@ -35,6 +35,7 @@ export const TYPE_FILES = [
   'schemas/letters.schema.json',
   'schemas/calendar.schema.json',
   'schemas/talk.schema.json',
+  'schemas/translations.schema.json',
 ];
 
 export function typeSources() {
@@ -76,9 +77,12 @@ export function exportsOf(manifest) {
   return x;
 }
 
-/* The mod.json of each mod `manifest` depends on that can be found: { id: { manifest, from } }. */
+/* The mod.json of each mod `manifest` names in "depends" or "optional_depends"
+ * that can be found: { id: { manifest, from } }. */
 export function findLibraries(dir, manifest, env = process.env) {
-  const want = manifest && manifest.depends && typeof manifest.depends === 'object' ? Object.keys(manifest.depends) : [];
+  /* the mods it only uses when they are there count too: their functions are called the same way */
+  const ids = (o) => (o && typeof o === 'object' && !Array.isArray(o) ? Object.keys(o) : []);
+  const want = manifest ? [...new Set([...ids(manifest.depends), ...ids(manifest.optional_depends)])] : [];
   const found = {};
   if (!want.length) return found;
   const cands = [];
@@ -119,15 +123,54 @@ export function exportHints(libs) {
     '-- Written by playac-mod types: run it again after a library changes.', ...out, ''].join('\n');
 }
 
+/* The place a generated file goes, made safe to write: dir/<parts>. A mod
+ * folder is often someone else's repository, cloned, and `types` is the first
+ * thing run in it. .playac is gitignored by our scaffold but a repository
+ * can commit it, as a link: .playac/playac.lua -> ~/.ssh/authorized_keys had
+ * its target overwritten with the Lua stub. So no folder on the way may be a
+ * link (refused: the files would land outside the mod), and a link where the
+ * file goes is removed first, never followed. */
+function safeTarget(dir, parts) {
+  fs.mkdirSync(dir, { recursive: true });
+  let at = dir;
+  for (const part of parts.slice(0, -1)) {
+    at = path.join(at, part);
+    const st = fs.lstatSync(at, { throwIfNoEntry: false });
+    if (st && st.isSymbolicLink()) throw new Error(`${path.relative(dir, at)} is a link to somewhere else, so the types were not written there. Delete it and run the same line again.`);
+    if (st && !st.isDirectory()) throw new Error(`${path.relative(dir, at)} is not a folder. Delete it and run the same line again.`);
+    if (!st) fs.mkdirSync(at);
+  }
+  const to = path.join(at, parts[parts.length - 1]);
+  const st = fs.lstatSync(to, { throwIfNoEntry: false });
+  if (st && st.isSymbolicLink()) fs.unlinkSync(to);
+  else if (st && !st.isFile()) throw new Error(`${path.relative(dir, to)} is not a file. Delete it and run the same line again.`);
+  return to;
+}
+
+/* The VS Code settings `new` writes, for a folder that has none: a
+ * copied example, or a mod made by hand. A file that is there is the
+ * author's and is never written over. .gitignore is left alone. Returns the
+ * paths written. */
+export function writeEditorSettings(dir) {
+  const out = [];
+  for (const [rel, body] of Object.entries(editorFiles())) {
+    if (!rel.startsWith('.vscode/')) continue;
+    if (fs.lstatSync(path.join(dir, ...rel.split('/')), { throwIfNoEntry: false })) continue;
+    fs.writeFileSync(safeTarget(dir, rel.split('/')), body);
+    out.push(rel);
+  }
+  return out;
+}
+
 /* Write the types into dir/.playac. Returns [{file, from}]. */
 export function writeTypes(dir) {
   const out = [];
   for (const rel of TYPE_FILES) {
     const from = findTypeFile(rel);
     if (!from) throw new Error(`no source for ${rel}`);
-    const to = path.join(dir, TYPES_DIR, ...rel.split('/'));
-    fs.mkdirSync(path.dirname(to), { recursive: true });
-    fs.copyFileSync(from, to);
+    const to = safeTarget(dir, [TYPES_DIR, ...rel.split('/')]);
+    /* written whole, never copied over: copyFileSync follows a link at "to" */
+    fs.writeFileSync(to, fs.readFileSync(from), { flag: 'w' });
     out.push({ file: path.posix.join(TYPES_DIR, rel), from });
   }
   /* the dependencies' exports, after the API's own types */

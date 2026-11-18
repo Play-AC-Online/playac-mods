@@ -1,6 +1,6 @@
 # Daily Gift
 
-Once a game day, a letter with a little present arrives in your mailbox. A worked example of mod commands.
+Once a game day, a letter with a little present arrives in your mailbox. A worked example of mod commands and a timer.
 
 ## In the game
 

@@ -1,0 +1,15 @@
+{
+  "mod/name": "Erntefest",
+  "mod/description": "Zwei eigene Kalendertage. Das Erntefest ist am dritten Mittwoch im September und der Apfeltag am 21. Oktober. Am Schwarzen Brett hängt ein Aushang, und die Bewohner reden den ganzen Tag davon. Dazu gibt es eine Vorlage für einen Dankesbrief.",
+  "calendar/harvest-fair/board": "HEUTE IST ERNTEFEST!\nBring dein bestes Obst mit\nund zeig es den Nachbarn.\nDer dickste Apfel gewinnt\nRuhm fuer ein ganzes Jahr.",
+  "calendar/harvest-fair/talk/1": "Heute ist Erntefest! Ich poliere meine Birnen schon seit Sonnenaufgang.",
+  "calendar/harvest-fair/talk/2": "Erntefest! Hast du Obst dabei? Meins glänzt am schönsten, ich habe nachgesehen.",
+  "calendar/harvest-fair/talk/3": "Es riecht nach Äpfeln und Holzrauch. Der schönste Tag der Saison!",
+  "calendar/apple-day/board": "APFELTAG\nTeile heute einen Apfel\nmit einem Freund. Jeder\nApfel passt, ein roter\nsagt es am besten.",
+  "calendar/apple-day/talk/1": "Frohen Apfeltag! Hast du heute schon einen Apfel geteilt?",
+  "calendar/apple-day/talk/2": "Ein Apfel am Tag, sagt man. Heute gibt es einen für alle!",
+  "letters/fair-thanks/header": "Hallo {player},",
+  "letters/fair-thanks/body": "Danke, dass du beim Erntefest\nwarst! Hier ist ein Apfel vom\nPreistisch. Pflanz ihn ein\nund schau, was waechst.",
+  "letters/fair-thanks/footer": "Das Festkomitee",
+  "letters/fair-thanks/sender": "Das Fest"
+}

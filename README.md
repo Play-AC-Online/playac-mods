@@ -13,7 +13,7 @@ matches mod API level 1.
 | [`examples/`](examples/) | Working example mods, one idea each. |
 | [`examples-media/`](examples-media/) | Screenshots and videos of the examples in the game. |
 | [`templates/`](templates/) | Starter kits. Copy one and edit it. |
-| [`template/`](template/) | A whole mod repository for GitHub, with a check workflow. Copy the folder out to use it. `playac-mod new <id> --github` writes the same files. |
+| [`template/`](template/) | A whole mod repository for GitHub, with a check workflow. Copy the folder out to use it. It holds a working mod, a check workflow, a changelog and editor settings. `playac-mod new <id> --github` writes the same workflow, changelog and settings around a new mod of the kind you choose. |
 | [`api/`](api/) | The API spec, JSON schemas and Lua types. |
 | [`errors/`](errors/) | Every error a mod can get, with the fix. |
 | [`ai/`](ai/) | Instructions for AI coding assistants. |
@@ -40,12 +40,16 @@ playac-mod new yourname.my-mod --kind lines
 ```
 
 That line installs release 0.2.0 from the game's site. Its SHA-256 is
-`a1e2daac2e65e55b6ed465f3f576ad463573a478e2ec547886a8b67d030162f2`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
+`c1fb50329ec8b248fe8915505ea011ddcf1eca18e31480801bb1fe89c34ce0e6`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
 shows how to check it. Install the tool only from that address. A package
 named `playac-mod` on the npm registry is not the game's.
 
 To try a mod, open the game and go to **Settings, Mods, Install from a file**.
-To see edits live, run `playac-mod dev` and open the game with `?moddev=1`.
+To see edits live, run `playac-mod dev` and leave it running. Open the game
+with `?moddev=1`. Go to Settings, Mods, Load a mod you are making. Press
+**Connect** beside "playac-mod dev address", then **Restart now** once. After
+that, edits show as you save. [The game](setup/game.md#4-load-a-mod-you-are-making)
+has each step.
 `playac-mod help` lists the commands.
 
 ## Setup guides

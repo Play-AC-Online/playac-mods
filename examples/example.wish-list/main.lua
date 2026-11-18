@@ -16,8 +16,9 @@ local WISHERS, OF = 2, 5   -- WISHERS in OF villagers wish on a given day
 local KEEP = 48            -- villagers' streaks kept; the least recent drop off
 
 -- What can be wished for. Each kind is a set of item numbers that grant it.
--- Only things the player PICKS UP from the ground count: item_picked_up does not
--- fire for a bug or fish caught, or anything dug up or bought.
+-- Every wish is for something found on the ground. item_picked_up fires for
+-- anything that lands in the pockets or the wallet: picked up, caught with the
+-- net or the rod, or dug up. It does not fire for anything bought.
 local KINDS = {
   shell = { lo = 0x2514, hi = 0x251B },   -- ITM_SHELL0..ITM_SHELL7
   bells = { lo = 0x2100, hi = 0x2103 },   -- bags of bells (ITM_MONEY_*)

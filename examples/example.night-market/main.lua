@@ -26,6 +26,10 @@ on("day_started", function(e)
 end)
 
 on("villager_talked", function(e)
+  -- "hints" is a CLIENT setting (mod.json "scope": "client"): it only decides
+  -- what this player hears, so a friend can visit with the other choice. It is
+  -- read here, in an event that only talks, never in one that gives or mails.
+  if settings.get("hints") == false then return nil end
   local id = e.villager.id
   local t = game.time()
   local late = t.hour < CLOSE  -- just past midnight: still last night's market

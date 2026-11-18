@@ -48,6 +48,7 @@
           },
           "date": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "month"
             ],

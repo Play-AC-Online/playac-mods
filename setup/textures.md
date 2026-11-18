@@ -46,7 +46,10 @@ The game shows you every texture it draws, under the file name your mod needs.
 6. Tick the ones you want and press **Export starter mod**.
 
 **Check it worked:** the ZIP's `textures/` folder has one `.dds` per texture
-you ticked, named like `tex1_32x32_626709d910129694_193ca5974976e36e_8.dds`.
+you ticked. A texture with no palette is named like
+`tex1_32x32_626709d910129694_193ca5974976e36e_8.dds`. A texture drawn with a
+palette is exported under its any-palette name, with `$` in place of the
+palette hash: `tex1_32x32_626709d910129694_$_8.dds`.
 
 **Seasons and times of day.** Many textures, such as grass, trees and cliffs,
 are drawn with a colour palette. The palette changes through the day and the

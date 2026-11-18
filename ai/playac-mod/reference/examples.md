@@ -400,6 +400,9 @@ palette beats a `$` file for that palette, wherever its mod is in the list.
 -- game itself, it QUEUES a command, and the game applies it at the end of a frame's
 -- update, once the player is free. mod.json must name the command in "permissions".
 --
+-- It also shows a timer. A letter the game could not take now (both boxes
+-- full, or the player away from home) is tried again half a game hour later.
+--
 -- The day's letter is remembered in store.player, so each resident of the town
 -- gets their own. The game's cap is per town, not per player: 3 letters a day
 -- from one mod, so in a town of four the fourth resident to play that day
@@ -439,6 +442,27 @@ end
 on("day_started", send_today)
 on("scene_entered", send_today)
 
+-- Try again later. timer.after counts GAME minutes and keeps the timer with
+-- this town's data, so it still fires after a save and a reload. One timer per
+-- resident is enough: a second refusal finds the first still waiting. The name
+-- comes back in timer_fired, and the data says whose letter it was.
+--
+-- The mark that a timer is waiting is kept in the town's store under the
+-- resident's id, not in store.player. The timer may fire while another
+-- resident plays, and only the town's store can be cleared then.
+local RETRY_MINUTES = 30
+local function retry_key(id) return "retry:" .. tostring(id) end
+local function retry_later()
+  local p = game.player()
+  if not p or store.get(retry_key(p.id)) then return end
+  local id, why, code = timer.after(RETRY_MINUTES, "retry", p.id)
+  if id then
+    store.set(retry_key(p.id), id)
+  else
+    log("no retry timer: " .. why .. " (" .. code .. ")")
+  end
+end
+
 -- What happened to it: e.via is "mailbox", or "post_office" when the mailbox
 -- was full. A refusal has e.code (stable, for the script) and e.message (for
 -- the log).
@@ -448,11 +472,26 @@ on("command_finished", function(e)
   elseif e.code == "command-day-cap" then
     log("letter #" .. e.id .. " not delivered: " .. e.message)
   else
-    -- Refused for now (in The City, visiting a friend, both boxes full): try
-    -- again in the next scene.
+    -- Refused for now (in The City, visiting a friend, both boxes full): the
+    -- day's letter is owed again. The next scene tries, and so does a timer
+    -- half a game hour from now, for a player who stays where they are.
+    -- Away from home, store and timers live in memory only. A result that
+    -- arrives there clears "sent" in that copy, not at home, so the letter is
+    -- not owed again today. Tomorrow's comes as usual.
     log("letter #" .. e.id .. " not delivered: " .. e.message)
     store.player.set("sent", nil)
+    retry_later()
   end
+end)
+
+-- The timer is gone once it fires, so its mark goes too, whoever is playing.
+-- Send only to the resident it was set for: another resident may be playing by
+-- now, and has a letter of their own.
+on("timer_fired", function(e)
+  if e.name ~= "retry" then return end
+  store.set(retry_key(e.data), nil)
+  local p = game.player()
+  if p and p.id == e.data then send_today() end
 end)
 ```
 
@@ -473,16 +512,16 @@ end)
   "api": 1,
   "id": "example.daily-gift",
   "name": "Daily Gift",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "authors": ["Play AC Online"],
-  "description": "Once a game day, a letter with a little present arrives in your mailbox. A worked example of mod commands.",
+  "description": "Once a game day, a letter with a little present arrives in your mailbox. A worked example of mod commands and a timer.",
   "scope": "client",
   "content": {
     "messages": "messages/en.json"
   },
   "scripts": {
     "main": "main.lua",
-    "events": ["day_started", "scene_entered", "command_finished"]
+    "events": ["day_started", "scene_entered", "command_finished", "timer_fired"]
   },
   "permissions": ["send_letter"],
   "assets_original": true
@@ -967,6 +1006,27 @@ A calendar example (`calendar.json`) with a letter template
 
 Letter and notice text is plain ASCII and must fit six lines of the paper. The
 game measures it in its own font and refuses text that does not fit.
+
+## In German and French
+
+`translations/de.json` and `translations/fr.json` hold the same texts in German
+and French (`"translations": "translations/"` in `mod.json`).
+
+- A key is the path of a text. `calendar/harvest-fair/board` is that day's
+  notice. `calendar/harvest-fair/talk/2` is its second line.
+  `letters/fair-thanks/body` is the letter's body.
+- The game shows a text in its own language when that language's file has it.
+  It shows the English text from `calendar.json` or `letters.json` when not.
+  Each text is decided alone.
+- A translation follows the rule of the text it replaces. The notices and the
+  letter stay plain ASCII in every language, so the German notice says "fuer"
+  and the German letter says "waechst". The villager lines can use the accented letters the game's font
+  has, so they say "glänzt" and "fête".
+- `mod/name` and `mod/description` are the mod's own name and description. The
+  Mods tab shows them. The game does not.
+- There is no `en.json`. English is the text in the mod's own files.
+- To try a language on any disc, turn developer mode on and add `?modlang=de`
+  to the game's address.
 ```
 
 ### example.harvest-festival/calendar.json
@@ -1023,15 +1083,56 @@ game measures it in its own font and refuses text that does not fit.
   "api": 1,
   "id": "example.harvest-festival",
   "name": "Harvest Fair",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "authors": ["Play AC Online"],
   "description": "Two calendar days of our own. The Harvest Fair is the third Wednesday of September and Apple Day is October 21. A notice goes up on the bulletin board and villagers talk about it all day. It also carries a thank-you letter template for mod commands.",
   "scope": "world",
   "content": {
     "calendar": "calendar.json",
-    "letters": "letters.json"
+    "letters": "letters.json",
+    "translations": "translations/"
   },
   "assets_original": true
+}
+```
+
+### example.harvest-festival/translations/de.json
+
+```json
+{
+  "mod/name": "Erntefest",
+  "mod/description": "Zwei eigene Kalendertage. Das Erntefest ist am dritten Mittwoch im September und der Apfeltag am 21. Oktober. Am Schwarzen Brett hängt ein Aushang, und die Bewohner reden den ganzen Tag davon. Dazu gibt es eine Vorlage für einen Dankesbrief.",
+  "calendar/harvest-fair/board": "HEUTE IST ERNTEFEST!\nBring dein bestes Obst mit\nund zeig es den Nachbarn.\nDer dickste Apfel gewinnt\nRuhm fuer ein ganzes Jahr.",
+  "calendar/harvest-fair/talk/1": "Heute ist Erntefest! Ich poliere meine Birnen schon seit Sonnenaufgang.",
+  "calendar/harvest-fair/talk/2": "Erntefest! Hast du Obst dabei? Meins glänzt am schönsten, ich habe nachgesehen.",
+  "calendar/harvest-fair/talk/3": "Es riecht nach Äpfeln und Holzrauch. Der schönste Tag der Saison!",
+  "calendar/apple-day/board": "APFELTAG\nTeile heute einen Apfel\nmit einem Freund. Jeder\nApfel passt, ein roter\nsagt es am besten.",
+  "calendar/apple-day/talk/1": "Frohen Apfeltag! Hast du heute schon einen Apfel geteilt?",
+  "calendar/apple-day/talk/2": "Ein Apfel am Tag, sagt man. Heute gibt es einen für alle!",
+  "letters/fair-thanks/header": "Hallo {player},",
+  "letters/fair-thanks/body": "Danke, dass du beim Erntefest\nwarst! Hier ist ein Apfel vom\nPreistisch. Pflanz ihn ein\nund schau, was waechst.",
+  "letters/fair-thanks/footer": "Das Festkomitee",
+  "letters/fair-thanks/sender": "Das Fest"
+}
+```
+
+### example.harvest-festival/translations/fr.json
+
+```json
+{
+  "mod/name": "Fête des récoltes",
+  "mod/description": "Deux jours de calendrier à nous. La fête des récoltes est le troisième mercredi de septembre et le jour de la pomme est le 21 octobre. Un avis est affiché au panneau et les habitants en parlent toute la journée. Il y a aussi un modèle de lettre de remerciement.",
+  "calendar/harvest-fair/board": "FETE DES RECOLTES !\nApporte tes plus beaux\nfruits et montre-les aux\nvoisins. La plus grosse\npomme gagne la gloire.",
+  "calendar/harvest-fair/talk/1": "C'est la fête des récoltes ! Je fais briller mes poires depuis l'aube.",
+  "calendar/harvest-fair/talk/2": "La fête des récoltes ! Tu as apporté des fruits ? Les miens brillent le plus, j'ai vérifié.",
+  "calendar/harvest-fair/talk/3": "Ça sent la pomme et le feu de bois. Le plus beau jour de la saison !",
+  "calendar/apple-day/board": "JOUR DE LA POMME\nPartage une pomme avec\nun ami. Toutes vont bien,\nmais une rouge le dit\nmieux.",
+  "calendar/apple-day/talk/1": "Joyeux jour de la pomme ! As-tu déjà partagé une pomme ?",
+  "calendar/apple-day/talk/2": "Une pomme par jour, dit-on. Aujourd'hui, une pomme pour tout le monde !",
+  "letters/fair-thanks/header": "Bonjour {player},",
+  "letters/fair-thanks/body": "Merci d'etre venu a la fete\ndes recoltes ! Voici une pomme\nde la table des prix. Plante-la\net regarde ce qui pousse.",
+  "letters/fair-thanks/footer": "Le comite de la fete",
+  "letters/fair-thanks/sender": "La fete"
 }
 ```
 
@@ -1089,6 +1190,24 @@ it opens soon. After 7 they say it is open, and name "tonight's special".
 - Everyone else is left for other mods' lines. The first mod that returns a
   line wins a talk.
 
+## The setting
+
+`mod.json` declares one setting, "Villagers mention the market". The player
+switches it on the Mods tab.
+
+- It is a client setting (`"scope": "client"`). It decides only what its own
+  player hears, so it is the player's own.
+- A friend visit does not compare it. Two friends with the Night Market can
+  visit each other with different choices. A visitor who borrows the host's
+  mods keeps their own choice too.
+- A setting with no `scope` is a world setting. A visit compares those, because
+  they are part of the town.
+- The script reads it in `villager_talked`, an event that only talks. In an
+  event that read a client setting, the game refuses `cmd.send_letter`,
+  `cmd.give_item`, `cmd.take_item` and `cmd.take_bells` with the code
+  `command-client-setting`. A client setting may not decide what the town gets
+  or gives up.
+
 ## What it can't do
 
 The special is talk only. The stock and its prices are the same every night.
@@ -1130,6 +1249,10 @@ on("day_started", function(e)
 end)
 
 on("villager_talked", function(e)
+  -- "hints" is a CLIENT setting (mod.json "scope": "client"): it only decides
+  -- what this player hears, so a friend can visit with the other choice. It is
+  -- read here, in an event that only talks, never in one that gives or mails.
+  if settings.get("hints") == false then return nil end
   local id = e.villager.id
   local t = game.time()
   local late = t.hour < CLOSE  -- just past midnight: still last night's market
@@ -1190,7 +1313,7 @@ end)
   "api": 1,
   "id": "example.night-market",
   "name": "Night Market",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "authors": ["Play AC Online"],
   "description": "After dark the flower shop becomes a lantern-lit night market with its own stock, and villagers drop hints about tonight's special.",
   "scope": "world",
@@ -1202,6 +1325,16 @@ end)
     "main": "main.lua",
     "events": ["villager_talked", "day_started"]
   },
+  "settings": [
+    {
+      "name": "hints",
+      "type": "bool",
+      "label": "Villagers mention the market",
+      "description": "Switch off to stop villagers bringing up the market. The shop stays as it is.",
+      "default": true,
+      "scope": "client"
+    }
+  ],
   "assets_original": true
 }
 ```
@@ -1301,6 +1434,44 @@ In The City, Nook's stock is the game's own.
 
 ## example.tea-house
 
+### example.tea-house/README.md
+
+```
+# Tea House
+
+A World mod (`"scope": "world"`) that turns the flower shop into a tea house in
+the evening, in five languages.
+
+## The shop
+
+`shops.json` gives the flower shop a name, hours, a greeting, an answer to
+"What's in stock?" and six goods with prices. A shop changes the town, so the
+mod is a World mod.
+
+`messages/en.json` holds one line, `hours`. Other mods can read it as
+`example.tea-house:hours`. The Village Gossip example does.
+
+## In other languages
+
+`"translations": "translations/"` in `mod.json` names a folder with the shop's
+texts in German, Spanish, French and Italian.
+
+- Each file is one list of key and text. A key is the path of a text:
+  `shops/flower/name`, `shops/flower/greeting`, `shops/flower/stock_line`.
+- `mod/name` and `mod/description` are the mod's own name and description. The
+  Mods tab shows them. The game does not.
+- There is no `en.json`. English is the text in `shops.json` itself.
+- The game shows a text in its own language when that language's file has it.
+  It shows the English text when not. Each text is decided alone.
+- A translation follows the rule of the text it replaces. A greeting is at most
+  160 characters with at most 3 line breaks, in every language.
+- A shop line can use the accented letters the game's font has, such as the "é"
+  in "thé". A letter or a board notice cannot.
+
+To try a language on any disc, turn developer mode on and add `?modlang=de` to
+the game's address.
+```
+
 ### example.tea-house/messages/en.json
 
 ```json
@@ -1317,13 +1488,14 @@ In The City, Nook's stock is the game's own.
   "api": 1,
   "id": "example.tea-house",
   "name": "Tea House",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "authors": ["Play AC Online"],
   "description": "The flower shop becomes a tea house in the evening. It has its own greeting and hours, and fruit for tea on every table.",
   "scope": "world",
   "content": {
     "shops": "shops.json",
-    "messages": "messages/en.json"
+    "messages": "messages/en.json",
+    "translations": "translations/"
   },
   "assets_original": true
 }
@@ -1353,8 +1525,92 @@ In The City, Nook's stock is the game's own.
 }
 ```
 
+### example.tea-house/translations/de.json
+
+```json
+{
+  "mod/name": "Teehaus",
+  "mod/description": "Am Abend wird der Blumenladen zum Teehaus. Es hat eine eigene Begrüßung, eigene Öffnungszeiten und Obst zum Tee auf jedem Tisch.",
+  "shops/flower/name": "Teehaus",
+  "shops/flower/greeting": "Willkommen im Teehaus! Jedes Obst hier passt wunderbar zu einer Tasse. Lass dir Zeit.",
+  "shops/flower/stock_line": "Frisches Obst, alle sechs Sorten, auf den Tischen an den Wänden. Zeig auf eins und ich sage dir den Preis."
+}
+```
+
+### example.tea-house/translations/es.json
+
+```json
+{
+  "mod/name": "Casa de té",
+  "mod/description": "Por la tarde, la floristería se convierte en una casa de té. Tiene su propio saludo, su horario y fruta para el té en cada mesa.",
+  "shops/flower/name": "Casa de té",
+  "shops/flower/greeting": "Bienvenido a la casa de té. Aquí toda la fruta va muy bien con una taza. Tómate tu tiempo.",
+  "shops/flower/stock_line": "Fruta fresca, las seis clases, en las mesas junto a las paredes. Señala una y te digo el precio."
+}
+```
+
+### example.tea-house/translations/fr.json
+
+```json
+{
+  "mod/name": "Salon de thé",
+  "mod/description": "Le soir, la boutique de fleurs devient un salon de thé. Il a son propre accueil, ses horaires et des fruits pour le thé sur chaque table.",
+  "shops/flower/name": "Salon de thé",
+  "shops/flower/greeting": "Bienvenue au salon de thé ! Chaque fruit ici se marie bien avec une tasse. Prends ton temps.",
+  "shops/flower/stock_line": "Des fruits frais, les six sortes, sur les tables près des murs. Montre-m'en un et je te dis le prix."
+}
+```
+
+### example.tea-house/translations/it.json
+
+```json
+{
+  "mod/name": "Sala da tè",
+  "mod/description": "La sera il negozio di fiori diventa una sala da tè. Ha il suo saluto, i suoi orari e frutta per il tè su ogni tavolo.",
+  "shops/flower/name": "Sala da tè",
+  "shops/flower/greeting": "Benvenuto nella sala da tè! Ogni frutto qui sta benissimo con una tazza. Fai con calma.",
+  "shops/flower/stock_line": "Frutta fresca, tutti e sei i tipi, sui tavoli lungo le pareti. Indicane uno e ti dico il prezzo."
+}
+```
+
 
 ## example.village-gossip
+
+### example.village-gossip/README.md
+
+```
+# Village Gossip
+
+A Just you mod (`"scope": "client"`) with a small script. Once a day each
+villager you talk to shares a line of gossip before their usual hello.
+
+## The script
+
+- `villager_talked` returns one of four lines from `messages/en.json`, picked
+  with `rng()`. Each villager says one a day.
+- `day_started` clears the list of villagers who have spoken, and counts the
+  days in `store`.
+
+## A mod it can use but does not need
+
+`mod.json` names the Tea House example in `optional_depends`:
+
+```json
+"optional_depends": { "example.tea-house": ">=1.0.0" }
+```
+
+- This mod loads with or without the Tea House. A needed mod goes in `depends`
+  instead, and a mod with a missing `depends` entry does not load.
+- When the Tea House is installed and switched on, it loads before this mod.
+- `remote.version("example.tea-house")` returns its version when it is there.
+  It returns `nil`, a message and a code when it is not. The script asks in
+  `villager_talked`, an event, not at the top of the file.
+- With the Tea House there, one talk in three mentions its hours. The line is
+  the Tea House's own, read with `message("example.tea-house:hours")`.
+- The Mods tab says so on this mod's row. With the Tea House on, it reads
+  "Works with Tea House, which you have on." Without it, or with it off, it
+  reads "Also works with Tea House". It is never shown as a problem.
+```
 
 ### example.village-gossip/main.lua
 
@@ -1365,9 +1621,15 @@ In The City, Nook's stock is the game's own.
 local told = {}        -- villagers who have gossiped today, by id
 local GOSSIP = 4       -- gossip1..gossip4 in messages/en.json
 
+-- day_started can fire twice for one day when the game was not saved, so a
+-- day is counted by its date, not by the call.
 on("day_started", function(e)
   told = {}
-  store.set("days", (store.get("days") or 0) + 1)
+  local today = string.format("%04d-%02d-%02d", e.year, e.month, e.day)
+  if store.get("last_day") ~= today then
+    store.set("last_day", today)
+    store.set("days", (store.get("days") or 0) + 1)
+  end
 end)
 
 on("villager_talked", function(e)
@@ -1375,8 +1637,10 @@ on("villager_talked", function(e)
   if told[who.id] then return nil end
   told[who.id] = true
 
-  -- If the Tea House mod is installed too, one talk in three mentions it.
-  local tea = message("example.tea-house:hours")
+  -- The Tea House mod is an optional dependency (mod.json "optional_depends"):
+  -- this mod works without it. remote.version says whether it is there. When
+  -- it is, one talk in three mentions it.
+  local tea = remote.version("example.tea-house") and message("example.tea-house:hours")
   if tea and rng(3) == 1 then
     return who.name .. " here! " .. tea .. " Pop in!"
   end
@@ -1406,7 +1670,7 @@ log("ready")
   "api": 1,
   "id": "example.village-gossip",
   "name": "Village Gossip",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "authors": ["Play AC Online"],
   "description": "Once a day, each villager you talk to shares a bit of town gossip before their usual hello.",
   "scope": "client",
@@ -1416,6 +1680,9 @@ log("ready")
   "scripts": {
     "main": "main.lua",
     "events": ["villager_talked", "day_started"]
+  },
+  "optional_depends": {
+    "example.tea-house": ">=1.0.0"
   },
   "assets_original": true
 }
@@ -1523,8 +1790,9 @@ local WISHERS, OF = 2, 5   -- WISHERS in OF villagers wish on a given day
 local KEEP = 48            -- villagers' streaks kept; the least recent drop off
 
 -- What can be wished for. Each kind is a set of item numbers that grant it.
--- Only things the player PICKS UP from the ground count: item_picked_up does not
--- fire for a bug or fish caught, or anything dug up or bought.
+-- Every wish is for something found on the ground. item_picked_up fires for
+-- anything that lands in the pockets or the wallet: picked up, caught with the
+-- net or the rod, or dug up. It does not fire for anything bought.
 local KINDS = {
   shell = { lo = 0x2514, hi = 0x251B },   -- ITM_SHELL0..ITM_SHELL7
   bells = { lo = 0x2100, hi = 0x2103 },   -- bags of bells (ITM_MONEY_*)

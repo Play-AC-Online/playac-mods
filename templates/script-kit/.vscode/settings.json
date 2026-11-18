@@ -41,6 +41,12 @@
         "/talk.json"
       ],
       "url": "https://playaconline.com/schemas/talk.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/translations/*.json"
+      ],
+      "url": "https://playaconline.com/schemas/translations.schema.json"
     }
   ],
   "Lua.runtime.version": "Lua 5.4",

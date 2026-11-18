@@ -82,9 +82,19 @@ ${what}
 
 \`\`\`bash
 playac-mod check      # every rule the game applies, problems per file
-playac-mod dev        # serve this folder; open the game with ?moddev=1
+playac-mod dev        # serve this folder to the game, and reload on edits
 playac-mod pack       # ../${id}-<version>.zip (beside this folder) and its content hash
 \`\`\`
+
+To see edits live, leave \`playac-mod dev\` running. Then:
+
+1. Open the game with \`?moddev=1\`, for example https://playaconline.com/play/?moddev=1
+2. Go to Settings, Mods, Load a mod you are making.
+3. Press Connect beside "playac-mod dev address".
+4. Press Restart now once. After that, edits show as you save.
+
+The game reads from your computer only after you press Connect. Press it
+again after you reload the page.
 
 \`playac-mod <command> --help\` shows a command's options.
 
@@ -259,6 +269,7 @@ export function editorFiles() {
         { fileMatch: ['/letters.json'], url: `./${TYPES_DIR}/schemas/letters.schema.json` },
         { fileMatch: ['/calendar.json'], url: `./${TYPES_DIR}/schemas/calendar.schema.json` },
         { fileMatch: ['/talk.json'], url: `./${TYPES_DIR}/schemas/talk.schema.json` },
+        { fileMatch: ['/translations/*.json'], url: `./${TYPES_DIR}/schemas/translations.schema.json` },
       ],
     }),
     '.vscode/extensions.json': json({ recommendations: ['sumneko.lua'] }),
@@ -272,10 +283,11 @@ export function editorFiles() {
  * changelog line (it is never packed, so editing it keeps the content hash).
  * release: the playac-mod release the workflow runs, pinned by its SHA-256
  * (pin.mjs findRelease); the workflow never asks npm by name. */
+export const changelogFile = (version = '0.1.0') => `# Changelog\n\n## ${version}\n\n- First version.\n`;
 export function githubFiles(release, version = '0.1.0') {
   return {
     '.github/workflows/mod.yml': renderWorkflow(fs.readFileSync(WORKFLOW_TEMPLATE, 'utf8'), release),
-    'CHANGELOG.md': `# Changelog\n\n## ${version}\n\n- First version.\n`,
+    'CHANGELOG.md': changelogFile(version),
   };
 }
 
