@@ -30,6 +30,9 @@ never changes after it is listed.
 - `check` knows the `timer_fired` event and the `take_item` and `take_bells`
   permissions. It warns when a script calls `timer.after` and `timer_fired`
   is not in `scripts.events`, because the game refuses every such call.
+- `dev` sends a change when a file in the `content.translations` folder is
+  saved, so the game reads the translations again. Before, it sent nothing,
+  and the old text stayed until a restart.
 - `dev` prints the steps that load the folder in the game: open the game with
   `?moddev=1`, go to Settings, Mods, press Connect, then Restart now once.
   Before, it left out Connect, and nothing loaded. With `--port`, it no longer

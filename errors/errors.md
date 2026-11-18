@@ -936,7 +936,7 @@ From the mod list (upload):
 
     content.buildings is not something a mod can add yet. Use textures, messages, shops, items, letters, calendar, talk.
 
-What it means: "content" can hold "textures", "messages", "shops", "items", "letters", "calendar" and "talk", spelled exactly like that in lowercase. A mod cannot add buildings, acres or anything else.
+What it means: "content" can hold "textures", "messages", "shops", "items", "letters", "calendar", "talk" and "translations", spelled exactly like that in lowercase. A mod cannot add buildings, acres or anything else.
 
 How to fix it: Take the key out, or fix its spelling and case. "Messages" is not "messages".
 
@@ -3697,7 +3697,7 @@ From the game (Mods tab row):
     @yourname.my-mod/main.lua:4: math.random is not available: use rng() (seeded, so a reload cannot reroll)
     @yourname.my-mod/main.lua:1: math.randomseed is not available: use rng() (seeded, so a reload cannot reroll)
 
-What it means: The script used a Lua feature that mod scripts do not have. __gc finalizers and __len metamethods passed to table functions are switched off, and math.random and math.randomseed raise an error.
+What it means: The script used a Lua feature that mod scripts do not have. __gc finalizers, and __len metamethods on a table passed to table.insert, remove, sort or concat, are switched off, and math.random and math.randomseed raise an error.
 
 How to fix it: Remove the metamethod and use plain tables. Write rng() for math.random(), rng(n) for math.random(n) and rng(m, n) for math.random(m, n). rng() is seeded by the mod, the town and the game day, so a reload cannot reroll a result. io, os, load, require, dofile and debug do not exist.
 

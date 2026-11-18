@@ -222,6 +222,31 @@ test('kindOf: each content file and a messages folder name a kind', () => {
   assert.equal(kindOf('messages/en.json', { content: { messages: 'messages/' } }), 'lines');
 });
 
+/* a translations file sent nothing, so the game kept the old text. */
+test('kindOf: a file in the content.translations folder is a translations change', () => {
+  const man = { content: { messages: 'messages/en.json', translations: 'translations' } };
+  assert.equal(kindOf('translations/de.json', man), 'translations');
+  assert.equal(kindOf('translations/fr.json', { content: { translations: 'translations/' } }), 'translations');
+  assert.equal(kindOf('translationsx.json', man), '', 'a name that only starts like the folder is not in it');
+  assert.deepEqual(changeEvents(new Map([['translations/de.json', '1']]), new Map([['translations/de.json', '2']]), man), [
+    { kind: 'translations', files: ['translations/de.json'] },
+  ]);
+});
+
+/* every content file the game reloads with no restart (mods.js
+ * devTiers, which api-drift.test.mjs holds to api.json dev_reload_hot) must
+ * send a change event, or the page never hears of the save. */
+test('kindOf: every content key the game reloads hot sends a change', () => {
+  const file = { textures: 'tex/tex1_a.dds', messages: 'msg/en.json', translations: 'tr/de.json' };
+  const content = {};
+  for (const k of mods.CONTENT_KEYS) content[k] = file[k] ? file[k].slice(0, file[k].indexOf('/')) : k + '.json';
+  const man = { content };
+  for (const k of mods.CONTENT_KEYS) {
+    const p = file[k] || content[k];
+    if (mods.devTiers([p], man)) assert.notEqual(kindOf(p, man), '', `content.${k} (${p}) reloads hot but sends no change`);
+  }
+});
+
 async function servedTalk() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-dev2-'));
   writeFiles(dir, scaffoldFiles('bean.two', 'lines'));

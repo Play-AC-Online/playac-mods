@@ -1,8 +1,9 @@
 /* contract.mjs - the game's own mod rules, loaded once.
  *
- * The CLI never re-implements the contract (the mod contract). It loads the
- * file the game iframe runs, the game's mods.js, and its
- * fflate build, so `playac-mod check` and the game's Mods tab cannot disagree.
+ * The CLI never re-implements the contract (CONTRACT.md in the playac-mods
+ * repo). It loads the file the game iframe runs,
+ * the game's mods.js, and its fflate build, so
+ * `playac-mod check` and the game's Mods tab cannot disagree.
  *
  * Where they come from, in order:
  *   1. the game's source checkout this package sits in (checkout.mjs)

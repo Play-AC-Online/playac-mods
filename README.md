@@ -56,7 +56,7 @@ playac-mod new yourname.my-mod --kind lines
 ```
 
 That line installs release 0.2.0 from the game's site. Its SHA-256 is
-`28a1db70650d155dfcb8b162bdbcc9351b6f50cf18fdd79c59a2ea03aee11dda`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
+`a4b0144e7cdc71232e0591a49ccc275741dbc5b0ec56bea6deccacff3bb8f60f`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
 shows how to check it. Install the tool only from that address. A package
 named `playac-mod` on the npm registry is not the game's.
 

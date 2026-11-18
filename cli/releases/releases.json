@@ -9,9 +9,9 @@
     {
       "version": "0.2.0",
       "file": "playac-mod-0.2.0.tgz",
-      "sha256": "28a1db70650d155dfcb8b162bdbcc9351b6f50cf18fdd79c59a2ea03aee11dda",
-      "integrity": "sha512-WZI3a7fHcUW8xWpWUSAXlJGymZoG14Z2ISF4Zl+yCSZFGitkQ8xtRB/2JOCsNh8p+WOGVJ3Ja/MXWJAiLluqgA==",
-      "build": "032c109a5e41"
+      "sha256": "a4b0144e7cdc71232e0591a49ccc275741dbc5b0ec56bea6deccacff3bb8f60f",
+      "integrity": "sha512-FideUlu7UUG1rJQ6eLLhN0dG3Dl+5VSiIoh9SkUS1OxLin9ILkrr2o6VLspOKLsdhxq789zsFllts5rIAH4Uvw==",
+      "build": "bdbcab9e34c2"
     }
   ]
 }

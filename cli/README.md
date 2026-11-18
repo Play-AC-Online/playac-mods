@@ -86,6 +86,9 @@ Leave it running, then load the folder in the game:
 The game reads from your computer only after you press Connect. Press it
 again after you reload the page.
 
+A saved content file, translation, script or texture reloads in the running
+game. A change to `mod.json` waits for Restart now.
+
 ## publish
 
 `publish` signs in with a code:

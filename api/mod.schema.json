@@ -314,7 +314,7 @@
       ]
     },
     "conflicts": {
-      "description": "Mods this one cannot run with, as mod id to version range. At most 16. An id may not also be in depends. This mod stays off while a matching one is on.",
+      "description": "Mods this one cannot run with, as mod id to version range. At most 16. A mod id may be in only one of depends, optional_depends and conflicts. This mod stays off while a matching one is on.",
       "type": "object",
       "maxProperties": 16,
       "propertyNames": {

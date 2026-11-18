@@ -1565,7 +1565,7 @@
       "name": "conflicts",
       "since": 1,
       "required": false,
-      "description": "Mods this one cannot run with, as mod id to version range. At most 16. An id may not also be in depends. This mod stays off while a matching one is on.",
+      "description": "Mods this one cannot run with, as mod id to version range. At most 16. A mod id may be in only one of depends, optional_depends and conflicts. This mod stays off while a matching one is on.",
       "example": {
         "someone.other-shop": "*"
       },
@@ -2063,7 +2063,7 @@
     {
       "name": "commands_host_only",
       "since": 1,
-      "description": "Every command is refused in The City. On a visit to a friend's town, send_letter and give_item are refused, because only the town owner's game changes a town. show_line and ask still run."
+      "description": "Every command is refused in The City. On a visit to a friend's town, send_letter, give_item, take_item and take_bells are refused, because only the town owner's game changes a town or a player's save. show_line and ask still run."
     },
     {
       "name": "command_items",
@@ -3566,7 +3566,7 @@
       {
         "name": "table",
         "since": 1,
-        "description": "insert, remove, sort, concat, move and unpack are charged per element. They refuse a table with a __len metamethod. Read-only."
+        "description": "insert, remove, sort, concat, move and unpack are charged per element. insert, remove, sort and concat refuse a table with a __len metamethod. Read-only."
       },
       {
         "name": "math",
