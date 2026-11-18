@@ -101,8 +101,11 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
 - `api`: required, a whole JSON number (`1.0` counts as 1; `"1"`, `null`,
   `1.5` refused): the mod API level the mod was written for. The game reads the
   range API_MIN..API_MAX, today 1..1: ONE level (the API was never public
-  before it, so the first release is level 1 whole) (mods.js `API_MIN`/`API_MAX`, Go
-  `APIMin`/`APIMax`; change both together). Each level has its own manifest rules
+  before it, so the first release is level 1 whole). The range is held in four
+  places that change together: api.json `api.min`/`api.max`, mods.js
+  `API_MIN`/`API_MAX`, Go `APIMin`/`APIMax`, and the engine's
+  `PC_MOD_API_MIN`/`MAX`, which is generated from api.json, never typed. A drift
+  test holds all four equal. Each level has its own manifest rules
   and a mod is checked by its OWN level's rules, at install and at every boot.
   Below the range: refused as "made for an older game"; above it: "needs a newer
   game". At boot an installed mod outside the range (or with no `api`) is not read
@@ -144,7 +147,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   `Tags`). `tags` was an unknown key and ignored.
 - `scope`: `"client"` or `"world"`.
 - `content`: optional object; only keys `textures`, `messages`, `shops`, `items`,
-  `letters`, `calendar` and `talk` (any other key
+  `letters`, `calendar`, `talk` and `translations` (any other key
   refused; buildings/acres are NOT supported yet and are refused; see "Mod items" and the
   typed targets below). Each value a
   non-empty path string that exists in the ZIP (`textures` names a folder that holds at
@@ -186,7 +189,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   talk pool, and in a calendar day's `date` (`month`, `day`, `week`,
   `weekday`; said as `calendar: day 1: date: unknown key "yaer"`. mods.js and Go
   refuse it. The engine reads the date keys it knows and does not look for
-  another, so there the rule is mods.js's alone). The message is identical in mods.js, Go and the engine:
+  another, so it does not check this one). The message is identical in mods.js, Go and the engine:
   `<file>: unknown key "<key>"` plus ` (did you mean "<known>"?)` when one is
   close, e.g. `mod.json: unknown key "permisions" (did you mean "permissions"?)`,
   `shops.json: unknown key "shop" (did you mean "shops"?)`,

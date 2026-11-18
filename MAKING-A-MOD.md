@@ -109,8 +109,9 @@ A mod that changes the flower shop is a World mod:
   the author names `playaconline`, `official`, `admin` and `example` for
   itself.
 - `content` can hold `textures`, `messages`, `shops`, `items`, `letters`,
-  `calendar` and `talk`, and nothing else. Each names a file that is in the
-  ZIP. `textures` names a folder with at least one file.
+  `calendar`, `talk` and `translations`, and nothing else. Each names a file
+  that is in the ZIP. `textures` names a folder with at least one file, and
+  `translations` names a folder of `<lang>.json` files.
 - `scripts.events`: one or more of `villager_talked`, `day_started`,
   `item_picked_up`, `scene_entered`, `data_migrated`, `hour_changed`,
   `item_bought`, `item_sold`, `fish_caught`, `bug_caught`, `letter_read`,
@@ -155,8 +156,9 @@ Files for your editor and tools:
   visiting. A shop needs it, and so does a calendar day with a `board` notice.
   A mod with `"scope": "client"` and either of those is refused.
 
-In The City, the shops and board notices of World mods are switched off.
-Textures, lines and scripts keep running there for you.
+In The City, the shops and board notices of World mods are switched off,
+mod items are off, and every command a script sends is refused. Textures,
+lines and scripts keep running there for you.
 
 Friend visits compare World mods:
 

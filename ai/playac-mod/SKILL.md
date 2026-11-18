@@ -144,7 +144,7 @@ Cannot (do not promise these):
 - Add villagers, buildings, acres, music, or new kinds of item other than house furniture on a game model.
 - Change shops other than the flower shop and Nook's, or set Bells.
 - Run code every frame, change the game's code or memory, read files, reach the internet, or run JavaScript. There is no `io`, `os`, `require`, `load` or `debug`.
-- Change anything in The City (every command is refused there) or a friend's town while visiting (letters and items are refused).
+- Change anything in The City (every command is refused there) or a friend's town while visiting (letters, items and takes are refused).
 
 ## Rules (a mod breaking these is refused or removed)
 
@@ -198,7 +198,7 @@ Texture facts: names are `tex1_<w>x<h>_<texture hash>_<palette hash>_<format>.dd
 - `data_migrated` (`e.from`, `e.to`) runs as the town loads, NOT at the restart, before any other event in that town.
 - `data_migrated` runs only for data that exists: on a fresh install there is none, so it is not called, and the first `store.set` writes at the current `data_version`. `from` is 0 for data saved before the mod set a `data_version`.
 - World mods (`"scope": "world"`) that count must match for friend visits: same mods, same versions, same order, same world settings. A setting is `"scope": "world"` (the default: part of the town, compared, the host's value when mods are lent) or `"scope": "client"` (the player's own: never compared or sent; each player keeps theirs on a visit). Mark a cosmetic toggle `client`. A client setting may decide only what its own player sees or hears: in an event that read one with `settings.get`, `cmd.send_letter`, `cmd.give_item`, `cmd.take_item` and `cmd.take_bells` are refused with `command-client-setting`, so never read one in an event that sends, gives or takes, and never keep its value (a variable, `store`, a timer's `data`) to use in one. Just you mods (`"scope": "client"`) never block a visit. When every World mod of the host that counts is a reviewed version from the mod list, the visitor can load them for that visit only: nothing is installed, they run with the host's world settings and the visitor's own client settings (a text setting changed from its default must pass the site's word checks, or the visit is refused) and an empty store that is never kept, and at the visitor's home (the restarts before and after the trip) their shop, Nook goods, board notices, items, renames and commands do nothing. A mod installed from a file cannot be lent, so publish World mods. A World mod that depends on a Just you mod cannot load for a friend without that Just you mod, so the visit is refused: World mods should depend only on World mods.
-- In The City, World mods' shops and board notices switch off and every command is refused; textures, lines and scripts keep running for the player.
+- In The City, World mods' shops and board notices switch off, mod items are off, and every command is refused; textures, lines and scripts keep running for the player, but nothing a script commands applies there.
 
 ## mod.json
 
@@ -306,7 +306,7 @@ end)
 - A letter body is 192 pixels a line in the game's font: about 30 characters of ordinary English a line, 6 lines (capitals, m and w are wider: 19 W's fill a line; words never split). Keep text a script builds under about 150 characters with at most 5 line breaks; `cmd.send_letter` refuses one that does not fit at once: it returns `nil, message, code`. Plain US keyboard characters only.
 - `fish_caught` gives `e.item` (the fish) and `e.pocketed`; there is no size or length.
 - `item_picked_up` also fires for a fish or a bug that goes into the pockets, just before `fish_caught` or `bug_caught`, and for anything dug up. Never count the same catch in both handlers.
-- Over a limit, or on any Lua error (syntax errors included), the script stops for the session and the Mods tab row says why with the line; the rest of the mod keeps working. `pcall` does not get around the budget. Payloads are copies. No `__gc`, no `__len` passed to table functions.
+- Over a limit, or on any Lua error (syntax errors included), the script stops for the session and the Mods tab row says why with the line; the rest of the mod keeps working. `pcall` does not get around the budget. Payloads are copies. No `__gc`, and no table with a `__len` metamethod passed to `table.insert`, `remove`, `sort` or `concat`.
 
 ## Testing checklist
 
