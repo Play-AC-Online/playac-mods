@@ -1062,6 +1062,7 @@ every change.
 | textures | drawn again from the new files |
 | talk, letters, calendar | read again at once: a villager's first talk of the day, the next letter, the board |
 | items | read again at once (see below) |
+| translations | read again at once: the next time the text is shown |
 | mod.json (renames too) | restart the game |
 
 A changed items file is read again at once:
