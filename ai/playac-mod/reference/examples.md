@@ -213,7 +213,7 @@ MIT, see [LICENSE](LICENSE).
 
 ## example.after-hours
 
-Repository: https://github.com/Play-AC-Online/playac-example-after-hours (tag v2.0.0)
+Repository: https://github.com/Play-AC-Online/playac-example-after-hours (tag v1.0.0)
 
 ### example.after-hours/README.md
 
@@ -223,9 +223,11 @@ Repository: https://github.com/Play-AC-Online/playac-example-after-hours (tag v2
 A World mod (`"scope": "world"`) in two halves:
 
 - **The shop** (`shops.json`): from 1 AM to 3 AM the town shop opens again,
-  and all it sells is gyroids. Every other spot is empty.
+  and all it sells is gyroids, a different few each night. Every other spot
+  is empty.
 - **The lantern** (`items.json`, `items/ghost-lantern/`): the Ghost Lantern,
-  a tall lantern of the mod's own with its own pictures, sold among them.
+  a tall lantern of the mod's own with its own pictures. Now and then it
+  stands among the gyroids.
 
 A shop changes the town, so the mod is a World mod.
 
@@ -261,7 +263,8 @@ The film (click the picture): Inside the shop at 1:20 AM with the mod: empty she
 - Outside them nothing changes. The shop keeps its own hours and its own goods,
   and the day's stock is still there when it opens in the morning.
 - The shop has fewer furniture spots than sixteen goods, so it shows a few of
-  them each night, and a different few the next night.
+  them each night, and a different few the next night. The Ghost Lantern is
+  one of the sixteen, so it is there only on some nights.
 - A good may be an item of the same mod, named by its full id,
   `example.after-hours:ghost-lantern`. Without a `price` it takes the item's
   own price from `items.json`. The gyroids sell at the game's own price.
@@ -317,11 +320,6 @@ captions in `media/media.json`. `.playac/screenshots/` holds the listing's
 screenshots. The pack rule leaves the pictures, the film and the screenshots
 out of the mod.
 
-## History
-
-This repository held Evening Tea Room (1.0.0, tag `v1.0.0`), the flower shop
-as an evening tea room. After Hours took its place in 2.0.0.
-
 ## License
 
 MIT, see [LICENSE](LICENSE).
@@ -345,7 +343,7 @@ MIT, see [LICENSE](LICENSE).
   "api": 1,
   "id": "example.after-hours",
   "name": "After Hours",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "authors": [
     "Play AC Online"
   ],
@@ -397,7 +395,7 @@ MIT, see [LICENSE](LICENSE).
 
 ## example.harvest-post
 
-Repository: https://github.com/Play-AC-Online/playac-example-harvest-post (tag v1.1.0)
+Repository: https://github.com/Play-AC-Online/playac-example-harvest-post (tag v1.0.0)
 
 ### example.harvest-post/README.md
 
@@ -931,7 +929,7 @@ end)
   "api": 1,
   "id": "example.harvest-post",
   "name": "Harvest Post",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "authors": [
     "Play AC Online"
   ],
