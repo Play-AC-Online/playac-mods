@@ -4755,6 +4755,16 @@ What it means: The mod holds sexual or sexually suggestive pictures or text. Pla
 
 How to fix it: Remove it. Mods here are for players of every age.
 
+### review-violent-content
+
+**Gore or graphic violence**
+
+Seen in: the review decision on your upload.
+
+What it means: The mod holds gore, graphic violence or disturbing pictures or text. Players of every age use this site.
+
+How to fix it: Remove it. Mods here are for players of every age.
+
 ### review-hate-harassment
 
 **Hate or harassment**

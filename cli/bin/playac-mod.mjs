@@ -21,7 +21,7 @@ import { DEFAULT_PORT, startDevFree } from '../lib/dev.mjs';
 import { DEFAULT_API, forgetToken, githubPreflight, importGitHub, listingFor, myVersions, parseGitHubSource, revoke, savedToken,
   setYanked, stateWord, statusLines, upload, withToken } from '../lib/publish.mjs';
 import { githubFiles } from '../lib/scaffold.mjs';
-import { findRelease, SITE_RELEASES_URL } from '../lib/pin.mjs';
+import { findRelease, RELEASES_URL } from '../lib/pin.mjs';
 import { spawnSync } from 'node:child_process';
 import { mods } from '../lib/contract.mjs';
 import { commandHelp, commandText, optionSpec, overview } from '../lib/help.mjs';
@@ -99,7 +99,7 @@ async function cmdNew(a) {
   if (a.flags.github) {
     /* the workflow runs one release, pinned by its SHA-256 */
     const release = await findRelease(VERSION);
-    if (!release) throw new Error(`--github pins the check workflow to a release of playac-mod by its SHA-256, read from ${SITE_RELEASES_URL}. That list could not be read, or does not have playac-mod ${VERSION} or newer yet. Nothing was written. Go online and run the same line again, or leave out --github.`);
+    if (!release) throw new Error(`--github pins the check workflow to a release of playac-mod by its SHA-256, read from ${RELEASES_URL}. That list could not be read, or does not have playac-mod ${VERSION} or newer yet. Nothing was written. Go online and run the same line again, or leave out --github.`);
     Object.assign(files, githubFiles(release));
   }
   writeFiles(dir, files, { force: !!a.flags.force });

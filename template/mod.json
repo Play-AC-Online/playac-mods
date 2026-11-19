@@ -9,8 +9,10 @@
     "yourname"
   ],
   "description": "Say here what your mod does.",
-  "scope": "client",
+  "scope": "world",
   "content": {
+    "calendar": "calendar.json",
+    "letters": "letters.json",
     "messages": "messages/en.json"
   },
   "scripts": {

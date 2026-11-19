@@ -291,7 +291,7 @@ test('a Lua syntax error is a problem, with or without a luac installed', async 
 
 test('the template repo exports with a working mod, its workflow and no generated files', SOURCE_ONLY, async () => {
   const { exportTemplate, TEMPLATE_ID } = await import('../scripts/export-template.mjs');
-  for (const opts of [{}, { example: 'example.tea-house' }, { kind: 'texture' }]) {
+  for (const opts of [{}, { example: 'example.evening-tea-room' }, { kind: 'texture' }]) {
     const out = tmp();
     const list = await exportTemplate(out, { ...opts, force: true });
     for (const f of ['mod.json', 'README.md', '.github/workflows/mod.yml', '.vscode/settings.json', '.gitignore']) {
@@ -432,7 +432,13 @@ test('the template workflow runs one release, pinned by SHA-256, and never asks 
     assert.ok(yml.indexOf('sha256sum -c') < yml.indexOf('run: playac-mod check'));
   }
   /* the one switch to npm changes only where the same file comes from */
-  assert.match(pin.renderWorkflow(tpl, rel, false), new RegExp(`PLAYAC_MOD_URL: 'https://playaconline\\.com/modding/downloads/playac-mod-${rel.version}\\.tgz'`));
+  assert.ok(pin.renderWorkflow(tpl, rel, false).includes(`PLAYAC_MOD_URL: '${pin.releaseUrl(rel.version)}'`));
+  /* the release is a GitHub release asset of the public repository package.json names, never a file of the site */
+  const { repo } = pin.publicRepo();
+  assert.equal(pin.releaseUrl(rel.version), `https://github.com/${repo}/releases/download/cli-v${rel.version}/playac-mod-${rel.version}.tgz`);
+  assert.equal(pin.RELEASES_URL, `https://github.com/${repo}/releases/download/cli-releases/releases.json`);
+  assert.ok(pin.renderWorkflow(tpl, rel, false).includes(`# and SHA-256 from ${pin.RELEASES_URL}`), 'the workflow says where the release list is');
+  assert.doesNotMatch(pin.renderWorkflow(tpl, rel, false), /playaconline\.com\/modding\/downloads/);
   assert.match(pin.renderWorkflow(tpl, rel, true), new RegExp(`PLAYAC_MOD_URL: 'https://registry\\.npmjs\\.org/playac-mod/-/playac-mod-${rel.version}\\.tgz'`));
   assert.throws(() => pin.renderWorkflow(tpl, null), /no playac-mod release/);
 });
@@ -632,7 +638,8 @@ test('the version scheme: a build id per package, and a notice when a newer rele
   const list = { releases: [{ version: '0.1.0', sha256: sha }, { version: '0.3.0', sha256: sha, build: '111111111111' }] };
   const n = noticeFor(list, '0.2.0', '', false);
   assert.match(n, /A newer playac-mod is out: 0\.3\.0\. You have 0\.2\.0\./);
-  assert.match(n, /npm install -g https:\/\/playaconline\.com\/modding\/downloads\/playac-mod-0\.3\.0\.tgz/);
+  const { releaseUrl } = await import('../lib/pin.mjs');
+  assert.ok(n.includes(`npm install -g ${releaseUrl('0.3.0')}`), n);
   assert.match(n, new RegExp(`SHA-256 of that file: ${sha}`));
   assert.doesNotMatch(n, /npx|npm install -g playac-mod\b(?!-)/, 'never the bare name while it is not on npm');
   assert.equal(noticeFor(list, '0.3.0', '111111111111', false), '', 'the released build says nothing');

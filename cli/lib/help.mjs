@@ -40,7 +40,7 @@ export const COMMANDS = [
       ['--dir <folder>', 'Where to make it. Default: a folder named after the id.'],
       ['--name <name>', 'The name players see. Default: made from the id.'],
       ['--author <name>', 'Your name as the author. Default: the first part of the id.'],
-      ['--github', 'Add what a GitHub repository needs: a check workflow and CHANGELOG.md. Needs to be online: it reads the playac-mod release the workflow pins from playaconline.com, and writes nothing when it cannot.'],
+      ['--github', 'Add what a GitHub repository needs: a check workflow and CHANGELOG.md. Needs to be online: it reads the playac-mod release the workflow pins from the public playac-mods repository on GitHub, and writes nothing when it cannot.'],
       ['--no-ai', 'Leave out the instructions for AI assistants.'],
       ['--force', 'Write over files that are already there.'],
     ],

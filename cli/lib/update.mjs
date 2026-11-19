@@ -6,10 +6,11 @@
  * The package also carries a BUILD id (vendor/build.json, written when the
  * package is made): the first 12 hex digits of a SHA-256 over every other
  * file in it. Two packages with the same version and the same build are the
- * same files. The site's rolling download can be ahead of the last release
+ * same files. A copy built from source can be ahead of the last release
  * under the same version number; its build id is what tells them apart.
  *
- * THE NOTICE. At most once a day the tool reads the site's release list (one
+ * THE NOTICE. At most once a day the tool reads the public repository's
+ * release list on GitHub (one
  * small JSON file, nothing about you or your mod is sent) and says when a
  * newer release is out, or when this copy is not the released build of its
  * version. Never in CI, never with --json, never when the output is not a
@@ -19,7 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mods } from './contract.mjs';
-import { onNpm, SITE_RELEASES_URL, siteUrl } from './pin.mjs';
+import { onNpm, RELEASES_URL, releaseUrl } from './pin.mjs';
 import { configDir } from './publish.mjs';
 
 const PKG = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -51,7 +52,7 @@ export const newerThan = (a, b) => {
 export function installLines(release, npm = onNpm()) {
   return npm
     ? [`npm install -g playac-mod@${release.version}`]
-    : [`npm install -g ${siteUrl(release.version)}`, `SHA-256 of that file: ${release.sha256}`];
+    : [`npm install -g ${releaseUrl(release.version)}`, `SHA-256 of that file: ${release.sha256}`];
 }
 
 /* The notice for this version and build against a release list, or ''. */
@@ -81,7 +82,7 @@ export async function updateNotice(version, { env = process.env, tty = !!process
   if (!cache || typeof cache.checked !== 'number' || now < cache.checked || now - cache.checked > (cache.list ? DAY : RETRY)) {
     let list = null;
     try {
-      const r = await fetchFn(SITE_RELEASES_URL, { signal: AbortSignal.timeout(1500) });
+      const r = await fetchFn(RELEASES_URL, { signal: AbortSignal.timeout(1500) });
       if (r.ok) list = await r.json();
     } catch { list = null; }
     cache = { checked: now, list: list && Array.isArray(list.releases) ? { releases: list.releases } : null };

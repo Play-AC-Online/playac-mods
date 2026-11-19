@@ -85,6 +85,8 @@ The workflow in `.github/workflows/mod.yml` runs one release of playac-mod.
 It downloads that release's file and refuses it unless its SHA-256 is the one
 written at the top of the workflow. No other package with the same name can
 run there. To move to a newer release, copy its version and SHA-256 from
-https://playaconline.com/modding/downloads/playac-mod-releases.json.
+the release list: `releases.json` in the `cli-releases` release of the
+playac-mods repository on GitHub. https://playaconline.com/modding/cli/ links
+it.
 
 Guide: https://playaconline.com/modding/

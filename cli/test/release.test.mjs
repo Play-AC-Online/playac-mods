@@ -7,7 +7,7 @@
  * hash of the cut before it, and `new --github` offline wrote that dead hash
  * into the workflow, whose hash step then failed on every run. So a package
  * carries no release list at all, a release that names itself is refused, and
- * the pin comes from the site's list or not at all. */
+ * the pin comes from the public repository's release list or not at all. */
 import test from 'node:test';
 import './gen-checkout.mjs'; /* builds the generated files these tests read, in a checkout */
 import assert from 'node:assert/strict';
@@ -33,11 +33,11 @@ const rec = (version, ch) => ({ version, file: pin.releaseFile(version), sha256:
 test('the pin is never a release older than the tool, and never comes from inside the package', async () => {
   const site = (list) => async () => ({ ok: true, json: async () => list });
   const from = (fetchFn, version = '0.2.0') => pin.findRelease(version, { fetchFn, env: {}, local: null });
-  /* the site lists this version: that record */
+  /* the list names this version: that record */
   assert.equal((await from(site({ releases: [rec('0.1.0', 'a'), rec('0.2.0', 'b')] }))).sha256, 'b'.repeat(64));
-  /* the site lists only a newer one: the newer check accepts what this tool scaffolds */
+  /* the list names only a newer one: the newer check accepts what this tool scaffolds */
   assert.equal((await from(site({ releases: [rec('0.1.0', 'a'), rec('0.3.0', 'c')] }))).version, '0.3.0');
-  /* the site has not deployed this release yet: an older check can refuse a newer scaffold, so no pin */
+  /* this release is not published yet: an older check can refuse a newer scaffold, so no pin */
   assert.equal(await from(site({ releases: [rec('0.1.0', 'a')] })), null);
   /* offline, a proxy, a 404: no pin. Nothing in the package stands in. */
   assert.equal(await from(async () => { throw new TypeError('fetch failed'); }), null);
@@ -125,7 +125,7 @@ test('a recut never embeds a hash for itself, whatever the list on disk says', S
 
 /* The whole path, in the newest frozen tarball as a modder has it: unpacked
  * alone, with no checkout beside it and no network. */
-test('the frozen release, unpacked: new --github pins its real hash from the site\'s list, and refuses offline', SOURCE_ONLY, async () => {
+test('the frozen release, unpacked: new --github pins its real hash from the published list, and refuses offline', SOURCE_ONLY, async () => {
   const { readTarball } = await import('../scripts/tarball.mjs');
   const list = pin.readReleases(pin.RELEASES_JSON).releases;
   const newest = list[list.length - 1];
@@ -152,7 +152,7 @@ test('the frozen release, unpacked: new --github pins its real hash from the sit
   assert.match(r.stderr, /Go online and run the same line again, or leave out --github/);
   assert.ok(!fs.existsSync(path.join(root, 'me.offline')), 'a refused new writes nothing');
 
-  /* the site's list: the pin is the hash of the very file this was unpacked from */
+  /* the published list: the pin is the hash of the very file this was unpacked from */
   r = run(online, 'me.online');
   assert.equal(r.status, 0, r.stdout + r.stderr);
   const yml = fs.readFileSync(path.join(root, 'me.online', '.github', 'workflows', 'mod.yml'), 'utf8');

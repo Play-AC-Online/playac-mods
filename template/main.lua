@@ -1,7 +1,8 @@
--- Daily Gift: once a game day, a letter with a little present arrives in the
--- mailbox. A worked example of mod commands: an event handler never changes the
--- game itself, it QUEUES a command, and the game applies it at the end of a frame's
--- update, once the player is free. mod.json must name the command in "permissions".
+-- Harvest Post, the script half: once a game day, a letter with a little
+-- present arrives in the mailbox. A worked example of mod commands: an event
+-- handler never changes the game itself, it QUEUES a command, and the game
+-- applies it at the end of a frame's update, once the player is free. mod.json
+-- must name the command in "permissions".
 --
 -- It also shows a timer. A letter the game could not take now (both boxes
 -- full, or the player away from home) is tried again half a game hour later.
