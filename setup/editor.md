@@ -77,8 +77,8 @@ check two things:
 
 The file name decides which schema checks a file. The names are `mod.json`,
 `shops.json`, `items.json`, `letters.json`, `calendar.json`, `talk.json`,
-any `.json` in a `messages/` folder and any `.json` in a `translations/`
-folder. Name your files that way and they are checked.
+and any `.json` in a `messages/` folder. Name your files that way and they
+are checked.
 
 A `mod.json` or `shops.json` can also name its own schema. This works in any
 editor that reads `$schema`. The game ignores the key.
@@ -132,8 +132,7 @@ file `.vscode/settings.json` with this in it:
     { "fileMatch": ["/items.json"], "url": "https://playaconline.com/schemas/mod-items.schema.json" },
     { "fileMatch": ["/letters.json"], "url": "https://playaconline.com/schemas/letters.schema.json" },
     { "fileMatch": ["/calendar.json"], "url": "https://playaconline.com/schemas/calendar.schema.json" },
-    { "fileMatch": ["/talk.json"], "url": "https://playaconline.com/schemas/talk.schema.json" },
-    { "fileMatch": ["/translations/*.json"], "url": "https://playaconline.com/schemas/translations.schema.json" }
+    { "fileMatch": ["/talk.json"], "url": "https://playaconline.com/schemas/talk.schema.json" }
   ],
   "Lua.runtime.version": "Lua 5.4",
   "Lua.workspace.library": [".playac/playac.lua"],

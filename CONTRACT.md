@@ -38,8 +38,8 @@ game engine, the docs) must implement exactly this. Where a layer cannot check a
   name after it. CRLF and LF load; a `.txt` or `.md` is not judged.
 - Limits: at most 2000 files; 16 MiB zipped; 64 MiB unpacked total;
   `mod.json` at most 64 KiB; any other `.json` at most 256 KiB; any `.lua` at most 512 KiB.
-  Every file a `content` key names as JSON (`shops`, `messages` and each file of a
-  messages folder, `items`, `letters`, `calendar`, `talk`) is read as JSON
+  Every file a `content` key names as JSON (`shops`, `messages`, `items`,
+  `letters`, `calendar`, `talk`) is read as JSON
   whatever its extension, so it is held to the 256 KiB cap too (`shops.txt` of
   300 KiB: refuse).
 
@@ -142,16 +142,18 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
 - `description`: optional; if present a string of at most 500 code points (null refused).
 - `tags`: optional; if present an array of at most 5 different strings, each
   one of `textures clothing furniture scenery villagers dialogue shops seasonal
-  holidays quality-of-life translation humor accessibility scripts` (case-sensitive;
+  holidays quality-of-life humor accessibility scripts` (case-sensitive;
   `[]` is fine, `null` refused). Only the storefront reads them (mods.js `TAGS`, Go
   `Tags`). `tags` was an unknown key and ignored.
 - `scope`: `"client"` or `"world"`.
 - `content`: optional object; only keys `textures`, `messages`, `shops`, `items`,
-  `letters`, `calendar`, `talk` and `translations` (any other key
+  `letters`, `calendar` and `talk` (any other key
   refused; buildings/acres are NOT supported yet and are refused; see "Mod items" and the
   typed targets below). Each value a
   non-empty path string that exists in the ZIP (`textures` names a folder that holds at
-  least one file).
+  least one file). `content.translations` was dropped before release and is refused
+  like any other key the game does not read (`content-unknown`); a `content.messages`
+  that names a folder is refused (`content-missing`).
 - `shops` requires `scope: "world"`. A `calendar` file with a `board` notice requires
   `scope: "world"` (checked on the calendar file, see below). `letters` and `talk` are
   allowed in either scope.
@@ -218,14 +220,13 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   `^[a-z][a-z0-9_]{0,31}$`, unique; `type` `bool` | `number` | `choice` | `text`;
   `label` trimmed 1..60 code points; optional `description` at most 200 code
   points. Neither holds a character a reader cannot see (in mods.js,
-  the registry, the engine's translations and `playac-mod check`): a control
+  the registry and `playac-mod check`): a control
   character (a description may break lines with LF), U+2028, U+2029, any
   format character (Unicode Cf: text-direction controls and marks, zero width
   space and joiners, word joiner, soft hyphen, a byte order mark inside), or a
   blank filler (U+115F, U+1160, U+3164, U+FFA0, U+2800). The label's words:
   `"label" must be 1 to 60 characters on one line, with no invisible,
-  text-direction or control character`. Their translations follow the same
-  rule. And per type (no other keys):
+  text-direction or control character`. And per type (no other keys):
   - `bool`: `default` true or false.
   - `number`: `min`, `max`, `default` whole numbers within -1e9..1e9, `min < max`,
     `min <= default <= max`.
@@ -235,65 +236,18 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
     code points with no control character (one line).
   - any type: optional `scope`, `"world"` (the default) or `"client"`.
     See "A setting's scope" below.
-- `content.messages`: a FILE (English), or a FOLDER (named with or
-  without a trailing `/`) whose every file is `<lang>.json` for a language in
-  `en de es fr it`, with `en.json` required. Each file follows the messages
-  rules; a translation may only hold keys `en.json` has.
+- `content.messages`: ONE `.json` file. A path that names a folder
+  is refused (`content-missing`). Its rules are under "messages/*.json" below.
 
-## Translations of the data files
-`content.translations` names a FOLDER (with or without a trailing `/`) whose every
-file is `<lang>.json` for a language in `de es fr it`. There is no `en.json`:
-English is the text in the mod's own files. Each file is one flat object of key
-to text, read as JSON under the 256 KiB cap. It is the messages folder's shape,
-for every text that is not a script's line.
-
-- A key is the PATH of a text in the mod's own files:
-  `mod/name`, `mod/description`; `settings/<name>/label`,
-  `settings/<name>/description`; `items/<id>/name`; `shops/flower/name`,
-  `shops/flower/greeting`, `shops/flower/stock_line`; `letters/<id>/header`,
-  `.../body`, `.../footer`, `.../sender`; `calendar/<id>/board`,
-  `calendar/<id>/talk/<n>`; `talk/<pool>/<line>`. `<n>`, `<pool>` and `<line>`
-  count from 1 in file order, with no leading zero.
-- A key must name a text the mod HAS: a letter with no `sender`, a day with no
-  `board`, a mod with no `description` have nothing there to translate
-  (`translations-key`). Nook's stock has no text.
-- The text follows the rule of the text it replaces: the same length, the same
-  line breaks, the same characters (`translations-text`). A letter's parts and a
-  board notice stay printable ASCII in every language. A header may hold one
-  `{player}` wherever its language wants it. Only C knows the paper's width: it
-  alone refuses a translated body or notice that does not fit six lines.
-- FALLBACK, one rule in every layer and the messages folder's: the game's
-  language (the disc's; `?modlang` in developer mode), then English. English is
-  `en.json` for a script's line and the mod's own data file for everything else.
-  It is decided text by text: a letter with a German body and no German footer
-  is the German body over the English footer. A letter's mailbox name, when the
-  letter names no `sender`, follows the footer of the language shown.
-- mods.js and the registry refuse the mod for a bad key or text. The engine
-  leaves that ONE entry out, says so on the mod's row, and shows the English.
-- The engine never shows `mod/*` or `settings/*` (it checks them all the same).
-  mods.js keeps them on the installed row (`display`) for the Mods tab, and the
-  registry's `Pack.Display` holds the name and description by language.
-- The registry's text filter reads a translations file like the text it
-  replaces: a translated `mod/name` meets the name's two
-  checks (a word the site does not allow refuses the upload, naming the file
-  and the key, code `upload-translation-word`; a claim to be the site is
-  flagged), and every other text is flagged under its file and key. The word
-  list and the phrase rules are English: they fold accents and look-alikes but
-  do not read German, Spanish, French or Italian words. The reviewer reads the
-  files (docs/moderation/MODS.md).
-- Every language's copy of a board notice counts as "a mod's page" on the board,
-  so a page posted in one language is not posted again in another.
+## Letters a mod mailed
 - `letter_read`'s `letter` is found by what the save holds of a letter the
   engine mailed: its words (body and sign-off), the sender name in the
   mailbox list and the paper, and only when the game stamped the letter itself
   (`mMl_NAME_TYPE_MUSEUM`, which every mod letter gets; a letter a resident
-  wrote by hand carries their own id and is never named). The match runs over
-  the mod's own text AND every language's copy, whatever the game's language is
-  at the read: a letter mailed in German is still named after the player
-  switches language. The remaining limit: two letters with the same words,
-  sender and paper in some language are one to the match (the first in load
-  order, a mod's own text before a copy), whichever mod mailed it, and a letter
-  mailed before its mod changed any of the three stops being named.
+  wrote by hand carries their own id and is never named). The remaining limit:
+  two letters with the same words, sender and paper are one to the match (the
+  first in load order), whichever mod mailed it, and a letter mailed before its
+  mod changed any of the three stops being named.
 
 ## Settings values
 The player's values live on the installed row (mods.js `row.settings`, only the
@@ -636,12 +590,12 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   with its `chance`, rolled from the date and the villager, so it repeats on that day.
 - Client scope allowed (only the player hears it); runs in the City too.
 
-## Languages of the typed targets
-- letters.json, calendar.json and talk.json are ONE language, as written: they have no
-  per-language folder and no fallback like messages. Letters and board
-  notices are plain ASCII anyway (the letter font); talk lines show as written in
-  every game language. A mod that wants translated villager lines uses a `villager_talked` script
-  with `message` keys from a messages folder.
+## One language
+- A mod's texts are in one language, as written: the messages file,
+  letters.json, calendar.json, talk.json, shop and item names, settings and the
+  mod's own name and description. There are no translations. Letters and board
+  notices are plain ASCII (the letter font); every text shows as written,
+  whatever the game's language.
 
 ## messages/*.json
 - An object of string -> string. Keys `^[a-z0-9_.-]{1,48}$`. At most 256 keys per mod.
@@ -736,9 +690,8 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   mod's name, cut to 40 characters>"?` or `Pay <amount> Bells to the mod "<name>"?`).
   The mod's name stands between double quotes, and a double quote of any kind
   inside it is drawn as a single one, so a name written like a sentence stays a
-  name. The name and a mod item's name are the translated ones in the
-  game's language (`mod/name`, `items/<id>/name`), as the Mods tab and the
-  pockets show them. The question comes with
+  name. The name and a mod item's name are the ones the Mods tab and the
+  pockets show. The question comes with
   the answers `No, keep it` (first, where the cursor starts) and `Yes, give` /
   `Yes, pay`, in the same thought window `ask` uses. Nothing the script passes is
   shown. Only "yes" takes, and only what the question said; no, and a window

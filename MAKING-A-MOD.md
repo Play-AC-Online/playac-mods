@@ -9,7 +9,7 @@ The step-by-step guide is at https://playaconline.com/modding/.
 
 - Six working example mods each live in a public repository of their own:
   Clover Meadow (textures), Chatty Villagers (villager lines, data only), Tea
-  House (a shop, its hours and translations), Cosy Corner (new furniture),
+  House (a shop and its hours), Cosy Corner (new furniture),
   Harvest Fair (calendar days and letters) and Daily Gift (a script, commands
   and a timer). The cookbook links every repository, shows each mod file by
   file and has its ZIP: https://playaconline.com/modding/cookbook/.
@@ -109,9 +109,8 @@ A mod that changes the flower shop is a World mod:
   the author names `playaconline`, `official`, `admin` and `example` for
   itself.
 - `content` can hold `textures`, `messages`, `shops`, `items`, `letters`,
-  `calendar`, `talk` and `translations`, and nothing else. Each names a file
-  that is in the ZIP. `textures` names a folder with at least one file, and
-  `translations` names a folder of `<lang>.json` files.
+  `calendar` and `talk`, and nothing else. Each names a file
+  that is in the ZIP. `textures` names a folder with at least one file.
 - `scripts.events`: one or more of `villager_talked`, `day_started`,
   `item_picked_up`, `scene_entered`, `data_migrated`, `hour_changed`,
   `item_bought`, `item_sold`, `fish_caught`, `bug_caught`, `letter_read`,
@@ -346,57 +345,8 @@ name your mod needs. You need no Dolphin and no texture dump.
   of the game's font, which is about 24 letters. A page holds 4 lines.
 - A character the game's font does not have shows as `?`.
 
-`content.messages` can name a folder instead: `"messages": "messages/"`.
-
-- The folder holds `en.json` and any of `de.json`, `es.json`, `fr.json` and
-  `it.json`.
-- `message(key)` answers in the game's language. That is the language chosen
-  on a European disc. The US and Australian discs are English.
-- A key a translation does not have falls back to `en.json`.
-- A translation may only hold keys that `en.json` has.
-
-### Translating the other files
-
-Messages are a script's lines. Every other text a mod shows is in a data file:
-a shop's name and lines, a letter, a board notice, villager lines, an item's
-name, a setting's label, the mod's own name and description.
-`content.translations` names a folder that holds those texts in other
-languages: `"translations": "translations/"`.
-
-- The folder holds any of `de.json`, `es.json`, `fr.json` and `it.json`. There
-  is no `en.json`. English is the text in the data file itself.
-- Each file is one object of key to text. A key is the path of a text:
-
-  | key | the text |
-  |---|---|
-  | `mod/name`, `mod/description` | the mod's name and description, on the Mods tab |
-  | `settings/<name>/label`, `settings/<name>/description` | a setting, on the Mods tab |
-  | `items/<id>/name` | an item's name |
-  | `shops/flower/name`, `shops/flower/greeting`, `shops/flower/stock_line` | the flower shop |
-  | `letters/<id>/header`, `/body`, `/footer`, `/sender` | a letter |
-  | `calendar/<id>/board` | a day's board notice |
-  | `calendar/<id>/talk/<n>` | a day's line number `<n>` |
-  | `talk/<pool>/<line>` | line `<line>` of pool `<pool>` |
-
-  `<n>`, `<pool>` and `<line>` count from 1, in the order of the file.
-- A key must name a text the mod has. A letter with no `sender` has no
-  `letters/<id>/sender`.
-- A translation follows the rule of the text it replaces: the same length, the
-  same line breaks, the same characters. A letter and a board notice stay plain
-  US keyboard characters in every language, so write "fuer", not "für". Shop
-  lines and villager lines can use the accented letters the game's font has.
-- The game shows a text in its own language when that language's file has it.
-  It shows the English text when not. Each text is decided alone.
-- The game measures a translated letter body and board notice on the paper. One
-  that does not fit six lines is left out, and the English shows.
-
-```json
-{
-  "shops/flower/greeting": "Willkommen im Teehaus!",
-  "letters/thanks/body": "Danke fuer deine Hilfe.",
-  "calendar/harvest/talk/1": "Frohes Erntefest!"
-}
-```
+- `content.messages` names one `.json` file. Every player sees the lines as
+  written, whatever the game's language. There are no translations.
 
 ## Shops
 
@@ -968,8 +918,7 @@ agrees each time.
 - The game shows its own question, such as `Give 3 x apple to the mod "Tea
   House"?` or `Pay 300 Bells to the mod "Tea House"?`. The item's name, the
   count and the amount come from the game, and the mod's name from its
-  `mod.json`. The name stands between quotes. A translated name
-  (`mod/name`, `items/<id>/name`) is shown in the game's language.
+  `mod.json`. The name stands between quotes.
   A script passes no text and cannot change the question.
 - The answers are "No, keep it" and "Yes, give" or "Yes, pay". The cursor
   starts on No.
@@ -1062,7 +1011,6 @@ every change.
 | textures | drawn again from the new files |
 | talk, letters, calendar | read again at once: a villager's first talk of the day, the next letter, the board |
 | items | read again at once (see below) |
-| translations | read again at once: the next time the text is shown |
 | mod.json (renames too) | restart the game |
 
 A changed items file is read again at once:
