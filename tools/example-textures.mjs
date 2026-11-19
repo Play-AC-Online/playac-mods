@@ -499,7 +499,7 @@ export function cloverGrassFiles() {
 }
 
 /* ── The Tea Chest's own pictures ────────────────────────────────────
- * The Tea Chest (the test fixture fixture.items) is a mod item on base
+ * The Tea Chest (fixture.items, and Evening Tea Room's) is a mod item on base
  * 0x1008, a chest of drawers, and carries pictures of its own (items file "textures"): a tea-green
  * chest with gold knobs and a leaf on its door, drawn here from scratch. Every
  * other copy of the base keeps its own look. Five textures, all CI4 (fmt 8)

@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/shops.schema.json",
   "title": "Play AC Online shops.json",
-  "description": "Restocks and rewords a shop. Every shop takes the same entry: a target, the goods (stock), how they join the shop's own (mode), and optionally hours. Each field means one thing on every shop; a field a shop does not have is refused (rule shop_fields, the table in targets). mode \"add\" puts the goods in at most half of the spots of their kind, rounded up, and the shop's own goods keep the rest. mode \"replace\" makes them the shop's whole stock: each spot of a kind it lists takes one of its goods, and every other spot is bare. hours say when the entry applies. Inside them the shop is the mod's and is open, also when the game has it shut for the night. Outside them the shop is its own. With no hours the entry applies all day, in the shop's own hours. At Nook's the goods stand in spots of their own kind, in every store size, from the next restock, and a new set is picked each day when there are more goods than spots. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. Shops are off in The City. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/#shops",
+  "description": "Restocks and rewords a shop: the flower shop or Nook's. For target nook, the goods are added to or replace the day's roll per spot kind, in every store size, from the next restock. A nook entry with hours sells its goods only inside them, as the shop's whole stock: each spot of a kind it lists takes one of its goods, every other spot is bare, and the day's own stock is back when the hours end. Nook's opens for those hours when it is shut for the night. A new set is picked each day when there are more goods than spots. Nook's goods are off in The City. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/#shops",
   "type": "object",
   "required": [
     "shops"
@@ -20,8 +20,7 @@
         "type": "object",
         "required": [
           "target",
-          "stock",
-          "mode"
+          "stock"
         ],
         "additionalProperties": false,
         "properties": {
@@ -30,13 +29,13 @@
               "flower",
               "nook"
             ],
-            "description": "Which shop: \"flower\" or \"nook\". One entry per target. Every target takes the same fields; the targets table says which fields a shop has."
+            "description": "Which shop: \"flower\" or \"nook\". One shop per target. A nook entry takes only mode, hours and stock."
           },
           "name": {
             "type": "string",
             "minLength": 1,
             "maxLength": 40,
-            "description": "The flower shop's. The shop's name on its door sign while the shop is shut, followed by the hours the mod's shop is on. One line, no line break.",
+            "description": "The shop's name on its sign, on one line with no line break.",
             "pattern": "^[^\\n]*$"
           },
           "hours": {
@@ -49,27 +48,27 @@
               "open": {
                 "type": "string",
                 "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
-                "description": "When the entry starts, on a 24-hour clock."
+                "description": "When the shop opens, on a 24-hour clock."
               },
               "close": {
                 "type": "string",
                 "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
-                "description": "When the entry ends, on a 24-hour clock."
+                "description": "When the shop closes, on a 24-hour clock."
               }
             },
-            "description": "HH:MM. Open and close must differ. Close may be past midnight. The entry applies only inside the hours: its goods (by mode) and its lines. Inside them the shop is open, also when the game has it shut for the night. Outside them the shop is its own. Leave hours out for all day, in the shop's own hours."
+            "description": "HH:MM. Open and close must differ. Close may be past midnight. For the flower shop, hours can only shorten the shop's own. For Nook's, the goods are the whole stock inside the hours and nothing outside them, and the shop opens for them when it is shut for the night. It does not open before its morning opening, on a renovation day or in a sale's hours."
           },
           "greeting": {
             "type": "string",
             "minLength": 1,
             "maxLength": 160,
-            "description": "The flower shop's. What the keeper says first while the entry applies. At most 3 line breaks."
+            "description": "What the keeper says first. At most 3 line breaks."
           },
           "stock_line": {
             "type": "string",
             "minLength": 1,
             "maxLength": 160,
-            "description": "The flower shop's. What the keeper says about the stock while the entry applies. At most 3 line breaks."
+            "description": "What the keeper says about the stock. At most 3 line breaks."
           },
           "stock": {
             "type": "array",
@@ -102,19 +101,19 @@
                 }
               }
             },
-            "description": "The goods. The flower shop takes 1 to 6, Nook's 1 to 16 (the targets table). Each stands in a spot of its own kind."
+            "description": "The flower shop: 1 to 6 goods, one per table spot. Nook's: 1 to 16 goods, each in a spot of its own kind."
           },
           "mode": {
             "enum": [
               "add",
               "replace"
             ],
-            "description": "How the goods join the shop's own, the same on every shop. \"add\": in at most half of the spots of their kind, rounded up; the shop's own goods keep the rest. \"replace\": the goods are the shop's whole stock; each spot of a kind they list takes one, and every other spot is bare."
+            "description": "Nook's only, and not with hours. \"add\" (the default) puts the goods in at most half of each kind's spots. \"replace\" puts them in all of them."
           }
         },
         "allOf": [
           {
-            "description": "The flower shop sells at most 6 goods.",
+            "description": "The flower shop sells at most 6 goods, one per table spot. Nook's sells up to 16.",
             "if": {
               "required": [
                 "target"
@@ -134,10 +133,11 @@
             }
           },
           {
-            "description": "Nook's store sells at most 16 goods and has no name, greeting, stock_line (rule shop_fields).",
+            "description": "Nook's \"mode\" and \"hours\" do not go together: with hours the goods are the whole stock.",
             "if": {
               "required": [
-                "target"
+                "target",
+                "hours"
               ],
               "properties": {
                 "target": {
@@ -146,28 +146,9 @@
               }
             },
             "then": {
-              "properties": {
-                "stock": {
-                  "maxItems": 16
-                }
-              },
               "not": {
-                "anyOf": [
-                  {
-                    "required": [
-                      "name"
-                    ]
-                  },
-                  {
-                    "required": [
-                      "greeting"
-                    ]
-                  },
-                  {
-                    "required": [
-                      "stock_line"
-                    ]
-                  }
+                "required": [
+                  "mode"
                 ]
               }
             }

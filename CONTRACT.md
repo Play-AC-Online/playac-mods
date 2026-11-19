@@ -518,8 +518,9 @@ reinstalling restores the name.
 - `base`: a STRING `"0x"` + 4 hex digits, a furniture id facing south: in
   0x1000..0x1FFC or 0x3000..0x33C4 and a multiple of 4. Only C knows the
   furniture tables: it refuses (on the Mods tab) a base with no model, a fossil, a
-  gyroid, a mannequin or umbrella design piece, clothing, and a piece that turns
-  into a pocket item (balloons, diaries, fans, pinwheels).
+  gyroid, clothing, a mannequin or umbrella for a design, and a piece that turns
+  into a pocket item (every umbrella, fish, bug, tool, balloon, fan, pinwheel and
+  diary). The site's item list filters the pieces that can be a base.
 - `price`: optional whole number 1..99999, what a shop asks when its stock entry
   sets no price.
 - `textures`: optional, a folder inside the mod (a trailing `/` is allowed)
