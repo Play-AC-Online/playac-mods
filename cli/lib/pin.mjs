@@ -9,13 +9,9 @@
  * package has no dependencies, so nothing else is fetched).
  *
  * Releases are frozen files in cli/releases/ (the game's build
- * writes them; releases.json lists them). Each is an asset of a GitHub release
- * of the public repository (package.json "repository"), tagged
- * cli-v<version>, kept forever, so a pinned workflow keeps working after the
- * next release. The list of the published ones is releases.json, the one file
- * of the release cli-releases, replaced at every publish (so it never names a
- * file GitHub does not have, and never waits on a sync of the repository's
- * main). Nothing is downloaded from playaconline.com.
+ * writes them; releases.json lists them), served by the site at
+ * /modding/downloads/playac-mod-<version>.tgz forever, so a pinned workflow
+ * keeps working after the next release.
  *
  * THE SWITCH TO NPM is one line: CLI_ON_NPM in the frontend's facts.ts (the
  * package carries it as vendor/source.json). It changes only the URL the
@@ -28,30 +24,14 @@ import { fileURLToPath } from 'node:url';
 import { CHECKOUT } from './checkout.mjs';
 
 export const PKG = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+export const SITE = 'https://playaconline.com';
 export const RELEASES_DIR = path.join(PKG, 'releases');
 export const RELEASES_JSON = path.join(RELEASES_DIR, 'releases.json');
+export const SITE_RELEASES_URL = `${SITE}/modding/downloads/playac-mod-releases.json`;
 const VENDOR = path.join(PKG, 'vendor');
 
-/* The public repository the releases are published in, from package.json
- * "repository" (the one place the package names it): { repo: "<owner>/<name>",
- * dir: the package's folder in it }. */
-export function publicRepo(pkgDir = PKG) {
-  const r = JSON.parse(fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8')).repository || {};
-  const m = /github\.com\/([A-Za-z0-9-]+)\/([A-Za-z0-9._-]+?)(?:\.git)?$/.exec(String(r.url || ''));
-  if (!m) throw new Error('package.json "repository" is not a GitHub repository');
-  return { repo: `${m[1]}/${m[2]}`, dir: r.directory || '' };
-}
-const PUBLIC = publicRepo();
-
 export const releaseFile = (version) => `playac-mod-${version}.tgz`;
-/** The GitHub release a version is published in. */
-export const releaseTag = (version) => `cli-v${version}`;
-/** Where a release's file is downloaded from: its GitHub release asset. */
-export const releaseUrl = (version) => `https://github.com/${PUBLIC.repo}/releases/download/${releaseTag(version)}/${releaseFile(version)}`;
-/** The GitHub release whose one file is the list of published releases. */
-export const RELEASES_TAG = 'cli-releases';
-/** The list of published releases: { releases: [{ version, file, sha256, integrity, build? }] }. */
-export const RELEASES_URL = `https://github.com/${PUBLIC.repo}/releases/download/${RELEASES_TAG}/releases.json`;
+export const siteUrl = (version) => `${SITE}/modding/downloads/${releaseFile(version)}`;
 export const npmUrl = (version) => `https://registry.npmjs.org/playac-mod/-/${releaseFile(version)}`;
 
 /* Is the package on npm (and ours there)? The checkout's facts.ts decides;
@@ -90,7 +70,7 @@ export function pickRelease(list, version, { notOlder = false } = {}) {
 /* Where the release list comes from, in order: $PLAYAC_MOD_RELEASES (a file),
  * the list beside the source (releases/releases.json: the game's checkout
  * and the public repository have one, an installed package does not), then
- * the public repository's list (RELEASES_URL), fetched.
+ * the site's list, fetched.
  *
  * Never from inside the package. A release cannot carry its own hash (the
  * hash is of the file that would carry it), and the releases before it are
@@ -105,7 +85,7 @@ export async function findRelease(version, { fetchFn = globalThis.fetch, env = p
   if (beside) return pickRelease(beside, version);
   if (!fetchFn) return null;
   try {
-    const r = await fetchFn(RELEASES_URL, { signal: AbortSignal.timeout(8000) });
+    const r = await fetchFn(SITE_RELEASES_URL, { signal: AbortSignal.timeout(8000) });
     return r.ok ? pickRelease(await r.json(), version, { notOlder: true }) : null;
   } catch { return null; }
 }
@@ -116,8 +96,7 @@ export function renderWorkflow(template, release, npm = onNpm()) {
   const out = String(template)
     .replaceAll('__PLAYAC_MOD_VERSION__', release.version)
     .replaceAll('__PLAYAC_MOD_SHA256__', release.sha256)
-    .replaceAll('__PLAYAC_MOD_RELEASES_URL__', RELEASES_URL)
-    .replaceAll('__PLAYAC_MOD_URL__', npm ? npmUrl(release.version) : releaseUrl(release.version));
+    .replaceAll('__PLAYAC_MOD_URL__', npm ? npmUrl(release.version) : siteUrl(release.version));
   const left = out.match(/__PLAYAC_MOD_[A-Z0-9_]+__/);
   if (left) throw new Error(`workflow template: unknown placeholder ${left[0]}`);
   return out;

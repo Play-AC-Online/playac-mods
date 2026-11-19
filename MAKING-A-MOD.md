@@ -54,7 +54,7 @@ my-mod.zip
 - ZIPs made by the Mac Finder or Windows work. The game ignores `__MACOSX/`,
   `Thumbs.db` and every hidden file or folder. A hidden name starts with `.`,
   such as `.DS_Store`, `._*`, `.gitignore`, `.github/`, `.vscode/` and
-  `.playac/`. A Finder ZIP of a `playac-mod new` folder works as it is.
+  `.playac/`. A Finder ZIP of a mod repository folder works as it is.
 
 A player can have at most 32 mods switched on. Together they may be at most
 96 MB unpacked, or 24 MB on a phone. Keep texture mods small if you want phone
@@ -336,11 +336,11 @@ texture inspector in the game names those, and everything else it draws:
 
 Start from a texture mod that works, not from an empty folder:
 
-- The texture kit, `templates/texture-kit/` in this repository, also a ZIP on
-  `https://playaconline.com/modding/downloads/`. It turns the town grass into
+- The texture kit, `templates/texture-kit/` in this repository, also a ZIP in
+  its newest "Starter kits and AI pack" release. It turns the town grass into
   a green check.
-- The Springtime Town example, `playac-example-springtime-town`. It draws
-  clover over the town grass, with one `$` file per grass texture.
+- The Springtime Town example, `playac-example-springtime-town`. It draws clover
+  over the town grass, with one `$` file per grass texture.
 
 1. Put your own name in its `mod.json`, in `id` and `authors`.
 2. Draw your own picture. Save it in `textures/` under the name you copied,

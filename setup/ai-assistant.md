@@ -13,9 +13,6 @@ https://playaconline.com/modding/ai/.
 
 Pick one:
 
-- **With playac-mod** (easiest): `playac-mod new` already puts the pack in
-  every new mod, for Claude Code and Copilot. There is nothing to download.
-  `--no-ai` leaves it out.
 - **Download it:** `playac-mod-ai.zip` is a file of the newest "Starter kits
   and AI pack" release of this repository: https://github.com/Play-AC-Online/playac-mods/releases.
   https://playaconline.com/modding/ai/ links it too.
@@ -59,9 +56,8 @@ Remove-Item -Recurse playac-mod-ai
 ```
 
 `mv` may say `Directory not empty` for `.claude` or `.github`. `Move-Item` may
-say the item already exists. Your mod then has the pack already, from
-`playac-mod new`. Skip this step, or delete the old folders first to update
-them.
+say the item already exists. Your mod then has the pack already. Delete the
+old folders first to update them.
 
 **Check it worked:** your mod folder now has `mod.json`, `.claude/`,
 `.github/` and `AGENTS.md` side by side. List them with `ls -a` on macOS and
@@ -116,5 +112,4 @@ to?". It should list the game's real events, such as `villager_talked` and
 - You are the author. The rules apply to what an assistant makes for you. Share
   only original work, with no art or text from any game.
 - The pack changes when the mod API does. Get it again after a game update.
-  Download it again, or make a new mod with `playac-mod new` and copy its
-  `.claude/` and `.github/` across.
+  Download it again.

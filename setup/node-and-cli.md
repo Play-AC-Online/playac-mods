@@ -1,19 +1,17 @@
 # Node.js and the playac-mod tool
 
 `playac-mod` is a command line tool for making mods. It runs on Node.js. It
-does five things:
+does three things:
 
-- makes a new mod folder
-- checks a mod with the game's own rules
-- packs the ZIP
-- reloads your mod in the game as you save
-- publishes it
+- `check` checks a mod with the game's own rules
+- `pack` packs the ZIP
+- `dev` reloads your mod in the game as you save
 
 You do not need it to make a mod, because installing a ZIP in the game runs
 the same checks. It saves time once you write scripts or make more than one
 mod.
 
-At the end of this guide `playac-mod --version` answers. You have also made,
+At the end of this guide `playac-mod --version` answers. You have also
 checked and packed a mod with it.
 
 ## 1. Open a terminal
@@ -135,7 +133,7 @@ npm install -g https://github.com/Play-AC-Online/playac-mods/releases/download/c
 
 This installs release 0.2.0 of the tool from its GitHub release in this repository. `npm` comes with Node.js.
 
-The SHA-256 of that file is `0d600e5e1fb01da8dae8cd5d92ea5da507ac3fcd973b1841d1701935ff73d2c9`. To check it yourself, download
+The SHA-256 of that file is `81a19fedc63744fbe71ef3a24b78da6c48838fa5ddbbdad4986ebf35e6bf8906`. To check it yourself, download
 the file, compare, and install the file you checked:
 
 ```bash
@@ -155,34 +153,21 @@ playac-mod --version
 ```
 
 It prints a line like
-`playac-mod 0.2.0, build 1a2b3c4d5e6f (API level 1)`. That is the
+`playac-mod 0.2.0, build 1a2b3c4d5e6f, API level 1`. That is the
 tool's version, its build and the mod API level it checks.
 
-The tool tells you when a newer release is out and prints the line that
-installs it. Each release's changes are at
+Each release's changes are at
 https://playaconline.com/modding/cli/#changelog.
 
-## 5. Your first mod with the tool
+## 5. Check your first mod with the tool
 
-A new terminal starts in your home folder. Make a folder for your mods there
-and go into it. These two lines are the same on every system.
-
-```bash
-mkdir my-mods
-cd my-mods
-```
-
-Make a mod. The part before the dot is your author name. It may hold lower
-case letters, digits and dashes.
+Start from a starter kit in [`templates/`](../templates/) or an example
+repository (the [README](../README.md) lists them). Copy its folder and go
+into it in the terminal:
 
 ```bash
-playac-mod new yourname.first-lines --kind lines
-cd yourname.first-lines
+cd lines-kit
 ```
-
-It prints `Made yourname.first-lines, a lines mod with the id
-yourname.first-lines.` and the next command to run. The kinds are `texture`,
-`lines`, `shop` and `script`.
 
 **Check it and pack it:**
 
@@ -191,9 +176,9 @@ playac-mod check    # every rule the game checks
 playac-mod pack     # the ZIP to install or share
 ```
 
-`check` ends with `ok   yourname.first-lines 0.1.0, client, ...`. `pack`
-prints `packed ../yourname.first-lines-0.1.0.zip`. The ZIP is written **next
-to** the folder, never inside it.
+`check` ends with `ok   <id> <version>, <n> files`. `pack` prints
+`packed ../<id>-<version>.zip`. The ZIP is written **next to** the folder,
+never inside it.
 
 **Try it in the game.** There are two ways:
 
@@ -207,29 +192,20 @@ to** the folder, never inside it.
   playac-mod dev
   ```
 
-**Editor types.** `new` already wrote `.playac/` and VS Code settings.
-`.playac/` holds the game's Lua types and a JSON schema for every mod file.
-The types come with the tool. After you update the tool, refresh them with:
+**Editor types.** The game's Lua types are [`api/playac.lua`](../api/playac.lua)
+and the JSON schemas are in [`api/`](../api/). [Set up your editor](editor.md)
+to use them.
 
-```bash
-playac-mod types
-```
-
-Next: [set up your editor](editor.md) to use them.
+**Share it** on the website: [Publishing](publishing.md).
 
 ## What the commands do
 
 | Command | What it does |
 |---|---|
-| `new <id> --kind <kind>` | Makes a new mod folder that already passes `check`. |
-| `check` | Runs every rule the game checks. Gives each problem with its file, and the line where there is one. |
+| `check` | Runs every rule the game checks. Gives each problem with its file, and the line where there is one. Takes a folder or a ZIP. |
 | `pack` | Makes the ZIP, the same bytes every time, next to the folder. |
 | `dev` | Serves the folder to the game's developer mode. In the game, press **Connect** to reach it ([The game](game.md#4-load-a-mod-you-are-making)). |
-| `types` | Refreshes `.playac/` (Lua types, JSON schemas). Writes the VS Code settings when the folder has none. |
-| `publish` | Signs in with a code and sends the mod for review ([Publishing](publishing.md)). |
-| `status` | Lists your uploaded versions. |
-| `yank` | Withdraws a version from the mod list. |
-| `help` | Lists every command and option. |
+| `help` | Lists the commands. `playac-mod <command> --help` shows one command's options. |
 
 Each command in full: https://playaconline.com/modding/cli/
 

@@ -1,4 +1,4 @@
-// @ts-nocheck: plain JS; frontend tests import it (type checks would fail on it)
+// @ts-nocheck: plain JS; the frontend's downloads route imports it (type checks would fail on it)
 /* example-textures.mjs - the drawn textures of the example texture mods.
  *
  * Every pixel here is drawn from scratch with a fixed seed, so a build always
@@ -547,9 +547,8 @@ export function perPalette(files) {
   return out;
 }
 
-/* The starter kits' drawn files, by kit folder (templates/<kit> of playac-mods).
- * playac-mods holds them as files; build-examples.mjs and the public sync hold
- * those to what this draws. */
+/* The starter kits' drawn files, by kit folder (templates/<kit> of playac-mods). The
+ * frontend's downloads route and build-examples.mjs add them. */
 export const GENERATED_KITS = {
   'texture-kit': textureKitFiles,
 };
@@ -564,8 +563,8 @@ export function textureFixtureFiles() {
 }
 
 /* What each fixture draws, by folder name (mods/fixtures). build-examples.mjs
- * adds these files. The Springtime Town example's repo (Clover Meadow
- * before it) holds its drawn DDS as real files (written once from
+ * adds these files. The Clover Meadow example's repo holds its drawn DDS as
+ * real files (scripts/examples/.mjs prepare writes them from
  * cloverMeadowFiles), so no example is drawn here any more. */
 export const GENERATED = {
   'fixture.textures': textureFixtureFiles,

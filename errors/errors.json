@@ -5365,22 +5365,6 @@
       ]
     },
     {
-      "code": "review-violent-content",
-      "area": "review",
-      "title": "Gore or graphic violence",
-      "where": [
-        "the review decision on your upload"
-      ],
-      "messages": {},
-      "api": [],
-      "meaning": "The mod holds gore, graphic violence or disturbing pictures or text. Players of every age use this site.",
-      "fix": "Remove it. Mods here are for players of every age.",
-      "decisions": [
-        "refusal",
-        "removal"
-      ]
-    },
-    {
       "code": "review-hate-harassment",
       "area": "review",
       "title": "Hate or harassment",

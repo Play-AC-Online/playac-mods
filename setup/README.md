@@ -28,7 +28,7 @@ Three more guides are for anyone:
 1. [The game](game.md). A browser that runs it, your town, developer mode and
    the Mod log. **Everyone starts here.**
 2. [Node.js and the playac-mod tool](node-and-cli.md). Install Node.js and
-   `playac-mod`. Make, check and pack your first mod.
+   `playac-mod`. Check and pack your first mod.
 3. [Editor](editor.md). Set up VS Code, or any editor, to check your JSON
    files as you type. Add the Lua extension that knows the game's script API.
 4. [Texture tools](textures.md). Find a texture's name, paint over it and save

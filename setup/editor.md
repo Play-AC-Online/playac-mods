@@ -48,8 +48,6 @@ VS Code reads its settings from the `.vscode/` folder inside the mod folder.
 Those settings set up the checks. The `.vscode/` folder comes from one of
 these:
 
-- A mod made with `playac-mod new` has one already
-  ([Node.js and playac-mod](node-and-cli.md)).
 - Each starter kit has one. The kits are the `templates/` folders, and
   as ZIPs in the newest "Starter kits and AI pack" release: https://github.com/Play-AC-Online/playac-mods/releases.
 - For any other mod, copy one from a kit or make it as in
@@ -97,13 +95,10 @@ editor that reads `$schema`. The game ignores the key.
    `sumneko.lua`. A mod folder recommends it, so VS Code may offer it in a
    pop-up at the bottom right. **Install** there does the same.
 3. The extension reads the game's API from `.playac/playac.lua` in your mod
-   folder. Put the file there in one of two ways:
-   - With the tool: run `playac-mod types` in the mod folder. It also writes
-     the settings of step 5 when the folder has no `.vscode/settings.json`. A
-     mod made with `playac-mod new` has both already.
-   - By hand: make a `.playac` folder inside your mod folder. Download
-     https://playaconline.com/schemas/playac.lua and save it there as
-     `.playac/playac.lua`.
+   folder. Make a `.playac` folder inside your mod folder. Copy
+   [`api/playac.lua`](../api/playac.lua) from this repository there, or
+   download https://playaconline.com/schemas/playac.lua, and save it as
+   `.playac/playac.lua`.
 4. Reload the window with **Developer: Reload Window** from the Command
    Palette.
 
@@ -120,9 +115,8 @@ extension did not find `.playac/playac.lua`. Check that the file is there and
 that the folder you opened is the mod folder.
 
 The `.playac/` folder is hidden, so the game and `playac-mod pack` never put
-it in your mod's ZIP. The tool carries its own copy of the file. When the
-mod API gains something, update the tool and run `playac-mod types`, or
-download the file again.
+it in your mod's ZIP. When the mod API gains something, copy or download the
+file again.
 
 ## 5. The settings by hand
 
@@ -149,9 +143,9 @@ file `.vscode/settings.json` with this in it:
 
 What each part does:
 
-- `json.schemas`: which schema checks which file. A mod made with
-  `playac-mod new` points at copies in `.playac/schemas/` instead, so it also
-  works offline.
+- `json.schemas`: which schema checks which file. To work offline, copy the
+  schemas from [`api/`](../api/) into your mod folder and point the `url`s at
+  those copies.
 - `Lua.runtime.version`: the game runs Lua 5.4.
 - `Lua.workspace.library`: the game's API, for autocomplete and hover docs.
 - `Lua.runtime.builtin`: `io`, `os`, `debug` and `package` do not exist in a

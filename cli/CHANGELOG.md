@@ -9,10 +9,6 @@ never changes after it is listed.
 
 ## 0.2.0
 
-- The tool's releases are files of GitHub releases of the playac-mods
-  repository, and its release list is that repository's
-  `cli/releases/releases.json`. The update notice, `new --github` and the check
-  workflow read them there.
 - `check` reads a `content.translations` folder: each key must name a text
   the mod has, and each text follows the rule of the text it replaces. `types`
   writes `translations.schema.json`, and a new mod's editor settings map it to

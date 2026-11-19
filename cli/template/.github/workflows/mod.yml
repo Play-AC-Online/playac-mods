@@ -7,7 +7,7 @@
 # PLAYAC_MOD_URL and refused unless its SHA-256 is PLAYAC_MOD_SHA256. Nothing
 # is looked up on the npm registry by name, so no other package called
 # playac-mod can ever run here. To move to a newer release, copy its version
-# and SHA-256 from __PLAYAC_MOD_RELEASES_URL__
+# and SHA-256 from https://playaconline.com/modding/downloads/playac-mod-releases.json
 # (or run `playac-mod new yourname.pin --github` and copy these three lines from it).
 name: mod
 

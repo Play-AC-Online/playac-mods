@@ -3,7 +3,7 @@
 Starter kits, the mod API and the `playac-mod` tool for
 [Play AC Online](https://playaconline.com). The docs at https://playaconline.com/modding/ are the full guide.
 
-**The docs site goes live with the game's next release. Until then the links to playaconline.com/modding/ do not work yet. Every download is here on GitHub and works now.**
+**The docs site and the tool's download go live with the game's next release. Until then the links to playaconline.com/modding/ and the install line below do not work yet.**
 
 The guides, the starter kits, the mod contract and the AI skill are written
 here. The rest is generated from the game's sources on every release. It
@@ -29,28 +29,14 @@ own mod repository will be: the mod at the top, a README with pictures and a
 film of it in the game, a changelog and a tag per version. Clone one to read
 it, or fork it to start from it.
 
-| Example | Kind | Repository | Mod ZIP |
-|---|---|---|---|
-| [Springtime Town](https://github.com/Play-AC-Online/playac-example-springtime-town) | Textures and villager lines, no code | [`playac-example-springtime-town`](https://github.com/Play-AC-Online/playac-example-springtime-town) | [example.springtime-town-1.0.0.zip](https://github.com/Play-AC-Online/playac-example-springtime-town/releases/download/v1.0.0/example.springtime-town-1.0.0.zip) |
-| [Evening Tea Room](https://github.com/Play-AC-Online/playac-example-evening-tea-room) | Shop, hours, new furniture | [`playac-example-evening-tea-room`](https://github.com/Play-AC-Online/playac-example-evening-tea-room) | [example.evening-tea-room-1.0.0.zip](https://github.com/Play-AC-Online/playac-example-evening-tea-room/releases/download/v1.0.0/example.evening-tea-room-1.0.0.zip) |
-| [Harvest Post](https://github.com/Play-AC-Online/playac-example-harvest-post) | Calendar days, letters, a script with commands and a timer | [`playac-example-harvest-post`](https://github.com/Play-AC-Online/playac-example-harvest-post) | [example.harvest-post-1.0.0.zip](https://github.com/Play-AC-Online/playac-example-harvest-post/releases/download/v1.0.0/example.harvest-post-1.0.0.zip) |
-
-## Downloads
-
-Every download is a file of a release of a public repository on GitHub. The
-site links them and serves none of them.
-
-- Starter kits, one ZIP each, ready to install: [playac-lines-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-be2d91ef7e95/playac-lines-kit.zip), [playac-script-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-be2d91ef7e95/playac-script-kit.zip), [playac-shop-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-be2d91ef7e95/playac-shop-kit.zip), [playac-texture-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-be2d91ef7e95/playac-texture-kit.zip). They are
-  the folders in [`templates/`](templates/), zipped.
-- The AI pack: [playac-mod-ai.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-be2d91ef7e95/playac-mod-ai.zip), for
-  [an AI assistant](setup/ai-assistant.md).
-- Both are in the release [downloads-be2d91ef7e95](https://github.com/Play-AC-Online/playac-mods/releases/tag/downloads-be2d91ef7e95).
-- The `playac-mod` tool: release 0.2.0 is
-  [playac-mod-0.2.0.tgz](https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v0.2.0/playac-mod-0.2.0.tgz), in the release
-  [cli-v0.2.0](https://github.com/Play-AC-Online/playac-mods/releases/tag/cli-v0.2.0).
-  The list of every published release is [releases.json](https://github.com/Play-AC-Online/playac-mods/releases/download/cli-releases/releases.json).
-- Each example mod's ZIP is a file of the release of its tag, in its own
-  repository (the table above).
+| Example | Kind | Repository |
+|---|---|---|
+| [Clover Meadow](https://github.com/Play-AC-Online/playac-example-clover-meadow) | Textures | [`playac-example-clover-meadow`](https://github.com/Play-AC-Online/playac-example-clover-meadow) |
+| [Chatty Villagers](https://github.com/Play-AC-Online/playac-example-chatty-villagers) | Villager lines, data only | [`playac-example-chatty-villagers`](https://github.com/Play-AC-Online/playac-example-chatty-villagers) |
+| [Tea House](https://github.com/Play-AC-Online/playac-example-tea-house) | Shop, hours, translations | [`playac-example-tea-house`](https://github.com/Play-AC-Online/playac-example-tea-house) |
+| [Cosy Corner](https://github.com/Play-AC-Online/playac-example-cosy-corner) | New furniture | [`playac-example-cosy-corner`](https://github.com/Play-AC-Online/playac-example-cosy-corner) |
+| [Harvest Fair](https://github.com/Play-AC-Online/playac-example-harvest-festival) | Calendar days and letters | [`playac-example-harvest-festival`](https://github.com/Play-AC-Online/playac-example-harvest-festival) |
+| [Daily Gift](https://github.com/Play-AC-Online/playac-example-daily-gift) | Script, commands, timer | [`playac-example-daily-gift`](https://github.com/Play-AC-Online/playac-example-daily-gift) |
 
 ## Quick start
 
@@ -58,9 +44,9 @@ You need Node.js 18.17 or newer, and the game running in your browser. The
 game runs from your own disc file: https://playaconline.com/your-disc/
 
 ```bash
-npm install -g https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v0.2.0/playac-mod-0.2.0.tgz
-git clone https://github.com/Play-AC-Online/playac-example-evening-tea-room.git
-cd playac-example-evening-tea-room
+npm install -g https://playaconline.com/modding/downloads/playac-mod-0.2.0.tgz
+git clone https://github.com/Play-AC-Online/playac-example-tea-house.git
+cd playac-example-tea-house
 playac-mod check
 playac-mod pack
 
@@ -69,8 +55,8 @@ cd ~
 playac-mod new yourname.my-mod --kind lines
 ```
 
-That line installs release 0.2.0 from its GitHub release here. Its SHA-256 is
-`0d600e5e1fb01da8dae8cd5d92ea5da507ac3fcd973b1841d1701935ff73d2c9`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
+That line installs release 0.2.0 from the game's site. Its SHA-256 is
+`a4b0144e7cdc71232e0591a49ccc275741dbc5b0ec56bea6deccacff3bb8f60f`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
 shows how to check it. Install the tool only from that address. A package
 named `playac-mod` on the npm registry is not the game's.
 

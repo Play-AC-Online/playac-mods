@@ -20,10 +20,8 @@ Get one in any of these ways:
   and turns the town grass into a green check. Its pictures are in
   `textures/`.
 - **The Springtime Town example:** the `playac-example-springtime-town`
-  repository, its ZIP a file of its release. It draws clover over the town
-  grass, with one `$` file per grass texture.
-- **With the tool:** run `playac-mod new yourname.my-textures --kind texture`
-  ([Node.js and playac-mod](node-and-cli.md)).
+  repository. Its newest release has the mod's ZIP. It draws clover over the
+  town grass, with one `$` file per grass texture.
 
 Open the folder's `mod.json` in any text editor. Change `yourname` in `"id"`
 and `"authors"` to your own name. Use lower case letters, digits and dashes.
