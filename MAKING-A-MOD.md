@@ -303,12 +303,12 @@ or the HD pack, and names the file. A moderator sees every texture.
 
 ### Find a texture
 
-Two tools show a texture under the exact file name your mod needs. You need no
-Dolphin and no texture dump. Both name a texture the way the game looks it up,
-so a copied name always matches.
+The model viewer shows a texture under the exact file name your mod needs.
+You need no Dolphin and no texture dump. It names a texture the way the game
+looks it up, so a copied name always matches.
 
 The model viewer names the textures of a model: a villager, a tree, a rock, a
-piece of furniture or clothing, a tool or a building. Start here.
+piece of furniture or clothing, a tool or a building.
 
 1. Open `https://playaconline.com/viewer/`. Like the game, it reads your own
    disc on this device.
@@ -317,20 +317,9 @@ piece of furniture or clothing, a tool or a building. Start here.
 3. Pick a texture. **Copy name** copies its name. **Any palette** copies the
    `$` name of a texture with a palette. **Save PNG** saves the picture.
 
-The ground, the sky, the water, the menus and the effects are not models. The
-texture inspector in the game names those, and everything else it draws:
-
-1. Open the game with `?moddev=1` at the end of the address:
-   `https://playaconline.com/play/?moddev=1`.
-2. Load your town. In Settings, Mods, Developer, press **Record textures**.
-3. Close Settings and walk to what you want to change. Open Settings again.
-   The newest textures are first.
-4. If you are not sure which one it is, press **Flash**. It draws the texture
-   magenta in the game for 3 seconds.
-5. **Copy name**, **Any palette** and **PNG** work as in the viewer.
-
-- The inspector keeps up to 512 textures and 16 MB. It drops the one drawn
-  longest ago. **Stop recording** frees them.
+The town grass, the cliffs and the river banks are not models. Their names are
+listed under common textures in the textures guide:
+`https://playaconline.com/modding/guides/textures/#common`.
 
 ### Start a texture mod
 
@@ -349,7 +338,7 @@ Start from a texture mod that works, not from an empty folder:
 3. Delete the pictures you did not replace. ZIP the folder, install it from
    the file and restart the game.
 
-A PNG saved from the viewer or the inspector is the game's own art. Use it only
+A PNG saved from the viewer is the game's own art. Use it only
 for the size and the layout, and draw your own picture. The mod list refuses an
 unchanged copy.
 
