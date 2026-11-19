@@ -454,6 +454,34 @@ reinstalling restores the name.
   into a pocket item (balloons, diaries, fans, pinwheels).
 - `price`: optional whole number 1..99999, what a shop asks when its stock entry
   sets no price.
+- `textures`: optional, a folder inside the mod (a trailing `/` is allowed)
+  holding the item's own pictures: 1..16 files counting subfolders (api limit
+  `items.texture_files`), each a `.png` or `.dds` named like a texture mod's
+  file (`tex1_<w>x<h>_<texels>[_<palette>|_$]_<fmt>`). The folder may not be
+  `content.textures`, inside it, or hold it: there its files would be read as a
+  texture mod's and change every copy of the base. mods.js and the registry
+  refuse a mod that breaks any of these (`item-textures`, `item-textures-count`,
+  `item-textures-name`, `item-textures-overlap`). The engine leaves out the
+  item's pictures (the item still loads, with its base's look) for a path that is
+  not a folder or overlaps `content.textures`, and when reading the folder
+  leaves out the files past 16 and any misnamed file, each said on the mod's row.
+- The pictures replace the base's textures on that item ALONE, matched by
+  texels and palette as in a texture mod (an exact palette before a `$` file); a
+  texture of the base with no picture keeps its own look, and a name the base
+  never draws does nothing. Every other copy of the base, a texture mod's
+  pictures for it included, keeps its look. Where an item draws them: a house
+  room (by the sidecar's record), and on Nook's floor, every piece of a base he
+  sells as that item (goods are known by base). On the flower shop's bench a
+  furniture good is the furniture leaf, never the piece (the game never stands
+  furniture on a shop table). Outside a room it has no identity: a piece dropped
+  outside, a plain base piece kept without the mod, the pockets and the catalog
+  (leaf icons) look like the base. A visitor draws the host's items with the
+  visitor's own copy of the mod: a World mod always matches on a visit, and an
+  item of a mod the visitor does not have is the plain base. Drawing only:
+  nothing of the pictures is in the save or the sidecar.
+- The pictures count toward the mod's PNG and DDS budgets and pass the image
+  checks above (any picture in the ZIP, whatever its folder): an unchanged copy
+  of a game texture is refused, a near one shown to the reviewer.
 - No other key in an item.
 - `renames` (mod.json): optional object of at most 64 entries,
   `"<old full id>": "<full id of an item in this mod's items.json>"`, needs
