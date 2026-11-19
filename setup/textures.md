@@ -14,21 +14,39 @@ https://playaconline.com/modding/guides/textures/
 
 Get one in any of these ways:
 
-- **From the game (recommended):** step 2 below ends with **Export starter
-  mod**. That gives you a ZIP with the textures you picked, a `mod.json` and a
-  README. Unzip it.
-- **The texture kit:** download it from
+- **The texture kit (recommended):** download it from
   the newest "Starter kits and AI pack" release of this repository,
   https://github.com/Play-AC-Online/playac-mods/releases, and unzip it. It works as it is,
   and turns the town grass into a green check. Its pictures are in
   `textures/`.
+- **The Clover Meadow example:** the `playac-example-clover-meadow`
+  repository. Its newest release has the mod's ZIP. It draws clover over the
+  town grass, with one `$` file per grass texture.
 
 Open the folder's `mod.json` in any text editor. Change `yourname` in `"id"`
 and `"authors"` to your own name. Use lower case letters, digits and dashes.
 
-## 2. Find a texture's name, the texture inspector
+## 2. Find a texture's name
 
-The game shows you every texture it draws, under the file name your mod needs.
+### In the model viewer
+
+The model viewer names the textures of a model: a villager, a tree, a rock, a
+piece of furniture or clothing, a tool or a building. Start here.
+
+1. Open https://playaconline.com/viewer/. Like the game, it reads your own
+   disc on this device.
+2. Pick a model from the list and press **Textures**. It lists each texture
+   with its picture, size, format and file name.
+3. Pick a texture and use its buttons:
+   - **Copy name** copies its file name.
+   - **Any palette** copies the `$` name of a texture with a palette.
+   - **Save PNG** saves the picture to look at.
+
+### In the game, with the texture inspector
+
+The ground, the sky, the water, the menus and the effects are not models, so
+the viewer cannot show them. The game shows you every texture it draws, under
+the same file names.
 
 1. Open https://playaconline.com/play/?moddev=1 and load your town.
    [The game](game.md) explains developer mode.
@@ -41,14 +59,15 @@ The game shows you every texture it draws, under the file name your mod needs.
    - **Flash** draws it bright magenta in the game for 3 seconds, so you can
      see which it is.
    - **Copy name** copies its file name.
-   - **PNG** saves the picture to look at or trace.
-6. Tick the ones you want and press **Export starter mod**.
+   - **Any palette** copies the `$` name of a texture with a palette.
+   - **PNG** saves the picture to look at.
 
-**Check it worked:** the ZIP's `textures/` folder has one `.dds` per texture
-you ticked. A texture with no palette is named like
-`tex1_32x32_626709d910129694_193ca5974976e36e_8.dds`. A texture drawn with a
-palette is exported under its any-palette name, with `$` in place of the
-palette hash: `tex1_32x32_626709d910129694_$_8.dds`.
+**Check it worked:** paste the name somewhere. A texture with no palette is
+named like `tex1_32x32_8b5a1b4a83d4d7c7_14`. A texture with a palette has its
+palette hash too, like `tex1_32x32_626709d910129694_193ca5974976e36e_8`, and
+its any-palette name has `$` in its place:
+`tex1_32x32_626709d910129694_$_8`. Your file is that name ending `.png` or
+`.dds`.
 
 **Seasons and times of day.** Many textures, such as grass, trees and cliffs,
 are drawn with a colour palette. The palette changes through the day and the
@@ -57,8 +76,9 @@ place of the palette part matches all of them, like
 `tex1_32x32_626709d910129694_$_8.dds`. Press **Any palette** to copy that
 name. Use the exact name to change one season only.
 
-The exported pictures are the game's own art. Paint over them, and never share
-one as it is. The mod list refuses an unchanged copy.
+A PNG saved from the viewer or the inspector is the game's own art. Use it
+only for the size and the layout, draw your own picture, and never share the
+game's. The mod list refuses an unchanged copy.
 
 ## 3. A paint program
 
@@ -83,8 +103,7 @@ Install one in your system's usual way, or with one of these lines:
   `flatpak install flathub org.kde.krita` or
   `flatpak install flathub org.gimp.GIMP`
 
-**Check it worked:** open the PNG the inspector saved and you see the texture.
-In GIMP or Paint.NET you can open a `.dds` from the export instead.
+**Check it worked:** open the PNG the viewer saved and you see the texture.
 
 Tips:
 
@@ -200,7 +219,7 @@ picture you save is drawn again at once.
 ## If your texture does not show
 
 - The name must match exactly. Upper and lower case do not matter. Copy it
-  from the inspector rather than typing it.
+  from the viewer or the inspector rather than typing it.
 - Grass, trees and the like change palette with the season and the hour. Use
   the `$` name, or record the texture again at that time to get its other
   names.
