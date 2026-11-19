@@ -75,6 +75,35 @@ beats the earlier, and any mod's file beats the HD pack's.
 - Every image is checked against known abuse imagery when a scanner is
   configured; a match is refused without a reason.
 
+## Texture file names (every layer)
+These hold for the files under `content.textures` (subfolders too) and in an
+item's own `textures` folder.
+- A name is `tex1_<w>x<h>_<texels>[_<palette>|_$]_<fmt>` and `.dds` or `.png`
+  in any case. A `.dds` or `.png` file with another name is no texture: the
+  engine leaves it out and says so on the mod's row (an item's folder refuses
+  it, `item-textures-name`).
+- A name may carry a LABEL in front: `<label>_tex1_...`, where `<label>` is 1 to
+  40 (api limit `textures.label_chars`) of `a-z`, `0-9` and `-`, then ONE
+  underscore, then the unchanged name. `bookshelf-top_tex1_32x32_626709d910129694_$_8.png`
+  is the same texture as `tex1_32x32_626709d910129694_$_8.png`. Every layer
+  matches on the `tex1_` part only. A name that starts `tex1_` has no label.
+- The `tex1_` part starts at the LAST `_tex1_` of the name. When what is before it
+  breaks the label rule (a capital letter, a space, an underscore of its own,
+  nothing, more than 40 characters) and the rest is a texture name, the mod is
+  refused (`texture-label`, naming the file and the label); the engine leaves
+  such a file out and says why on the mod's row. When the rest is no texture name,
+  the file is no texture, as above.
+- Two files in one folder are the SAME texture when their `tex1_` parts give
+  the same size, texels, palette (`$`, or the hash; no palette part is
+  palette 0) and format: hex in any case, `08` is `8`, `.png` or `.dds`, any
+  subfolder. When either of them has a label, the mod is refused
+  (`texture-label-twice`, naming both): the game would draw only one. Two plain
+  names for one texture (a `.png` and a `.dds`) are what they were before
+  labels: the mod installs, the game uses the first it scans, and
+  `playac-mod check` warns (`texture-twice`).
+- Without a label, every name behaves exactly as before labels. The HD pack's
+  names are never read for a label.
+
 ## JSON (all files)
 These rules hold for every `.json` file of a mod and for every file a content
 key names, in every layer. The contract cases' `json-cases.json` holds one file a case,
@@ -457,7 +486,8 @@ reinstalling restores the name.
 - `textures`: optional, a folder inside the mod (a trailing `/` is allowed)
   holding the item's own pictures: 1..16 files counting subfolders (api limit
   `items.texture_files`), each a `.png` or `.dds` named like a texture mod's
-  file (`tex1_<w>x<h>_<texels>[_<palette>|_$]_<fmt>`). The folder may not be
+  file (`tex1_<w>x<h>_<texels>[_<palette>|_$]_<fmt>`, with an optional label
+  in front: "Texture file names" above). The folder may not be
   `content.textures`, inside it, or hold it: there its files would be read as a
   texture mod's and change every copy of the base. mods.js and the registry
   refuse a mod that breaks any of these (`item-textures`, `item-textures-count`,
