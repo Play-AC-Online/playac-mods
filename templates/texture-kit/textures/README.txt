@@ -1,16 +1,16 @@
-Put your .dds or .png textures in this folder, each named exactly as the
-model viewer shows it, for example:
+Put your .png or .dds textures in this folder. Save all in the model viewer
+names them for you, for example:
 
-    tex1_32x32_626709d910129694_193ca5974976e36e_8.dds
+    bookshelf-top_tex1_32x32_626709d910129694_$_8.png
 
-A $ in place of the palette (the second hash) matches that texture under any
-palette, so one file covers day, night and every season it is drawn in:
+The game matches the tex1_... part. The label before it is yours to change:
+1 to 40 lower case letters, digits and dashes, then one underscore. It may be
+left off.
 
-    tex1_32x32_626709d910129694_$_8.dds
+A $ in place of the palette (the second hash) matches the texture under any
+palette, so one file covers day, night and every season. A file with the
+palette hash, from Copy name in the viewer, wins over the $ file for that one
+palette.
 
-The downloaded kit already holds three pictures, one check pattern under each
-$ name of the town grass (spring to autumn), so the kit works as it is. Paint
-over them, or delete them and add your own. A file with a palette hash wins
-over the $ file for that one palette.
-
-The game ignores this README.txt. You can delete it.
+The three .dds files here are the kit's check grass. Delete them when you
+paint your own. The game ignores this README.txt.
