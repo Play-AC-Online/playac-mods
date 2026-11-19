@@ -336,8 +336,8 @@ texture inspector in the game names those, and everything else it draws:
 
 Start from a texture mod that works, not from an empty folder:
 
-- The texture kit, `templates/texture-kit/` in this repository, also a ZIP on
-  `https://playaconline.com/modding/downloads/`. It turns the town grass into
+- The texture kit, `templates/texture-kit/` in this repository, also a ZIP in
+  its newest "Starter kits and AI pack" release. It turns the town grass into
   a green check.
 - The Clover Meadow example, `playac-example-clover-meadow`. It draws clover
   over the town grass, with one `$` file per grass texture.
