@@ -92,8 +92,8 @@ A mod that changes the flower shop is a World mod:
 {
   "schema": 1,
   "api": 1,
-  "id": "yourname.tea-house",
-  "name": "Tea House",
+  "id": "yourname.tea-stall",
+  "name": "Tea Stall",
   "version": "1.0.0",
   "authors": ["yourname"],
   "scope": "world",
@@ -380,7 +380,7 @@ A World mod can change the flower shop:
 {
   "shops": [{
     "target": "flower",
-    "name": "Tea House",
+    "name": "Tea Stall",
     "hours": { "open": "15:00", "close": "01:00" },
     "greeting": "Welcome in!",
     "stock_line": "Fresh fruit on every table.",
