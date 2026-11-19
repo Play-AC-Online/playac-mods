@@ -5,15 +5,27 @@
   "name": "My Script",
   "version": "1.0.0",
   "authors": ["yourname"],
-  "description": "A small script that counts days and picked up items, gives each resident one apple, and has villagers notice it.",
+  "description": "A small script that counts days, picked up items and fish, gives each resident one apple, and has villagers notice it.",
   "scope": "client",
   "content": {
     "messages": "messages/en.json"
   },
   "scripts": {
     "main": "main.lua",
-    "events": ["villager_talked", "day_started", "item_picked_up", "scene_entered", "command_finished"]
+    "events": ["villager_talked", "day_started", "item_picked_up", "fish_caught", "scene_entered", "command_finished"]
   },
-  "permissions": ["give_item"],
+  "permissions": ["give_item", "show_line"],
+  "settings": [
+    {
+      "name": "notice",
+      "type": "bool",
+      "label": "Villagers notice an apple",
+      "description": "When this is on, a villager says something about an apple in your pockets, once a day each.",
+      "default": true
+    }
+  ],
+  "optional_depends": {
+    "example.harvest-post": ">=1.1.0"
+  },
   "assets_original": true
 }

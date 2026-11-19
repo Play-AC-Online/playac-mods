@@ -12,6 +12,14 @@
         { "item": "0x2905", "price": 300 },
         { "item": "0x2902" }
       ]
+    },
+    {
+      "target": "nook",
+      "mode": "add",
+      "stock": [
+        { "item": "0x1110", "price": 1800 },
+        { "item": "0x2205", "price": 900 }
+      ]
     }
   ]
 }

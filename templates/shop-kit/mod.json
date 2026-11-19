@@ -5,7 +5,7 @@
   "name": "My Shop",
   "version": "1.0.0",
   "authors": ["yourname"],
-  "description": "The flower shop with my own name, hours, greeting and stock.",
+  "description": "The flower shop with my own name, hours, greeting and stock, and two goods of my own at Nook's.",
   "scope": "world",
   "content": {
     "shops": "shops.json"

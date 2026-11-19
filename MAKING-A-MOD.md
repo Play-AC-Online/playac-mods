@@ -9,11 +9,15 @@ The step-by-step guide is at https://playaconline.com/modding/.
 
 - Three working example mods each live in a public repository of their own,
   and each puts two kinds of mod together: Springtime Town (textures and
-  villager lines, no code), Evening Tea Room (a shop with its own hours and
-  stock, and new furniture) and Harvest Post (calendar days and letters, and a
-  script with commands and a timer). The cookbook links every repository,
-  shows each mod file by file and has its ZIP:
+  villager lines, no code), After Hours (Nook's with its own hours and stock,
+  and a new item with its own pictures) and Harvest Post (calendar days and
+  letters, and a script with commands, a question, a setting, a timer and a
+  function other mods call). The cookbook links every repository, shows each
+  mod file by file and has its ZIP:
   https://playaconline.com/modding/cookbook/.
+- To find the example or starter kit file that shows one task, such as a
+  setting, Nook's stock or a fish caught, use the cookbook's "How do I"
+  index: https://playaconline.com/modding/cookbook/#how-do-i.
 - The full reference, with every limit, is
   https://playaconline.com/modding/reference/.
 - The setup guides are in [`setup/`](setup/). They cover Node.js, the
@@ -420,7 +424,7 @@ A World mod can also add goods to Nook's shop, in every store size:
 }
 ```
 
-- A `"nook"` entry takes only `mode` and `stock`. `name`, `hours`, `greeting`
+- A `"nook"` entry takes only `mode`, `hours` and `stock`. `name`, `greeting`
   and `stock_line` are for the flower shop.
 - Each good stands where Nook's own goods of its kind stand. The kinds are
   furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas,
@@ -438,6 +442,33 @@ A World mod can also add goods to Nook's shop, in every store size:
   the floor. Catalogue orders stay at the usual price.
 - The goods show from the next morning's restock.
 - In The City, Nook's is the game's own.
+
+With `hours`, the goods are not added to the day's stock. They are Nook's
+whole stock inside the hours, and nothing of yours is there outside them:
+
+```json
+{
+  "shops": [{
+    "target": "nook",
+    "hours": { "open": "01:00", "close": "03:00" },
+    "stock": [
+      { "item": "0x1768" },
+      { "item": "0x1738" },
+      { "item": "0x16E4" }
+    ]
+  }]
+}
+```
+
+- Inside the hours each spot of a kind you list holds one of your goods.
+  Every other spot is bare.
+- If the shop is shut for the night then, it opens for your hours. It does
+  not open in the hour before its morning opening, on a renovation day or in
+  a sale's hours.
+- The day's own stock is never changed: it is back when your hours end.
+- What is bought inside the hours stays sold out until the game restarts.
+- An entry with `hours` takes no `mode`.
+- The After Hours example does this: from 1 AM to 3 AM, only gyroids.
 
 ## Items
 
@@ -921,7 +952,9 @@ end)
   the town's owner changes a town or a save. Lines and questions still work.
 - The script of `example.harvest-post` is a whole working example that sends
   each resident a letter with a fruit once a game day. A letter that found no
-  room is tried again by a timer.
+  room is tried again by a timer. On its fair day it asks a question
+  (`cmd.ask`), takes an entry fee (`cmd.take_bells`) and mails a letters file
+  template.
 
 #### Taking items or Bells
 
