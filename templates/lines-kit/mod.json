@@ -8,11 +8,7 @@
   "description": "Villagers say one of my lines before their usual hello, once a day each.",
   "scope": "client",
   "content": {
-    "messages": "messages/en.json"
-  },
-  "scripts": {
-    "main": "main.lua",
-    "events": ["villager_talked", "day_started"]
+    "talk": "talk.json"
   },
   "assets_original": true
 }
