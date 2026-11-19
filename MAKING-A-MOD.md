@@ -36,7 +36,7 @@ my-mod.zip
 ├── mod.json            required, at the top (or inside one top folder)
 ├── textures/           .png or .dds pictures, named for the textures they replace
 ├── messages/en.json    lines, by key
-├── shops.json          the flower shop's or Nook's goods (World mods)
+├── shops.json          the flower shop's or Nook's store (World mods)
 ├── letters.json        letter templates a script can mail
 ├── calendar.json       calendar days: a board notice, the day's lines, a letter
 ├── talk.json           villager line pools, no script needed
@@ -357,12 +357,14 @@ after the base's textures. `CONTRACT.md` has the rules.
 
 ## Shops
 
-A World mod can change the flower shop:
+A World mod can change the flower shop, Nook's store, or both. Every shop
+takes the same entry, and each field means the same on every shop:
 
 ```json
 {
   "shops": [{
     "target": "flower",
+    "mode": "replace",
     "name": "Tea Stall",
     "hours": { "open": "15:00", "close": "01:00" },
     "greeting": "Welcome in!",
@@ -372,33 +374,54 @@ A World mod can change the flower shop:
 }
 ```
 
-- `target`: `"flower"` or `"nook"` (below). A file has at most one entry per
-  target, so at most 2.
-- `name`: optional, 1 to 40 characters.
-- `hours`: optional, `"HH:MM"` 24-hour times.
+- `target`: `"flower"` or `"nook"`. A file has at most one entry per target,
+  so at most 2.
+- `mode`: required, `"add"` or `"replace"`, on every shop.
+  - `"add"` puts your goods in at most half of the spots of their kind,
+    rounded up. The shop's own goods keep the rest.
+  - `"replace"` makes your goods the shop's whole stock. Each spot of a kind
+    you list takes one of your goods, and every other spot is bare.
+  - With more goods of a kind than spots, the date picks which show.
+- `hours`: optional, `"HH:MM"` 24-hour times. The same on every shop.
+  - Your entry applies only inside them: your goods, your lines, your prices.
+    Outside them the shop is its own.
+  - Inside them the shop is open, also when the game has it shut for the
+    night.
   - `open` and `close` must differ. `close` can be past midnight.
-  - Hours only shorten the shop's own. It still shuts from 2 AM to 7 AM.
-  - Outside the hours the door shows a sign with the shop's name and hours.
-- `greeting`: optional. It replaces the keeper's hello before her "what can I
-  do for you?" menu.
-- `stock_line`: optional. It replaces her answer to "What's in stock?".
-- `greeting` and `stock_line` are each 1 to 160 characters with at most 3 line
-  breaks.
-- `stock`: 1 to 6 goods, one per table spot, no item twice.
+  - Leave `hours` out and your entry applies all day, in the shop's own hours.
+- `stock`: the goods, no item twice. The flower shop takes 1 to 6, Nook's 1
+  to 16.
   - `item` is a string: `"0x"` and 4 hex digits.
-  - It must be an item a shop table can show. Money, turnips, tickets, fossils
+  - It must be an item the shop can show. Money, turnips, tickets, fossils
     and special items cannot be stocked. The Mods tab says which item was
     refused.
   - `price` is optional, a whole number of Bells from 1 to 99999. Without it
     the good has its usual price. A price below what Nook pays for the item is
     raised to that.
   - A good can be one of your own items: `"item": "you.my-mod:ghost-lantern"` (see
-    Items). A mod item stands on the table as its base piece. Two goods of a
-    shop may not be the same piece of furniture.
+    Items). A mod item stands as its base piece. Two goods of a shop may not be
+    the same piece of furniture.
+- A field a shop does not have is refused, and the message names the shop and
+  the field. Only the flower shop has these three:
+  - `name`: 1 to 40 characters. It is on the door sign while the shop is shut,
+    with the hours your shop is on.
+  - `greeting`: it replaces the keeper's hello before her "what can I do for
+    you?" menu.
+  - `stock_line`: it replaces her answer to "What's in stock?".
+  - `greeting` and `stock_line` are each 1 to 160 characters with at most 3
+    line breaks.
 
-### Nook's shop
+### The flower shop
 
-A World mod can also add goods to Nook's shop, in every store size:
+- It has six table spots, all of one kind. `"replace"` puts your goods in
+  them in order. `"add"` gives you up to three, and the day's own goods keep
+  the rest.
+- Inside your hours it opens through its 2 AM to 7 AM shut. On a Sunday
+  morning the keeper is out selling turnips, and it stays shut.
+
+### Nook's store
+
+This entry adds goods to Nook's store every day, in every store size:
 
 ```json
 {
@@ -414,32 +437,26 @@ A World mod can also add goods to Nook's shop, in every store size:
 }
 ```
 
-- A `"nook"` entry takes only `mode`, `hours` and `stock`. `name`, `greeting`
-  and `stock_line` are for the flower shop.
 - Each good stands where Nook's own goods of its kind stand. The kinds are
   furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas,
   paint, saplings and flower bags.
 - Fruit, the signboard and anything without a spot are refused. So are money,
   turnips, tickets and fossils. The Mods tab says which.
-- `mode: "add"` is the default. Every morning the mod's goods take up to half
-  of the spots of their kind. Nook's own goods keep the rest.
-- `mode: "replace"`: the mod's goods take every spot of their kind. Spots left
-  over stay bare.
-- Kinds the mod does not list are Nook's as always.
-- `stock`: 1 to 16 goods, no item twice. When a mod lists more goods of a kind
-  than there are spots, the date picks which ones show.
-- `price` works as for the flower shop. It is what Nook asks for the good off
-  the floor. Catalogue orders stay at the usual price.
-- The goods show from the next morning's restock.
+- `"replace"` leaves the kinds you do not list bare, and the rare piece and
+  the plants too.
+- `price` is what Nook asks for the good off the floor. Catalogue orders stay
+  at the usual price.
+- Without `hours`, the goods show from the next morning's restock.
 - In The City, Nook's is the game's own.
 
-With `hours`, the goods are not added to the day's stock. They are Nook's
-whole stock inside the hours, and nothing of yours is there outside them:
+With `hours`, your entry applies only inside them and never touches the day's
+stock. This one opens the shop at night with only your goods:
 
 ```json
 {
   "shops": [{
     "target": "nook",
+    "mode": "replace",
     "hours": { "open": "01:00", "close": "03:00" },
     "stock": [
       { "item": "0x1768" },
@@ -450,14 +467,11 @@ whole stock inside the hours, and nothing of yours is there outside them:
 }
 ```
 
-- Inside the hours each spot of a kind you list holds one of your goods.
-  Every other spot is bare.
 - If the shop is shut for the night then, it opens for your hours. It does
   not open in the hour before its morning opening, on a renovation day or in
   a sale's hours.
 - The day's own stock is never changed: it is back when your hours end.
-- What is bought inside the hours stays sold out until the game restarts.
-- An entry with `hours` takes no `mode`.
+- Your goods bought inside the hours stay sold out until the game restarts.
 - The After Hours example does this: from 1 AM to 3 AM, only gyroids, a
   different few each night, and now and then its own Ghost Lantern.
 
@@ -491,7 +505,7 @@ of a real piece of furniture, its `base`. `mod.json` names the file:
 - `price`: optional, 1 to 99999 Bells. A shop asks it when its stock entry
   sets no price.
 
-Players get an item in two ways. Your flower shop or Nook's stock entry sells
+Players get an item in two ways. Your flower shop or Nook's store entry sells
 it by its full id (see Shops). Or your script gives it with `cmd.give_item`.
 
 In the save, a mod item is its base piece. Which pieces are your items is kept

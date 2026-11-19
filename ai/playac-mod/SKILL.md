@@ -23,7 +23,7 @@ https://playaconline.com/modding/ (errors: https://playaconline.com/modding/erro
 ## Facts from the API spec (generated)
 
 - The game reads mod api level 1. Every mod.json says `"api": 1`; without it the mod is refused.
-- Level 1 (2026-11-16): The first level. Content is textures (a file may carry a readable label before its name), lines (a messages file), shops (the flower shop, and Nook's stock, also at hours of its own), new furniture on a vanilla base with pictures of its own (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Six commands (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Mods can name optional_depends, and a setting can be world or client.
+- Level 1 (2026-11-16): The first level. Content is textures, lines (a messages file), shops (the flower shop and Nook's stock), new furniture on a vanilla base (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Six commands (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Mods can name optional_depends, and a setting can be world or client.
 - Versioning: A level is read for at least 12 months after the next level ships. A deprecated name keeps working for at least two more levels and at least 90 days, whichever is later.
 - mod.json keys: `$schema`, `schema`, `api`, `id`, `name`, `version`, `authors`, `description`, `tags`, `scope`, `content`, `scripts`, `permissions`, `exports`, `assets_original`, `renames`, `depends`, `optional_depends`, `conflicts`, `data_version`, `settings`. Reserved and refused: `game`, `save`. Any other key is refused (`unknown-key`), in mod.json, at the top of each content file and in each entry; the message names the closest known key.
 - `content` keys: `textures`, `messages`, `shops`, `items`, `letters`, `calendar`, `talk`.
@@ -134,7 +134,7 @@ Install it with the line on https://playaconline.com/modding/cli/#install, which
 Can:
 - Replace any texture the game draws with your own art, as `.dds` or `.png`.
 - Add lines a villager says before their usual hello: from a script's `villager_talked` handler, or with no code from talk pools (`content.talk`) and calendar days (`content.calendar`).
-- Change the flower shop (name, hours, greeting, up to 6 goods and prices) and add goods to Nook's shelves (`"target": "nook"`).
+- Change the flower shop and Nook's store with one entry shape: goods and prices, `mode` add or replace, and hours of your own (the flower shop also takes a name, a greeting and a stock line).
 - Add new furniture on a game piece's model (`content.items`), sold in your shops or given by a script.
 - Letter templates (`content.letters`), calendar days with a bulletin board notice, villager lines and a letter.
 - Scripts on every event listed above, reading the date, pockets, Bells, town, villagers; a per-town store and a per-player one (`store.player`: a town has up to 4 residents); settings the player sets; calls between mods (`remote`).
@@ -235,6 +235,7 @@ Texture facts: names are `tex1_<w>x<h>_<texture hash>_<palette hash>_<format>.dd
 {
   "shops": [{
     "target": "flower",
+    "mode": "replace",
     "name": "Tea Stall",
     "hours": { "open": "15:00", "close": "01:00" },
     "greeting": "Welcome in!",
@@ -244,7 +245,8 @@ Texture facts: names are `tex1_<w>x<h>_<texture hash>_<palette hash>_<format>.dd
 }
 ```
 
-- `target` is `"flower"` or `"nook"`, at most one entry for each. Flower: `name` 1 to 40 characters, `hours` two-digit 24-hour times, open and close different, close may pass midnight (the shop still shuts 2 AM to 7 AM), `greeting` and `stock_line` 1 to 160 characters, at most 3 line breaks, 1 to 6 goods. Nook: only `mode` (`add` or `replace`), `hours` and `stock`, 1 to 16 goods. With `hours` (same shape as the flower shop's) the goods are Nook's whole stock inside them, every other spot bare, the shop opens for them at night, and the day's own stock is untouched; `mode` and `hours` together are refused.
+- One entry shape for every shop; each field means the same everywhere. `target` is `"flower"` or `"nook"`, at most one entry for each. `mode` is REQUIRED: `"add"` (the goods in at most half the spots of their kind, the shop's own keep the rest) or `"replace"` (the goods are the whole stock, every other spot bare). `hours` (two-digit 24-hour times, open and close different, close may pass midnight) say when the entry applies: inside them the shop is the mod's and open, also at night; outside them it is the game's own. No hours: all day.
+- The flower shop: 1 to 6 goods (six bench spots, one kind, so `add` takes up to three), plus `name` (1 to 40 characters, the door sign while shut), `greeting` and `stock_line` (1 to 160 characters, at most 3 line breaks). Nook's: 1 to 16 goods, each in a spot of its kind; it has no `name`, `greeting` or `stock_line`, and one there is refused (`shop-field-unsupported`, the message names the shop and the field). A night shop of only your goods is `"mode": "replace"` with `hours` (the After Hours example).
 - `item` is a STRING `"0x"` + 4 hex digits, or one of the mod's own items by full id (`"yourname.my-mod:lamp"`). `price` optional, whole Bells 1 to 99999; below the good's floor it is raised to it (the floor is what Nook pays; a town fruit at the flower shop is 500).
 - What each shop may stock is in `reference/items.md` (flower and Nook's columns). The flower shop needs a good with a shop table model: none of the game's own furniture has one, but the mod's OWN items always work there. Nook's sells the game's furniture, clothing, stationery, carpets, wallpaper, tools, umbrellas, paint, saplings, flower bags; not fruit. Money, tickets, grab bags, turnips and fossils never. A refused good is left out, with the reason on the Mods tab row after a restart; `playac-mod check` warns first.
 

@@ -80,7 +80,6 @@
   const SHOPS_MAX = 2;
   const TALK_LINE_CHARS = 160;
   const TALK_LINE_NEWLINES = 3;
-  const TEXTURE_LABEL_CHARS = 40;
   const VILLAGER_CHARS = 8;
 
   const QUOTA_MARGIN = 16 * MIB;
@@ -275,11 +274,12 @@
     ["texture-png-budget", [new RegExp("^PNG textures are over \\d+ MB of pixels")]],
     ["texture-dds-budget", [new RegExp("^DDS textures are over \\d+ MB")]],
     ["texture-twice", [new RegExp("are the same texture: the game uses only one")]],
-    ["texture-label", [new RegExp("the label before tex1_")]],
-    ["texture-label-twice", [new RegExp("are the same texture once labels are taken off")]],
     ["picture-misnamed", [new RegExp("Pictures go in \\.png or \\.dds files"), new RegExp("is named as \\S* but holds"), new RegExp("is a picture in a format mods can't carry")]],
     ["png-extra-data", [new RegExp("chunk, which a picture in a mod may not carry"), new RegExp("of metadata\\. Export it again without metadata")]],
     ["texture-format", [new RegExp("is not a DDS file"), new RegExp("is a DDS format the game can't load"), new RegExp("is an uncompressed DDS of \\d+ bits"), new RegExp("is not a \\S+ we can read"), new RegExp("\" is cut short"), new RegExp("^is cut short")]],
+    ["inspector-no-scene", [new RegExp("^The game is not in a scene yet")]],
+    ["inspector-texture-gone", [new RegExp("^That texture is no longer kept")]],
+    ["inspector-export", [new RegExp("^Select at least one texture"), new RegExp("^The mod id must look like yourname\\.mod-name"), new RegExp("^The id looks like yourname\\.mod-name"), new RegExp("^ZIP support is not loaded in the game page"), new RegExp("^the pixels do not match the size")]],
     ["dev-start-game", [new RegExp("^Start the game first: developer mode"), new RegExp("^no developer-mode mod is running in this session")]],
     ["dev-check-fails", [new RegExp("fails playac-mod check")]],
     ["dev-restart-needed", [new RegExp("^(mod\\.json|The mod id|the mod id) changed: restart"), new RegExp(": restart the game to load it"), new RegExp("^The script cannot reload"), new RegExp("^Textures cannot reload"), new RegExp("^reload refused: "), new RegExp("^could not write the files \\(.*\\): restart the game$")]],
@@ -1169,51 +1169,6 @@
     return (v & 3) === 0 && ((v >= 0x1000 && v <= 0x1ffc) || (v >= 0x3000 && v <= 0x33c4));
   }
 
-  const TEXTURE_CORE_RE = /^tex1_([0-9]+)x([0-9]+)_([0-9a-fA-F]{16})(?:_([0-9a-fA-F]{16}|\$))?_([0-9]+)\.(?:[pP][nN][gG]|[dD][dD][sS])$/;
-  const TEXTURE_LABEL_RE = new RegExp('^[a-z0-9-]{1,' + TEXTURE_LABEL_CHARS + '}$');
-  function textureName(base) {
-    let label = '';
-    let core = base;
-    let badLabel = false;
-    if (base.slice(0, 5) !== 'tex1_') {
-      const at = base.lastIndexOf('_tex1_');
-      if (at < 0) return null;
-      label = base.slice(0, at);
-      core = base.slice(at + 1);
-      badLabel = !TEXTURE_LABEL_RE.test(label);
-    }
-    const m = TEXTURE_CORE_RE.exec(core);
-    if (!m) return null;
-    const num = function (s) { return String(Number(s)); };
-    const tlut = m[4] ? m[4].toLowerCase() : '0000000000000000';
-    return { label: label, core: core, badLabel: badLabel,
-             key: num(m[1]) + 'x' + num(m[2]) + '_' + m[3].toLowerCase() + '_' + tlut + '_' + num(m[5]) };
-  }
-
-  function textureLabelErrs(at, folder, names) {
-    const errs = [];
-    const byKey = new Map();
-    const under = names.filter(function (n) { return n.startsWith(folder); }).sort();
-    for (const n of under) {
-      const t = textureName(n.slice(n.lastIndexOf('/') + 1));
-      if (!t) continue;
-      if (t.badLabel) {
-        errs.push({ file: n, message: at + n + ': the label before tex1_ (' + JSON.stringify(t.label) + ') must be 1 to ' +
-                    TEXTURE_LABEL_CHARS + ' lowercase letters, digits and dashes, then one underscore' });
-        continue;
-      }
-      if (!byKey.has(t.key)) byKey.set(t.key, { files: [], labelled: false });
-      const g = byKey.get(t.key);
-      g.files.push(n);
-      if (t.label) g.labelled = true;
-    }
-    for (const g of byKey.values()) {
-      if (g.files.length > 1 && g.labelled) {
-        errs.push({ file: g.files[0], message: at + g.files.join(' and ') + ' are the same texture once labels are taken off: keep one file for a texture' });
-      }
-    }
-    return errs;
-  }
   function itemTexturesErrs(at, p, files) {
     const bad = at + '"textures" must be a folder inside the mod with files in it';
     if (typeof p !== 'string' || !p.length) return [bad];
@@ -1234,14 +1189,11 @@
       errs.push(at + '"textures" folder ' + folder + ' holds ' + under.length + ' files, at most ' + MOD_ITEM_TEXTURE_FILES_MAX);
     }
     for (const n of under) {
-
-      const base = n.slice(n.lastIndexOf('/') + 1);
-      const t = textureName(base);
-      if (!ITEM_TEXTURE_NAME_RE.test(t ? t.core : base)) {
+      if (!ITEM_TEXTURE_NAME_RE.test(n.slice(n.lastIndexOf('/') + 1))) {
         errs.push(at + '"textures" file ' + n + ' is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)');
       }
     }
-    return errs.concat(textureLabelErrs(at + '"textures" folder: ', folder, under).map(function (x) { return x.message; }));
+    return errs;
   }
   function validateItems(doc, files) {
     const errs = [];
@@ -1330,10 +1282,6 @@
     if (c.calendar) { const d = doc(c.calendar); if (d !== undefined) add(c.calendar, validateCalendar(d, m.scope, letters)); }
     if (c.talk) { const d = doc(c.talk); if (d !== undefined) add(c.talk, validateTalk(d)); }
     if (c.messages) { const d = doc(c.messages); if (d !== undefined) add(c.messages, validateMessages(d)); }
-
-    if (typeof c.textures === 'string' && c.textures.length && !pathProblem(c.textures.replace(/\/+$/, ''))) {
-      out.push.apply(out, textureLabelErrs('', c.textures.replace(/\/+$/, '') + '/', names));
-    }
     return out;
   }
 
@@ -3990,7 +3938,7 @@
     validateItems: validateItems,
     normalizeEntries: normalizeEntries, parseJsonStrict: parseJsonStrict, readMod: readMod,
 
-    contentProblems: contentProblems, isJunk: isJunk, textureName: textureName,   EXTS: EXTS.slice(), LETTER_SENDER_MAX: LETTER_SENDER_MAX,
+    contentProblems: contentProblems, isJunk: isJunk, EXTS: EXTS.slice(), LETTER_SENDER_MAX: LETTER_SENDER_MAX,
     contentSha: contentSha, modsetHash: modsetHash, modsetList: modsetList, countsForVisits: countsForVisits,
     VANILLA_OUTPUT_COMMANDS: VANILLA_OUTPUT_COMMANDS, planLoad: planLoad,
     list: list, install: install, remove: remove, setEnabled: setEnabled, move: move, setOrder: setOrder,

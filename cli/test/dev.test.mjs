@@ -208,18 +208,6 @@ test('kindOf and changeEvents: adds and removes are manifest changes too', () =>
   ]);
 });
 
-/* labelling a texture file is a rename the game reloads hot: the
- * textures kind, as any texture edit (plus the file-set change every rename is). */
-test('changeEvents: adding a label to a texture file is a textures change', () => {
-  const man = { content: { textures: 'textures/' } };
-  const plain = 'textures/tex1_32x32_626709d910129694_$_8.png';
-  const labelled = 'textures/bookshelf-top_tex1_32x32_626709d910129694_$_8.png';
-  assert.equal(kindOf(labelled, man), 'textures');
-  const events = changeEvents(new Map([['mod.json', '1'], [plain, '2']]), new Map([['mod.json', '1'], [labelled, '2']]), man);
-  assert.deepEqual(events.map((e) => e.kind), ['manifest', 'textures']);
-  assert.deepEqual(events[1].files, [labelled, plain].sort());
-});
-
 /* every content key sends its own kind, so the game hears about it. */
 test('kindOf: each content file names a kind', () => {
   const man = { content: { messages: 'messages/en.json', talk: 'talk.json', letters: 'mail/letters.json', calendar: 'calendar.json', items: 'items.json', shops: 'shops.json' } };

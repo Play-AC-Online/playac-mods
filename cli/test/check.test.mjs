@@ -127,47 +127,6 @@ test('check warns when a .png and a .dds are the same texture (any case)', async
   assert.match(w[0].message, /\.PNG and textures\/.*\.dds are the same texture: the game uses only one of them\. You cannot choose which, so the other is never drawn\.$/);
 });
 
-/* a label before a texture name */
-test('check reads a label before a texture name: no warning, and the size warning reads the tex1_ part', async () => {
-  const r = await check(texMod({ [`bookshelf-top_${T(64, 64, 1)}`]: rgba(64, 64), [`small_${T(64, 64, 2, 'png')}`]: pngHeader(32, 32) }));
-  assert.equal(r.ok, true, JSON.stringify(r.problems));
-  assert.ok(!r.warnings.some((w) => /not a texture name/.test(w.message)), JSON.stringify(r.warnings));
-  assert.ok(warned(r, `textures/small_${T(64, 64, 2, 'png')}`, /^is 32x32, smaller than the original 64x64\./));
-});
-
-test('check refuses a label that breaks the rule, naming the label', async () => {
-  const r = await check(texMod({ [`Bookshelf_${T(32, 32, 1)}`]: rgba(32, 32), [`book_shelf_${T(32, 32, 2)}`]: rgba(32, 32) }));
-  assert.equal(r.ok, false);
-  const p = r.problems.filter((x) => /the label before tex1_/.test(x.message));
-  assert.equal(p.length, 2, JSON.stringify(r.problems));
-  assert.equal(p[0].file, `textures/Bookshelf_${T(32, 32, 1)}`);
-  assert.match(p[0].message, /the label before tex1_ \("Bookshelf"\) must be 1 to 40 lowercase letters, digits and dashes, then one underscore$/);
-  assert.match(p[1].message, /\("book_shelf"\)/);
-  assert.equal(mods.errorCode(p[0].message), 'texture-label');
-  assert.ok(!r.warnings.some((w) => /not a texture name/.test(w.message)), 'a bad label is a problem, not also a warning');
-});
-
-test('check refuses a labelled file that is the same texture as another, and does not also warn', async () => {
-  const dup = T(32, 32, 0xabc);
-  const r = await check(texMod({ [`top_${dup}`]: rgba(32, 32), [`sub/${dup.replace('.dds', '.png').replace('abc', 'ABC')}`]: pngHeader(32, 32) }));
-  assert.equal(r.ok, false);
-  const p = r.problems.filter((x) => /once labels are taken off/.test(x.message));
-  assert.equal(p.length, 1, JSON.stringify(r.problems));
-  assert.equal(mods.errorCode(p[0].message), 'texture-label-twice');
-  assert.ok(!r.warnings.some((w) => /are the same texture: the game uses only one/.test(w.message)), JSON.stringify(r.warnings));
-});
-
-test('mods.textureName: the label is read off, the key is the tex1_ part', () => {
-  const plain = mods.textureName('tex1_32x32_626709d910129694_$_8.png');
-  assert.deepEqual([plain.label, plain.badLabel], ['', false]);
-  const l = mods.textureName('bookshelf-top_tex1_32x32_626709D910129694_$_08.DDS');
-  assert.deepEqual([l.label, l.core, l.badLabel, l.key], ['bookshelf-top', 'tex1_32x32_626709D910129694_$_08.DDS', false, plain.key]);
-  assert.equal(mods.textureName(`${'a'.repeat(41)}_tex1_32x32_626709d910129694_$_8.png`).badLabel, true);
-  assert.equal(mods.textureName('_tex1_32x32_626709d910129694_$_8.png').badLabel, true);
-  assert.equal(mods.textureName('grass.png'), null);
-  assert.equal(mods.textureName('TEX1_32x32_626709d910129694_$_8.png'), null, 'the game reads tex1_ in lowercase only');
-});
-
 /* ── scripts (scriptscan.mjs) ── */
 
 const ctx = { listed: ['villager_talked'], permissions: ['show_line'], events: mods.EVENTS, commands: mods.PERMISSIONS };

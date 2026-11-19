@@ -1531,7 +1531,7 @@ Seen in: Mods tab, on the mod's row after a restart; the Mod log in Settings, Mo
 From the game (Mods tab row):
 
     shops: a later mod changes the flower shop too, so this mod's flower shop is not used: bean.tea-stall
-    shops: a later mod changes Nook's stock too, so this mod's Nook stock is not used: bean.night-shop
+    shops: a later mod changes Nook's stock too, so this mod's Nook stock is not used: bean.nook-extras
 
 What it means: This is not an error in the mod. Two switched-on mods change the same shop, and the mod lower in the list has the whole shop. The message names that mod, and the rest of this mod loads as usual.
 
@@ -1572,7 +1572,7 @@ In the game page (install, check tool):
     shops: shop 1 stock 2 is a duplicate item 0x10AA
     shops: shop 1 stock 2 is a duplicate item 0x28AA
     shops: shop 1 stock 2 is a duplicate item 0x28AB
-    shops: shop 1 stock 2 is a duplicate item test.mod:lamp
+    shops: shop 1 stock 2 is a duplicate item test.mod:tea-chest
 
 From the mod list (upload):
 
@@ -1698,7 +1698,7 @@ How to fix it: Put your items in an "items" list, at most 64 of them.
 Fixed (items.json):
 
 ```
-{"items": [{"id": "ghost-lantern", "name": "Ghost Lantern", "base": "0x1000", "price": 1800}]}
+{"items": [{"id": "tea-chest", "name": "Tea Chest", "base": "0x1000", "price": 1800}]}
 ```
 
 ### item-not-object
@@ -1751,7 +1751,7 @@ From the mod list (upload):
 
     items.json: item 1's id must be 1 to 32 of a-z, 0-9 and -, starting with a letter or digit.
 
-What it means: An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-stall:ghost-lantern.
+What it means: An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-stall:tea-chest.
 
 How to fix it: Use 1 to 32 lowercase letters, digits and dashes. Start with a letter or digit.
 
@@ -1763,16 +1763,15 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    items: item 2 repeats the id "ghost-lantern"
-    items: item 2 repeats the id "lamp"
+    items: item 2 repeats the id "tea-chest"
 
 From the mod list (upload):
 
-    items.json: two items have the id "ghost-lantern".
+    items.json: two items have the id "tea-chest".
 
 From the game (Mods tab row):
 
-    items: an id is listed twice, the second is left out: ghost-lantern
+    items: an id is listed twice, the second is left out: tea-chest
 
 What it means: Each item id names one item.
 
@@ -1819,7 +1818,7 @@ In the game page (install, check tool):
 
 From the game (Mods tab row):
 
-    items: a price must be a whole number of Bells, 1 to 99999, left out: ghost-lantern
+    items: a price must be a whole number of Bells, 1 to 99999, left out: tea-chest
 
 What it means: A price is a whole number of Bells from 1 to 99999. Leave it out to use the base furniture's price.
 
@@ -1837,15 +1836,15 @@ In the game page (install, check tool):
 
 From the mod list (upload):
 
-    items.json: item "ghost-lantern"'s textures must be a folder inside the mod with files in it.
+    items.json: item "tea-chest"'s textures must be a folder inside the mod with files in it.
 
 From the game (Mods tab row):
 
-    items: an item's "textures" must be a folder inside the mod, its pictures are left out: ghost-lantern
+    items: an item's "textures" must be a folder inside the mod, its pictures are left out: tea-chest
 
 What it means: An item's "textures" names a folder inside the mod that holds the item's own pictures. The path is not one, or nothing is in it.
 
-How to fix it: Put the item's pictures in a folder, like items/ghost-lantern/, and name that folder in "textures". Or remove "textures" to draw the base piece's pictures.
+How to fix it: Put the item's pictures in a folder, like items/tea-chest/, and name that folder in "textures". Or remove "textures" to draw the base piece's pictures.
 
 ### item-textures-count
 
@@ -1855,16 +1854,15 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    items: item 1 "textures" folder items/ghost-lantern/ holds 17 files, at most 16
-    items: item 1 "textures" folder items/lamp/ holds 17 files, at most 16
+    items: item 1 "textures" folder items/tea-chest/ holds 17 files, at most 16
 
 From the mod list (upload):
 
-    items.json: item "ghost-lantern"'s textures folder "items/ghost-lantern/" holds 17 files, at most 16.
+    items.json: item "tea-chest"'s textures folder "items/tea-chest/" holds 17 files, at most 16.
 
 From the game (Mods tab row):
 
-    items: an item's textures folder holds more than 16 files, the rest are left out: ghost-lantern
+    items: an item's textures folder holds more than 16 files, the rest are left out: tea-chest
 
 What it means: One item's textures folder holds at most 16 files, counting its subfolders. A piece of furniture draws only a few pictures.
 
@@ -1878,12 +1876,11 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    items: item 1 "textures" file items/ghost-lantern/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)
-    items: item 1 "textures" file items/lamp/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)
+    items: item 1 "textures" file items/tea-chest/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)
 
 From the mod list (upload):
 
-    items.json: item "ghost-lantern"'s textures file "items/ghost-lantern/notes.txt" is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt).
+    items.json: item "tea-chest"'s textures file "items/tea-chest/notes.txt" is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt).
 
 What it means: Every file in an item's textures folder is a picture named after the base piece's texture, the way a texture mod names its files.
 
@@ -1897,21 +1894,20 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    items: item 1 "textures" folder textures/ghost-lantern/ is inside content.textures or holds it: there its pictures would change every copy of the base
+    items: item 1 "textures" folder textures/tea-chest/ is inside content.textures or holds it: there its pictures would change every copy of the base
     items: item 1 "textures" folder art/ is inside content.textures or holds it: there its pictures would change every copy of the base
-    items: item 1 "textures" folder textures/lamp/ is inside content.textures or holds it: there its pictures would change every copy of the base
 
 From the mod list (upload):
 
-    items.json: item "ghost-lantern"'s textures folder "textures/ghost-lantern/" is inside content.textures or holds it. There its pictures would change every copy of the base.
+    items.json: item "tea-chest"'s textures folder "textures/tea-chest/" is inside content.textures or holds it. There its pictures would change every copy of the base.
 
 From the game (Mods tab row):
 
-    items: an item's textures folder is inside content.textures or holds it, its pictures are left out: ghost-lantern
+    items: an item's textures folder is inside content.textures or holds it, its pictures are left out: tea-chest
 
 What it means: The pictures in content.textures change every copy of a texture in the game. An item's own pictures must be outside that folder, or they would change every copy of the base piece too.
 
-How to fix it: Move the item's pictures to a folder of their own beside the textures folder, like items/ghost-lantern/.
+How to fix it: Move the item's pictures to a folder of their own beside the textures folder, like items/tea-chest/.
 
 ### item-malformed
 
@@ -1921,7 +1917,7 @@ Seen in: Mods tab, on the mod's row after a restart.
 
 From the game (Mods tab row):
 
-    items: a malformed item is left out: ghost-lantern
+    items: a malformed item is left out: tea-chest
 
 What it means: The game left out one item. Its id, name or base breaks the rules, or it holds a key other than id, name, base, price and textures. Installing checks this first, so it shows only in developer mode or after an installed mod was edited.
 
@@ -1935,7 +1931,7 @@ Seen in: Mods tab, on the mod's row after a restart.
 
 From the game (Mods tab row):
 
-    items: this base cannot be a mod item, left out: ghost-lantern: base 0x1004 has no model
+    items: this base cannot be a mod item, left out: tea-chest: base 0x1004 has no model
 
 What it means: The game left this item out because its base cannot carry a mod item. The reason after the id says why, and the rest of the mod loads.
 
@@ -1949,7 +1945,7 @@ Seen in: Mods tab, on the mod's row after a restart.
 
 From the game (Mods tab row):
 
-    items: the game holds 512 mod items at most, the rest are left out: ghost-lantern
+    items: the game holds 512 mod items at most, the rest are left out: tea-chest
 
 What it means: The game holds 512 mod items from all switched-on mods together. Items past that, in load order, are left out.
 
@@ -1963,13 +1959,12 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    shops: shop 1 stock 1 "item" other.mod:ghost-lantern is not an item in this mod's items file
-    shops: shop 1 stock 1 "item" other.mod:lamp is not an item in this mod's items file
+    shops: shop 1 stock 1 "item" other.mod:tea-chest is not an item in this mod's items file
     shops: shop 1 stock 1 "item" test.mod:nope is not an item in this mod's items file
 
 What it means: A shop can stock this mod's own items by full id. Another mod's items cannot be stocked.
 
-How to fix it: Use an id from your items file, like your.mod:ghost-lantern, or a vanilla item like "0x2800".
+How to fix it: Use an id from your items file, like your.mod:tea-chest, or a vanilla item like "0x2800".
 
 ### shop-furniture-shared
 
@@ -1996,14 +1991,14 @@ In the game page (install, check tool):
 
     "renames" needs "content.items": a rename names an item of this mod
     "renames": "chest" must be a full item id like author.mod:thing
-    "renames": "test.mod:ghost-lantern" renames an item to itself
+    "renames": "test.mod:tea-chest" renames an item to itself
     "renames" must be an object of old item id to new item id
     "renames": "other.mod:chest" must be an old id of this mod, like test.mod:old-thing
     "renames": "test.mod:chest" must point at an item of this mod, like test.mod:thing
 
 What it means: "renames" moves items placed under an old full id to one of this mod's items, once per save. Each key is an old full id of this mod, and each value is the full id of an item in your items file.
 
-How to fix it: Write it as {"your.mod:chest": "your.mod:ghost-lantern"} and set content.items. Do not rename an item to itself.
+How to fix it: Write it as {"your.mod:chest": "your.mod:tea-chest"} and set content.items. Do not rename an item to itself.
 
 ## letters.json
 
@@ -3010,53 +3005,6 @@ What it means: This is a warning, and the mod still installs. A .png and a .dds 
 
 How to fix it: Keep one of the two files and delete the other.
 
-### texture-label
-
-**A label before a texture name breaks the label rule**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; the Mod log in Settings, Mods.
-
-In the game page (install, check tool):
-
-    textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ ("Bookshelf") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-    items: item 1 "textures" folder: items/lamp/Lid_tex1_64x64_0123456789abcdef_fedcba9876543210_8.png: the label before tex1_ ("Lid") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-    textures/_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ ("") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-    textures/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-    textures/book_shelf_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ ("book_shelf") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-    textures/top__tex1_32x32_626709d910129694_$_8.png: the label before tex1_ ("top_") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-
-From the mod list (upload):
-
-    "textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png": the label before tex1_ ("Bookshelf") must be 1 to 40 lowercase letters, digits and dashes, then one underscore.
-
-From the game (Mods tab row):
-
-    texture textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png not read: the label before tex1_ must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-
-What it means: A texture file may carry a label before its name, so you can tell your files apart: bookshelf-top_tex1_32x32_626709d910129694_$_8.png is the same texture as tex1_32x32_626709d910129694_$_8.png. The label is 1 to 40 lowercase letters, digits and dashes, then one underscore. This one has a capital letter, a space, another underscore, nothing, or too many characters before tex1_.
-
-How to fix it: Rename the file, for example Book_Shelf_tex1_... to book-shelf_tex1_.... Use lowercase letters, digits and dashes for the label, one underscore after it, and keep the tex1_ part exactly as the model viewer gave it.
-
-### texture-label-twice
-
-**Two files are one texture once their labels are taken off**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
-
-In the game page (install, check tool):
-
-    textures/tex1_32x32_626709d910129694_$_8.dds and textures/top_tex1_32x32_626709d910129694_$_8.png are the same texture once labels are taken off: keep one file for a texture
-    items: item 1 "textures" folder: items/lamp/lid_tex1_64x64_0123456789abcdef_fedcba9876543210_8.png and items/lamp/tex1_64x64_0123456789abcdef_fedcba9876543210_8.dds are the same texture once labels are taken off: keep one file for a texture
-    textures/a/top_tex1_32x32_626709d910129694_$_8.png and textures/b/side_tex1_32x32_626709D910129694_$_08.png are the same texture once labels are taken off: keep one file for a texture
-
-From the mod list (upload):
-
-    "textures/tex1_32x32_626709d910129694_$_8.dds" and "textures/top_tex1_32x32_626709d910129694_$_8.png" are the same texture once labels are taken off. Keep one file for a texture.
-
-What it means: The game matches a texture file on its tex1_ part alone, so a labelled file and another file with the same tex1_ part (labelled or not, .png or .dds, in any subfolder of the same textures folder) replace the same texture. The game could draw only one of them, so the mod is refused rather than left to pick.
-
-How to fix it: Keep one file for each texture and delete or rename the others. Different labels do not make different textures.
-
 ### picture-misnamed
 
 **A picture in the wrong kind of file**
@@ -3120,6 +3068,52 @@ From the game (Mods tab row):
 What it means: The game reads only .dds and .png files in the textures folder that carry a texture name, like tex1_64x64_hash_14. It skips anything else there.
 
 How to fix it: Name the file after the texture it replaces. The model viewer copies the name for you. Save it as .dds (BC7, BC1, BC3 or uncompressed RGBA) or .png, then reload.
+
+## The texture inspector (removed)
+
+### inspector-no-scene
+
+**The game is not in a scene yet** (retired)
+
+Seen in: Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer).
+
+On the site:
+
+    The game is not in a scene yet. Start or load your town, then try again.
+
+What it means: The inspector records what the game draws, and nothing is drawn on the title screen.
+
+How to fix it: Load your town first, then press Record textures.
+
+### inspector-texture-gone
+
+**That texture is no longer kept** (retired)
+
+Seen in: Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer).
+
+On the site:
+
+    That texture is no longer kept. It shows again once the game draws it.
+
+What it means: The inspector keeps up to 512 textures and 16 MB, and drops the one drawn longest ago. Stop recording frees them all.
+
+How to fix it: Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG or Flash.
+
+### inspector-export
+
+**The starter mod could not be exported** (retired)
+
+Seen in: Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer).
+
+On the site:
+
+    Select at least one texture
+    The mod id must look like yourname.mod-name (lower case letters, digits and -)
+    ZIP support is not loaded in the game page. Reload and try again
+
+What it means: Export needs at least one ticked texture and a mod id like yourname.mod-name. The id is lowercase letters, digits and dashes, with one dot.
+
+How to fix it: Tick the textures you want, type an id like "yourname.my-textures", and press Export again. If ZIP support is missing, reload the page.
 
 ## Developer mode and the Mod log
 

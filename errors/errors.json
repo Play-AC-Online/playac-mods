@@ -61,6 +61,10 @@
       "title": "Textures and images"
     },
     {
+      "id": "inspector",
+      "title": "The texture inspector (removed)"
+    },
+    {
       "id": "devmode",
       "title": "Developer mode and the Mod log"
     },
@@ -2283,7 +2287,7 @@
       "messages": {
         "game": [
           "shops: a later mod changes the flower shop too, so this mod's flower shop is not used: bean.tea-stall",
-          "shops: a later mod changes Nook's stock too, so this mod's Nook stock is not used: bean.night-shop"
+          "shops: a later mod changes Nook's stock too, so this mod's Nook stock is not used: bean.nook-extras"
         ]
       },
       "api": [],
@@ -2337,7 +2341,7 @@
       "fix": "Put your items in an \"items\" list, at most 64 of them.",
       "good": {
         "file": "items.json",
-        "text": "{\"items\": [{\"id\": \"ghost-lantern\", \"name\": \"Ghost Lantern\", \"base\": \"0x1000\", \"price\": 1800}]}"
+        "text": "{\"items\": [{\"id\": \"tea-chest\", \"name\": \"Tea Chest\", \"base\": \"0x1000\", \"price\": 1800}]}"
       }
     },
     {
@@ -2400,7 +2404,7 @@
         ]
       },
       "api": [],
-      "meaning": "An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-stall:ghost-lantern.",
+      "meaning": "An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-stall:tea-chest.",
       "fix": "Use 1 to 32 lowercase letters, digits and dashes. Start with a letter or digit."
     },
     {
@@ -2414,14 +2418,13 @@
       ],
       "messages": {
         "page": [
-          "items: item 2 repeats the id \"ghost-lantern\"",
-          "items: item 2 repeats the id \"lamp\""
+          "items: item 2 repeats the id \"tea-chest\""
         ],
         "registry": [
-          "items.json: two items have the id \"ghost-lantern\"."
+          "items.json: two items have the id \"tea-chest\"."
         ],
         "game": [
-          "items: an id is listed twice, the second is left out: ghost-lantern"
+          "items: an id is listed twice, the second is left out: tea-chest"
         ]
       },
       "api": [],
@@ -2479,7 +2482,7 @@
           "items: item 1 \"price\" must be a whole number from 1 to 99999"
         ],
         "game": [
-          "items: a price must be a whole number of Bells, 1 to 99999, left out: ghost-lantern"
+          "items: a price must be a whole number of Bells, 1 to 99999, left out: tea-chest"
         ]
       },
       "api": [],
@@ -2501,15 +2504,15 @@
           "items: item 1 \"textures\" must be a folder inside the mod with files in it"
         ],
         "registry": [
-          "items.json: item \"ghost-lantern\"'s textures must be a folder inside the mod with files in it."
+          "items.json: item \"tea-chest\"'s textures must be a folder inside the mod with files in it."
         ],
         "game": [
-          "items: an item's \"textures\" must be a folder inside the mod, its pictures are left out: ghost-lantern"
+          "items: an item's \"textures\" must be a folder inside the mod, its pictures are left out: tea-chest"
         ]
       },
       "api": [],
       "meaning": "An item's \"textures\" names a folder inside the mod that holds the item's own pictures. The path is not one, or nothing is in it.",
-      "fix": "Put the item's pictures in a folder, like items/ghost-lantern/, and name that folder in \"textures\". Or remove \"textures\" to draw the base piece's pictures."
+      "fix": "Put the item's pictures in a folder, like items/tea-chest/, and name that folder in \"textures\". Or remove \"textures\" to draw the base piece's pictures."
     },
     {
       "code": "item-textures-count",
@@ -2523,14 +2526,13 @@
       ],
       "messages": {
         "page": [
-          "items: item 1 \"textures\" folder items/ghost-lantern/ holds 17 files, at most 16",
-          "items: item 1 \"textures\" folder items/lamp/ holds 17 files, at most 16"
+          "items: item 1 \"textures\" folder items/tea-chest/ holds 17 files, at most 16"
         ],
         "registry": [
-          "items.json: item \"ghost-lantern\"'s textures folder \"items/ghost-lantern/\" holds 17 files, at most 16."
+          "items.json: item \"tea-chest\"'s textures folder \"items/tea-chest/\" holds 17 files, at most 16."
         ],
         "game": [
-          "items: an item's textures folder holds more than 16 files, the rest are left out: ghost-lantern"
+          "items: an item's textures folder holds more than 16 files, the rest are left out: tea-chest"
         ]
       },
       "api": [],
@@ -2548,11 +2550,10 @@
       ],
       "messages": {
         "page": [
-          "items: item 1 \"textures\" file items/ghost-lantern/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)",
-          "items: item 1 \"textures\" file items/lamp/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)"
+          "items: item 1 \"textures\" file items/tea-chest/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)"
         ],
         "registry": [
-          "items.json: item \"ghost-lantern\"'s textures file \"items/ghost-lantern/notes.txt\" is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)."
+          "items.json: item \"tea-chest\"'s textures file \"items/tea-chest/notes.txt\" is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)."
         ]
       },
       "api": [],
@@ -2571,20 +2572,19 @@
       ],
       "messages": {
         "page": [
-          "items: item 1 \"textures\" folder textures/ghost-lantern/ is inside content.textures or holds it: there its pictures would change every copy of the base",
-          "items: item 1 \"textures\" folder art/ is inside content.textures or holds it: there its pictures would change every copy of the base",
-          "items: item 1 \"textures\" folder textures/lamp/ is inside content.textures or holds it: there its pictures would change every copy of the base"
+          "items: item 1 \"textures\" folder textures/tea-chest/ is inside content.textures or holds it: there its pictures would change every copy of the base",
+          "items: item 1 \"textures\" folder art/ is inside content.textures or holds it: there its pictures would change every copy of the base"
         ],
         "registry": [
-          "items.json: item \"ghost-lantern\"'s textures folder \"textures/ghost-lantern/\" is inside content.textures or holds it. There its pictures would change every copy of the base."
+          "items.json: item \"tea-chest\"'s textures folder \"textures/tea-chest/\" is inside content.textures or holds it. There its pictures would change every copy of the base."
         ],
         "game": [
-          "items: an item's textures folder is inside content.textures or holds it, its pictures are left out: ghost-lantern"
+          "items: an item's textures folder is inside content.textures or holds it, its pictures are left out: tea-chest"
         ]
       },
       "api": [],
       "meaning": "The pictures in content.textures change every copy of a texture in the game. An item's own pictures must be outside that folder, or they would change every copy of the base piece too.",
-      "fix": "Move the item's pictures to a folder of their own beside the textures folder, like items/ghost-lantern/."
+      "fix": "Move the item's pictures to a folder of their own beside the textures folder, like items/tea-chest/."
     },
     {
       "code": "item-malformed",
@@ -2595,7 +2595,7 @@
       ],
       "messages": {
         "game": [
-          "items: a malformed item is left out: ghost-lantern"
+          "items: a malformed item is left out: tea-chest"
         ]
       },
       "api": [],
@@ -2611,7 +2611,7 @@
       ],
       "messages": {
         "game": [
-          "items: this base cannot be a mod item, left out: ghost-lantern: base 0x1004 has no model"
+          "items: this base cannot be a mod item, left out: tea-chest: base 0x1004 has no model"
         ]
       },
       "api": [],
@@ -2627,7 +2627,7 @@
       ],
       "messages": {
         "game": [
-          "items: the game holds 512 mod items at most, the rest are left out: ghost-lantern"
+          "items: the game holds 512 mod items at most, the rest are left out: tea-chest"
         ]
       },
       "api": [],
@@ -2645,14 +2645,13 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 stock 1 \"item\" other.mod:ghost-lantern is not an item in this mod's items file",
-          "shops: shop 1 stock 1 \"item\" other.mod:lamp is not an item in this mod's items file",
+          "shops: shop 1 stock 1 \"item\" other.mod:tea-chest is not an item in this mod's items file",
           "shops: shop 1 stock 1 \"item\" test.mod:nope is not an item in this mod's items file"
         ]
       },
       "api": [],
       "meaning": "A shop can stock this mod's own items by full id. Another mod's items cannot be stocked.",
-      "fix": "Use an id from your items file, like your.mod:ghost-lantern, or a vanilla item like \"0x2800\"."
+      "fix": "Use an id from your items file, like your.mod:tea-chest, or a vanilla item like \"0x2800\"."
     },
     {
       "code": "shop-furniture-shared",
@@ -2686,7 +2685,7 @@
         "page": [
           "\"renames\" needs \"content.items\": a rename names an item of this mod",
           "\"renames\": \"chest\" must be a full item id like author.mod:thing",
-          "\"renames\": \"test.mod:ghost-lantern\" renames an item to itself",
+          "\"renames\": \"test.mod:tea-chest\" renames an item to itself",
           "\"renames\" must be an object of old item id to new item id",
           "\"renames\": \"other.mod:chest\" must be an old id of this mod, like test.mod:old-thing",
           "\"renames\": \"test.mod:chest\" must point at an item of this mod, like test.mod:thing"
@@ -2694,7 +2693,7 @@
       },
       "api": [],
       "meaning": "\"renames\" moves items placed under an old full id to one of this mod's items, once per save. Each key is an old full id of this mod, and each value is the full id of an item in your items file.",
-      "fix": "Write it as {\"your.mod:chest\": \"your.mod:ghost-lantern\"} and set content.items. Do not rename an item to itself."
+      "fix": "Write it as {\"your.mod:chest\": \"your.mod:tea-chest\"} and set content.items. Do not rename an item to itself."
     },
     {
       "code": "shop-item-twice",
@@ -2713,7 +2712,7 @@
           "shops: shop 1 stock 2 is a duplicate item 0x10AA",
           "shops: shop 1 stock 2 is a duplicate item 0x28AA",
           "shops: shop 1 stock 2 is a duplicate item 0x28AB",
-          "shops: shop 1 stock 2 is a duplicate item test.mod:lamp"
+          "shops: shop 1 stock 2 is a duplicate item test.mod:tea-chest"
         ],
         "registry": [
           "shops.json: shop 1's stock lists item 0x2800 twice."
@@ -3299,59 +3298,6 @@
       "fix": "Keep one of the two files and delete the other."
     },
     {
-      "code": "texture-label",
-      "area": "textures",
-      "title": "A label before a texture name breaks the label rule",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "the Mod log in Settings, Mods"
-      ],
-      "messages": {
-        "page": [
-          "textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ (\"Bookshelf\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore",
-          "items: item 1 \"textures\" folder: items/lamp/Lid_tex1_64x64_0123456789abcdef_fedcba9876543210_8.png: the label before tex1_ (\"Lid\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore",
-          "textures/_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ (\"\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore",
-          "textures/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ (\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore",
-          "textures/book_shelf_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ (\"book_shelf\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore",
-          "textures/top__tex1_32x32_626709d910129694_$_8.png: the label before tex1_ (\"top_\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore"
-        ],
-        "registry": [
-          "\"textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png\": the label before tex1_ (\"Bookshelf\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore."
-        ],
-        "game": [
-          "texture textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png not read: the label before tex1_ must be 1 to 40 lowercase letters, digits and dashes, then one underscore"
-        ]
-      },
-      "api": [],
-      "meaning": "A texture file may carry a label before its name, so you can tell your files apart: bookshelf-top_tex1_32x32_626709d910129694_$_8.png is the same texture as tex1_32x32_626709d910129694_$_8.png. The label is 1 to 40 lowercase letters, digits and dashes, then one underscore. This one has a capital letter, a space, another underscore, nothing, or too many characters before tex1_.",
-      "fix": "Rename the file, for example Book_Shelf_tex1_... to book-shelf_tex1_.... Use lowercase letters, digits and dashes for the label, one underscore after it, and keep the tex1_ part exactly as the model viewer gave it."
-    },
-    {
-      "code": "texture-label-twice",
-      "area": "textures",
-      "title": "Two files are one texture once their labels are taken off",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload"
-      ],
-      "messages": {
-        "page": [
-          "textures/tex1_32x32_626709d910129694_$_8.dds and textures/top_tex1_32x32_626709d910129694_$_8.png are the same texture once labels are taken off: keep one file for a texture",
-          "items: item 1 \"textures\" folder: items/lamp/lid_tex1_64x64_0123456789abcdef_fedcba9876543210_8.png and items/lamp/tex1_64x64_0123456789abcdef_fedcba9876543210_8.dds are the same texture once labels are taken off: keep one file for a texture",
-          "textures/a/top_tex1_32x32_626709d910129694_$_8.png and textures/b/side_tex1_32x32_626709D910129694_$_08.png are the same texture once labels are taken off: keep one file for a texture"
-        ],
-        "registry": [
-          "\"textures/tex1_32x32_626709d910129694_$_8.dds\" and \"textures/top_tex1_32x32_626709d910129694_$_8.png\" are the same texture once labels are taken off. Keep one file for a texture."
-        ]
-      },
-      "api": [],
-      "meaning": "The game matches a texture file on its tex1_ part alone, so a labelled file and another file with the same tex1_ part (labelled or not, .png or .dds, in any subfolder of the same textures folder) replace the same texture. The game could draw only one of them, so the mod is refused rather than left to pick.",
-      "fix": "Keep one file for each texture and delete or rename the others. Different labels do not make different textures."
-    },
-    {
       "code": "picture-misnamed",
       "area": "textures",
       "title": "A picture in the wrong kind of file",
@@ -3404,6 +3350,59 @@
       "api": [],
       "meaning": "A .dds must be BC7, DXT1 (BC1), DXT5 (BC3) or uncompressed 32-bit RGBA, and a .png must be a normal PNG. Other formats and damaged files are refused, because the game would skip them.",
       "fix": "Export again as BC7, DXT5 or uncompressed RGBA 8888, with no mipmaps."
+    },
+    {
+      "code": "inspector-no-scene",
+      "area": "inspector",
+      "title": "The game is not in a scene yet",
+      "where": [
+        "Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer)"
+      ],
+      "messages": {
+        "site": [
+          "The game is not in a scene yet. Start or load your town, then try again."
+        ]
+      },
+      "api": [],
+      "meaning": "The inspector records what the game draws, and nothing is drawn on the title screen.",
+      "fix": "Load your town first, then press Record textures.",
+      "retired": "The in-game texture inspector is gone. The model viewer names every texture a mod can replace, the town's ground, menus and effects too, without loading a town."
+    },
+    {
+      "code": "inspector-texture-gone",
+      "area": "inspector",
+      "title": "That texture is no longer kept",
+      "where": [
+        "Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer)"
+      ],
+      "messages": {
+        "site": [
+          "That texture is no longer kept. It shows again once the game draws it."
+        ]
+      },
+      "api": [],
+      "meaning": "The inspector keeps up to 512 textures and 16 MB, and drops the one drawn longest ago. Stop recording frees them all.",
+      "fix": "Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG or Flash.",
+      "retired": "The in-game texture inspector is gone. The model viewer names every texture a mod can replace, the town's ground, menus and effects too, without loading a town."
+    },
+    {
+      "code": "inspector-export",
+      "area": "inspector",
+      "title": "The starter mod could not be exported",
+      "where": [
+        "Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer)"
+      ],
+      "messages": {
+        "site": [
+          "Select at least one texture",
+          "The mod id must look like yourname.mod-name (lower case letters, digits and -)",
+          "ZIP support is not loaded in the game page. Reload and try again"
+        ]
+      },
+      "api": [],
+      "meaning": "Export needs at least one ticked texture and a mod id like yourname.mod-name. The id is lowercase letters, digits and dashes, with one dot.",
+      "fix": "Tick the textures you want, type an id like \"yourname.my-textures\", and press Export again. If ZIP support is missing, reload the page.",
+      "retired": "The inspector no longer exports a starter mod. Start from the Springtime Town example or the texture starter kit, and find names in the model viewer."
     },
     {
       "code": "dev-start-game",

@@ -15,7 +15,7 @@
       {
         "level": 1,
         "date": "2026-11-16",
-        "summary": "The first level. Content is textures (a file may carry a readable label before its name), lines (a messages file), shops (the flower shop, and Nook's stock, also at hours of its own), new furniture on a vanilla base with pictures of its own (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Six commands (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Mods can name optional_depends, and a setting can be world or client."
+        "summary": "The first level. Content is textures, lines (a messages file), shops (the flower shop and Nook's stock), new furniture on a vanilla base (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Six commands (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Mods can name optional_depends, and a setting can be world or client."
       }
     ]
   },
@@ -465,18 +465,6 @@
       "description": "Events waiting for a later frame. Past that, an event is dropped and logged.",
       "sources": {
         "c": "PC_MOD_LUA_DEFER_MAX"
-      }
-    },
-    {
-      "name": "textures.label_chars",
-      "value": 40,
-      "unit": "characters",
-      "since": 1,
-      "description": "The longest label before a texture name in a mod, as in bookshelf-top_tex1_32x32_626709d910129694_$_8.png. A label is lowercase letters, digits and dashes, then one underscore.",
-      "sources": {
-        "js": "TEXTURE_LABEL_CHARS",
-        "go": "maxTextureLabelChars",
-        "c": "PC_MOD_TEXTURE_LABEL_CHARS"
       }
     },
     {
@@ -2122,11 +2110,11 @@
       "title": "shops.json",
       "guides": [
         {
-          "path": "/modding/guides/shops/#flower",
+          "path": "/modding/guides/flower-shop/",
           "title": "The flower shop"
         },
         {
-          "path": "/modding/guides/shops/#nook",
+          "path": "/modding/guides/more-targets/#nook",
           "title": "Nook's store"
         }
       ],
@@ -2372,10 +2360,10 @@
         }
       ],
       "error_areas": [
-        "textures"
+        "textures",
+        "inspector"
       ],
       "limits": [
-        "textures.label_chars",
         "textures.png_side",
         "textures.png_decoded_bytes",
         "textures.png_decoded_bytes_phone",
@@ -2399,13 +2387,9 @@
         {
           "pattern": "tex1_<w>x<h>_<data>[_<tlut>|_$]_<fmt>.png",
           "description": "The same names as a PNG, with any case of .png. A PNG is decoded once at load and is at most 2048 a side. A DDS of the same name in the same mod is the same texture, and the first one scanned wins."
-        },
-        {
-          "pattern": "<label>_tex1_<w>x<h>_<data>[_<tlut>|_$]_<fmt>.dds",
-          "description": "Any of these names with a label in front, so you can tell your files apart, as in bookshelf-top_tex1_32x32_626709d910129694_$_8.png. The label is 1 to 40 lowercase letters, digits and dashes, then one underscore. The game matches on the tex1_ part only. A file whose label breaks that rule is refused. Two files in one folder that are the same texture once the labels are taken off are refused when either one has a label. An item's own textures folder reads labels the same way."
         }
       ],
-      "name_regex": "^([a-z0-9-]{1,40}_)?tex1_[0-9]+x[0-9]+_[0-9a-fA-F]{16}(_([0-9a-fA-F]{16}|\\$))?_[0-9]+\\.([dD][dD][sS]|[pP][nN][gG])$",
+      "name_regex": "^tex1_[0-9]+x[0-9]+_[0-9a-fA-F]{16}(_([0-9a-fA-F]{16}|\\$))?_[0-9]+\\.([dD][dD][sS]|[pP][nN][gG])$",
       "image_formats": "DDS: BC7, BC1/DXT1, BC3/DXT5 (legacy FourCC or DX10), DX10 R8G8B8A8 or B8G8R8A8, or legacy uncompressed 32 bits a pixel. 1 to 16384 a side. Level 0 only, no stored mipmaps. PNG: grey, RGB, palette, grey with alpha or RGBA, 1 to 16 bits, interlaced or not, tRNS. At most 2048 a side.",
       "example": "textures/tex1_32x32_8b5a1b4a83d4d7c7_14.dds"
     },
