@@ -28,5 +28,5 @@ Nook's.
 A shop changes the town, so this is a World mod ("scope": "world"), and a
 friend who visits needs it too.
 
-Guides and item numbers: https://playaconline.com/modding/guides/flower-shop/
-and https://playaconline.com/modding/guides/more-targets/#nook
+Guide and item numbers, for both shops:
+https://playaconline.com/modding/guides/shops/
