@@ -11,6 +11,8 @@
 -- so store.get answers nil until a town is loaded. Read it inside events.
 log("loaded")
 
+local APPLE = 0x2800 -- the apple's item number, from the item list
+
 -- A new day in the game (also when the game starts on a new day). A restart
 -- later on a day the town already saw does not fire it again, so the day is
 -- counted by date, not by call.
@@ -33,12 +35,28 @@ on("item_picked_up", function(e)
 end)
 
 -- You started talking to a villager. Return text to have them say it first,
--- or nil to leave the talk alone. This one speaks once per play session.
-local greeted = false
+-- or nil to leave the talk alone. A line that is the same whatever happens
+-- needs no script: put it in a talk.json pool, as the lines kit does. A script
+-- is for a line that depends on something. Here a villager notices an apple
+-- in your pockets, once a day each. game.pockets() lists what you hold. The
+-- list of who noticed is kept in memory, so a restart empties it.
+local noticed = {}      -- villagers who noticed an apple, by id
+local noticed_on = nil  -- the day that list is for
+
+local function holding(item)
+  for _, p in ipairs(game.pockets()) do
+    if p.item == item then return true end
+  end
+  return false
+end
+
 on("villager_talked", function(e)
-  if greeted then return nil end
-  greeted = true
-  return message("first_talk")
+  if noticed_on ~= game.day_number() then
+    noticed, noticed_on = {}, game.day_number()
+  end
+  if noticed[e.villager.id] or not holding(APPLE) then return nil end
+  noticed[e.villager.id] = true
+  return message("apple")
 end)
 
 -- A command: every resident of the town gets one apple, once. A handler
@@ -52,7 +70,7 @@ local resting = nil   -- the day today's cap ran out, or true to stop asking
 local function give_apple()
   if waiting or resting == true or resting == game.day_number() then return end
   if store.player.get("gift") then return end
-  local id, why, code = cmd.give_item(0x2800)
+  local id, why, code = cmd.give_item(APPLE)
   if id then
     waiting = true
   else

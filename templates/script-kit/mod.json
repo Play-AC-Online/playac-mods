@@ -5,7 +5,7 @@
   "name": "My Script",
   "version": "1.0.0",
   "authors": ["yourname"],
-  "description": "A small script that counts days, picked up items and talks, and gives each resident one apple.",
+  "description": "A small script that counts days and picked up items, gives each resident one apple, and has villagers notice it.",
   "scope": "client",
   "content": {
     "messages": "messages/en.json"
