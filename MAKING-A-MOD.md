@@ -9,11 +9,15 @@ The step-by-step guide is at https://playaconline.com/modding/.
 
 - Three working example mods each live in a public repository of their own,
   and each puts two kinds of mod together: Springtime Town (textures and
-  villager lines, no code), Evening Tea Room (a shop with its own hours and
-  stock, and new furniture) and Harvest Post (calendar days and letters, and a
-  script with commands and a timer). The cookbook links every repository,
-  shows each mod file by file and has its ZIP:
+  villager lines, no code), After Hours (Nook's with its own hours and stock,
+  and a new item with its own pictures) and Harvest Post (calendar days and
+  letters, and a script with commands, a question, a setting, a timer and a
+  function other mods call). The cookbook links every repository, shows each
+  mod file by file and has its ZIP:
   https://playaconline.com/modding/cookbook/.
+- To find the example or starter kit file that shows one task, such as a
+  setting, Nook's stock or a fish caught, use the cookbook's "How do I"
+  index: https://playaconline.com/modding/cookbook/#how-do-i.
 - The full reference, with every limit, is
   https://playaconline.com/modding/reference/.
 - The setup guides are in [`setup/`](setup/). They cover Node.js, the
@@ -948,7 +952,9 @@ end)
   the town's owner changes a town or a save. Lines and questions still work.
 - The script of `example.harvest-post` is a whole working example that sends
   each resident a letter with a fruit once a game day. A letter that found no
-  room is tried again by a timer.
+  room is tried again by a timer. On its fair day it asks a question
+  (`cmd.ask`), takes an entry fee (`cmd.take_bells`) and mails a letters file
+  template.
 
 #### Taking items or Bells
 
