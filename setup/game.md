@@ -84,7 +84,8 @@ hide it again, press **Hide developer tools** or open the game with
 You need a mod folder, which is a folder with a `mod.json` in it. If you have
 none yet, do one of these:
 
-- Download a starter kit from https://playaconline.com/modding/downloads/ and
+- Download a starter kit from the newest "Starter kits and AI pack" release
+  of this repository (https://github.com/Play-AC-Online/playac-mods/releases) and
   unzip it.
 - Make one with `playac-mod new` ([Node.js and playac-mod](node-and-cli.md)).
 
