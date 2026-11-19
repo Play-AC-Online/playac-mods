@@ -35,7 +35,7 @@ The errors catalogue explains each code and gives its fix:
 | There is no mod.json at the top of the ZIP | `zip-no-manifest` | Zip the files inside your mod folder, or the folder itself, not the folder above it. `mod.json` must be at the top or in the one folder. |
 | this is not a ZIP the game can open | `zip-unreadable` | Zip it again with the system's own tool, or with `playac-mod pack`. On Windows, right-click, Send to, Compressed (zipped) folder. On macOS, right-click, Compress. |
 | mod.json is not valid JSON | `json-invalid` | Open it in VS Code, which underlines the mistake. JSON has no comments and no trailing commas, and uses straight double quotes. |
-| "id" must look like author.mod-name | `manifest-id` | Use lower case letters, digits and dashes, with one dot: `yourname.tea-house`. |
+| "id" must look like author.mod-name | `manifest-id` | Use lower case letters, digits and dashes, with one dot: `yourname.tea-stall`. |
 | only .json .lua .dds .png .txt .md files can be in a mod | `file-type` | Take the file out. It may be a `.psd`, `.js` or `.zip`. |
 | "content.messages" names messages/en.json, which is not in the mod | `content-missing` | Check the path's spelling and case against your files. |
 | "content.shops" changes what visitors see, so "scope" must be "world" | `shops-need-world` | Set `"scope": "world"` in `mod.json`. |
