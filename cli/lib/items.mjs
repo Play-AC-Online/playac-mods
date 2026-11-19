@@ -18,7 +18,7 @@ import { CHECKOUT } from './checkout.mjs';
 import { VENDOR } from './contract.mjs';
 
 const TARGETS = ['flower', 'nook'];
-const WHERE = { flower: 'the flower shop', nook: 'Nook\'s store' };
+const WHERE = { flower: 'the flower shop', nook: 'Nook\'s shop' };
 const ITEM_RE = /^0x[0-9a-fA-F]{4}$/;
 
 /* The path of items.json, or null: $PLAYAC_ITEMS_JSON, then the checkout's

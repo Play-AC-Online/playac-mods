@@ -18,8 +18,8 @@ it on the Mods tab, and main.lua reads it with settings.get("notice").
 
 mod.json also names Harvest Post, one of the example mods, under
 "optional_depends". This mod loads with or without it. When Harvest Post is
-there and today is its Harvest Fair, your first visit to town that day
-shows a line about the fair. main.lua asks with remote.version, remote.has
+there and today is its Harvest Fair, a line about the fair shows when the
+day starts. main.lua asks in day_started, with remote.version, remote.has
 and remote.call.
 
 Lines or Lua? A line that is the same whatever happens needs no code: put

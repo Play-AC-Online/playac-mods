@@ -1330,7 +1330,7 @@ From the game (Mods tab row):
 
     shops: "name" must be 1 to 40 characters on one line
 
-What it means: The flower shop's name is shown on its door sign while the shop is shut. It is optional, 1 to 40 characters on one line, and a line break in it is refused.
+What it means: The shop name is shown on the closed sign. It is optional, 1 to 40 characters on one line, and a line break in it is refused.
 
 How to fix it: Shorten it and take out any line break, or leave it out.
 
@@ -1374,7 +1374,7 @@ From the game (Mods tab row):
 
     shops: hours need "open" and "close" as "HH:MM", 00:00 to 23:59
 
-What it means: "hours" is { "open": "HH:MM", "close": "HH:MM" } in 24-hour time with two digits each, so "09:00", not "9:00" or "9am". Close can be after midnight. The hours say when your entry applies, the same on every shop.
+What it means: "hours" is { "open": "HH:MM", "close": "HH:MM" } in 24-hour time with two digits each, so "09:00", not "9:00" or "9am". Close can be after midnight, and the shop still shuts from 2 AM to 7 AM.
 
 How to fix it: Write both times with two-digit hours and minutes.
 
@@ -1413,33 +1413,55 @@ What it means: "greeting" and "stock_line" are optional, each 1 to 160 character
 
 How to fix it: Keep the line to 160 characters and at most 3 line breaks.
 
-### shop-field-unsupported
+### nook-flower-key
 
-**A field this shop does not have**
+**A flower shop setting on Nook's shop**
 
 Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    shops: shop 1 "name" is not a field of Nook's store: it takes "target", "hours", "stock", "mode"
-    shops: shop 1 "greeting" is not a field of Nook's store: it takes "target", "hours", "stock", "mode"
-    shops: shop 1 "stock_line" is not a field of Nook's store: it takes "target", "hours", "stock", "mode"
+    shops: shop 1 "name" is the flower shop's: Nook's shop takes only "mode", "hours" and "stock"
+    shops: shop 1 "greeting" is the flower shop's: Nook's shop takes only "mode", "hours" and "stock"
+    shops: shop 1 "stock_line" is the flower shop's: Nook's shop takes only "mode", "hours" and "stock"
 
 From the mod list (upload):
 
-    shops.json: shop 1's name is not a field of Nook's store. It takes target, hours, stock, mode.
+    shops.json: shop 1's name is the flower shop's. Nook's shop takes only mode, hours and stock.
 
 From the game (Mods tab row):
 
-    shops: "name" is not a field of Nook's store, so the shop is left out
+    shops: Nook's shop takes only "mode", "hours" and "stock", not: name
 
-What it means: Every shop takes the same entry, and each field means the same on every shop. A shop that cannot use a field does not have it: Nook's store has no "name", "greeting", "stock_line". The message names the shop and the field.
+What it means: Nook keeps his own name and lines. A "nook" entry takes only "mode", "hours" and "stock".
 
-How to fix it: Take the field out of that shop's entry. The table in the Shops guide shows the fields each shop has.
+How to fix it: Take "name", "greeting" and "stock_line" out of the "nook" entry. They belong to the flower shop.
 
-### shop-mode
+### nook-hours-mode
 
-**A shop's "mode" is not "add" or "replace"**
+**Nook's "mode" and "hours" together**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: shop 1 "mode" and "hours" do not go together: with hours the goods are Nook's whole stock
+
+From the mod list (upload):
+
+    shops.json: shop 1's mode and hours do not go together. With hours the goods are Nook's whole stock.
+
+From the game (Mods tab row):
+
+    shops: Nook's "mode" and "hours" do not go together: with hours the goods are the whole stock
+
+What it means: With "hours", your goods are everything Nook sells inside those hours and every other spot is bare. "mode" says how goods share the day's own stock, so it has nothing to do there.
+
+How to fix it: Take "mode" out of a "nook" entry with "hours", or take "hours" out to add to the day's stock.
+
+### nook-mode
+
+**Nook's "mode" is not "add" or "replace"**
 
 Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
@@ -1453,11 +1475,52 @@ From the mod list (upload):
 
 From the game (Mods tab row):
 
-    shops: "mode" must be "add" or "replace"
+    shops: Nook's "mode" must be "add" or "replace"
 
-What it means: Every shop entry says how its goods join the shop's own, the same way on every shop. "add" puts them in at most half of the spots of their kind, rounded up, and the shop's own goods keep the rest. "replace" makes them the whole stock: each spot of a kind you list takes one of your goods, and every other spot is bare.
+What it means: "add" is the default and puts your goods in up to half the spots of their kind each morning. "replace" puts them in all of them.
 
-How to fix it: Write "mode": "add" or "mode": "replace" in each shop entry.
+How to fix it: Write "mode": "add" or "mode": "replace", or leave it out.
+
+### nook-stock
+
+**Nook's "stock" must list 1 to 16 goods**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: shop 1 "stock" must list 1 to 16 items
+
+From the mod list (upload):
+
+    shops.json: shop 1's stock must list 1 to 16 items.
+
+From the game (Mods tab row):
+
+    shops: Nook's "stock" must list 1 to 16 goods
+
+What it means: A "nook" entry lists 1 to 16 goods. How many show on a day depends on the store and the spots of each kind.
+
+How to fix it: Keep 1 to 16 goods in the list.
+
+### nook-item-refused
+
+**A good Nook's cannot sell**
+
+Seen in: Mods tab, on the mod's row after a restart; the check tool (playac-mod check).
+
+In the game page (install, check tool):
+
+    shops: shop 1 stock 2 "item" 0x2800 (apple) has no spot on Nook's shelves, so the game leaves it out of Nook's shop
+
+From the game (Mods tab row):
+
+    shops: a Nook's stock item cannot be sold, left out: 0x2800 has no spot on Nook's shelves
+    shops: a Nook's stock item cannot be sold, left out: 0x2100 is money
+
+What it means: A Nook's good needs a spot of its kind on his shelves: furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings or flower bags. Fruit, the signboard, money, tickets, grab bags, turnips and fossils are refused. The good is left out and the rest work.
+
+How to fix it: Pick a good of a kind Nook's sells. Only the game can check this, so the message shows after a restart.
 
 ### shop-replaced
 
@@ -1467,8 +1530,8 @@ Seen in: Mods tab, on the mod's row after a restart; the Mod log in Settings, Mo
 
 From the game (Mods tab row):
 
-    shops: a later mod changes the flower shop too, so this mod's entry for it is not used: bean.tea-stall
-    shops: a later mod changes Nook's store too, so this mod's entry for it is not used: bean.night-shop
+    shops: a later mod changes the flower shop too, so this mod's flower shop is not used: bean.tea-stall
+    shops: a later mod changes Nook's stock too, so this mod's Nook stock is not used: bean.nook-extras
 
 What it means: This is not an error in the mod. Two switched-on mods change the same shop, and the mod lower in the list has the whole shop. The message names that mod, and the rest of this mod loads as usual.
 
@@ -1476,28 +1539,25 @@ How to fix it: Move this mod below the other one in the Mods tab, or switch the 
 
 ### shop-stock
 
-**"stock" must list 1 to the goods the shop takes**
+**"stock" must list 1 to 6 items**
 
 Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    shops: shop 1 "stock" must list 1 to 6 items for the flower shop
-    shops: shop 1 "stock" must list 1 to 16 items for Nook's store
+    shops: shop 1 "stock" must list 1 to 6 items
 
 From the mod list (upload):
 
-    shops.json: shop 1's stock must list 1 to 6 items for the flower shop.
-    shops.json: shop 1's stock must list 1 to 16 items for Nook's store.
+    shops.json: shop 1's stock must list 1 to 6 items.
 
 From the game (Mods tab row):
 
-    shops: "stock" must list 1 to 6 goods for the flower shop
-    shops: "stock" must list 1 to 16 goods for Nook's store
+    shops: "stock" must list 1 to 6 goods
 
-What it means: Every shop entry lists its goods in "stock", at least one. The flower shop takes 1 to 6, Nook's store takes 1 to 16. How many show on a day depends on the shop's spots of each kind.
+What it means: The flower shop has 6 table spots, so "stock" lists 1 to 6 goods.
 
-How to fix it: Keep the list to what the shop takes.
+How to fix it: Keep at most 6 items in the list.
 
 ### shop-item-twice
 
@@ -1512,7 +1572,7 @@ In the game page (install, check tool):
     shops: shop 1 stock 2 is a duplicate item 0x10AA
     shops: shop 1 stock 2 is a duplicate item 0x28AA
     shops: shop 1 stock 2 is a duplicate item 0x28AB
-    shops: shop 1 stock 2 is a duplicate item test.mod:lamp
+    shops: shop 1 stock 2 is a duplicate item test.mod:tea-chest
 
 From the mod list (upload):
 
@@ -1535,17 +1595,15 @@ Seen in: Mods tab, on the mod's row after a restart; the check tool (playac-mod 
 In the game page (install, check tool):
 
     shops: shop 1 stock 6 "item" 0x1000 (spooky wardrobe) has no shop shelf model, so the game leaves it out of the flower shop
-    shops: shop 1 stock 2 "item" 0x2800 (apple) cannot be sold at Nook's store, so the game leaves it out of Nook's store
 
 From the game (Mods tab row):
 
-    shops: a stock item cannot be sold at the flower shop, left out: 0x2B00 is money
-    shops: a stock item cannot be sold at the flower shop, left out: 0x1234 has no shop shelf model
-    shops: a stock item cannot be sold at Nook's store, left out: 0x2800 has no spot of its kind on the shelves
+    shops: a stock item cannot be sold, left out: 0x2B00 is money
+    shops: a stock item cannot be sold, left out: 0x1234 has no shop shelf model
 
-What it means: A shop cannot sell this good, so the game left it out. The rest of the shop works. No shop sells money, tickets, grab bags, turnips, fossils or a good with no shelf model. At the flower shop that includes the game's own furniture. At Nook's a good needs a spot of its kind: furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings or flower bags, so fruit and the signboard are refused there.
+What it means: A shop cannot sell this good, so the game left it out. The rest of the shop works. A shop cannot sell money, tickets, grab bags, turnips, fossils or a good with no shelf model. At the flower shop that includes the game's own furniture.
 
-How to fix it: Pick another item from the item list in the reference. Its Flower shop and Nook's columns show what each shop can sell. To sell furniture at the flower shop, make it a mod item of your own, or sell the game's furniture at Nook's store (target nook). `playac-mod check` warns about these goods before you install.
+How to fix it: Pick another item from the item list in the reference. Its Flower shop column shows what the flower shop can sell. To sell furniture there, make it a mod item of your own, or sell the game's furniture at Nook's shop (target nook). `playac-mod check` warns about these goods before you install.
 
 ### shop-item
 
@@ -1640,7 +1698,7 @@ How to fix it: Put your items in an "items" list, at most 64 of them.
 Fixed (items.json):
 
 ```
-{"items": [{"id": "ghost-lantern", "name": "Ghost Lantern", "base": "0x1000", "price": 1800}]}
+{"items": [{"id": "tea-chest", "name": "Tea Chest", "base": "0x1000", "price": 1800}]}
 ```
 
 ### item-not-object
@@ -1693,7 +1751,7 @@ From the mod list (upload):
 
     items.json: item 1's id must be 1 to 32 of a-z, 0-9 and -, starting with a letter or digit.
 
-What it means: An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-stall:ghost-lantern.
+What it means: An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-stall:tea-chest.
 
 How to fix it: Use 1 to 32 lowercase letters, digits and dashes. Start with a letter or digit.
 
@@ -1705,16 +1763,15 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    items: item 2 repeats the id "ghost-lantern"
-    items: item 2 repeats the id "lamp"
+    items: item 2 repeats the id "tea-chest"
 
 From the mod list (upload):
 
-    items.json: two items have the id "ghost-lantern".
+    items.json: two items have the id "tea-chest".
 
 From the game (Mods tab row):
 
-    items: an id is listed twice, the second is left out: ghost-lantern
+    items: an id is listed twice, the second is left out: tea-chest
 
 What it means: Each item id names one item.
 
@@ -1761,7 +1818,7 @@ In the game page (install, check tool):
 
 From the game (Mods tab row):
 
-    items: a price must be a whole number of Bells, 1 to 99999, left out: ghost-lantern
+    items: a price must be a whole number of Bells, 1 to 99999, left out: tea-chest
 
 What it means: A price is a whole number of Bells from 1 to 99999. Leave it out to use the base furniture's price.
 
@@ -1779,15 +1836,15 @@ In the game page (install, check tool):
 
 From the mod list (upload):
 
-    items.json: item "ghost-lantern"'s textures must be a folder inside the mod with files in it.
+    items.json: item "tea-chest"'s textures must be a folder inside the mod with files in it.
 
 From the game (Mods tab row):
 
-    items: an item's "textures" must be a folder inside the mod, its pictures are left out: ghost-lantern
+    items: an item's "textures" must be a folder inside the mod, its pictures are left out: tea-chest
 
 What it means: An item's "textures" names a folder inside the mod that holds the item's own pictures. The path is not one, or nothing is in it.
 
-How to fix it: Put the item's pictures in a folder, like items/ghost-lantern/, and name that folder in "textures". Or remove "textures" to draw the base piece's pictures.
+How to fix it: Put the item's pictures in a folder, like items/tea-chest/, and name that folder in "textures". Or remove "textures" to draw the base piece's pictures.
 
 ### item-textures-count
 
@@ -1797,16 +1854,15 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    items: item 1 "textures" folder items/ghost-lantern/ holds 17 files, at most 16
-    items: item 1 "textures" folder items/lamp/ holds 17 files, at most 16
+    items: item 1 "textures" folder items/tea-chest/ holds 17 files, at most 16
 
 From the mod list (upload):
 
-    items.json: item "ghost-lantern"'s textures folder "items/ghost-lantern/" holds 17 files, at most 16.
+    items.json: item "tea-chest"'s textures folder "items/tea-chest/" holds 17 files, at most 16.
 
 From the game (Mods tab row):
 
-    items: an item's textures folder holds more than 16 files, the rest are left out: ghost-lantern
+    items: an item's textures folder holds more than 16 files, the rest are left out: tea-chest
 
 What it means: One item's textures folder holds at most 16 files, counting its subfolders. A piece of furniture draws only a few pictures.
 
@@ -1820,12 +1876,11 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    items: item 1 "textures" file items/ghost-lantern/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)
-    items: item 1 "textures" file items/lamp/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)
+    items: item 1 "textures" file items/tea-chest/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)
 
 From the mod list (upload):
 
-    items.json: item "ghost-lantern"'s textures file "items/ghost-lantern/notes.txt" is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt).
+    items.json: item "tea-chest"'s textures file "items/tea-chest/notes.txt" is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt).
 
 What it means: Every file in an item's textures folder is a picture named after the base piece's texture, the way a texture mod names its files.
 
@@ -1839,21 +1894,20 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    items: item 1 "textures" folder textures/ghost-lantern/ is inside content.textures or holds it: there its pictures would change every copy of the base
+    items: item 1 "textures" folder textures/tea-chest/ is inside content.textures or holds it: there its pictures would change every copy of the base
     items: item 1 "textures" folder art/ is inside content.textures or holds it: there its pictures would change every copy of the base
-    items: item 1 "textures" folder textures/lamp/ is inside content.textures or holds it: there its pictures would change every copy of the base
 
 From the mod list (upload):
 
-    items.json: item "ghost-lantern"'s textures folder "textures/ghost-lantern/" is inside content.textures or holds it. There its pictures would change every copy of the base.
+    items.json: item "tea-chest"'s textures folder "textures/tea-chest/" is inside content.textures or holds it. There its pictures would change every copy of the base.
 
 From the game (Mods tab row):
 
-    items: an item's textures folder is inside content.textures or holds it, its pictures are left out: ghost-lantern
+    items: an item's textures folder is inside content.textures or holds it, its pictures are left out: tea-chest
 
 What it means: The pictures in content.textures change every copy of a texture in the game. An item's own pictures must be outside that folder, or they would change every copy of the base piece too.
 
-How to fix it: Move the item's pictures to a folder of their own beside the textures folder, like items/ghost-lantern/.
+How to fix it: Move the item's pictures to a folder of their own beside the textures folder, like items/tea-chest/.
 
 ### item-malformed
 
@@ -1863,7 +1917,7 @@ Seen in: Mods tab, on the mod's row after a restart.
 
 From the game (Mods tab row):
 
-    items: a malformed item is left out: ghost-lantern
+    items: a malformed item is left out: tea-chest
 
 What it means: The game left out one item. Its id, name or base breaks the rules, or it holds a key other than id, name, base, price and textures. Installing checks this first, so it shows only in developer mode or after an installed mod was edited.
 
@@ -1877,7 +1931,7 @@ Seen in: Mods tab, on the mod's row after a restart.
 
 From the game (Mods tab row):
 
-    items: this base cannot be a mod item, left out: ghost-lantern: base 0x1004 has no model
+    items: this base cannot be a mod item, left out: tea-chest: base 0x1004 has no model
 
 What it means: The game left this item out because its base cannot carry a mod item. The reason after the id says why, and the rest of the mod loads.
 
@@ -1891,7 +1945,7 @@ Seen in: Mods tab, on the mod's row after a restart.
 
 From the game (Mods tab row):
 
-    items: the game holds 512 mod items at most, the rest are left out: ghost-lantern
+    items: the game holds 512 mod items at most, the rest are left out: tea-chest
 
 What it means: The game holds 512 mod items from all switched-on mods together. Items past that, in load order, are left out.
 
@@ -1905,13 +1959,12 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    shops: shop 1 stock 1 "item" other.mod:ghost-lantern is not an item in this mod's items file
-    shops: shop 1 stock 1 "item" other.mod:lamp is not an item in this mod's items file
+    shops: shop 1 stock 1 "item" other.mod:tea-chest is not an item in this mod's items file
     shops: shop 1 stock 1 "item" test.mod:nope is not an item in this mod's items file
 
 What it means: A shop can stock this mod's own items by full id. Another mod's items cannot be stocked.
 
-How to fix it: Use an id from your items file, like your.mod:ghost-lantern, or a vanilla item like "0x2800".
+How to fix it: Use an id from your items file, like your.mod:tea-chest, or a vanilla item like "0x2800".
 
 ### shop-furniture-shared
 
@@ -1938,14 +1991,14 @@ In the game page (install, check tool):
 
     "renames" needs "content.items": a rename names an item of this mod
     "renames": "chest" must be a full item id like author.mod:thing
-    "renames": "test.mod:ghost-lantern" renames an item to itself
+    "renames": "test.mod:tea-chest" renames an item to itself
     "renames" must be an object of old item id to new item id
     "renames": "other.mod:chest" must be an old id of this mod, like test.mod:old-thing
     "renames": "test.mod:chest" must point at an item of this mod, like test.mod:thing
 
 What it means: "renames" moves items placed under an old full id to one of this mod's items, once per save. Each key is an old full id of this mod, and each value is the full id of an item in your items file.
 
-How to fix it: Write it as {"your.mod:chest": "your.mod:ghost-lantern"} and set content.items. Do not rename an item to itself.
+How to fix it: Write it as {"your.mod:chest": "your.mod:tea-chest"} and set content.items. Do not rename an item to itself.
 
 ## letters.json
 
@@ -2952,53 +3005,6 @@ What it means: This is a warning, and the mod still installs. A .png and a .dds 
 
 How to fix it: Keep one of the two files and delete the other.
 
-### texture-label
-
-**A label before a texture name breaks the label rule**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; the Mod log in Settings, Mods.
-
-In the game page (install, check tool):
-
-    textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ ("Bookshelf") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-    items: item 1 "textures" folder: items/lamp/Lid_tex1_64x64_0123456789abcdef_fedcba9876543210_8.png: the label before tex1_ ("Lid") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-    textures/_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ ("") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-    textures/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-    textures/book_shelf_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ ("book_shelf") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-    textures/top__tex1_32x32_626709d910129694_$_8.png: the label before tex1_ ("top_") must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-
-From the mod list (upload):
-
-    "textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png": the label before tex1_ ("Bookshelf") must be 1 to 40 lowercase letters, digits and dashes, then one underscore.
-
-From the game (Mods tab row):
-
-    texture textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png not read: the label before tex1_ must be 1 to 40 lowercase letters, digits and dashes, then one underscore
-
-What it means: A texture file may carry a label before its name, so you can tell your files apart: bookshelf-top_tex1_32x32_626709d910129694_$_8.png is the same texture as tex1_32x32_626709d910129694_$_8.png. The label is 1 to 40 lowercase letters, digits and dashes, then one underscore. This one has a capital letter, a space, another underscore, nothing, or too many characters before tex1_.
-
-How to fix it: Rename the file, for example Book_Shelf_tex1_... to book-shelf_tex1_.... Use lowercase letters, digits and dashes for the label, one underscore after it, and keep the tex1_ part exactly as the model viewer gave it.
-
-### texture-label-twice
-
-**Two files are one texture once their labels are taken off**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
-
-In the game page (install, check tool):
-
-    textures/tex1_32x32_626709d910129694_$_8.dds and textures/top_tex1_32x32_626709d910129694_$_8.png are the same texture once labels are taken off: keep one file for a texture
-    items: item 1 "textures" folder: items/lamp/lid_tex1_64x64_0123456789abcdef_fedcba9876543210_8.png and items/lamp/tex1_64x64_0123456789abcdef_fedcba9876543210_8.dds are the same texture once labels are taken off: keep one file for a texture
-    textures/a/top_tex1_32x32_626709d910129694_$_8.png and textures/b/side_tex1_32x32_626709D910129694_$_08.png are the same texture once labels are taken off: keep one file for a texture
-
-From the mod list (upload):
-
-    "textures/tex1_32x32_626709d910129694_$_8.dds" and "textures/top_tex1_32x32_626709d910129694_$_8.png" are the same texture once labels are taken off. Keep one file for a texture.
-
-What it means: The game matches a texture file on its tex1_ part alone, so a labelled file and another file with the same tex1_ part (labelled or not, .png or .dds, in any subfolder of the same textures folder) replace the same texture. The game could draw only one of them, so the mod is refused rather than left to pick.
-
-How to fix it: Keep one file for each texture and delete or rename the others. Different labels do not make different textures.
-
 ### picture-misnamed
 
 **A picture in the wrong kind of file**
@@ -3062,6 +3068,52 @@ From the game (Mods tab row):
 What it means: The game reads only .dds and .png files in the textures folder that carry a texture name, like tex1_64x64_hash_14. It skips anything else there.
 
 How to fix it: Name the file after the texture it replaces. The model viewer copies the name for you. Save it as .dds (BC7, BC1, BC3 or uncompressed RGBA) or .png, then reload.
+
+## The texture inspector (removed)
+
+### inspector-no-scene
+
+**The game is not in a scene yet** (retired)
+
+Seen in: Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer).
+
+On the site:
+
+    The game is not in a scene yet. Start or load your town, then try again.
+
+What it means: The inspector records what the game draws, and nothing is drawn on the title screen.
+
+How to fix it: Load your town first, then press Record textures.
+
+### inspector-texture-gone
+
+**That texture is no longer kept** (retired)
+
+Seen in: Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer).
+
+On the site:
+
+    That texture is no longer kept. It shows again once the game draws it.
+
+What it means: The inspector keeps up to 512 textures and 16 MB, and drops the one drawn longest ago. Stop recording frees them all.
+
+How to fix it: Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG or Flash.
+
+### inspector-export
+
+**The starter mod could not be exported** (retired)
+
+Seen in: Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer).
+
+On the site:
+
+    Select at least one texture
+    The mod id must look like yourname.mod-name (lower case letters, digits and -)
+    ZIP support is not loaded in the game page. Reload and try again
+
+What it means: Export needs at least one ticked texture and a mod id like yourname.mod-name. The id is lowercase letters, digits and dashes, with one dot.
+
+How to fix it: Tick the textures you want, type an id like "yourname.my-textures", and press Export again. If ZIP support is missing, reload the page.
 
 ## Developer mode and the Mod log
 
