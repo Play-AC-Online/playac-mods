@@ -80,7 +80,15 @@
   const SHOPS_MAX = 2;
   const TALK_LINE_CHARS = 160;
   const TALK_LINE_NEWLINES = 3;
+  const TEXTURE_LABEL_CHARS = 40;
   const VILLAGER_CHARS = 8;
+
+  const SHOP_KEYS = ['target', 'name', 'hours', 'greeting', 'stock_line', 'stock', 'mode'];
+  const SHOP_TARGETS = ['flower', 'nook'];
+  const SHOP_TARGET_INFO = {
+    flower: { words: 'the flower shop', fields: ['target', 'name', 'hours', 'greeting', 'stock_line', 'stock', 'mode'], stock: SHOP_STOCK_MAX },
+    nook: { words: 'Nook\'s store', fields: ['target', 'hours', 'stock', 'mode'], stock: NOOK_STOCK_MAX }
+  };
 
   const QUOTA_MARGIN = 16 * MIB;
 
@@ -104,7 +112,6 @@
   const MANIFEST_KEYS = ['$schema', 'schema', 'api', 'id', 'name', 'version', 'authors', 'description', 'tags', 'scope', 'content', 'scripts', 'permissions', 'exports', 'assets_original', 'renames', 'depends', 'optional_depends', 'conflicts', 'data_version', 'settings'];
 
   const SHOPS_FILE_KEYS = ['$schema', 'shops'];
-  const SHOP_KEYS = ['target', 'name', 'hours', 'greeting', 'stock_line', 'stock', 'mode'];
   const STOCK_KEYS = ['item', 'price'];
   const ITEMS_FILE_KEYS = ['$schema', 'items'];
   const LETTERS_FILE_KEYS = ['$schema', 'letters'];
@@ -123,8 +130,6 @@
   const ITEM_RE = /^0x[0-9a-fA-F]{4}$/;
   const MSG_KEY_RE = /^[a-z0-9_.-]{1,48}$/;
 
-  const SHOP_TARGETS = ['flower', 'nook'];
-  const NOOK_FLOWER_ONLY = ['name', 'greeting', 'stock_line'];
   const PERSONALITIES = ['normal', 'peppy', 'lazy', 'jock', 'cranky', 'snooty'];
 
   const MOD_ITEM_ID_RE = /^[a-z0-9][a-z0-9-]{0,31}$/;
@@ -193,16 +198,13 @@
     ["shops-file", [new RegExp("^shops: \"shops\" must be a list"), new RegExp("must be a JSON object with a \"shops\" list"), new RegExp("needs a \"shops\" list of 1 to"), new RegExp("^shops file needs a \"shops\" list"), new RegExp("^shops: the \"shops\" list must hold")]],
     ["shop-not-object", [new RegExp("^shops: shop \\d+ is not an object"), new RegExp(": shop \\d+ must be an object"), new RegExp("^shops: a shop must be an object")]],
     ["shop-target", [new RegExp("\"target\" must be \"flower\""), new RegExp(": shop \\d+ has target"), new RegExp("^shops: only the flower shop can be changed"), new RegExp("^shops: the shops a mod can change are")]],
-    ["shop-target-twice", [new RegExp("one shop per target"), new RegExp(": two shops change the"), new RegExp("^shops: the flower shop is listed twice"), new RegExp("^shops: Nook's shop is listed twice")]],
+    ["shop-target-twice", [new RegExp("one shop per target"), new RegExp(": two shops change the"), new RegExp("^shops: .* is listed twice, the second is left out")]],
     ["shop-name", [new RegExp("^shops: shop \\d+ \"name\" must be"), new RegExp(": shop \\d+'s name must be"), new RegExp("^shops: \"name\" must be 1 to 40")]],
     ["shop-hours-same", [new RegExp("\"hours\" open and close must differ"), new RegExp("'s hours open and close at the same time"), new RegExp("\"open\" and \"close\" are the same time")]],
     ["shop-hours", [new RegExp("\"hours\" must be \\{"), new RegExp("'s hours need \"open\" and \"close\""), new RegExp("^shops: hours need")]],
     ["shop-text", [new RegExp("\"(greeting|stock_line)\" must be 1 to 160"), new RegExp("'s \\S+ must be 1 to \\d+ characters on at most"), new RegExp("\"greeting\" and \"stock_line\" must be")]],
-    ["nook-flower-key", [new RegExp("is the flower shop's"), new RegExp("Nook's shop takes only \"mode\", \"hours\" and \"stock\"")]],
-    ["nook-hours-mode", [new RegExp("\"mode\" and \"hours\" do not go together"), new RegExp("mode and hours do not go together")]],
-    ["nook-mode", [new RegExp("\"mode\" must be \"add\" or \"replace\""), new RegExp("'s mode must be \"add\" or \"replace\""), new RegExp("^shops: Nook's \"mode\" must be")]],
-    ["nook-stock", [new RegExp("\"stock\" must list 1 to 16"), new RegExp("'s stock must list 1 to 16"), new RegExp("^shops: Nook's \"stock\" must list")]],
-    ["nook-item-refused", [new RegExp("^shops: a Nook's stock item cannot be sold"), new RegExp("so the game leaves it out of Nook's shop")]],
+    ["shop-field-unsupported", [new RegExp("is not a field of ")]],
+    ["shop-mode", [new RegExp("\"mode\" must be \"add\" or \"replace\""), new RegExp("'s mode must be \"add\" or \"replace\"")]],
     ["target-not-object", [new RegExp("^(letters: letter|calendar: day|talk: pool) \\d+ is not an object"), new RegExp(": (letter|day|pool) \\d+ must be an object"), new RegExp("(a letter|a day|a pool) must be an object")]],
     ["target-id", [new RegExp("\"id\" must be 1 to 48 of a-z"), new RegExp("'s id must be 1 to 48 of a-z"), new RegExp("is used twice"), new RegExp("an \"id\" must be 1 to 48"), new RegExp("an \"id\" is used twice")]],
     ["letters-file", [new RegExp("^letters: \"letters\" must be a list"), new RegExp("needs a \"letters\" list"), new RegExp("^letters file needs")]],
@@ -227,8 +229,8 @@
     ["talk-chance", [new RegExp("\"chance\" must be a whole number"), new RegExp("'s chance must be a whole number")]],
     ["talk-lines", [new RegExp("\"lines\" must list 1 to 32"), new RegExp("'s lines must list 1 to"), new RegExp("^talk: a line must be")]],
     ["targets-out-of-memory", [new RegExp("^(letters|calendar|talk): out of memory")]],
-    ["shop-replaced", [new RegExp("^shops: a later mod changes (the flower shop|Nook's stock) too")]],
-    ["shop-stock", [new RegExp("\"stock\" must list 1 to 6"), new RegExp("'s stock must list 1 to"), new RegExp("^shops: \"stock\" must list")]],
+    ["shop-replaced", [new RegExp("^shops: a later mod changes .* too, so this mod's entry for it is not used")]],
+    ["shop-stock", [new RegExp("\"stock\" must list 1 to \\d+"), new RegExp("'s stock must list 1 to")]],
     ["items-list", [new RegExp("^items: \"items\" must be a list of 1 to"), new RegExp("needs an \"items\" list of 1 to"), new RegExp("must be a JSON object with an \"items\" list")]],
     ["item-not-object", [new RegExp("^items: item \\d+ is not an object"), new RegExp(": item \\d+ must be an object")]],
     ["item-setting", [new RegExp("is not an item setting")]],
@@ -248,7 +250,7 @@
     ["shop-furniture-shared", [new RegExp("shares its furniture")]],
     ["item-renames", [new RegExp("^\"renames\""), new RegExp("^renames")]],
     ["shop-item-twice", [new RegExp("is a duplicate item"), new RegExp("'s stock lists item .* twice"), new RegExp("^shops: a stock item is listed twice")]],
-    ["shop-item-refused", [new RegExp("^shops: a stock item cannot be sold"), new RegExp("so the game leaves it out of the flower shop")]],
+    ["shop-item-refused", [new RegExp("^shops: a stock item cannot be sold"), new RegExp("so the game leaves it out of ")]],
     ["shop-item", [new RegExp("\"item\" must be \"0x\" and 4 hex"), new RegExp("'s stock entries must be objects with an item"), new RegExp("'s stock item .* must be a string like"), new RegExp("^shops: a stock item must be")]],
     ["shop-price", [new RegExp("\"price\" must be a whole number"), new RegExp("'s price for .* must be a whole number"), new RegExp("^shops: a price must be")]],
     ["shop-price-floor", [new RegExp("is under the floor for")]],
@@ -274,12 +276,11 @@
     ["texture-png-budget", [new RegExp("^PNG textures are over \\d+ MB of pixels")]],
     ["texture-dds-budget", [new RegExp("^DDS textures are over \\d+ MB")]],
     ["texture-twice", [new RegExp("are the same texture: the game uses only one")]],
+    ["texture-label", [new RegExp("the label before tex1_")]],
+    ["texture-label-twice", [new RegExp("are the same texture once labels are taken off")]],
     ["picture-misnamed", [new RegExp("Pictures go in \\.png or \\.dds files"), new RegExp("is named as \\S* but holds"), new RegExp("is a picture in a format mods can't carry")]],
     ["png-extra-data", [new RegExp("chunk, which a picture in a mod may not carry"), new RegExp("of metadata\\. Export it again without metadata")]],
     ["texture-format", [new RegExp("is not a DDS file"), new RegExp("is a DDS format the game can't load"), new RegExp("is an uncompressed DDS of \\d+ bits"), new RegExp("is not a \\S+ we can read"), new RegExp("\" is cut short"), new RegExp("^is cut short")]],
-    ["inspector-no-scene", [new RegExp("^The game is not in a scene yet")]],
-    ["inspector-texture-gone", [new RegExp("^That texture is no longer kept")]],
-    ["inspector-export", [new RegExp("^Select at least one texture"), new RegExp("^The mod id must look like yourname\\.mod-name"), new RegExp("^The id looks like yourname\\.mod-name"), new RegExp("^ZIP support is not loaded in the game page"), new RegExp("^the pixels do not match the size")]],
     ["dev-start-game", [new RegExp("^Start the game first: developer mode"), new RegExp("^no developer-mode mod is running in this session")]],
     ["dev-check-fails", [new RegExp("fails playac-mod check")]],
     ["dev-restart-needed", [new RegExp("^(mod\\.json|The mod id|the mod id) changed: restart"), new RegExp(": restart the game to load it"), new RegExp("^The script cannot reload"), new RegExp("^Textures cannot reload"), new RegExp("^reload refused: "), new RegExp("^could not write the files \\(.*\\): restart the game$")]],
@@ -1169,6 +1170,51 @@
     return (v & 3) === 0 && ((v >= 0x1000 && v <= 0x1ffc) || (v >= 0x3000 && v <= 0x33c4));
   }
 
+  const TEXTURE_CORE_RE = /^tex1_([0-9]+)x([0-9]+)_([0-9a-fA-F]{16})(?:_([0-9a-fA-F]{16}|\$))?_([0-9]+)\.(?:[pP][nN][gG]|[dD][dD][sS])$/;
+  const TEXTURE_LABEL_RE = new RegExp('^[a-z0-9-]{1,' + TEXTURE_LABEL_CHARS + '}$');
+  function textureName(base) {
+    let label = '';
+    let core = base;
+    let badLabel = false;
+    if (base.slice(0, 5) !== 'tex1_') {
+      const at = base.lastIndexOf('_tex1_');
+      if (at < 0) return null;
+      label = base.slice(0, at);
+      core = base.slice(at + 1);
+      badLabel = !TEXTURE_LABEL_RE.test(label);
+    }
+    const m = TEXTURE_CORE_RE.exec(core);
+    if (!m) return null;
+    const num = function (s) { return String(Number(s)); };
+    const tlut = m[4] ? m[4].toLowerCase() : '0000000000000000';
+    return { label: label, core: core, badLabel: badLabel,
+             key: num(m[1]) + 'x' + num(m[2]) + '_' + m[3].toLowerCase() + '_' + tlut + '_' + num(m[5]) };
+  }
+
+  function textureLabelErrs(at, folder, names) {
+    const errs = [];
+    const byKey = new Map();
+    const under = names.filter(function (n) { return n.startsWith(folder); }).sort();
+    for (const n of under) {
+      const t = textureName(n.slice(n.lastIndexOf('/') + 1));
+      if (!t) continue;
+      if (t.badLabel) {
+        errs.push({ file: n, message: at + n + ': the label before tex1_ (' + JSON.stringify(t.label) + ') must be 1 to ' +
+                    TEXTURE_LABEL_CHARS + ' lowercase letters, digits and dashes, then one underscore' });
+        continue;
+      }
+      if (!byKey.has(t.key)) byKey.set(t.key, { files: [], labelled: false });
+      const g = byKey.get(t.key);
+      g.files.push(n);
+      if (t.label) g.labelled = true;
+    }
+    for (const g of byKey.values()) {
+      if (g.files.length > 1 && g.labelled) {
+        errs.push({ file: g.files[0], message: at + g.files.join(' and ') + ' are the same texture once labels are taken off: keep one file for a texture' });
+      }
+    }
+    return errs;
+  }
   function itemTexturesErrs(at, p, files) {
     const bad = at + '"textures" must be a folder inside the mod with files in it';
     if (typeof p !== 'string' || !p.length) return [bad];
@@ -1189,11 +1235,14 @@
       errs.push(at + '"textures" folder ' + folder + ' holds ' + under.length + ' files, at most ' + MOD_ITEM_TEXTURE_FILES_MAX);
     }
     for (const n of under) {
-      if (!ITEM_TEXTURE_NAME_RE.test(n.slice(n.lastIndexOf('/') + 1))) {
+
+      const base = n.slice(n.lastIndexOf('/') + 1);
+      const t = textureName(base);
+      if (!ITEM_TEXTURE_NAME_RE.test(t ? t.core : base)) {
         errs.push(at + '"textures" file ' + n + ' is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)');
       }
     }
-    return errs;
+    return errs.concat(textureLabelErrs(at + '"textures" folder: ', folder, under).map(function (x) { return x.message; }));
   }
   function validateItems(doc, files) {
     const errs = [];
@@ -1282,6 +1331,10 @@
     if (c.calendar) { const d = doc(c.calendar); if (d !== undefined) add(c.calendar, validateCalendar(d, m.scope, letters)); }
     if (c.talk) { const d = doc(c.talk); if (d !== undefined) add(c.talk, validateTalk(d)); }
     if (c.messages) { const d = doc(c.messages); if (d !== undefined) add(c.messages, validateMessages(d)); }
+
+    if (typeof c.textures === 'string' && c.textures.length && !pathProblem(c.textures.replace(/\/+$/, ''))) {
+      out.push.apply(out, textureLabelErrs('', c.textures.replace(/\/+$/, '') + '/', names));
+    }
     return out;
   }
 
@@ -1295,10 +1348,18 @@
       const at = 'shops: shop ' + (idx + 1) + ' ';
       if (!isObj(s)) { errs.push(at + 'is not an object'); return; }
       errs.push.apply(errs, unknownKeyErrs(s, SHOP_KEYS, 'shops: shop ' + (idx + 1) + ': '));
-      if (SHOP_TARGETS.indexOf(s.target) < 0) errs.push(at + '"target" must be "flower" or "nook"');
+      const info = typeof s.target === 'string' && SHOP_TARGETS.indexOf(s.target) >= 0 ? SHOP_TARGET_INFO[s.target] : null;
+      if (!info) errs.push(at + '"target" must be ' + SHOP_TARGETS.map(function (t) { return '"' + t + '"'; }).join(' or '));
       else if (targets.has(s.target)) errs.push(at + 'is a second shop for "' + s.target + '": one shop per target');
       else targets.add(s.target);
-      if (s.target === 'nook') { errs.push.apply(errs, validateNook(s, at, ctx)); return; }
+
+      if (info) {
+        for (const k of SHOP_KEYS) {
+          if (has(s, k) && info.fields.indexOf(k) < 0) {
+            errs.push(at + '"' + k + '" is not a field of ' + info.words + ': it takes ' + info.fields.map(function (f) { return '"' + f + '"'; }).join(', '));
+          }
+        }
+      }
 
       if (has(s, 'name') && (typeof s.name !== 'string' || cpLen(s.name) < 1 || cpLen(s.name) > SHOP_NAME_CHARS || s.name.indexOf('\n') >= 0)) {
         errs.push(at + '"name" must be 1 to ' + SHOP_NAME_CHARS + ' characters on one line');
@@ -1311,8 +1372,11 @@
           errs.push(at + '"' + k + '" must be 1 to ' + SHOP_LINE_CHARS + ' characters with at most ' + SHOP_LINE_NEWLINES + ' line breaks');
         }
       }
-      if (!Array.isArray(s.stock) || s.stock.length < 1 || s.stock.length > SHOP_STOCK_MAX) {
-        errs.push(at + '"stock" must list 1 to ' + SHOP_STOCK_MAX + ' items');
+
+      if (s.mode !== 'add' && s.mode !== 'replace') errs.push(at + '"mode" must be "add" or "replace"');
+      const max = info ? info.stock : SHOP_STOCK_MAX;
+      if (!Array.isArray(s.stock) || s.stock.length < 1 || s.stock.length > max) {
+        errs.push(at + '"stock" must list 1 to ' + max + ' items' + (info ? ' for ' + info.words : ''));
       } else errs.push.apply(errs, stockErrs(s.stock, at, ctx));
     });
     return errs;
@@ -1374,25 +1438,6 @@
       }
     }
     return errs;
-  }
-
-  function validateNook(s, at, ctx) {
-    const errs = [];
-    for (const k of NOOK_FLOWER_ONLY) {
-      if (has(s, k)) errs.push(at + '"' + k + '" is the flower shop\'s: Nook\'s shop takes only "mode", "hours" and "stock"');
-    }
-    if (has(s, 'mode') && s.mode !== 'add' && s.mode !== 'replace') errs.push(at + '"mode" must be "add" or "replace"');
-    if (has(s, 'hours')) {
-      errs.push.apply(errs, hoursErrs(s.hours, at));
-
-      if (has(s, 'mode')) errs.push(at + '"mode" and "hours" do not go together: with hours the goods are Nook\'s whole stock');
-    }
-    if (!Array.isArray(s.stock) || s.stock.length < 1 || s.stock.length > NOOK_STOCK_MAX) {
-      errs.push(at + '"stock" must list 1 to ' + NOOK_STOCK_MAX + ' items');
-      return errs;
-    }
-
-    return errs.concat(stockErrs(s.stock, at, ctx));
   }
 
   function plainLen(v, newlines, player) {
@@ -3938,7 +3983,7 @@
     validateItems: validateItems,
     normalizeEntries: normalizeEntries, parseJsonStrict: parseJsonStrict, readMod: readMod,
 
-    contentProblems: contentProblems, isJunk: isJunk, EXTS: EXTS.slice(), LETTER_SENDER_MAX: LETTER_SENDER_MAX,
+    contentProblems: contentProblems, isJunk: isJunk, textureName: textureName,   EXTS: EXTS.slice(), LETTER_SENDER_MAX: LETTER_SENDER_MAX,
     contentSha: contentSha, modsetHash: modsetHash, modsetList: modsetList, countsForVisits: countsForVisits,
     VANILLA_OUTPUT_COMMANDS: VANILLA_OUTPUT_COMMANDS, planLoad: planLoad,
     list: list, install: install, remove: remove, setEnabled: setEnabled, move: move, setOrder: setOrder,

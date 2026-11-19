@@ -30,7 +30,9 @@ import { luaSyntaxError } from './luasyntax.mjs';
 import { loadItems, shopItemWarnings } from './items.mjs';
 
 /* Dolphin's custom texture names, as the game engine parses them; a
- * mod may end one in .png as well, any case. */
+ * mod may end one in .png as well, any case. This is the tex1_ part
+ * alone: the check reads a file's name with mods.textureName, which also takes
+ * a label in front. */
 export const TEXTURE_NAME_RE = /^tex1_[0-9]+x[0-9]+_[0-9a-fA-F]{16}(_([0-9a-fA-F]{16}|\$))?_[0-9]+\.(dds|png)$/i;
 
 /* The engine's PNG rules (the game engine texpack_png_admit, the game engine): a
@@ -260,19 +262,23 @@ export function letterSenderWarnings(doc) {
 /* The texture warnings for the files under dir. */
 function textureWarnings(dir, names, ents, warn) {
   let pngBytes = 0;
-  const same = new Map(); /* texture name without extension, lower case -> files */
+  /* the texture a file replaces (mods.textureName: a label before the name
+   * is read off) -> { files, labelled } */
+  const same = new Map();
   for (const name of names.filter((x) => x.startsWith(dir))) {
     const base = name.slice(name.lastIndexOf('/') + 1);
     const lower = base.toLowerCase();
     const png = lower.endsWith('.png');
     if (!lower.endsWith('.dds') && !png) continue;
-    if (!TEXTURE_NAME_RE.test(base)) {
-      warn(name, 'is not a texture name the game matches. A name looks like tex1_<w>x<h>_<hash>[_<palette>]_<format>.dds or .png. Find names in the model viewer (playaconline.com/viewer/).');
+    const t = mods.textureName(base);
+    if (!t) {
+      warn(name, 'is not a texture name the game matches. A name looks like tex1_<w>x<h>_<hash>[_<palette>]_<format>.dds or .png, with an optional label in front such as bookshelf-top_tex1_.... Find names in the model viewer (playaconline.com/viewer/).');
       continue;
     }
-    const key = lower.slice(0, -4);
-    if (!same.has(key)) same.set(key, []);
-    same.get(key).push(name);
+    if (t.badLabel) continue; /* a problem already (mods.js contentProblems: texture-label) */
+    if (!same.has(t.key)) same.set(t.key, { files: [], labelled: false });
+    same.get(t.key).files.push(name);
+    if (t.label) same.get(t.key).labelled = true;
     let size = null;
     if (png) {
       size = pngSize(ents[name]);
@@ -296,7 +302,7 @@ function textureWarnings(dir, names, ents, warn) {
       if (d.w && d.h) size = { w: d.w, h: d.h };
     }
     if (size) {
-      const [, ow, oh] = /^tex1_([0-9]+)x([0-9]+)_/i.exec(base).map(Number);
+      const [, ow, oh] = /^tex1_([0-9]+)x([0-9]+)_/.exec(t.core).map(Number);
       if (size.w < ow || size.h < oh) {
         warn(name, `is ${size.w}x${size.h}, smaller than the original ${ow}x${oh}. The game stretches it over the original's place, so it looks blurrier than the game's own texture.`);
       }
@@ -305,8 +311,9 @@ function textureWarnings(dir, names, ents, warn) {
       }
     }
   }
-  for (const files of same.values()) {
-    if (files.length < 2) continue;
+  for (const { files, labelled } of same.values()) {
+    /* a clash with a labelled file is a problem (texture-label-twice), not this warning */
+    if (files.length < 2 || labelled) continue;
     warn(files[0], `${files.join(' and ')} are the same texture: the game uses only one of them. You cannot choose which, so the other is never drawn.`);
   }
   const mib = (n) => `${Math.round(n / (1024 * 1024))} MB`;
