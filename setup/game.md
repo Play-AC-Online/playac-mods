@@ -87,7 +87,7 @@ none yet, do one of these:
 - Download a starter kit from the newest "Starter kits and AI pack" release
   of this repository (https://github.com/Play-AC-Online/playac-mods/releases) and
   unzip it.
-- Make one with `playac-mod new` ([Node.js and playac-mod](node-and-cli.md)).
+- Copy an example repository. The [README](../README.md) lists them.
 
 ### Without any tools: choose the folder
 

@@ -8,8 +8,7 @@ You never need Git to make or share a mod. It is worth it in three cases:
   to upload.
 
 This guide covers installing Git, keeping a mod in a GitHub repository and
-sharing a version from a tag. Some parts use the `playac-mod` tool
-([Node.js and playac-mod](node-and-cli.md)).
+sharing a version from a tag.
 
 ## 1. Install Git
 
@@ -52,27 +51,18 @@ https://docs.github.com/en/authentication.
 
 ## 3. A mod in a repository
 
-Make the mod with the GitHub files included:
+Start from an example repository or a starter kit:
 
-```bash
-playac-mod new yourname.tea-house --kind shop --github
-cd yourname.tea-house
-```
+- **An example.** The [README](../README.md) lists the example repositories.
+  Each is laid out like a mod repository of yours. Copy its files into a new
+  folder.
+- **A starter kit.** Copy one folder out of [`templates/`](../templates/).
 
-`--github` adds two things:
+Then:
 
-- `.github/workflows/mod.yml`, a check that runs on every push
-- a `CHANGELOG.md`
-
-`--github` needs to be online. The workflow runs one release of
-`playac-mod`, pinned by its SHA-256. The tool reads that release from the
-list on playaconline.com. When it cannot read the list, it stops and writes
-nothing. Run the same line again online, or leave out `--github` and add the
-files later.
-
-The `.gitignore` every new mod gets leaves out the generated editor types,
-`.playac/playac.lua` and `.playac/schemas/`. It also leaves out `dist/` and
-`node_modules/`. Everything else is committed.
+1. Change the `id` in `mod.json` to `yourname.something`.
+2. Add a `.gitignore` with `dist/` and `node_modules/` in it.
+3. For editor help, see [Your editor](editor.md).
 
 Put the mod on GitHub. The repository must be **public** for the site to
 import from it.
@@ -90,30 +80,6 @@ Without `gh`, make an empty public repository on github.com. Then run
 
 **Check it worked:** `git status` says `nothing to commit, working tree
 clean`, and the repository page on GitHub shows `mod.json`.
-
-**About the workflow.**
-
-- It runs one release of playac-mod, named at the top of the file as
-  `PLAYAC_MOD_VERSION`.
-- It downloads that release's file. It refuses the file unless its SHA-256
-  matches `PLAYAC_MOD_SHA256`. Then it runs `playac-mod check`.
-- It never looks the tool up on npm by name, so no other package called
-  playac-mod can run in your repository.
-- To move to a newer release, copy the three lines from a fresh
-  `playac-mod new yourname.pin --github`. Or copy the version and SHA-256 from
-  the release list,
-  https://github.com/Play-AC-Online/playac-mods/releases/download/cli-releases/releases.json.
-
-### Or start from an example
-
-This repository (`playac-mods`) holds every example mod and starter kit.
-
-1. Copy one folder out of `examples/` or `templates/` into a repository of
-   your own.
-2. Change the `id` in `mod.json` to `yourname.something`.
-3. Run `playac-mod types` in it for the editor files. It writes `.playac/`,
-   and the VS Code settings in `.vscode/` when the folder has none.
-4. Carry on from the commit step above.
 
 ## 4. Share a version from a tag
 
@@ -145,17 +111,12 @@ The steps:
    git push origin v0.1.0
    ```
 
-5. Send it for review in one of two ways:
-   - In the game: open **Settings, Mods, Share a mod** and paste
-     `github.com/<you>/tea-house@v0.1.0`.
-   - In the terminal: run
-     `playac-mod publish --github <you>/tea-house@v0.1.0`. It first checks
-     that the tag matches `mod.json`, that the screenshots and changelog are
-     there, and that the tag was pushed. Then it signs you in
-     ([Publishing](publishing.md)).
+5. Send it for review: in the game, open **Settings, Mods, Share a mod** and
+   paste `github.com/<you>/tea-house@v0.1.0`. The tag must match `"version"`
+   in `mod.json`.
 
 **Check it worked:** the version shows under **Mods you shared** as **Waiting
-for review**. `playac-mod status` lists it too.
+for review**.
 
 The site fetches the tag once. Moving or re-pushing the tag later changes
 nothing. A fix is always a new, higher version with a new tag.

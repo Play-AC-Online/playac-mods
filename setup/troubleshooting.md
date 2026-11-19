@@ -26,7 +26,7 @@ The errors catalogue explains each code and gives its fix:
 | "running scripts is disabled on this system" (Windows PowerShell) | Use Command Prompt, or run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once. |
 | `playac-mod needs Node.js ... or newer` | Your Node.js is too old. Run `nvm install --lts`, or use the LTS installer from nodejs.org. |
 | VS Code underlines nothing in `mod.json` | Open the mod's **folder** with File, Open Folder. It is the one with `.vscode/` and `mod.json` in it. See [Editor](editor.md). |
-| `on`, `log`, `message` underlined as undefined in Lua | `.playac/playac.lua` is missing. Run `playac-mod types`. See [Editor](editor.md#4-lua-scripts-the-lua-extension-and-the-games-types). |
+| `on`, `log`, `message` underlined as undefined in Lua | `.playac/playac.lua` is missing. Copy `api/playac.lua` there. See [Editor](editor.md#4-lua-scripts-the-lua-extension-and-the-games-types). |
 
 ## Installing a ZIP
 

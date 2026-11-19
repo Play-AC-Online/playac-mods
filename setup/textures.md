@@ -22,8 +22,6 @@ Get one in any of these ways:
   https://github.com/Play-AC-Online/playac-mods/releases, and unzip it. It works as it is,
   and turns the town grass into a green check. Its pictures are in
   `textures/`.
-- **With the tool:** run `playac-mod new yourname.my-textures --kind texture`
-  ([Node.js and playac-mod](node-and-cli.md)).
 
 Open the folder's `mod.json` in any text editor. Change `yourname` in `"id"`
 and `"authors"` to your own name. Use lower case letters, digits and dashes.

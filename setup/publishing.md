@@ -1,9 +1,9 @@
 # Publishing
 
 Sharing puts your mod in the mod list, which every player sees under **Browse
-mods** in the Mods tab. Sharing needs an account and two-factor sign-in. If
-you use the tool, it needs its own sign-in too. This guide sets those up once,
-then goes through one upload.
+mods** in the Mods tab. Sharing needs an account and two-factor sign-in.
+This guide sets those up once, then goes through one upload. Sharing happens
+on the website only. The `playac-mod` tool does not upload.
 
 You need none of this to make mods or to install your own. The publishing page
 says what happens after review: https://playaconline.com/modding/publishing/
@@ -49,9 +49,7 @@ How the codes are used:
 
 - When you upload, the site asks for a code from the app.
 - That code opens a 15-minute window in that browser. In
-  that window you can upload or approve a `playac-mod` sign-in.
-- A `playac-mod` sign-in you approve then lasts 60 minutes on
-  its own.
+  that window you can upload or import.
 
 ## 3. Get the mod ready
 
@@ -83,51 +81,10 @@ send again.
 **Check it worked:** the upload shows under **Mods you shared** as **Waiting
 for review**. An email confirms every upload under your account.
 
-## 4b. Or upload with playac-mod
+## 4b. Or import a GitHub tag
 
-From the mod's folder:
-
-```bash
-playac-mod publish --shot .playac/screenshots/in-game.png --changelog "First version"
-```
-
-Without the flags it uses these files:
-
-- the PNG and JPEG files in `.playac/screenshots/`
-- this version's section of `CHANGELOG.md`, or `.playac/changelog.txt` if
-  there is none
-
-It checks the mod and those files before it asks you to sign in.
-
-The first time, it signs in with a code. It does so again once its sign-in
-has ended.
-
-1. It prints an address on the site (`https://playaconline.com/cli/...`) and a
-   code of 8 letters, like `BCDF-GHJK`. Then it waits.
-2. Open the address in a browser where you are signed in to the site.
-3. Check that the code on the page is the one in your terminal. Never approve
-   a code you did not start yourself.
-4. Press **Approve**. If the page asks, type a code from your authenticator
-   app first.
-5. The page says **Approved**. The terminal carries on by itself and uploads.
-
-**Check it worked:** the terminal ends with
-`Uploaded yourname.my-mod 1.0.0 with content hash <64 hex digits>. It is waiting for review.`
-`playac-mod status` lists your versions and their state.
-
-About the saved sign-in:
-
-- It is saved for 60 minutes. Another `publish` in that time
-  asks nothing.
-- It is saved in `~/.config/playac-mod/` on macOS and Linux, and in
-  `%APPDATA%\playac-mod\` on Windows.
-- `playac-mod logout` ends it at once.
-- **Signed-in tools** on https://playaconline.com/cli/ lists the sign-ins and
-  can revoke each one.
-- `--no-save` keeps a sign-in for that one run only.
-
-To upload from a GitHub tag instead of a folder, see
-[Git and GitHub](git-github.md#4-share-a-version-from-a-tag).
+If the mod lives in a GitHub repository, the site can fetch a tag instead.
+See [Git and GitHub](git-github.md#4-share-a-version-from-a-tag).
 
 ## 5. Review
 
@@ -140,8 +97,7 @@ moderator gets to it. Until then nobody else can see or download it.
 - **Refused**: **Mods you shared** shows the rule it broke and the moderator's
   note. Fix it and send it again. A refused version may reuse its number.
 
-**Check it worked:** **Mods you shared** shows the new state. So does
-`playac-mod status`.
+**Check it worked:** **Mods you shared** shows the new state.
 
 ## Updates
 

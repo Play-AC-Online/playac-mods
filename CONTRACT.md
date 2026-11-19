@@ -9,7 +9,7 @@ game engine, the docs) must implement exactly this. Where a layer cannot check a
   with a segment `__MACOSX` or `Thumbs.db`, or a HIDDEN segment (one starting `.`,
   other than `.` and `..`, which stay refused as unsafe): `.DS_Store`, `._*`,
   `.gitignore`, `.github/`, `.vscode/`, `.playac/`, `.claude/`. Junk is never
-  unpacked, hashed or counted, so a Finder or Explorer ZIP of a `playac-mod new`
+  unpacked, hashed or counted, so a Finder or Explorer ZIP of a mod repository
   folder installs. A content key naming a file under a hidden folder finds
   nothing. The engine's texture scan skips `.` names too. Folder entries
   (names ending `/`) are ignored and never counted.
@@ -180,8 +180,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   breaks it; the engine (`read_exports`) says a broken list in the
   mod log and ignores it. Declared, `remote.add` of a name it does not list is a
   script error, and a listed name the main chunk never offered is said in the
-  mod log. `playac-mod types` appends a dependency's exports to the dependent's
-  `.playac/playac.lua` as remote.call hints.
+  mod log.
 - `assets_original`: must be `true`.
 - Unknown keys are REFUSED, in mod.json's top level and in each content
   file's top level (shops, items, letters, calendar, talk; NOT messages, whose

@@ -53,7 +53,7 @@ my-mod.zip
 - ZIPs made by the Mac Finder or Windows work. The game ignores `__MACOSX/`,
   `Thumbs.db` and every hidden file or folder. A hidden name starts with `.`,
   such as `.DS_Store`, `._*`, `.gitignore`, `.github/`, `.vscode/` and
-  `.playac/`. A Finder ZIP of a `playac-mod new` folder works as it is.
+  `.playac/`. A Finder ZIP of a mod repository folder works as it is.
 
 A player can have at most 32 mods switched on. Together they may be at most
 96 MB unpacked, or 24 MB on a phone. Keep texture mods small if you want phone
