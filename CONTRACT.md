@@ -644,8 +644,8 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   player's OWN town, never as a visitor or in the City. Changes the town, so the mod
   needs `scope: "world"`; refused in a client mod by every layer.
 - `talk`: 1..16 lines, each 1..160 characters with at most 3 newlines (UTF-8 allowed,
-  like a shop greeting). On the day these are the villager lines (see
-  talk.json for how a line is said), ahead of any talk.json pool.
+  like a shop greeting). On the day they are half of every villager's small talk
+  (see talk.json for how a line is said), ahead of any talk.json pool.
 - `letter`: the `id` of a letter in the SAME mod's letters.json (a key like
   any id; every layer refuses one the letters file does not hold, or a mod with no
   letters file). On the day the game mails it once per town: the first
@@ -664,23 +664,39 @@ an entry is a "day". The game's own festivals are "the game's festivals".
 
 ## talk.json
 - `{ "pools": [ ... ] }`, 1..32 pools. Each: `lines` (1..32 lines, each 1..160
-  characters, at most 3 newlines, UTF-8 allowed), and optionally ONE of
-  `personality` (`normal`, `peppy`, `lazy`, `jock`, `cranky`, `snooty`) or
-  `villager` (a name, 1..8 plain characters, matched ignoring case); neither means
-  every villager. `chance`: whole number 1..100 (default 100).
-- How a line is said: on an ordinary talk (the same talks a `villager_talked` handler gets: not a
-  first meeting, an errand, a move, the island), when no script said a line, a
-  villager says at most ONE data line a day, on the first talk of the day, then their
-  own hello (the line chains to the villager's real message, never replaces it).
-  "Once a day" is kept per town: who was told today is in
-  `/save/mods/talk-told.txt` (one line a town: town key, date, the villagers),
-  written at each first talk and carried to the browser's storage by the game's next
-  save, like a script's store. After a restart on the same day a villager who had
-  their line says no other. It is never in the save bytes; a restart before any save
-  has no list to read. Not written while the save is frozen.
-  Today's calendar day lines come first; else the most specific pools that match decide (this
-  villager's, else this personality's, else everyone's); each of those pools is in
-  with its `chance`, rolled from the date and the villager, so it repeats on that day.
+  characters, at most 3 newlines, UTF-8 allowed; the game wraps and pages them), and
+  optionally ONE of `personality` (`normal`, `peppy`, `lazy`, `jock`, `cranky`,
+  `snooty`) or `villager` (a name, 1..8 plain characters, matched ignoring case);
+  neither means every villager. Optionally kept to a moment, each the game's own:
+  `season` (`spring` March..May, `summer` June..August, `fall` September..November,
+  `winter` December..February), `time` (`morning` 5..12, `day` 12..17, `evening`
+  17..24, `night` 0..5, the hours of the talk code's own time kinds), `weather`
+  (`clear`, `rain`, `snow`; cherry blossom and falling leaves are `clear`). Any other
+  value is refused by every layer (`talk-when`). `chance`: whole number 1..100, in how
+  many small talks in 100 the pool's line is said when it fits (default 50).
+- How a line is said: a villager's ordinary talk is their hello, which ends in a
+  menu (an errand answer, a chat answer such as "I'm bored!", never mind). When the
+  player chooses to chat, the game picks a topic (a trade, a letter they got, a
+  memory, a hint, an event, or small talk: plain chat, the time of day, the weather, the month; a happy
+  villager picks from its own list, whose chat and weather-and-time are small talk
+  too). When the game picks small talk, a pool line may be the topic instead. The
+  line ends the talk, as the game's own small talk does. So a line is never before
+  the hello and never in place of a trade, letter, memory, hint or event, and a
+  villager can say several in a day, one a talk.
+- Which talks: the same ordinary talks a `villager_talked` handler gets (not a first
+  meeting, an errand, delivery or contest going with the player, a villager moving
+  out, the first-job errands, a pitfall or bee chase, an islander, Kamakura, summer
+  camp).
+- Which line: today's calendar day lines first, on half of the asks (calendar.json
+  `talk`). Else the most specific pools that FIT decide: this villager's, else this
+  personality's, else everyone's, where a pool fits when the season, time and weather
+  it names are the ones now. Each fitting pool rolls its `chance` on this talk; the
+  lines of those that pass, from every mod, are put together and one is picked, never
+  the one this villager said last when another is there. When the most specific pools
+  all roll no, the villager makes the game's own small talk.
+- Nothing is saved: no record of who said what (the game keeps none for its own
+  topics either). The last line a villager said is held in memory, for the no-repeat
+  rule only.
 - Client scope allowed (only the player hears it); runs in the City too.
 
 ## One language

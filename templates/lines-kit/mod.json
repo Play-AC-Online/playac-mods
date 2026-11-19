@@ -5,7 +5,7 @@
   "name": "My Lines",
   "version": "1.0.0",
   "authors": ["yourname"],
-  "description": "Villagers say one of my lines before their usual hello, once a day each.",
+  "description": "Villagers say my lines as their small talk, after their own hello.",
   "scope": "client",
   "content": {
     "talk": "talk.json"
