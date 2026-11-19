@@ -31,22 +31,10 @@ local function fair_today()
   return fair
 end
 
--- The fair line, once a day, the first time you are in town. A scene is the
--- place to ask: the town and its calendar are loaded by then.
-local fair_asked = nil -- the day it was asked
-local function fair_line()
-  if fair_asked == game.day_number() then return end
-  fair_asked = game.day_number()
-  -- show_line puts a line in your thought window once you are free.
-  if fair_today() then
-    local id, why, code = cmd.show_line(message("fair"))
-    if not id then log("no fair line:", why, code) end
-  end
-end
-
 -- A new day in the game (also when the game starts on a new day). A restart
 -- later on a day the town already saw does not fire it again, so the day is
--- counted by date, not by call.
+-- counted by date, not by call. The whole day is known here: the town, its
+-- calendar and the player. So this is where to ask about today.
 on("day_started", function(e)
   local today = string.format("%04d-%02d-%02d", e.year, e.month, e.day)
   if store.get("last_day") ~= today then
@@ -54,6 +42,12 @@ on("day_started", function(e)
     store.set("days", (store.get("days") or 0) + 1)
   end
   log("day", today, "days seen in this town:", store.get("days"))
+  -- The fair line. show_line puts it in your thought window once you are
+  -- free in town.
+  if fair_today() then
+    local id, why, code = cmd.show_line(message("fair"))
+    if not id then log("no fair line:", why, code) end
+  end
 end)
 
 -- You got an item: picked up, caught with the net or the rod, or dug up. It
@@ -134,7 +128,6 @@ end
 on("scene_entered", function(e)
   log("scene", e.scene, e.name or "(no name)")
   give_apple()
-  if e.name == "town" then fair_line() end
 end)
 
 -- Mark the apple as given only here, when the game says it was. A refusal has
