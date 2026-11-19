@@ -17,7 +17,7 @@ says who may say them, and when:
   or night (midnight to 5).
 - "weather" is clear, rain or snow.
 - "chance" is how many small talks in 100 say the pool's line. Leave it
-  out for 50.
+  out for every one.
 
 How the game uses the pools:
 

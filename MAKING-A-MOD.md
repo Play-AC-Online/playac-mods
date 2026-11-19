@@ -635,11 +635,12 @@ your talk pools can be what the villager says. No script is needed:
     `evening` (17 to midnight) or `night` (midnight to 5).
   - `weather`: `clear`, `rain` or `snow`. Cherry blossom and falling leaves
     count as clear.
-- `chance`: optional, 1 to 100, default 50. When the pool fits, it is how many
+- `chance`: optional, 1 to 100, default 100. When the pool fits, it is how many
   small talks in 100 say its line instead of the game's own.
 - Your line comes after the villager's own hello, as the topic, whenever you
-  choose to chat and the game picks small talk. That is often: chat with a
-  villager a few times and one of your lines comes up. A villager can say several of
+  choose to chat and the game picks small talk, roughly one chat in four or
+  five (more often with a happy villager; trades, hints and events take the
+  rest). A villager can say several of
   your lines in a day, and never the same one twice running when the pools
   hold another.
 - Which line: the most specific pools that fit decide, the villager's own,

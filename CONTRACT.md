@@ -673,7 +673,7 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   17..24, `night` 0..5, the hours of the talk code's own time kinds), `weather`
   (`clear`, `rain`, `snow`; cherry blossom and falling leaves are `clear`). Any other
   value is refused by every layer (`talk-when`). `chance`: whole number 1..100, in how
-  many small talks in 100 the pool's line is said when it fits (default 50).
+  many small talks in 100 the pool's line is said when it fits (default 100).
 - How a line is said: a villager's ordinary talk is their hello, which ends in a
   menu (an errand answer, a chat answer such as "I'm bored!", never mind). When the
   player chooses to chat, the game picks a topic (a trade, a letter they got, a
