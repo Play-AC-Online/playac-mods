@@ -7,12 +7,13 @@ Players install mods in **Settings, Mods**, from a ZIP or from the mod list.
 This file is the offline reference for the file formats and the script API.
 The step-by-step guide is at https://playaconline.com/modding/.
 
-- Six working example mods each live in a public repository of their own:
-  Clover Meadow (textures), Chatty Villagers (villager lines, data only), Tea
-  House (a shop and its hours), Cosy Corner (new furniture),
-  Harvest Fair (calendar days and letters) and Daily Gift (a script, commands
-  and a timer). The cookbook links every repository, shows each mod file by
-  file and has its ZIP: https://playaconline.com/modding/cookbook/.
+- Three working example mods each live in a public repository of their own,
+  and each puts two kinds of mod together: Springtime Town (textures and
+  villager lines, no code), Evening Tea Room (a shop with its own hours and
+  stock, and new furniture) and Harvest Post (calendar days and letters, and a
+  script with commands and a timer). The cookbook links every repository,
+  shows each mod file by file and has its ZIP:
+  https://playaconline.com/modding/cookbook/.
 - The full reference, with every limit, is
   https://playaconline.com/modding/reference/.
 - The setup guides are in [`setup/`](setup/). They cover Node.js, the
@@ -338,8 +339,8 @@ Start from a texture mod that works, not from an empty folder:
 - The texture kit, `templates/texture-kit/` in this repository, also a ZIP on
   `https://playaconline.com/modding/downloads/`. It turns the town grass into
   a green check.
-- The Clover Meadow example, `playac-example-clover-meadow`. It draws clover
-  over the town grass, with one `$` file per grass texture.
+- The Springtime Town example, `playac-example-springtime-town`. It draws
+  clover over the town grass, with one `$` file per grass texture.
 
 1. Put your own name in its `mod.json`, in `id` and `authors`.
 2. Draw your own picture. Save it in `textures/` under the name you copied,
@@ -929,19 +930,19 @@ end)
 - In The City every command is refused.
 - On a visit to a friend, a letter, an item or a take is refused, because only
   the town's owner changes a town or a save. Lines and questions still work.
-- `example.daily-gift` is a whole working mod that sends each resident a
-  letter with a fruit once a game day. A letter that found no room is tried
-  again by a timer.
+- The script of `example.harvest-post` is a whole working example that sends
+  each resident a letter with a fruit once a game day. A letter that found no
+  room is tried again by a timer.
 
 #### Taking items or Bells
 
 `cmd.take_item` and `cmd.take_bells` never take on a script's word. The player
 agrees each time.
 
-- The game shows its own question, such as `Give 3 x apple to the mod "Tea
-  House"?` or `Pay 300 Bells to the mod "Tea House"?`. The item's name, the
-  count and the amount come from the game, and the mod's name from its
-  `mod.json`. The name stands between quotes.
+- The game shows its own question, such as `Give 3 x apple to the mod
+  "Evening Tea Room"?` or `Pay 300 Bells to the mod "Evening Tea Room"?`. The
+  item's name, the count and the amount come from the game, and the mod's name
+  from its `mod.json`. The name stands between quotes.
   A script passes no text and cannot change the question.
 - The answers are "No, keep it" and "Yes, give" or "Yes, pay". The cursor
   starts on No.
