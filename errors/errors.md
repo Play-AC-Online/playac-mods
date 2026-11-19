@@ -304,10 +304,10 @@ In the game page (install, check tool):
 
     messages/en.json: duplicate key "greet"
     data/x.json: duplicate key "a"
+    messages.json: duplicate key "hi"
+    messages.json: duplicate key "�"
     messages/en.json: duplicate key "hours"
     mod.json: duplicate key "a"
-    mod.json: duplicate key "content"
-    mod.json: duplicate key "scope"
 
 From the mod list (upload):
 
@@ -367,8 +367,8 @@ In the game page (install, check tool):
     mod.json is not valid JSON
     shops.json: a number is out of range
     data/x.json is not valid JSON
+    messages.json: a number is out of range
     notes.json: a number is out of range
-    translations/de.json: a number is out of range
     x.json is not valid JSON
 
 From the mod list (upload):
@@ -417,8 +417,8 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 In the game page (install, check tool):
 
     d.json: nested more than 32 levels deep
+    messages.json: nested more than 32 levels deep
     mod.json: nested more than 32 levels deep
-    translations/de.json: nested more than 32 levels deep
 
 From the mod list (upload):
 
@@ -777,11 +777,11 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    "tags" must list at most 5 different tags from: textures, clothing, furniture, scenery, villagers, dialogue, shops, seasonal, holidays, quality-of-life, translation, humor, accessibility, scripts
+    "tags" must list at most 5 different tags from: textures, clothing, furniture, scenery, villagers, dialogue, shops, seasonal, holidays, quality-of-life, humor, accessibility, scripts
 
 From the mod list (upload):
 
-    tags must list at most 5 different tags from: textures, clothing, furniture, scenery, villagers, dialogue, shops, seasonal, holidays, quality-of-life, translation, humor, accessibility, scripts.
+    tags must list at most 5 different tags from: textures, clothing, furniture, scenery, villagers, dialogue, shops, seasonal, holidays, quality-of-life, humor, accessibility, scripts.
 
 What it means: "tags" is an optional list of at most 5 different tags from the fixed list, in lower case. Players filter the mod list by them, and the game never reads them.
 
@@ -936,7 +936,7 @@ From the mod list (upload):
 
     content.buildings is not something a mod can add yet. Use textures, messages, shops, items, letters, calendar, talk.
 
-What it means: "content" can hold "textures", "messages", "shops", "items", "letters", "calendar", "talk" and "translations", spelled exactly like that in lowercase. A mod cannot add buildings, acres or anything else.
+What it means: "content" can hold "textures", "messages", "shops", "items", "letters", "calendar" and "talk", spelled exactly like that in lowercase. A mod cannot add buildings, acres or anything else. "translations" was dropped before release: every text shows as written.
 
 How to fix it: Take the key out, or fix its spelling and case. "Messages" is not "messages".
 
@@ -950,7 +950,6 @@ In the game page (install, check tool):
 
     "content.messages" must be a path inside the mod
     "content.talk" must be a path inside the mod
-    "content.translations" must be a path inside the mod
 
 From the mod list (upload):
 
@@ -984,7 +983,7 @@ From the mod list (upload):
     content.messages names "messages/en.json", which is not in the ZIP.
     content.textures names "textures/", which is not a folder with files in the ZIP.
 
-What it means: mod.json names a file that is not in the ZIP. For textures it names a folder, which must hold at least one file.
+What it means: mod.json names a file that is not in the ZIP. For textures it names a folder, which must hold at least one file. Every other key names one file: "messages" names one .json file, never a folder of languages.
 
 How to fix it: Check the path against the ZIP, with the exact letter case. "EN.json" is not "en.json". Check that the file was zipped.
 
@@ -2461,121 +2460,7 @@ What it means: A pool has 1 to 32 lines, each 1 to 160 characters with at most 3
 
 How to fix it: Shorten the lines or the list.
 
-## Settings, translations, dependencies
-
-### translations-folder
-
-**A translations folder holds a file it cannot use**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
-
-In the game page (install, check tool):
-
-    "content.translations": translations/en.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)
-    "content.translations": translations/de.txt is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)
-    "content.translations": translations/ja.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)
-
-From the mod list (upload):
-
-    content.translations: translations/ja.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files).
-
-What it means: "content.translations" names a folder that holds only de.json, es.json, fr.json and it.json. English has no file there: it is the text in the mod's own files.
-
-How to fix it: Remove or rename the file the message names. Put the English text in the data file itself.
-
-Fixed (mod.json):
-
-```
-"content": { "letters": "letters.json", "translations": "translations/" }
-```
-
-### translations-not-object
-
-**A translations file is not key to text**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
-
-In the game page (install, check tool):
-
-    translations/de: the file is not a JSON object of key to text
-
-From the mod list (upload):
-
-    translations/de.json: a translations file must be a JSON object of key to text.
-
-From the game (Mods tab row):
-
-    translations: a file is not a JSON object of key to text: de
-
-What it means: A translations file is one flat object. Each key is the path of a text in the mod, and each value is that text in the file's language.
-
-How to fix it: Write it as { "shops/flower/greeting": "Willkommen!" }.
-
-### translations-key
-
-**A translation names a text the mod does not have**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
-
-In the game page (install, check tool):
-
-    translations/de: "letters/helo/body" names no text in this mod
-    translations/de: "calendar/quiet/board" names no text in this mod
-    translations/de: "calendar/tea-day/talk/3" names no text in this mod
-    translations/de: "greet" names no text in this mod
-    translations/de: "items/mug/name" names no text in this mod
-    translations/de: "letters/hello/item" names no text in this mod
-
-From the mod list (upload):
-
-    translations/de.json: "letters/helo/body" names no text in this mod.
-
-From the game (Mods tab row):
-
-    translations: a key names no text in this mod, left out: de letters/helo/body
-
-What it means: A key in a translations file is the path of a text in the mod's own files. This key matches none: the id is misspelt, the count is past the end of the list, or the mod's own file does not have that text.
-
-How to fix it: Use one of: mod/name, mod/description, settings/<name>/label, settings/<name>/description, items/<id>/name, shops/flower/name, shops/flower/greeting, shops/flower/stock_line, letters/<id>/header, letters/<id>/body, letters/<id>/footer, letters/<id>/sender, calendar/<id>/board, calendar/<id>/talk/<n>, talk/<pool>/<line>. The counts start at 1. A text can be translated only when the English file has it, so a letter without "sender" has no letters/<id>/sender.
-
-Bad (translations/de.json):
-
-```
-{ "letters/helo/body": "Hallo!" }
-```
-
-Fixed (translations/de.json):
-
-```
-{ "letters/hello/body": "Hallo!" }
-```
-
-### translations-text
-
-**A translation breaks the rule of the text it replaces**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
-
-In the game page (install, check tool):
-
-    translations/de: "letters/hello/body" must be 1 to 192 plain characters on at most 6 lines: "ü" at character 3 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })
-    translations/fr: "shops/flower/name" must be 1 to 40 characters on one line
-    translations/de: "calendar/tea-day/board" must be 1 to 192 plain characters on at most 6 lines: "„" at character 11 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })
-    translations/de: "calendar/tea-day/talk/1" must be 1 to 160 characters with at most 3 line breaks
-    translations/de: "items/cup/name" must be 1 to 16 letters, digits, spaces or ' . , ! & -, starting with a letter or digit and not ending with a space
-    translations/de: "letters/hello/body" must be 1 to 192 plain characters on at most 6 lines
-
-From the mod list (upload):
-
-    translations/de.json: the translation "letters/hello/footer" must be 1 to 32 plain characters.
-
-From the game (Mods tab row):
-
-    translations: a text breaks the rule of the text it replaces, left out: de letters/hello/body
-
-What it means: A translation follows the rule of the text it replaces: the same length, the same lines and the same characters. A letter and a board notice take plain US keyboard characters in every language, because the letter font has no others. The game also measures a translated letter body or board notice on the paper, and leaves out one that does not fit six lines.
-
-How to fix it: Shorten the text, or write it without accents where the message says the letter paper refuses a character ("ue" for "ü"). Shop lines and villager lines may use the accented letters the game's font has.
+## Settings, dependencies, data version
 
 ### manifest-depends
 
@@ -2711,29 +2596,6 @@ From the game (Mods tab row):
 What it means: "settings" is a list of at most 16 settings. Each has a name, a type, a label and only the keys its type takes.
 
 How to fix it: Fix the setting the message names. A name is a-z, 0-9 and _, starts with a letter and is used once. A type is bool, number, choice or text. A label is 1 to 60 characters, and an optional description is at most 200. An optional scope is "world" or "client". A bool takes default. A number takes default, min and max. A choice takes default and choices. A text takes default and max_length.
-
-### messages-translations
-
-**A translations folder the game cannot read**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
-
-In the game page (install, check tool):
-
-    "content.messages": messages/ja.json is not one of en.json de.json es.json fr.json it.json
-    "content.messages" names a folder without en.json: English is the fallback for every language
-    messages/fr: "helo" is not in en.json (a translation holds only keys en.json has)
-    "content.messages": messages/notes.txt is not one of en.json de.json es.json fr.json it.json
-    "content.messages": messages/old/en.json is not one of en.json de.json es.json fr.json it.json
-
-From the mod list (upload):
-
-    content.messages: messages/ja.json is not one of en.json de.json es.json fr.json it.json.
-    content.messages names a folder without en.json: English is the fallback for every language.
-
-What it means: "content.messages" can name a folder of translations. The folder holds en.json, which is required, and any of de.json, es.json, fr.json and it.json. A translation holds only keys that en.json has.
-
-How to fix it: Add en.json, remove or rename any other file, and fix the key spelling in the translation.
 
 ### setting-refused
 
@@ -2883,7 +2745,6 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 In the game page (install, check tool):
 
     messages: "greet" must be text of 1 to 400 bytes
-    messages/fr: "hello" must be text of 1 to 400 bytes
     messages: "a" must be text of 1 to 400 bytes
     messages: "k" must be text of 1 to 400 bytes
 
@@ -2925,7 +2786,7 @@ From the mod list (upload):
 
     "textures/tex1_64x64_626709d910129694_14.dds" is an unchanged copy of a texture from the game (tex1_64x64_626709d910129694_14). Upload only art you made yourself.
 
-What it means: Every pixel of this texture equals a texture from the game or the HD pack. A mod may only hold art you made, and a texture exported from the texture inspector is the game's art until you paint over it.
+What it means: Every pixel of this texture equals a texture from the game or the HD pack. A mod may only hold art you made, and a PNG saved from the model viewer or the texture inspector is the game's art.
 
 How to fix it: Paint your own picture into the file and keep the file name. Delete files you did not change.
 
@@ -3130,11 +2991,11 @@ On the site:
 
 What it means: The inspector keeps up to 512 textures and 16 MB, and drops the one drawn longest ago. Stop recording frees them all.
 
-How to fix it: Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG, Flash or Export.
+How to fix it: Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG or Flash.
 
 ### inspector-export
 
-**The starter mod could not be exported**
+**The starter mod could not be exported** (retired)
 
 Seen in: Settings, Mods, Developer (open the game with ?moddev=1).
 
@@ -3199,7 +3060,7 @@ On the site:
     The script cannot reload: it was not in mod.json at boot. Restart the game.
     Textures cannot reload: the mod had no textures folder at boot. Restart the game.
 
-What it means: Lines, the shop, talk, letters, the calendar, the items file, the script, textures and translations reload while you play. A change to mod.json waits for a restart, because the game reads mod.json once, when it starts.
+What it means: Lines, the shop, talk, letters, the calendar, the items file, the script and textures reload while you play. A change to mod.json waits for a restart, because the game reads mod.json once, when it starts.
 
 How to fix it: Choose Restart now in the Developer section. Save your town first.
 
@@ -4218,20 +4079,6 @@ What it means: The mod list is public, so a mod's name goes through the site's w
 
 How to fix it: Change "name" in mod.json, raise the version and upload again.
 
-### upload-translation-word
-
-**A translated name has a word the site does not allow**
-
-Seen in: Share a mod, when you upload.
-
-From the mod list (upload):
-
-    translations/de.json: "mod/name" has a word the site does not allow. Pick another name.
-
-What it means: The mod list shows a mod's name in the reader's language when the mod has one, so each translated name goes through the same word filter as the name in mod.json. The message names the translations file.
-
-How to fix it: Change "mod/name" in that translations file, raise the version and upload again.
-
 ### upload-author-word
 
 **An author name has a word the site does not allow**
@@ -4376,7 +4223,7 @@ Registry codes: `screenshot_required`
 
 What it means: Every shared version needs 1 to 4 screenshots of the mod in the game, and one was missing or could not be used. The site saves them again, so no hidden photo data survives.
 
-How to fix it: Add a screenshot in Share a mod, with `playac-mod publish --shot`, or in .playac/screenshots/, which a GitHub import reads too. Use a PNG or JPEG of 200 to 4096 pixels a side, at most 3840 by 2160 pixels in all and 2 MB. Save it as an ordinary 8-bit PNG or a standard JPEG, not a 16-bit PNG or a progressive JPEG over 1920 by 1080.
+How to fix it: Add a screenshot in Share a mod, or in .playac/screenshots/, which a GitHub import reads. Use a PNG or JPEG of 200 to 4096 pixels a side, at most 3840 by 2160 pixels in all and 2 MB. Save it as an ordinary 8-bit PNG or a standard JPEG, not a 16-bit PNG or a progressive JPEG over 1920 by 1080.
 
 ### upload-changelog
 
@@ -4395,7 +4242,7 @@ Registry codes: `changelog_required`
 
 What it means: Every shared version needs one line on what it changes. The line shows in the version list on the mod's page.
 
-How to fix it: Write the line in Share a mod, with `playac-mod publish --changelog`, or as this version's section of CHANGELOG.md. Keep it to 300 characters and 4 line breaks. It goes through the site's word filter.
+How to fix it: Write the line in Share a mod, or as this version's section of CHANGELOG.md. Keep it to 300 characters and 4 line breaks. It goes through the site's word filter.
 
 ### upload-form
 
@@ -4413,7 +4260,7 @@ From the mod list (upload):
 
 What it means: An upload is a form with the ZIP, the screenshots and the changelog line. This one was not sent the way the site sends it.
 
-How to fix it: Share from Settings, Mods, or with `playac-mod publish`. A script of your own must send multipart/form-data with the parts zip, screenshot and changelog.
+How to fix it: Share from Settings, Mods. A script of your own must send multipart/form-data with the parts zip, screenshot and changelog.
 
 ### upload-not-owner
 
@@ -4562,7 +4409,7 @@ From the mod list (upload):
 
 Registry codes: `two_factor_required`, `two_factor_code`, `two_factor_unavailable`, `two_factor_locked`, `bad_code`
 
-What it means: Sharing a mod, importing one from GitHub and approving a playac-mod sign-in all need two-factor sign-in and a recent code from your authenticator app. A code works once. After 5 wrong codes in a row, code checks pause for a minute or longer, and we email the account.
+What it means: Sharing a mod and importing one from GitHub both need two-factor sign-in and a recent code from your authenticator app. A code works once. After 5 wrong codes in a row, code checks pause for a minute or longer, and we email the account.
 
 How to fix it: Switch on two-factor sign-in on your Profile page, then enter a code from your authenticator app when asked. If codes are paused, wait, check that the phone's clock is right and use a fresh code.
 
@@ -4670,39 +4517,6 @@ What it means: The version's state does not allow that change. Only a moderator 
 
 How to fix it: Reload the Mods tab. If a moderator withdrew the version, read the reason, fix the mod and upload a new version. If the moderators are looking at it, wait for their decision.
 
-### cli-sign-in-code
-
-**The sign-in code is not waiting**
-
-Seen in: the playac-mod tool, and the page that approves its sign-in (/cli/).
-
-From the mod list (upload):
-
-    No sign-in is waiting with that code. Codes last 10 minutes: run the command again for a new one.
-    That code was already approved or denied.
-
-Registry codes: `code_not_found`, `code_used`
-
-What it means: playac-mod prints a code of 8 letters and waits for you to approve it on the site. A code lasts 10 minutes and is answered once.
-
-How to fix it: Run the playac-mod command again. It prints a new address and a new code. Approve that one.
-
-### cli-token-scope
-
-**The tool's sign-in cannot do that**
-
-Seen in: the playac-mod tool, and the page that approves its sign-in (/cli/).
-
-From the mod list (upload):
-
-    A playac-mod sign-in can only upload mods and see, yank or list again your own versions. Do this on the site instead.
-
-Registry codes: `token_scope`
-
-What it means: A playac-mod sign-in is narrower than your account. It uploads mods and manages your own versions. Every other request made with it is refused.
-
-How to fix it: Do it in a browser where you are signed in to the site. If playac-mod itself printed this, update the tool.
-
 ## Review decisions
 
 ### review-nintendo-content
@@ -4752,6 +4566,16 @@ How to fix it: If you believe the notice is wrong, send a counter-notice. The mo
 Seen in: the review decision on your upload.
 
 What it means: The mod holds sexual or sexually suggestive pictures or text. Players of every age use this site.
+
+How to fix it: Remove it. Mods here are for players of every age.
+
+### review-violent-content
+
+**Gore or graphic violence**
+
+Seen in: the review decision on your upload.
+
+What it means: The mod holds gore, graphic violence or disturbing pictures or text. Players of every age use this site.
 
 How to fix it: Remove it. Mods here are for players of every age.
 

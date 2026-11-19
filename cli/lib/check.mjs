@@ -215,10 +215,7 @@ export function unusedFileWarnings(manifest, names) {
   for (const k of ['messages', 'shops', 'items', 'letters', 'calendar', 'talk']) {
     if (typeof c[k] !== 'string' || !c[k]) continue;
     used.add(c[k]);
-    if (k === 'messages') dirs.push(c[k].replace(/\/$/, '') + '/');
   }
-  /* the translations folder is read whole */
-  if (typeof c.translations === 'string' && c.translations) dirs.push(c.translations.replace(/\/$/, '') + '/');
   if (typeof c.textures === 'string' && c.textures) dirs.push(c.textures.replace(/\/$/, '') + '/');
   const out = [];
   for (const name of names) {
@@ -358,8 +355,7 @@ export async function checkEntries(entries, opts = {}) {
     const c = isObj(manifest) && isObj(manifest.content) ? manifest.content : {};
     const api = isObj(manifest) ? manifest.api : undefined;
     /* every rule of the content files (the items file and renames, the
-     * shops file and its level, letters, calendar, talk, messages and their
-     * translations) is the game's own: mods.js contentProblems, the function
+     * shops file and its level, letters, calendar, talk and messages) is the game's own: mods.js contentProblems, the function
      * readMod runs. docOf has already reported a file that is too big or not
      * JSON, so such a file is skipped here (null). */
     const read = (p) => {
@@ -404,7 +400,7 @@ export async function checkEntries(entries, opts = {}) {
        * problem, not a warning. */
       for (const w of scanScript(src, ctxs)) {
         /* scan: a guess from a pattern read, not the game's word.
-         * check lists it as a problem. pack and publish go ahead on it. */
+         * check lists it as a problem. pack goes ahead on it. */
         if (w.error) problems.push({ file: main, message: w.message, script: true, scan: true });
         else warn(main, w.message);
       }
@@ -465,9 +461,9 @@ export async function checkFolder(dir, opts = {}) {
   if (/\.zip$/i.test(dir) && fs.existsSync(dir) && fs.statSync(dir).isFile()) return checkZip(dir, opts);
   const f = readFolder(dir);
   const r = await checkEntries(f.entries, opts);
-  /* Only files you can see in a file manager: a hidden one (.gitignore, which
-   * every `new` folder has) would be refused too, but warning on every
-   * scaffold teaches nothing; the docs say to use pack. */
+  /* Only files you can see in a file manager: a hidden one (.gitignore,
+   * which most mod repos have) would be refused too, but warning on it
+   * teaches nothing; the docs say to use pack. */
   const handZip = f.leftOut.filter((l) => handZipRefuses(l.path));
   if (handZip.length && r.ok) {
     const list = handZip.slice(0, 3).map((l) => l.path).join(', ') + (handZip.length > 3 ? ` and ${handZip.length - 3} more` : '');

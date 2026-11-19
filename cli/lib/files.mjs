@@ -12,9 +12,9 @@
  *   - any part is "node_modules" or "__MACOSX"
  *   - its extension (any case) is not one a mod may hold: .json .lua .dds
  *     .png .txt .md (so LICENSE, a .yml workflow or the packed .zip stay out)
- *   - it is CHANGELOG.md at the top (any case): publish and the GitHub import
- *     send its section beside the ZIP as the listing's changelog, so editing
- *     it must not change the mod's content hash
+ *   - it is CHANGELOG.md at the top (any case): the GitHub import sends its
+ *     section beside the ZIP as the listing's changelog, so editing it must
+ *     not change the mod's content hash
  * Every other file goes in, and the contract (mods.js readMod) then checks it. */
 import fs from 'node:fs';
 import path from 'node:path';

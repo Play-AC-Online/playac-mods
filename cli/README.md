@@ -1,111 +1,46 @@
 # playac-mod
 
-Make, check, pack, try and publish mods for [Play AC Online](https://playaconline.com).
+Check, pack and try mods for [Play AC Online](https://playaconline.com).
 Needs Node.js 18.17 or newer.
 
 Install it with the line on https://playaconline.com/modding/cli/#install. That
-line names one release by its address and gives its SHA-256. Do not install a
-package by the bare name `playac-mod` from anywhere else.
+line names one release by its address and gives its SHA-256.
 
 ```bash
-playac-mod new yourname.my-mod --kind lines   # texture | lines | shop | script; --github for a repo
-cd yourname.my-mod
-playac-mod check     # every rule the game applies, problems per file, Lua syntax too
-playac-mod check ../some-mod.zip              # a ZIP, exactly as the Mods tab reads it
-playac-mod dev       # serve the folder to the game's developer mode
-playac-mod pack      # ../<id>-<version>.zip beside the folder, the same bytes every time
-playac-mod publish   # sign in with a code (it lasts an hour), upload for review
-playac-mod publish --github you/my-mod@v1.2.0   # or have the site import a tag
-playac-mod status    # what happened to each version you uploaded
-playac-mod yank 1.2.0 --reason "breaks the shop"   # withdraw a version; unyank lists it again
-playac-mod logout
+playac-mod check              # every rule the game applies, problems per file
+playac-mod check ../mod.zip   # a ZIP, as the Mods tab reads it
+playac-mod dev                # serve the folder to the game, reload on edits
+playac-mod pack               # ../<id>-<version>.zip beside the folder
 ```
 
-`playac-mod help` lists the commands. `playac-mod <command> --help` shows one
-command's options. The same reference is at https://playaconline.com/modding/cli/.
+`playac-mod <command> --help` shows a command's options.
 
-`playac-mod --version` prints the version and the build.
-[CHANGELOG.md](CHANGELOG.md) lists what each release changed. The tool says
-when a newer release is out. Set `PLAYAC_NO_UPDATE_CHECK=1` to switch that off.
+Start a mod from an example repository or a starter kit:
+https://playaconline.com/modding/. Share it from the website.
 
 ## check and pack
 
-`check` and `pack` run the game's own rules, so a mod that passes installs.
+Both run the game's own rules, so a mod that passes installs. `check` also
+fails a script the game would stop: a Lua syntax error, an `on()` for an event
+not in `scripts.events`, or a call to `math.random`. It warns about things the
+game accepts that you probably did not mean.
 
-`check` also fails a mod whose script the game would stop when it loads:
-
-- a Lua syntax error. The game's Lua 5.4 parser is built in, so you need no Lua install.
-- an `on()` for an event that is not in `scripts.events`
-- a call to `math.random`. The sandbox has none. Use `rng()`.
-
-`check` warns about things the game accepts but you probably did not mean:
-
-- a texture the mod list would refuse, or one smaller than the texture it replaces
-- two files for one texture
-- PNGs over the game's pixel limit
-- a `cmd.*` call that is not in `permissions`
-- a shop good the game leaves out, or sells above your price
-- a letter footer longer than 8 characters with no `sender`
-- an `"api"` below the newest level
-- a file the game would refuse, such as an old ZIP left in the folder
-
-`pack` prints the mod's content hash. The mod list, the update check and
-friend visits know the version by that hash.
-
-## What goes in the ZIP
-
-Every `.json .lua .dds .png .txt .md` file goes in, except:
-
-- anything under a name that starts with `.`, such as `.git`, `.github`, `.vscode` and `.playac`
-- `node_modules`
-- a `CHANGELOG.md` at the top. Its section for the version is sent beside the ZIP as the changelog line.
-
-`README.md` goes in, so write it for players.
-
-## Editor types
-
-`new` and `types` write `.playac/` and `.vscode/settings.json`, so your editor
-knows the script API. `.playac/` holds LuaLS annotations and a JSON schema for
-every content file. `types` writes over `.playac/` every time. It writes the
-`.vscode/` files only when the folder has none, so your own settings stay.
-The types come with the tool. Update the tool, then run `types` again.
+`pack` writes the same bytes every time and prints the content hash. Every
+`.json .lua .dds .png .txt .md` file goes in, except names that start with
+`.`, `node_modules` and a top-level `CHANGELOG.md`.
 
 ## dev
 
-`dev` serves on port 2604. When that port is taken it uses the next free one
-and prints the address.
+Serves on port 2604, or the next free one. Then, in the game:
 
-Leave it running, then load the folder in the game:
-
-1. Open the game with `?moddev=1`, for example https://playaconline.com/play/?moddev=1
+1. Open it with `?moddev=1`, for example https://playaconline.com/play/?moddev=1
 2. Go to Settings, Mods, Load a mod you are making.
-3. Put the address `dev` printed in "playac-mod dev address" and press Connect.
-   The box already holds the usual one, `http://127.0.0.1:2604`.
-4. Press Restart now once. After that, edits show as you save.
+3. Press Connect beside "playac-mod dev address", then Restart now once.
 
-The game reads from your computer only after you press Connect. Press it
-again after you reload the page.
-
-A saved content file, translation, script or texture reloads in the running
-game. A change to `mod.json` waits for Restart now.
-
-## publish
-
-`publish` signs in with a code:
-
-1. It prints an address and an 8-letter code.
-2. Open the address on the site while signed in. Your account needs two-factor
-   sign-in switched on, as for any upload.
-3. Check the code and press Approve.
-
-A code from your authenticator app gives you 15 minutes to approve. The
-sign-in you approve lasts an hour. It can upload your mods, list your own
-versions, and withdraw or list them again. It can do nothing else. `logout`
-ends it.
-
-Docs: https://playaconline.com/modding/  Errors: https://playaconline.com/modding/errors/
+Edits then show as you save. A change to `mod.json` waits for Restart now.
+Press Connect again after you reload the page.
 
 ## Licence
 
-MIT, see [LICENSE](LICENSE). The notices for the files it carries from other
+MIT, see [LICENSE](LICENSE). Notices for the files it carries from other
 projects are in `vendor/LICENSE`.

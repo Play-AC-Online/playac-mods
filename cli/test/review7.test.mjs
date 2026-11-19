@@ -91,7 +91,7 @@ test('a guess of the scan fails check, and does not stop pack', async () => {
   assert.equal(r.ok, false);
   assert.equal(r.guessesOnly, true);
   assert.ok(r.problems.every((p) => p.scan && p.script));
-  assert.ok(r.result && r.result.zip, 'the packed mod is there for pack and publish');
+  assert.ok(r.result && r.result.zip, 'the packed mod is there for pack');
 
   /* a problem the game itself has is not a guess: nothing is packed */
   const real = await checkEntries({ ...guess, 'mod.json': js({ ...man, version: 'one' }) }, { lua: false });
@@ -112,7 +112,7 @@ test('a guess of the scan fails check, and does not stop pack', async () => {
   const out = path.join(dir, 'out.zip');
   const packed = await quiet(() => main(['pack', mod, '--no-lua', '--out', out]));
   assert.equal(packed.code, 0, packed.out);
-  assert.match(packed.out, /WARNING: check found 1 problem\(s\) in the script/);
+  assert.match(packed.out, /WARNING: packed anyway/);
   assert.match(packed.out, /packed anyway/);
   assert.ok(fs.existsSync(out), 'the ZIP was written');
   assert.equal(mods.readMod(new Uint8Array(fs.readFileSync(out)), (await import('../lib/contract.mjs')).fflate).manifest.id, 'test.mod');

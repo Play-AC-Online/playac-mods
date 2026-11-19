@@ -15,7 +15,7 @@
       {
         "level": 1,
         "date": "2026-11-16",
-        "summary": "The first level. Content is textures, lines (a messages file or a folder of translations), shops (the flower shop and Nook's stock), new furniture on a vanilla base (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Six commands (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Texts of the data files can be translated in a translations folder. Mods can name optional_depends, and a setting can be world or client."
+        "summary": "The first level. Content is textures, lines (a messages file), shops (the flower shop and Nook's stock), new furniture on a vanilla base (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Six commands (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Mods can name optional_depends, and a setting can be world or client."
       }
     ]
   },
@@ -1308,7 +1308,6 @@
             "seasonal",
             "holidays",
             "quality-of-life",
-            "translation",
             "humor",
             "accessibility",
             "scripts"
@@ -1333,7 +1332,7 @@
       "name": "content",
       "since": 1,
       "required": false,
-      "description": "What the mod adds, each a path inside the mod: textures, messages, shops, items, letters, calendar, talk and translations. Anything else is refused. messages may name a folder of translations. In a folder, en.json is required and de, es, fr and it are optional. translations names a folder that holds the other files' texts in de, es, fr and it.",
+      "description": "What the mod adds, each a path inside the mod: textures, messages, shops, items, letters, calendar and talk. Anything else is refused. textures names a folder, and every other key names one file. There are no translations: every text shows as written.",
       "example": {
         "messages": "messages/en.json"
       },
@@ -1349,7 +1348,7 @@
           "messages": {
             "type": "string",
             "minLength": 1,
-            "description": "The messages file, or a folder of <lang>.json files (en, de, es, fr, it). en.json is required."
+            "description": "The messages file: one .json file of lines."
           },
           "shops": {
             "type": "string",
@@ -1375,11 +1374,6 @@
             "type": "string",
             "minLength": 1,
             "description": "The talk pools file."
-          },
-          "translations": {
-            "type": "string",
-            "minLength": 1,
-            "description": "A folder of <lang>.json files (de, es, fr, it) that translate the text of the other files. English is the text in those files, so there is no en.json."
           }
         }
       },
@@ -1390,8 +1384,7 @@
         "items",
         "letters",
         "calendar",
-        "talk",
-        "translations"
+        "talk"
       ]
     },
     {
@@ -1471,7 +1464,7 @@
       "name": "exports",
       "since": 1,
       "required": false,
-      "description": "A library's remote functions by name, each with a one-line description. These are what other mods may remote.call. At most 32 names, each 1 to 32 of a-z 0-9 _. Each description is 1 to 120 characters on one line. When exports is declared, the game lets remote.add offer only these names. The Mod log says when a listed name was never offered. playac-mod types turns a dependency's exports into editor hints for the mods that depend on it. Needs scripts.",
+      "description": "A library's remote functions by name, each with a one-line description. These are what other mods may remote.call. At most 32 names, each 1 to 32 of a-z 0-9 _. Each description is 1 to 120 characters on one line. When exports is declared, the game lets remote.add offer only these names. The Mod log says when a listed name was never offered. Needs scripts.",
       "example": {
         "count_pieces": "How many workshop pieces the player bought, as a whole number."
       },
@@ -1928,8 +1921,7 @@
         "calendar",
         "items",
         "scripts",
-        "textures",
-        "translations"
+        "textures"
       ]
     },
     {
@@ -2085,23 +2077,6 @@
         "take_item",
         "take_bells"
       ]
-    },
-    {
-      "name": "translations_fallback",
-      "since": 1,
-      "description": "Which text the game shows for a translated mod. The game has one language: the disc's, which is en, de, es, fr or it. A US or Australian disc is en. For each text the game looks in that language first: the language's file in the messages folder for a script line, and the language's file in content.translations for every other text. When that file has no entry for the text, the game shows the English text: en.json for a script line, and the text in the mod's own data file for the rest. The order is the same for every text and in every part of the site. Each text falls back alone.",
-      "values": [
-        "en",
-        "de",
-        "es",
-        "fr",
-        "it"
-      ]
-    },
-    {
-      "name": "translations_same_rules",
-      "since": 1,
-      "description": "A translation follows the rule of the text it replaces. The limit on length, the limit on lines and the characters allowed are the same in every language. A letter's header, body, footer and sender and a board notice take plain US keyboard characters only, because the letter font has no others. Only the game knows the width of the paper, so it alone refuses a translated body or notice that does not fit. It leaves that one text out and shows the English."
     },
     {
       "name": "optional_depends_order",
@@ -2281,7 +2256,7 @@
       "manifest_key": "content.messages",
       "format": "json",
       "schema_file": "messages.schema.json",
-      "description": "Lines a script or another mod can use, by key. A script reads its own with message(\"key\") and another mod's with message(\"author.mod:key\"). This file cannot carry a $schema key, because every key is a line. Point your editor at messages.schema.json in its settings instead. content.messages may name a folder of <lang>.json files instead (en, de, es, fr, it). en.json is required. Each file follows these rules, and a translation holds only keys that en.json has.",
+      "description": "Lines a script or another mod can use, by key. A script reads its own with message(\"key\") and another mod's with message(\"author.mod:key\"). This file cannot carry a $schema key, because every key is a line. Point your editor at messages.schema.json in its settings instead.",
       "schema": {
         "type": "object",
         "maxProperties": 256,
@@ -2728,30 +2703,6 @@
           }
         ]
       }
-    },
-    {
-      "name": "translations",
-      "since": 1,
-      "manifest_key": "content.translations",
-      "format": "json",
-      "schema_file": "translations.schema.json",
-      "description": "The text of a mod's other files in another language. content.translations names a folder of <lang>.json files: de, es, fr and it. English is the text in the mod's own files, so the folder holds no en.json. Each file is one object of key to text. A key is the path of a text: mod/name, mod/description, settings/<name>/label, settings/<name>/description, items/<id>/name, shops/flower/name, shops/flower/greeting, shops/flower/stock_line, letters/<id>/header, letters/<id>/body, letters/<id>/footer, letters/<id>/sender, calendar/<id>/board, calendar/<id>/talk/<n> and talk/<pool>/<line>. <n>, <pool> and <line> count from 1 in the order of the file. A key must name a text the mod has. Its text follows the rule of the text it replaces: the same length, the same lines and the same characters. A letter and a board notice stay plain US keyboard characters in every language. The game shows a text in its own language when the file for that language has the key. It shows the English text when it does not. This is decided for each text alone. A file cannot carry a $schema key, because every key is a text. Point your editor at translations.schema.json in its settings instead.",
-      "schema": {
-        "type": "object",
-        "propertyNames": {
-          "pattern": "^(mod/(name|description)|settings/[a-z][a-z0-9_]{0,31}/(label|description)|items/[a-z0-9][a-z0-9-]{0,31}/name|shops/flower/(name|greeting|stock_line)|letters/[a-z0-9_.-]{1,48}/(header|body|footer|sender)|calendar/[a-z0-9_.-]{1,48}/(board|talk/[1-9][0-9]{0,3})|talk/[1-9][0-9]{0,3}/[1-9][0-9]{0,3})$"
-        },
-        "additionalProperties": {
-          "type": "string",
-          "minLength": 1,
-          "description": "The text in this file's language. It follows the rule of the text its key names."
-        }
-      },
-      "example": {
-        "mod/name": "Laternenfest",
-        "letters/lanterns/body": "Das Laternenfest ist heute.\nKomm zum Wunschbrunnen!",
-        "calendar/lantern-night/talk/1": "Hast du die Laternen gesehen?"
-      }
     }
   ],
   "globals": [
@@ -2796,7 +2747,7 @@
       "name": "message",
       "kind": "function",
       "since": 1,
-      "description": "A line from a messages file. \"key\" reads this mod's own line, and \"author.mod:key\" reads another mod's. Returns nil when there is no such line. A mod's messages can be a folder of translations. The line then comes in the game's language (en, de, es, fr or it, from the disc), with English as the fallback.",
+      "description": "A line from a messages file. \"key\" reads this mod's own line, and \"author.mod:key\" reads another mod's. Returns nil when there is no such line.",
       "params": [
         {
           "name": "key",
@@ -3410,7 +3361,7 @@
           "name": "take_item",
           "kind": "function",
           "since": 1,
-          "description": "Asks the player to hand over items from their pockets. The game shows its own question, which names the item, the count and this mod. The mod's name stands between quotes, and a mod item is named as the pockets show it, both in the game's language where the mod has a translation. A script cannot change that text. On yes the items leave the pockets and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the pockets do not hold that many. Only plain pocket slots count. A wrapped present or an item held for a villager's errand is never taken. Items a command cannot give cannot be taken either (money bags, turnips, tickets, grab bags, fossils). It is refused on a visit and in The City, so a lent mod can never take anything.",
+          "description": "Asks the player to hand over items from their pockets. The game shows its own question, which names the item, the count and this mod. The mod's name stands between quotes, and a mod item is named as the pockets show it. A script cannot change that text. On yes the items leave the pockets and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the pockets do not hold that many. Only plain pocket slots count. A wrapped present or an item held for a villager's errand is never taken. Items a command cannot give cannot be taken either (money bags, turnips, tickets, grab bags, fossils). It is refused on a visit and in The City, so a lent mod can never take anything.",
           "params": [
             {
               "name": "t",
@@ -3439,7 +3390,7 @@
           "name": "take_bells",
           "kind": "function",
           "since": 1,
-          "description": "Asks the player to pay Bells from their wallet. The game shows its own question, which names the amount and this mod. The mod's name stands between quotes, in the game's language where the mod translates it. A script cannot change that text. On yes the Bells leave the wallet and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the wallet holds less than the amount, so the wallet never goes below zero. The bank account and money bags in the pockets are never touched. It is refused on a visit and in The City, so a lent mod can never take anything.",
+          "description": "Asks the player to pay Bells from their wallet. The game shows its own question, which names the amount and this mod. The mod's name stands between quotes. A script cannot change that text. On yes the Bells leave the wallet and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the wallet holds less than the amount, so the wallet never goes below zero. The bank account and money bags in the pockets are never touched. It is refused on a visit and in The City, so a lent mod can never take anything.",
           "params": [
             {
               "name": "t",
@@ -4398,7 +4349,7 @@
       "name": "take_item",
       "kind": "function",
       "since": 1,
-      "description": "Asks the player to hand over items from their pockets. The game shows its own question, which names the item, the count and this mod. The mod's name stands between quotes, and a mod item is named as the pockets show it, both in the game's language where the mod has a translation. A script cannot change that text. On yes the items leave the pockets and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the pockets do not hold that many. Only plain pocket slots count. A wrapped present or an item held for a villager's errand is never taken. Items a command cannot give cannot be taken either (money bags, turnips, tickets, grab bags, fossils). It is refused on a visit and in The City, so a lent mod can never take anything.",
+      "description": "Asks the player to hand over items from their pockets. The game shows its own question, which names the item, the count and this mod. The mod's name stands between quotes, and a mod item is named as the pockets show it. A script cannot change that text. On yes the items leave the pockets and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the pockets do not hold that many. Only plain pocket slots count. A wrapped present or an item held for a villager's errand is never taken. Items a command cannot give cannot be taken either (money bags, turnips, tickets, grab bags, fossils). It is refused on a visit and in The City, so a lent mod can never take anything.",
       "params": [
         {
           "name": "t",
@@ -4428,7 +4379,7 @@
       "name": "take_bells",
       "kind": "function",
       "since": 1,
-      "description": "Asks the player to pay Bells from their wallet. The game shows its own question, which names the amount and this mod. The mod's name stands between quotes, in the game's language where the mod translates it. A script cannot change that text. On yes the Bells leave the wallet and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the wallet holds less than the amount, so the wallet never goes below zero. The bank account and money bags in the pockets are never touched. It is refused on a visit and in The City, so a lent mod can never take anything.",
+      "description": "Asks the player to pay Bells from their wallet. The game shows its own question, which names the amount and this mod. The mod's name stands between quotes. A script cannot change that text. On yes the Bells leave the wallet and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the wallet holds less than the amount, so the wallet never goes below zero. The bank account and money bags in the pockets are never touched. It is refused on a visit and in The City, so a lent mod can never take anything.",
       "params": [
         {
           "name": "t",

@@ -50,7 +50,7 @@
     },
     {
       "id": "data",
-      "title": "Settings, translations, dependencies"
+      "title": "Settings, dependencies, data version"
     },
     {
       "id": "messages",
@@ -106,126 +106,6 @@
     }
   ],
   "entries": [
-    {
-      "code": "translations-folder",
-      "area": "data",
-      "title": "A translations folder holds a file it cannot use",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload"
-      ],
-      "messages": {
-        "page": [
-          "\"content.translations\": translations/en.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)",
-          "\"content.translations\": translations/de.txt is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)",
-          "\"content.translations\": translations/ja.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)"
-        ],
-        "registry": [
-          "content.translations: translations/ja.json is not one of de.json es.json fr.json it.json (English is the text in the mod's own files)."
-        ]
-      },
-      "api": [],
-      "meaning": "\"content.translations\" names a folder that holds only de.json, es.json, fr.json and it.json. English has no file there: it is the text in the mod's own files.",
-      "fix": "Remove or rename the file the message names. Put the English text in the data file itself.",
-      "good": {
-        "file": "mod.json",
-        "text": "\"content\": { \"letters\": \"letters.json\", \"translations\": \"translations/\" }"
-      }
-    },
-    {
-      "code": "translations-not-object",
-      "area": "data",
-      "title": "A translations file is not key to text",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "translations/de: the file is not a JSON object of key to text"
-        ],
-        "registry": [
-          "translations/de.json: a translations file must be a JSON object of key to text."
-        ],
-        "game": [
-          "translations: a file is not a JSON object of key to text: de"
-        ]
-      },
-      "api": [],
-      "meaning": "A translations file is one flat object. Each key is the path of a text in the mod, and each value is that text in the file's language.",
-      "fix": "Write it as { \"shops/flower/greeting\": \"Willkommen!\" }."
-    },
-    {
-      "code": "translations-key",
-      "area": "data",
-      "title": "A translation names a text the mod does not have",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "translations/de: \"letters/helo/body\" names no text in this mod",
-          "translations/de: \"calendar/quiet/board\" names no text in this mod",
-          "translations/de: \"calendar/tea-day/talk/3\" names no text in this mod",
-          "translations/de: \"greet\" names no text in this mod",
-          "translations/de: \"items/mug/name\" names no text in this mod",
-          "translations/de: \"letters/hello/item\" names no text in this mod"
-        ],
-        "registry": [
-          "translations/de.json: \"letters/helo/body\" names no text in this mod."
-        ],
-        "game": [
-          "translations: a key names no text in this mod, left out: de letters/helo/body"
-        ]
-      },
-      "api": [],
-      "meaning": "A key in a translations file is the path of a text in the mod's own files. This key matches none: the id is misspelt, the count is past the end of the list, or the mod's own file does not have that text.",
-      "fix": "Use one of: mod/name, mod/description, settings/<name>/label, settings/<name>/description, items/<id>/name, shops/flower/name, shops/flower/greeting, shops/flower/stock_line, letters/<id>/header, letters/<id>/body, letters/<id>/footer, letters/<id>/sender, calendar/<id>/board, calendar/<id>/talk/<n>, talk/<pool>/<line>. The counts start at 1. A text can be translated only when the English file has it, so a letter without \"sender\" has no letters/<id>/sender.",
-      "bad": {
-        "file": "translations/de.json",
-        "text": "{ \"letters/helo/body\": \"Hallo!\" }"
-      },
-      "good": {
-        "file": "translations/de.json",
-        "text": "{ \"letters/hello/body\": \"Hallo!\" }"
-      }
-    },
-    {
-      "code": "translations-text",
-      "area": "data",
-      "title": "A translation breaks the rule of the text it replaces",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "translations/de: \"letters/hello/body\" must be 1 to 192 plain characters on at most 6 lines: \"ü\" at character 3 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })",
-          "translations/fr: \"shops/flower/name\" must be 1 to 40 characters on one line",
-          "translations/de: \"calendar/tea-day/board\" must be 1 to 192 plain characters on at most 6 lines: \"„\" at character 11 is not on the letter paper, which takes plain US keyboard characters only (no accents, curly quotes, { or })",
-          "translations/de: \"calendar/tea-day/talk/1\" must be 1 to 160 characters with at most 3 line breaks",
-          "translations/de: \"items/cup/name\" must be 1 to 16 letters, digits, spaces or ' . , ! & -, starting with a letter or digit and not ending with a space",
-          "translations/de: \"letters/hello/body\" must be 1 to 192 plain characters on at most 6 lines"
-        ],
-        "registry": [
-          "translations/de.json: the translation \"letters/hello/footer\" must be 1 to 32 plain characters."
-        ],
-        "game": [
-          "translations: a text breaks the rule of the text it replaces, left out: de letters/hello/body"
-        ]
-      },
-      "api": [],
-      "meaning": "A translation follows the rule of the text it replaces: the same length, the same lines and the same characters. A letter and a board notice take plain US keyboard characters in every language, because the letter font has no others. The game also measures a translated letter body or board notice on the paper, and leaves out one that does not fit six lines.",
-      "fix": "Shorten the text, or write it without accents where the message says the letter paper refuses a character (\"ue\" for \"ü\"). Shop lines and villager lines may use the accented letters the game's font has."
-    },
     {
       "code": "visit-lend-wont-load",
       "area": "visit",
@@ -545,10 +425,10 @@
         "page": [
           "messages/en.json: duplicate key \"greet\"",
           "data/x.json: duplicate key \"a\"",
+          "messages.json: duplicate key \"hi\"",
+          "messages.json: duplicate key \"�\"",
           "messages/en.json: duplicate key \"hours\"",
-          "mod.json: duplicate key \"a\"",
-          "mod.json: duplicate key \"content\"",
-          "mod.json: duplicate key \"scope\""
+          "mod.json: duplicate key \"a\""
         ],
         "registry": [
           "messages/en.json has the key \"greet\" twice."
@@ -605,8 +485,8 @@
           "mod.json is not valid JSON",
           "shops.json: a number is out of range",
           "data/x.json is not valid JSON",
+          "messages.json: a number is out of range",
           "notes.json: a number is out of range",
-          "translations/de.json: a number is out of range",
           "x.json is not valid JSON"
         ],
         "registry": [
@@ -640,8 +520,8 @@
       "messages": {
         "page": [
           "d.json: nested more than 32 levels deep",
-          "mod.json: nested more than 32 levels deep",
-          "translations/de.json: nested more than 32 levels deep"
+          "messages.json: nested more than 32 levels deep",
+          "mod.json: nested more than 32 levels deep"
         ],
         "registry": [
           "d.json is nested more than 32 levels deep."
@@ -1006,10 +886,10 @@
       ],
       "messages": {
         "page": [
-          "\"tags\" must list at most 5 different tags from: textures, clothing, furniture, scenery, villagers, dialogue, shops, seasonal, holidays, quality-of-life, translation, humor, accessibility, scripts"
+          "\"tags\" must list at most 5 different tags from: textures, clothing, furniture, scenery, villagers, dialogue, shops, seasonal, holidays, quality-of-life, humor, accessibility, scripts"
         ],
         "registry": [
-          "tags must list at most 5 different tags from: textures, clothing, furniture, scenery, villagers, dialogue, shops, seasonal, holidays, quality-of-life, translation, humor, accessibility, scripts."
+          "tags must list at most 5 different tags from: textures, clothing, furniture, scenery, villagers, dialogue, shops, seasonal, holidays, quality-of-life, humor, accessibility, scripts."
         ]
       },
       "api": [],
@@ -1143,7 +1023,7 @@
         ]
       },
       "api": [],
-      "meaning": "\"content\" can hold \"textures\", \"messages\", \"shops\", \"items\", \"letters\", \"calendar\", \"talk\" and \"translations\", spelled exactly like that in lowercase. A mod cannot add buildings, acres or anything else.",
+      "meaning": "\"content\" can hold \"textures\", \"messages\", \"shops\", \"items\", \"letters\", \"calendar\" and \"talk\", spelled exactly like that in lowercase. A mod cannot add buildings, acres or anything else. \"translations\" was dropped before release: every text shows as written.",
       "fix": "Take the key out, or fix its spelling and case. \"Messages\" is not \"messages\"."
     },
     {
@@ -1159,8 +1039,7 @@
       "messages": {
         "page": [
           "\"content.messages\" must be a path inside the mod",
-          "\"content.talk\" must be a path inside the mod",
-          "\"content.translations\" must be a path inside the mod"
+          "\"content.talk\" must be a path inside the mod"
         ],
         "registry": [
           "content.messages must be a path inside the mod."
@@ -1197,7 +1076,7 @@
         ]
       },
       "api": [],
-      "meaning": "mod.json names a file that is not in the ZIP. For textures it names a folder, which must hold at least one file.",
+      "meaning": "mod.json names a file that is not in the ZIP. For textures it names a folder, which must hold at least one file. Every other key names one file: \"messages\" names one .json file, never a folder of languages.",
       "fix": "Check the path against the ZIP, with the exact letter case. \"EN.json\" is not \"en.json\". Check that the file was zipped."
     },
     {
@@ -2962,32 +2841,6 @@
       "fix": "Fix the setting the message names. A name is a-z, 0-9 and _, starts with a letter and is used once. A type is bool, number, choice or text. A label is 1 to 60 characters, and an optional description is at most 200. An optional scope is \"world\" or \"client\". A bool takes default. A number takes default, min and max. A choice takes default and choices. A text takes default and max_length."
     },
     {
-      "code": "messages-translations",
-      "area": "data",
-      "title": "A translations folder the game cannot read",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload"
-      ],
-      "messages": {
-        "page": [
-          "\"content.messages\": messages/ja.json is not one of en.json de.json es.json fr.json it.json",
-          "\"content.messages\" names a folder without en.json: English is the fallback for every language",
-          "messages/fr: \"helo\" is not in en.json (a translation holds only keys en.json has)",
-          "\"content.messages\": messages/notes.txt is not one of en.json de.json es.json fr.json it.json",
-          "\"content.messages\": messages/old/en.json is not one of en.json de.json es.json fr.json it.json"
-        ],
-        "registry": [
-          "content.messages: messages/ja.json is not one of en.json de.json es.json fr.json it.json.",
-          "content.messages names a folder without en.json: English is the fallback for every language."
-        ]
-      },
-      "api": [],
-      "meaning": "\"content.messages\" can name a folder of translations. The folder holds en.json, which is required, and any of de.json, es.json, fr.json and it.json. A translation holds only keys that en.json has.",
-      "fix": "Add en.json, remove or rename any other file, and fix the key spelling in the translation."
-    },
-    {
       "code": "setting-refused",
       "area": "data",
       "title": "A setting value was refused",
@@ -3154,7 +3007,6 @@
       "messages": {
         "page": [
           "messages: \"greet\" must be text of 1 to 400 bytes",
-          "messages/fr: \"hello\" must be text of 1 to 400 bytes",
           "messages: \"a\" must be text of 1 to 400 bytes",
           "messages: \"k\" must be text of 1 to 400 bytes"
         ],
@@ -3198,7 +3050,7 @@
         ]
       },
       "api": [],
-      "meaning": "Every pixel of this texture equals a texture from the game or the HD pack. A mod may only hold art you made, and a texture exported from the texture inspector is the game's art until you paint over it.",
+      "meaning": "Every pixel of this texture equals a texture from the game or the HD pack. A mod may only hold art you made, and a PNG saved from the model viewer or the texture inspector is the game's art.",
       "fix": "Paint your own picture into the file and keep the file name. Delete files you did not change."
     },
     {
@@ -3408,7 +3260,7 @@
       },
       "api": [],
       "meaning": "The inspector keeps up to 512 textures and 16 MB, and drops the one drawn longest ago. Stop recording frees them all.",
-      "fix": "Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG, Flash or Export."
+      "fix": "Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG or Flash."
     },
     {
       "code": "inspector-export",
@@ -3426,7 +3278,8 @@
       },
       "api": [],
       "meaning": "Export needs at least one ticked texture and a mod id like yourname.mod-name. The id is lowercase letters, digits and dashes, with one dot.",
-      "fix": "Tick the textures you want, type an id like \"yourname.my-textures\", and press Export again. If ZIP support is missing, reload the page."
+      "fix": "Tick the textures you want, type an id like \"yourname.my-textures\", and press Export again. If ZIP support is missing, reload the page.",
+      "retired": "The inspector no longer exports a starter mod. Start from the Springtime Town example or the texture starter kit, and find names in the model viewer."
     },
     {
       "code": "dev-start-game",
@@ -3483,7 +3336,7 @@
         ]
       },
       "api": [],
-      "meaning": "Lines, the shop, talk, letters, the calendar, the items file, the script, textures and translations reload while you play. A change to mod.json waits for a restart, because the game reads mod.json once, when it starts.",
+      "meaning": "Lines, the shop, talk, letters, the calendar, the items file, the script and textures reload while you play. A change to mod.json waits for a restart, because the game reads mod.json once, when it starts.",
       "fix": "Choose Restart now in the Developer section. Save your town first."
     },
     {
@@ -4600,22 +4453,6 @@
       "fix": "Change \"name\" in mod.json, raise the version and upload again."
     },
     {
-      "code": "upload-translation-word",
-      "area": "upload",
-      "title": "A translated name has a word the site does not allow",
-      "where": [
-        "Share a mod, when you upload"
-      ],
-      "messages": {
-        "registry": [
-          "translations/de.json: \"mod/name\" has a word the site does not allow. Pick another name."
-        ]
-      },
-      "api": [],
-      "meaning": "The mod list shows a mod's name in the reader's language when the mod has one, so each translated name goes through the same word filter as the name in mod.json. The message names the translations file.",
-      "fix": "Change \"mod/name\" in that translations file, raise the version and upload again."
-    },
-    {
       "code": "upload-author-word",
       "area": "upload",
       "title": "An author name has a word the site does not allow",
@@ -4800,7 +4637,7 @@
         "screenshot_required"
       ],
       "meaning": "Every shared version needs 1 to 4 screenshots of the mod in the game, and one was missing or could not be used. The site saves them again, so no hidden photo data survives.",
-      "fix": "Add a screenshot in Share a mod, with `playac-mod publish --shot`, or in .playac/screenshots/, which a GitHub import reads too. Use a PNG or JPEG of 200 to 4096 pixels a side, at most 3840 by 2160 pixels in all and 2 MB. Save it as an ordinary 8-bit PNG or a standard JPEG, not a 16-bit PNG or a progressive JPEG over 1920 by 1080."
+      "fix": "Add a screenshot in Share a mod, or in .playac/screenshots/, which a GitHub import reads. Use a PNG or JPEG of 200 to 4096 pixels a side, at most 3840 by 2160 pixels in all and 2 MB. Save it as an ordinary 8-bit PNG or a standard JPEG, not a 16-bit PNG or a progressive JPEG over 1920 by 1080."
     },
     {
       "code": "upload-changelog",
@@ -4821,7 +4658,7 @@
         "changelog_required"
       ],
       "meaning": "Every shared version needs one line on what it changes. The line shows in the version list on the mod's page.",
-      "fix": "Write the line in Share a mod, with `playac-mod publish --changelog`, or as this version's section of CHANGELOG.md. Keep it to 300 characters and 4 line breaks. It goes through the site's word filter."
+      "fix": "Write the line in Share a mod, or as this version's section of CHANGELOG.md. Keep it to 300 characters and 4 line breaks. It goes through the site's word filter."
     },
     {
       "code": "upload-form",
@@ -4841,7 +4678,7 @@
       },
       "api": [],
       "meaning": "An upload is a form with the ZIP, the screenshots and the changelog line. This one was not sent the way the site sends it.",
-      "fix": "Share from Settings, Mods, or with `playac-mod publish`. A script of your own must send multipart/form-data with the parts zip, screenshot and changelog."
+      "fix": "Share from Settings, Mods. A script of your own must send multipart/form-data with the parts zip, screenshot and changelog."
     },
     {
       "code": "upload-not-owner",
@@ -5018,7 +4855,7 @@
         "two_factor_locked",
         "bad_code"
       ],
-      "meaning": "Sharing a mod, importing one from GitHub and approving a playac-mod sign-in all need two-factor sign-in and a recent code from your authenticator app. A code works once. After 5 wrong codes in a row, code checks pause for a minute or longer, and we email the account.",
+      "meaning": "Sharing a mod and importing one from GitHub both need two-factor sign-in and a recent code from your authenticator app. A code works once. After 5 wrong codes in a row, code checks pause for a minute or longer, and we email the account.",
       "fix": "Switch on two-factor sign-in on your Profile page, then enter a code from your authenticator app when asked. If codes are paused, wait, check that the phone's clock is right and use a fresh code."
     },
     {
@@ -5135,44 +4972,6 @@
       ],
       "meaning": "The version's state does not allow that change. Only a moderator can list again a version that a moderator withdrew, and a decision made first wins. A version the moderators are looking at cannot be listed again until they decide.",
       "fix": "Reload the Mods tab. If a moderator withdrew the version, read the reason, fix the mod and upload a new version. If the moderators are looking at it, wait for their decision."
-    },
-    {
-      "code": "cli-sign-in-code",
-      "area": "upload",
-      "title": "The sign-in code is not waiting",
-      "where": [
-        "the playac-mod tool, and the page that approves its sign-in (/cli/)"
-      ],
-      "messages": {
-        "registry": [
-          "No sign-in is waiting with that code. Codes last 10 minutes: run the command again for a new one.",
-          "That code was already approved or denied."
-        ]
-      },
-      "api": [
-        "code_not_found",
-        "code_used"
-      ],
-      "meaning": "playac-mod prints a code of 8 letters and waits for you to approve it on the site. A code lasts 10 minutes and is answered once.",
-      "fix": "Run the playac-mod command again. It prints a new address and a new code. Approve that one."
-    },
-    {
-      "code": "cli-token-scope",
-      "area": "upload",
-      "title": "The tool's sign-in cannot do that",
-      "where": [
-        "the playac-mod tool, and the page that approves its sign-in (/cli/)"
-      ],
-      "messages": {
-        "registry": [
-          "A playac-mod sign-in can only upload mods and see, yank or list again your own versions. Do this on the site instead."
-        ]
-      },
-      "api": [
-        "token_scope"
-      ],
-      "meaning": "A playac-mod sign-in is narrower than your account. It uploads mods and manages your own versions. Every other request made with it is refused.",
-      "fix": "Do it in a browser where you are signed in to the site. If playac-mod itself printed this, update the tool."
     },
     {
       "code": "status-update-available",
@@ -5358,6 +5157,22 @@
       "messages": {},
       "api": [],
       "meaning": "The mod holds sexual or sexually suggestive pictures or text. Players of every age use this site.",
+      "fix": "Remove it. Mods here are for players of every age.",
+      "decisions": [
+        "refusal",
+        "removal"
+      ]
+    },
+    {
+      "code": "review-violent-content",
+      "area": "review",
+      "title": "Gore or graphic violence",
+      "where": [
+        "the review decision on your upload"
+      ],
+      "messages": {},
+      "api": [],
+      "meaning": "The mod holds gore, graphic violence or disturbing pictures or text. Players of every age use this site.",
       "fix": "Remove it. Mods here are for players of every age.",
       "decisions": [
         "refusal",

@@ -7,7 +7,7 @@
  *
  * Where they come from, in order:
  *   1. the game's source checkout this package sits in (checkout.mjs)
- *   2. vendor/, filled by the game's build at `npm pack` / `npm publish`
+ *   2. vendor/, filled by the game's build at `npm pack`
  *      (the npm package has no game source next to it)
  * PLAYAC_MODS_JS=/path/to/mods.js overrides both (fflate is read beside it). */
 import fs from 'node:fs';

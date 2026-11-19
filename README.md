@@ -3,7 +3,7 @@
 Starter kits, the mod API and the `playac-mod` tool for
 [Play AC Online](https://playaconline.com). The docs at https://playaconline.com/modding/ are the full guide.
 
-**The docs site and the tool's download go live with the game's next release. Until then the links to playaconline.com/modding/ and the install line below do not work yet.**
+**The docs site goes live with the game's next release. Until then the links to playaconline.com/modding/ do not work yet. Every download is here on GitHub and works now.**
 
 The guides, the starter kits, the mod contract and the AI skill are written
 here. The rest is generated from the game's sources on every release. It
@@ -12,7 +12,6 @@ matches mod API level 1.
 | Folder | What it is |
 |---|---|
 | [`templates/`](templates/) | Starter kits. Copy one and edit it. |
-| [`template/`](template/) | A whole mod repository for GitHub, with a check workflow. Copy the folder out to use it. It holds a working mod, a check workflow, a changelog and editor settings. `playac-mod new <id> --github` writes the same workflow, changelog and settings around a new mod of the kind you choose. |
 | [`api/`](api/) | The API spec, JSON schemas and Lua types. |
 | [`errors/`](errors/) | Every error a mod can get, with the fix. |
 | [`ai/`](ai/) | Instructions for AI coding assistants. |
@@ -29,14 +28,28 @@ own mod repository will be: the mod at the top, a README with pictures and a
 film of it in the game, a changelog and a tag per version. Clone one to read
 it, or fork it to start from it.
 
-| Example | Kind | Repository |
-|---|---|---|
-| [Clover Meadow](https://github.com/Play-AC-Online/playac-example-clover-meadow) | Textures | [`playac-example-clover-meadow`](https://github.com/Play-AC-Online/playac-example-clover-meadow) |
-| [Chatty Villagers](https://github.com/Play-AC-Online/playac-example-chatty-villagers) | Villager lines, data only | [`playac-example-chatty-villagers`](https://github.com/Play-AC-Online/playac-example-chatty-villagers) |
-| [Tea House](https://github.com/Play-AC-Online/playac-example-tea-house) | Shop, hours, translations | [`playac-example-tea-house`](https://github.com/Play-AC-Online/playac-example-tea-house) |
-| [Cosy Corner](https://github.com/Play-AC-Online/playac-example-cosy-corner) | New furniture | [`playac-example-cosy-corner`](https://github.com/Play-AC-Online/playac-example-cosy-corner) |
-| [Harvest Fair](https://github.com/Play-AC-Online/playac-example-harvest-festival) | Calendar days and letters | [`playac-example-harvest-festival`](https://github.com/Play-AC-Online/playac-example-harvest-festival) |
-| [Daily Gift](https://github.com/Play-AC-Online/playac-example-daily-gift) | Script, commands, timer | [`playac-example-daily-gift`](https://github.com/Play-AC-Online/playac-example-daily-gift) |
+| Example | Kind | Repository | Mod ZIP |
+|---|---|---|---|
+| [Springtime Town](https://github.com/Play-AC-Online/playac-example-springtime-town) | Textures and villager lines, no code | [`playac-example-springtime-town`](https://github.com/Play-AC-Online/playac-example-springtime-town) | [example.springtime-town-1.0.0.zip](https://github.com/Play-AC-Online/playac-example-springtime-town/releases/download/v1.0.0/example.springtime-town-1.0.0.zip) |
+| [Evening Tea Room](https://github.com/Play-AC-Online/playac-example-evening-tea-room) | Shop, hours, new furniture | [`playac-example-evening-tea-room`](https://github.com/Play-AC-Online/playac-example-evening-tea-room) | [example.evening-tea-room-1.0.0.zip](https://github.com/Play-AC-Online/playac-example-evening-tea-room/releases/download/v1.0.0/example.evening-tea-room-1.0.0.zip) |
+| [Harvest Post](https://github.com/Play-AC-Online/playac-example-harvest-post) | Calendar days, letters, a script with commands and a timer | [`playac-example-harvest-post`](https://github.com/Play-AC-Online/playac-example-harvest-post) | [example.harvest-post-1.0.0.zip](https://github.com/Play-AC-Online/playac-example-harvest-post/releases/download/v1.0.0/example.harvest-post-1.0.0.zip) |
+
+## Downloads
+
+Every download is a file of a release of a public repository on GitHub. The
+site links them and serves none of them.
+
+- Starter kits, one ZIP each, ready to install: [playac-lines-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-f0109585eb45/playac-lines-kit.zip), [playac-script-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-f0109585eb45/playac-script-kit.zip), [playac-shop-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-f0109585eb45/playac-shop-kit.zip), [playac-texture-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-f0109585eb45/playac-texture-kit.zip). They are
+  the folders in [`templates/`](templates/), zipped.
+- The AI pack: [playac-mod-ai.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-f0109585eb45/playac-mod-ai.zip), for
+  [an AI assistant](setup/ai-assistant.md).
+- Both are in the release [downloads-f0109585eb45](https://github.com/Play-AC-Online/playac-mods/releases/tag/downloads-f0109585eb45).
+- The `playac-mod` tool: release 0.2.0 is
+  [playac-mod-0.2.0.tgz](https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v0.2.0/playac-mod-0.2.0.tgz), in the release
+  [cli-v0.2.0](https://github.com/Play-AC-Online/playac-mods/releases/tag/cli-v0.2.0).
+  The list of every published release is [releases.json](https://github.com/Play-AC-Online/playac-mods/releases/download/cli-releases/releases.json).
+- Each example mod's ZIP is a file of the release of its tag, in its own
+  repository (the table above).
 
 ## Quick start
 
@@ -44,19 +57,18 @@ You need Node.js 18.17 or newer, and the game running in your browser. The
 game runs from your own disc file: https://playaconline.com/your-disc/
 
 ```bash
-npm install -g https://playaconline.com/modding/downloads/playac-mod-0.2.0.tgz
-git clone https://github.com/Play-AC-Online/playac-example-tea-house.git
-cd playac-example-tea-house
+npm install -g https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v0.2.0/playac-mod-0.2.0.tgz
+git clone https://github.com/Play-AC-Online/playac-example-evening-tea-room.git
+cd playac-example-evening-tea-room
 playac-mod check
 playac-mod pack
-
-# start your own, outside the example
-cd ~
-playac-mod new yourname.my-mod --kind lines
 ```
 
-That line installs release 0.2.0 from the game's site. Its SHA-256 is
-`a4b0144e7cdc71232e0591a49ccc275741dbc5b0ec56bea6deccacff3bb8f60f`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
+To start your own, copy an example repository or a starter kit in
+[`templates/`](templates/).
+
+That line installs release 0.2.0 from its GitHub release here. Its SHA-256 is
+`81a19fedc63744fbe71ef3a24b78da6c48838fa5ddbbdad4986ebf35e6bf8906`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
 shows how to check it. Install the tool only from that address. A package
 named `playac-mod` on the npm registry is not the game's.
 
@@ -78,7 +90,7 @@ New to this? Start with the [setup guides](setup/):
 
 ## Links
 
-- Start: [textures](https://playaconline.com/modding/start/artist/), [lines and letters](https://playaconline.com/modding/start/writer/), [scripts](https://playaconline.com/modding/start/scripter/), [command line](https://playaconline.com/modding/start/power-user/)
+- Start: [textures](https://playaconline.com/modding/start/artist/), [lines and letters](https://playaconline.com/modding/start/writer/), [scripts](https://playaconline.com/modding/start/scripter/), [power users](https://playaconline.com/modding/start/power-user/)
 - [Reference](https://playaconline.com/modding/reference/), [the playac-mod tool](https://playaconline.com/modding/cli/), [errors](https://playaconline.com/modding/errors/), [testing](https://playaconline.com/modding/testing/), [publishing](https://playaconline.com/modding/publishing/)
 - [FAQ](https://playaconline.com/modding/faq/), [changelog](https://playaconline.com/modding/changelog/), [mod rules](https://playaconline.com/wiki/mod-rules/), [playing with mods](https://playaconline.com/wiki/mods/)
 
@@ -96,10 +108,10 @@ as a suggestion. See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## License
 
 [MIT](LICENSE). It covers everything in this repository that we wrote: the
-starter kits, the template, the tool, the API files and the guides. Each
+starter kits, the tool, the API files and the guides. Each
 example repository carries the same licence for its own files.
 
-**A mod you make from a kit, an example or the template is yours.** Share it
+**A mod you make from a kit or an example is yours.** Share it
 under any terms you like, with no credit or notice needed for what you
 started from.
 
