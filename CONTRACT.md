@@ -691,7 +691,7 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   whatever the game's language.
 
 ## messages/*.json
-- An object of string -> string. Keys `^[a-z0-9_.-]{1,48}$`. At most 256 keys per mod.
+- An object of string -> string. Keys `^[a-z0-9_.-]{1,48}$`. At most 256 keys per messages file.
   Values 1..400 bytes. Lines wrap by pixel width,
   not by a character count: 180 px of the game's font to a line (about 24
   letters; `PCMW_LINE_PX` in the engine), 4 lines a page.

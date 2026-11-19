@@ -6,7 +6,7 @@ This game reads mod API level 1. Put `"api": 1` in mod.json: a mod.json without 
 
 Versioning: A level is read for at least 12 months after the next level ships. A deprecated name keeps working for at least two more levels and at least 90 days, whichever is later.
 
-- Level 1 (2026-11-16): The first level. Content is textures (a file may carry a readable label before its name), lines (a messages file), shops (the flower shop and Nook's store, one entry shape for both, each at hours of its own), new furniture on a vanilla base with pictures of its own (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Six commands (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Mods can name optional_depends, and a setting can be world or client.
+- Level 1 (2026-11-16): The first level. Content is textures, lines (a messages file), shops (the flower shop and Nook's stock), new furniture on a vanilla base (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Six commands (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Mods can name optional_depends, and a setting can be world or client.
 
 ## mod.json
 
@@ -39,7 +39,6 @@ Reserved keys, refused: `game`, `save`. Top-level keys reserved for planned feat
 ### Rules across keys
 
 - content.shops requires scope world.
-- Every shop target takes the same entry, and each field means the same on every shop. A field a shop does not have (files.shops.targets lists each shop's fields) is refused with one rule, code shop-field-unsupported, whose message names the shop and the field. Nook's store has no name, greeting or stock_line: Nook keeps his own name and words.
 - A key the game does not know is refused. This applies at the top of mod.json, at the top of the shops, items, letters, calendar and talk files, and in each of their entries (a shop, a stock entry, an item, a letter, a calendar day, a talk pool). The messages file is the exception, because its keys are the lines. The message is <file>: unknown key "<key>", followed by (did you mean "<known>"?) when a known key is close. $schema is known wherever a file may carry it. Keys are case-sensitive.
 - Duplicate keys and \u0000 are refused in every JSON file.
 - A mod may hold only these file types (case-insensitive).
@@ -50,7 +49,7 @@ Reserved keys, refused: `game`, `save`. Top-level keys reserved for planned feat
 - Which mods a friend visit compares. A Just you mod never counts. A World mod counts if its content has textures, shops or items (visit_scope_content), or if its permissions are not a list of strings. Every other World mod does not count. That covers a mod with only lines, letters, calendar days or talk pools. No command makes a mod count. send_letter, give_item, take_item and take_bells are refused on a visit, and show_line and ask show only to their own player. Only mods that count must match between the two towns. An optional dependency is a mod like any other here. When it is a World mod that counts, it is in the list, and installing it changes what a visit compares.
 - The content keys that make a World mod count for visits, whatever its permissions. They are what a visitor must draw or meet in the town.
 - What needs scope world, because it changes the town a visitor sees: a shops file (content.shops), and a calendar file with a board notice. Everything else may be client (only you see it) or world.
-- When two mods change the same thing, the last in load order wins it whole. For each shop target (the flower shop, Nook's store), nothing is merged. The later mod's shop is the shop. The earlier mod's row in the Mods tab says its shop is not used and names the mod that has it. Shops are not merged for three reasons. A good is known on the shelf by its game item alone, so two mods' items made on the same base piece could not be told apart at the till. A shop's name, hours and lines are written for its own goods. The shelves are few, so a merge would cut each mod's stock by what else is installed. For a texture, the kind of file comes first. A file for one exact palette (tex1_..._<tlut>_<fmt>) beats any mod's every-palette file (tex1_..._$_<fmt>) for the same texture, whatever the order. Between two files of the same kind, the later mod's is drawn. A mod's texture of either kind beats the HD pack's.
+- When two mods change the same thing, the last in load order wins it whole. For each shop target (the flower shop, Nook's stock), nothing is merged. The later mod's shop is the shop. The earlier mod's row in the Mods tab says its shop is not used and names the mod that has it. Shops are not merged for three reasons. A good is known on the shelf by its game item alone, so two mods' items made on the same base piece could not be told apart at the till. A flower shop's name, hours and lines are written for its own goods. The shelves are few, so a merge would cut each mod's stock by what else is installed. For a texture, the kind of file comes first. A file for one exact palette (tex1_..._<tlut>_<fmt>) beats any mod's every-palette file (tex1_..._$_<fmt>) for the same texture, whatever the order. Between two files of the same kind, the later mod's is drawn. A mod's texture of either kind beats the HD pack's.
 - The villager_talked event goes to mods in load order. The first handler that returns a line wins that talk, and later mods' villager_talked handlers are not asked. This applies only to the event. The villager lines of talk files and calendar files are not first-wins. Every mod's matching pools are put together and one line is picked from all of them. The pick depends on the day and the villager, so it is the same line all day.
 - Developer mode reloads these while you play, with no restart: the content files named here, any .lua script ("scripts") and the files under content.textures. Developer mode means a mod loaded from a folder or from playac-mod dev. Each value is a content key, or "scripts".
 - Developer mode loads a change to these only when the game restarts: mod.json and the content files named here. mod.json is read once at start, and so is a file added or removed. Each value is "mod.json" or a content key.
@@ -74,7 +73,7 @@ Reserved keys, refused: `game`, `save`. Top-level keys reserved for planned feat
 
 ### shops (`content.shops`)
 
-Restocks and rewords a shop. Every shop takes the same entry: a target, the goods (stock), how they join the shop's own (mode), and optionally hours. Each field means one thing on every shop; a field a shop does not have is refused (rule shop_fields, the table in targets). mode "add" puts the goods in at most half of the spots of their kind, rounded up, and the shop's own goods keep the rest. mode "replace" makes them the shop's whole stock: each spot of a kind it lists takes one of its goods, and every other spot is bare. hours say when the entry applies. Inside them the shop is the mod's and is open, also when the game has it shut for the night. Outside them the shop is its own. With no hours the entry applies all day, in the shop's own hours. At Nook's the goods stand in spots of their own kind, in every store size, from the next restock, and a new set is picked each day when there are more goods than spots. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. Shops are off in The City. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so. (since api 1)
+Restocks and rewords a shop: the flower shop or Nook's. For target nook, the goods are added to or replace the day's roll per spot kind, in every store size, from the next restock. A nook entry with hours sells its goods only inside them, as the shop's whole stock: each spot of a kind it lists takes one of its goods, every other spot is bare, and the day's own stock is back when the hours end. Nook's opens for those hours when it is shut for the night. A new set is picked each day when there are more goods than spots. Nook's goods are off in The City. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so. (since api 1)
 
 Schema:
 
@@ -97,8 +96,7 @@ Schema:
         "type": "object",
         "required": [
           "target",
-          "stock",
-          "mode"
+          "stock"
         ],
         "additionalProperties": false,
         "properties": {
@@ -107,13 +105,13 @@ Schema:
               "flower",
               "nook"
             ],
-            "description": "Which shop: \"flower\" or \"nook\". One entry per target. Every target takes the same fields; the targets table says which fields a shop has."
+            "description": "Which shop: \"flower\" or \"nook\". One shop per target. A nook entry takes only mode, hours and stock."
           },
           "name": {
             "type": "string",
             "minLength": 1,
             "maxLength": 40,
-            "description": "The flower shop's. The shop's name on its door sign while the shop is shut, followed by the hours the mod's shop is on. One line, no line break.",
+            "description": "The shop's name on its sign, on one line with no line break.",
             "pattern": "^[^\\n]*$"
           },
           "hours": {
@@ -126,27 +124,27 @@ Schema:
               "open": {
                 "type": "string",
                 "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
-                "description": "When the entry starts, on a 24-hour clock."
+                "description": "When the shop opens, on a 24-hour clock."
               },
               "close": {
                 "type": "string",
                 "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
-                "description": "When the entry ends, on a 24-hour clock."
+                "description": "When the shop closes, on a 24-hour clock."
               }
             },
-            "description": "HH:MM. Open and close must differ. Close may be past midnight. The entry applies only inside the hours: its goods (by mode) and its lines. Inside them the shop is open, also when the game has it shut for the night. Outside them the shop is its own. Leave hours out for all day, in the shop's own hours."
+            "description": "HH:MM. Open and close must differ. Close may be past midnight. For the flower shop, hours can only shorten the shop's own. For Nook's, the goods are the whole stock inside the hours and nothing outside them, and the shop opens for them when it is shut for the night. It does not open before its morning opening, on a renovation day or in a sale's hours."
           },
           "greeting": {
             "type": "string",
             "minLength": 1,
             "maxLength": 160,
-            "description": "The flower shop's. What the keeper says first while the entry applies. At most 3 line breaks."
+            "description": "What the keeper says first. At most 3 line breaks."
           },
           "stock_line": {
             "type": "string",
             "minLength": 1,
             "maxLength": 160,
-            "description": "The flower shop's. What the keeper says about the stock while the entry applies. At most 3 line breaks."
+            "description": "What the keeper says about the stock. At most 3 line breaks."
           },
           "stock": {
             "type": "array",
@@ -179,16 +177,59 @@ Schema:
                 }
               }
             },
-            "description": "The goods. The flower shop takes 1 to 6, Nook's 1 to 16 (the targets table). Each stands in a spot of its own kind."
+            "description": "The flower shop: 1 to 6 goods, one per table spot. Nook's: 1 to 16 goods, each in a spot of its own kind."
           },
           "mode": {
             "enum": [
               "add",
               "replace"
             ],
-            "description": "How the goods join the shop's own, the same on every shop. \"add\": in at most half of the spots of their kind, rounded up; the shop's own goods keep the rest. \"replace\": the goods are the shop's whole stock; each spot of a kind they list takes one, and every other spot is bare."
+            "description": "Nook's only, and not with hours. \"add\" (the default) puts the goods in at most half of each kind's spots. \"replace\" puts them in all of them."
           }
-        }
+        },
+        "allOf": [
+          {
+            "description": "The flower shop sells at most 6 goods, one per table spot. Nook's sells up to 16.",
+            "if": {
+              "required": [
+                "target"
+              ],
+              "properties": {
+                "target": {
+                  "const": "flower"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "stock": {
+                  "maxItems": 6
+                }
+              }
+            }
+          },
+          {
+            "description": "Nook's \"mode\" and \"hours\" do not go together: with hours the goods are the whole stock.",
+            "if": {
+              "required": [
+                "target",
+                "hours"
+              ],
+              "properties": {
+                "target": {
+                  "const": "nook"
+                }
+              }
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "mode"
+                ]
+              }
+            }
+          }
+        ]
       },
       "description": "The shops this file changes, at most one for each target."
     }
@@ -227,7 +268,7 @@ Lua 5.4 source text, run once when the game starts. Bytecode is refused. The scr
 
 ### items (`content.items`)
 
-New furniture, each on a vanilla base piece. The game also refuses a base with no model, fossils, gyroids, clothing, design pieces and pieces a player carries as an item: umbrellas, fish, bugs, tools, balloons, fans, pinwheels and diaries. In the save, a mod item is its base piece. A file beside the save (mod-items.json) maps it back. Removing the mod therefore leaves the base piece behind, and reinstalling restores the mod item. That file belongs to the save it was written beside. Next to another save of the same town, such as a backup put back or an older town file imported, it is not used. Those pieces are then plain base pieces again. An item may carry its own pictures ("textures"). They replace the base piece's textures on that item alone, in a house and on Nook's floor. On the flower shop's bench a furniture good is a leaf. Every other copy of the base keeps its look. (since api 1)
+New furniture, each on a vanilla base piece. The game also refuses a base with no model, fossils, gyroids, clothing, design pieces and pieces that become a pocket item. In the save, a mod item is its base piece. A file beside the save (mod-items.json) maps it back. Removing the mod therefore leaves the base piece behind, and reinstalling restores the mod item. That file belongs to the save it was written beside. Next to another save of the same town, such as a backup put back or an older town file imported, it is not used. Those pieces are then plain base pieces again. An item may carry its own pictures ("textures"). They replace the base piece's textures on that item alone, in a house and on Nook's floor. On the flower shop's bench a furniture good is a leaf. Every other copy of the base keeps its look. (since api 1)
 
 Schema:
 
@@ -616,7 +657,7 @@ List each event a script handles in mod.json `scripts.events`. Every handler get
 | event | e | return | when |
 |---|---|---|---|
 | `villager_talked` | { villager { id, name, species?, personality? } } | string\|nil | The player starts an ordinary talk with a villager. Return a line and the villager says it before their usual greeting. Return nil to stay quiet. The first mod in load order whose handler returns a line wins that talk, and later mods' villager_talked handlers are not called for it. An empty string, a line over 400 bytes or one holding a zero byte is not a line. It is logged and the next mod is asked. Special talks never reach mods. These are a first meeting, a villager moving out, one with an errand, delivery or contest going with you, a complaint, a pitfall or a bee chase, an islander, Kamakura and summer camp. No handler is called for a special talk. The villager's next ordinary talk calls it as usual, so a line a script is keeping for "the next talk" waits for that one. since api 1 |
-| `day_started` | { year, month, day, weekday } | nil | A new day begins in the game. It fires once per day, also when the game starts on a new day. It does not fire again when the game restarts later on a day the town already saw, because the save holds the day it last began. If the game was not saved since that day began, the save still holds the day before, so the next start fires it again. Count days by storing the last date you saw, not by counting calls. Its handler sees the whole day, the first day of a session included: game.calendar_today() lists today's calendar days, game.town() has the date, and game.player() and store.player have the player. A command queued here is applied once the player is free in the town. since api 1 |
+| `day_started` | { year, month, day, weekday } | nil | A new day begins in the game. It fires once per day, also when the game starts on a new day. It does not fire again when the game restarts later on a day the town already saw, because the save holds the day it last began. If the game was not saved since that day began, the save still holds the day before, so the next start fires it again. Count days by storing the last date you saw, not by counting calls. since api 1 |
 | `item_picked_up` | { item, mod_item? } | nil | The player got an item. They picked it up, outdoors or off a room's floor, caught it with the net or the rod, or dug it up with the shovel. It fires once the item is in their pockets, or in the wallet for Bells. It does not fire for anything bought. A fish or a bug that goes into the pockets fires this event and then fish_caught or bug_caught, so a script that counts both counts that catch twice. It does not fire when the pockets were full. Outdoors the game then offers to swap the item for one in the pockets, and no event is sent whatever the player chooses. Indoors a full pocket refuses the pickup. since api 1 |
 | `scene_entered` | { scene, name? } | nil | A scene starts, such as the town, a house or a shop. Not in the title demo, at player select or in the intro (the rule own_game_only). since api 1 |
 | `data_migrated` | { from, to } | nil | Fires once per town, when mod.json "data_version" differs from the version the town's data was written at. It runs as the town loads, before any other event's handlers run in that town. from is 0 for data from before data_version. If the handler errors, the script stops and the version stays, so the next start tries again. Migrations run in load order. A remote.call from a data_migrated handler into a mod whose own data_migrated has not run in that town yet is refused. Needs data_version. since api 1 |
@@ -775,8 +816,8 @@ Each mod runs in its own Lua 5.4 state with only these standard libraries. It ta
 | `messages.key_bytes` | 48 bytes | The longest line key. |
 | `messages.text_bytes` | 400 bytes | The longest line, in UTF-8 bytes. Lines wrap by width, not by a count of characters. A row holds 180 pixels of the game's font, which is about 24 letters. Narrow letters like i and l take less room, and wide ones like W and m take more. A page holds 4 rows. |
 | `shops.per_file` | 2 shops | The most shops in one shops.json. That is one per target (flower, nook). |
-| `shops.stock` | 6 goods | The most goods in the flower shop's stock: one per bench spot. |
-| `shops.name_chars` | 40 characters | The longest shop name (the flower shop's door sign), in Unicode code points. |
+| `shops.stock` | 6 goods | The most goods in one shop's stock. |
+| `shops.name_chars` | 40 characters | The longest shop name, in Unicode code points. |
 | `shops.line_chars` | 160 characters | The longest greeting or stock_line, in Unicode code points. |
 | `shops.line_newlines` | 3 newlines | The most line breaks in a greeting or stock_line. |
 | `shops.price_max` | 99,999 Bells | The highest price a mod shop may ask. The game raises a price below its own buy-back to the buy-back. The buy-back is what Nook pays for the item. |
@@ -801,7 +842,6 @@ Each mod runs in its own Lua 5.4 state with only these standard libraries. It ta
 | `lua.pace_frame_ms` | 4 milliseconds | The game's own work per frame that counts as full speed. Mods' Lua time is left out of it. When the game's recent frames take longer (a slow phone, a busy machine), the wall-clock limits are stretched. The stretch is recent frame work divided by this, from 1 up to lua.pace_stretch_max. It applies to lua.deadline_ms, lua.event_deadline_ms and lua.slow_run_ms. The frame cap and the instruction budget are never stretched. |
 | `lua.pace_stretch_max` | 8 times | The most a slow device stretches the wall-clock limits. At this stretch an event run's backstop is 1 second and a strike is a run over 64 ms. |
 | `lua.deferred_events` | 64 events | Events waiting for a later frame. Past that, an event is dropped and logged. |
-| `textures.label_chars` | 40 characters | The longest label before a texture name in a mod, as in bookshelf-top_tex1_32x32_626709d910129694_$_8.png. A label is lowercase letters, digits and dashes, then one underscore. |
 | `textures.png_side` | 2,048 pixels | The longest side of a PNG texture. |
 | `textures.png_decoded_bytes` | 96 MB | Decoded pixels of every mod's PNG textures together, on a computer. A PNG past it is left out and named on its mod's row. |
 | `textures.png_decoded_bytes_phone` | 24 MB | The same on a phone or low-memory device. |
@@ -815,7 +855,7 @@ Each mod runs in its own Lua 5.4 state with only these standard libraries. It ta
 | `remote.functions` | 32 functions | Functions one mod offers with remote.add. |
 | `exports.per_mod` | 32 functions | Remote functions one mod.json "exports" lists. It is also the most that remote.add offers. |
 | `exports.description_chars` | 120 characters | One "exports" description, on one line. |
-| `nook.stock` | 16 goods | The most goods in Nook's stock. |
+| `nook.stock` | 16 goods | The most goods in Nook's stock entry. |
 | `letters.per_file` | 32 letters | Letters in one letters file. |
 | `letters.header_chars` | 24 characters | A letter header, not counting {player}. |
 | `letters.body_chars` | 192 characters | A letter body or a board notice. |
