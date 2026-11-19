@@ -402,7 +402,7 @@ A World mod can change the flower shop:
   - `price` is optional, a whole number of Bells from 1 to 99999. Without it
     the good has its usual price. A price below what Nook pays for the item is
     raised to that.
-  - A good can be one of your own items: `"item": "you.my-mod:tea-chest"` (see
+  - A good can be one of your own items: `"item": "you.my-mod:ghost-lantern"` (see
     Items). A mod item stands on the table as its base piece. Two goods of a
     shop may not be the same piece of furniture.
 
@@ -468,7 +468,8 @@ whole stock inside the hours, and nothing of yours is there outside them:
 - The day's own stock is never changed: it is back when your hours end.
 - What is bought inside the hours stays sold out until the game restarts.
 - An entry with `hours` takes no `mode`.
-- The After Hours example does this: from 1 AM to 3 AM, only gyroids.
+- The After Hours example does this: from 1 AM to 3 AM, only gyroids, a
+  different few each night, and now and then its own Ghost Lantern.
 
 ## Items
 
@@ -479,13 +480,13 @@ of a real piece of furniture, its `base`. `mod.json` names the file:
 ```json
 {
   "items": [
-    { "id": "tea-chest", "name": "Tea Chest", "base": "0x1008", "price": 1800 }
+    { "id": "ghost-lantern", "name": "Ghost Lantern", "base": "0x122C", "price": 2600 }
   ]
 }
 ```
 
 - `id`: 1 to 32 of a-z, 0-9 and `-`. The item's full id is your mod id, a
-  colon, then this: `you.my-mod:tea-chest`. Never change it once players have
+  colon, then this: `you.my-mod:ghost-lantern`. Never change it once players have
   the item. Use `renames` instead.
 - `name`: 1 to 16 characters, the size of the game's item name box. It may
   hold letters, digits, spaces and `' . , ! & -`. It starts with a letter or
@@ -521,7 +522,7 @@ beside the save. So:
 per save:
 
 ```json
-"renames": { "you.my-mod:old-name": "you.my-mod:tea-chest" }
+"renames": { "you.my-mod:old-name": "you.my-mod:ghost-lantern" }
 ```
 
 Both ids must start with this mod's id. The new id must be one of this mod's
@@ -681,7 +682,7 @@ No event runs in the title screen demo.
   shape. Every villager is listed at
   https://playaconline.com/schemas/villagers.json.
 - `item` is the item number.
-- `mod_item` is the full id of a mod item, such as `"your.mod:tea-chest"`,
+- `mod_item` is the full id of a mod item, such as `"your.mod:ghost-lantern"`,
   when the piece is one. `item` is then its base. Otherwise `mod_item` is
   `nil`.
 - For `item_sold`, `item` and `mod_item` are about the first piece sold.
@@ -962,7 +963,7 @@ end)
 agrees each time.
 
 - The game shows its own question, such as `Give 3 x apple to the mod
-  "Evening Tea Room"?` or `Pay 300 Bells to the mod "Evening Tea Room"?`. The
+  "My Mod"?` or `Pay 300 Bells to the mod "My Mod"?`. The
   item's name, the count and the amount come from the game, and the mod's name
   from its `mod.json`. The name stands between quotes.
   A script passes no text and cannot change the question.
