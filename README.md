@@ -68,7 +68,7 @@ To start your own, copy an example repository or a starter kit in
 [`templates/`](templates/).
 
 That line installs release 0.2.0 from its GitHub release here. Its SHA-256 is
-`81a19fedc63744fbe71ef3a24b78da6c48838fa5ddbbdad4986ebf35e6bf8906`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
+`9d2b4742fb2c756be442dfa9f3a57b1b491a27c7a61f8fa07b59210d07d3a5fd`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
 shows how to check it. Install the tool only from that address. A package
 named `playac-mod` on the npm registry is not the game's.
 

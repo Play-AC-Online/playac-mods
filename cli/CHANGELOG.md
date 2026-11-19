@@ -65,8 +65,3 @@ never changes after it is listed.
 - The tool reads the game's rules only from its own folder. It no longer
   looks in the folders above it.
 - The package carries its licence and this changelog.
-
-## 0.1.0
-
-- The first release: `new`, `check`, `pack`, `dev`, `types`, `publish`,
-  `status`, `yank`, `unyank` and `logout`.
