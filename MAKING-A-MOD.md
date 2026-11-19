@@ -339,7 +339,7 @@ Start from a texture mod that works, not from an empty folder:
 - The texture kit, `templates/texture-kit/` in this repository, also a ZIP in
   its newest "Starter kits and AI pack" release. It turns the town grass into
   a green check.
-- The Clover Meadow example, `playac-example-clover-meadow`. It draws clover
+- The Springtime Town example, `playac-example-springtime-town`. It draws clover
   over the town grass, with one `$` file per grass texture.
 
 1. Put your own name in its `mod.json`, in `id` and `authors`.

@@ -19,7 +19,7 @@ Get one in any of these ways:
   https://github.com/Play-AC-Online/playac-mods/releases, and unzip it. It works as it is,
   and turns the town grass into a green check. Its pictures are in
   `textures/`.
-- **The Clover Meadow example:** the `playac-example-clover-meadow`
+- **The Springtime Town example:** the `playac-example-springtime-town`
   repository. Its newest release has the mod's ZIP. It draws clover over the
   town grass, with one `$` file per grass texture.
 
