@@ -87,8 +87,8 @@ The site can import a tagged version from GitHub. It reads two things at that
 tag:
 
 - **The mod.** Every file the game would read, the same as `playac-mod pack`.
-- **The listing.** 1 to 4 screenshots in `.playac/screenshots/`, and the
-  changelog line.
+- **The listing.** 1 to 4 screenshots in `.playac/screenshots/`, and a
+  changelog line if you wrote one. The changelog line is optional.
   - Screenshots are PNG or JPEG, at least 200 pixels a side and up to 2 MB
     each.
   - The changelog line comes from this version's section of `CHANGELOG.md`,
@@ -99,7 +99,7 @@ The steps:
 
 1. Take screenshots of your mod in the game and put them in
    `.playac/screenshots/`.
-2. Write the version's section in `CHANGELOG.md`.
+2. If you like, write the version's section in `CHANGELOG.md`.
 3. Make sure `"version"` in `mod.json` is the version you are sharing.
 4. Commit, tag with the same version and push the tag:
 
