@@ -302,8 +302,22 @@ or the HD pack, and names the file. A moderator sees every texture.
 
 ### Find a texture
 
-The texture inspector shows each texture the game draws, under the exact file
-name your mod needs. You need no Dolphin and no texture dump.
+Two tools show a texture under the exact file name your mod needs. You need no
+Dolphin and no texture dump. Both name a texture the way the game looks it up,
+so a copied name always matches.
+
+The model viewer names the textures of a model: a villager, a tree, a rock, a
+piece of furniture or clothing, a tool or a building. Start here.
+
+1. Open `https://playaconline.com/viewer/`. Like the game, it reads your own
+   disc on this device.
+2. Pick a model from the list and press **Textures**. It lists each texture
+   with its picture, size, format and file name.
+3. Pick a texture. **Copy name** copies its name. **Any palette** copies the
+   `$` name of a texture with a palette. **Save PNG** saves the picture.
+
+The ground, the sky, the water, the menus and the effects are not models. The
+texture inspector in the game names those, and everything else it draws:
 
 1. Open the game with `?moddev=1` at the end of the address:
    `https://playaconline.com/play/?moddev=1`.
@@ -312,22 +326,31 @@ name your mod needs. You need no Dolphin and no texture dump.
    The newest textures are first.
 4. If you are not sure which one it is, press **Flash**. It draws the texture
    magenta in the game for 3 seconds.
-5. Tick the textures you want and press **Export**. You get a mod ZIP with
-   each one as an uncompressed DDS under its name. It installs and works as it
-   is.
-6. Paint over the pictures in an editor that reads DDS, such as GIMP or
-   Paint.NET. Keep each file name. Bigger is fine: 2x or 4x the size draws in
-   the same place.
-7. Delete the ones you did not change and ZIP the folder. Install it from the
-   file and restart the game.
+5. **Copy name**, **Any palette** and **PNG** work as in the viewer.
 
-- **Copy name** and **PNG** give you one texture's name and picture.
-- **Any palette** copies the `$` name of a texture with a palette.
 - The inspector keeps up to 512 textures and 16 MB. It drops the one drawn
   longest ago. **Stop recording** frees them.
-- The exported pictures are the game's own art. Change them before you share
-  the mod. The mod list refuses a copy.
-- The names are the ones the game looks up, so a copied name always matches.
+
+### Start a texture mod
+
+Start from a texture mod that works, not from an empty folder:
+
+- The texture kit, `templates/texture-kit/` in this repository, also a ZIP on
+  `https://playaconline.com/modding/downloads/`. It turns the town grass into
+  a green check.
+- The Clover Meadow example, `playac-example-clover-meadow`. It draws clover
+  over the town grass, with one `$` file per grass texture.
+
+1. Put your own name in its `mod.json`, in `id` and `authors`.
+2. Draw your own picture. Save it in `textures/` under the name you copied,
+   ending `.png` or `.dds`. Bigger is fine: 2x or 4x the size draws in the same
+   place.
+3. Delete the pictures you did not replace. ZIP the folder, install it from
+   the file and restart the game.
+
+A PNG saved from the viewer or the inspector is the game's own art. Use it only
+for the size and the layout, and draw your own picture. The mod list refuses an
+unchanged copy.
 
 ## Messages
 
