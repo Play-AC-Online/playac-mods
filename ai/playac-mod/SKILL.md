@@ -172,7 +172,7 @@ Texture facts: names are `tex1_<w>x<h>_<texture hash>_<palette hash>_<format>.dd
 ### 2. Writer (lines, shops, letters, calendar days; a text editor)
 
 1. Make a folder with `mod.json` (template below) and the content file.
-2. Villager lines, no script: a talk pools file (`content.talk`): lines by personality or by villager, with a daily `chance`. See `reference/api.md` and the Chatty Villagers example. Use this first for per-personality lines.
+2. Villager lines, no script: a talk pools file (`content.talk`): lines by personality or by villager, with a daily `chance`. See `reference/api.md` and the Springtime Town example. Use this first for per-personality lines.
 3. Lines a script says: `messages/en.json` (one file) and a tiny script (the talk example below). Every player sees a mod's texts as written, whatever the game's language: there are no translations.
 4. A shop: `shops.json` (template below), `"scope": "world"`. Themed goods that are furniture (lanterns, a tea set) need the mod's own items (`content.items`), which the flower shop and Nook's both sell; the flower shop cannot show the game's own furniture.
 5. A letter: `content.letters` with `id`, `header` (`{player}` for the name), `body` (6 lines), `footer` (the sign-off, up to 32 characters) and an optional `sender` (up to 8, the name in the mailbox list, which otherwise shows the footer cut to 8: "The Lantern Keepers" reads "The Lant"; `check` warns), `item`, `paper`. A script mails it with `cmd.send_letter`, a calendar day with `letter`.
