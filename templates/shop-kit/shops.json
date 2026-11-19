@@ -2,6 +2,7 @@
   "shops": [
     {
       "target": "flower",
+      "mode": "replace",
       "name": "My Shop",
       "hours": { "open": "09:00", "close": "21:00" },
       "greeting": "Hello and welcome! Have a look around.",
