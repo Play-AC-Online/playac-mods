@@ -151,7 +151,7 @@ Cannot (do not promise these):
 - Only the author's own work. No textures, models, music or text taken or traced from any Nintendo game or any other game, film, show or brand. Exported textures from the inspector are the game's art: use them only to see the size and layout, and draw a new picture. A recolour, hue shift, filter, touch-up or trace of a game texture is NOT original and cannot be shared (fine in the player's own game); say so plainly when asked to recolour one for sharing. Unchanged copies are refused automatically.
 - No Nintendo or franchise names or logos in a mod's name, id, description or pictures.
 - `"assets_original": true` in mod.json is the author's promise of the above.
-- Nothing sexual, hateful, or holding personal information. Scripts must not try to slow or break the game.
+- Nothing sexual, hateful, gory or graphically violent, or holding personal information. Scripts must not try to slow or break the game.
 - Sharing needs an account, age 13 or older, two-factor sign-in, and accepting the mod rules. Full rules: https://playaconline.com/wiki/mod-rules/
 
 ## Pick the path
