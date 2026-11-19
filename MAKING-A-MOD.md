@@ -34,7 +34,7 @@ Sizes in this file are binary: 1 MB is 1,048,576 bytes and 1 KB is 1,024 bytes.
 ```
 my-mod.zip
 ├── mod.json            required, at the top (or inside one top folder)
-├── textures/           Dolphin-format .dds files
+├── textures/           .png or .dds pictures, named for the textures they replace
 ├── messages/en.json    lines, by key
 ├── shops.json          the flower shop's or Nook's goods (World mods)
 ├── letters.json        letter templates a script can mail
@@ -266,85 +266,75 @@ The Mods tab lists mods in load order. The arrows change it.
 
 ## Textures
 
-Name each file the way the game looks textures up. It is the same name a
-Dolphin HD pack uses:
+The common path is three steps:
+
+1. In the model viewer, `https://playaconline.com/viewer/`, open the model,
+   press **Textures**, then **Save all**. You get `<model>-textures.zip` with
+   every texture of the model, each already named.
+2. Paint over the pictures. Keep each file's name. Delete the ones you did not
+   paint.
+3. Drop them into the mod's `textures/` folder and watch them change live with
+   `playac-mod dev` (see Developer mode).
+
+Start from the texture kit, `templates/texture-kit/` in this repository, also
+a ZIP in its newest "Starter kits and AI pack" release. The pixels must be your
+own: the saved pictures are the game's, for the layout only. The mod list
+refuses an unchanged copy of a texture from the game or the HD pack, and a
+moderator sees every texture.
+
+### Reference
+
+Names:
 
 ```
-tex1_<w>x<h>_<texture hash>_<palette hash>_<format>.dds
+<label>_tex1_<w>x<h>_<texture hash>_<palette hash>_<format>.png
 ```
 
-The same name ending `.png` works too.
-
-- The name says which texture to replace. The pixels must be your own.
-- Names are matched ignoring upper and lower case.
-- A mod's texture wins over the HD pack.
+- The label is optional, and the game matches the part after the last
+  `_tex1_`. A label is 1 to 40 lower case letters, digits and dashes, then
+  one underscore: `bookshelf-top_tex1_32x32_626709d910129694_$_8.png`. Labels
+  work in `content.textures`, its subfolders and an item's `textures` folder.
+  Any other label is refused (`texture-label`). Two files that are one texture
+  once the labels are taken off are refused (`texture-label-twice`). A `.png`
+  and a `.dds` of the same name with no labels install with a warning
+  (`texture-twice`).
+- `$` in place of the palette hash matches those pixels under any palette.
+  **Save all** uses it where there is one. It is loaded once and shared, so it
+  costs one texture's memory.
+- For one palette only (one season or time of day), use the exact name:
+  **Copy name** in the viewer. Any mod's file with the exact palette hash wins
+  over a `$` file for that palette.
 - A texture without a palette has no palette part:
-  `tex1_32x32_8b5a1b4a83d4d7c7_14.dds`.
-- `$` in place of the palette hash matches those pixels under any palette. It
-  is loaded once and shared by every palette, so it costs one texture's
-  memory. Any mod's file with the exact palette hash wins for that palette.
+  `tex1_32x32_8b5a1b4a83d4d7c7_14.png`.
+- The `tex1_...` part and the ending are matched ignoring upper and lower
+  case. The names are the ones Dolphin HD packs use.
+- A mod's texture wins over the HD pack.
+
+The viewer lists models, and also **Ground and water** (the town's acres),
+**Rooms and sky** (room floors and walls, and the train window), **Menus and
+UI**, **Effects** and **More textures**.
+
+PNG files:
+
+- Any kind of PNG works: grey, colour or palette, with or without alpha,
+  interlaced or not. The largest is 2048x2048.
+- The game turns a PNG into uncompressed pixels when it loads. A 2048x2048 PNG
+  is 16 MB of pixels, however small its file.
+- All mods' PNGs together may be at most 96 MB of pixels, or 24 MB on a phone.
+- A PNG that is over the limit, too big or broken is left out. The Mods tab
+  names it.
 
 DDS files:
 
 - The format is BC7, DXT1, DXT5 or uncompressed 32-bit RGBA. Either channel
   order works: RGBA, or BGRA, which some tools call A8R8G8B8.
 - BC7 needs a browser with BPTC texture support.
-- Save each texture with one level (no mipmaps). The game reads only the
-  first level. The mod list refuses a file with anything after it.
+- Save each texture with one level (no mipmaps). The mod list refuses a file
+  with anything after the first level.
 
-PNG files:
-
-- Any kind of PNG works: grey, colour or palette, with or without alpha,
-  interlaced or not. The largest is 2048x2048.
-- The game turns a PNG into uncompressed pixels when it loads. A small PNG
-  file can still be a big texture. A 2048x2048 PNG is 16 MB of pixels.
-- All mods' PNGs together may be at most 96 MB of pixels, or 24 MB on a phone.
-- A PNG that is over the limit, too big or broken is left out. The Mods tab
-  names it.
-
-The mod list refuses a texture that is an unchanged copy of one from the game
-or the HD pack, and names the file. A moderator sees every texture.
-
-### Find a texture
-
-The model viewer shows a texture under the exact file name your mod needs.
-You need no Dolphin and no texture dump. It names a texture the way the game
-looks it up, so a copied name always matches.
-
-The model viewer names the textures of a model: a villager, a tree, a rock, a
-piece of furniture or clothing, a tool or a building.
-
-1. Open `https://playaconline.com/viewer/`. Like the game, it reads your own
-   disc on this device.
-2. Pick a model from the list and press **Textures**. It lists each texture
-   with its picture, size, format and file name.
-3. Pick a texture. **Copy name** copies its name. **Any palette** copies the
-   `$` name of a texture with a palette. **Save PNG** saves the picture.
-
-The town grass, the cliffs and the river banks are not models. Their names are
-listed under common textures in the textures guide:
-`https://playaconline.com/modding/guides/textures/#common`.
-
-### Start a texture mod
-
-Start from a texture mod that works, not from an empty folder:
-
-- The texture kit, `templates/texture-kit/` in this repository, also a ZIP in
-  its newest "Starter kits and AI pack" release. It turns the town grass into
-  a green check.
-- The Springtime Town example, `playac-example-springtime-town`. It draws clover
-  over the town grass, with one `$` file per grass texture.
-
-1. Put your own name in its `mod.json`, in `id` and `authors`.
-2. Draw your own picture. Save it in `textures/` under the name you copied,
-   ending `.png` or `.dds`. Bigger is fine: 2x or 4x the size draws in the same
-   place.
-3. Delete the pictures you did not replace. ZIP the folder, install it from
-   the file and restart the game.
-
-A PNG saved from the viewer is the game's own art. Use it only
-for the size and the layout, and draw your own picture. The mod list refuses an
-unchanged copy.
+A mod item can carry pictures of its own, drawn only on that item: a folder
+named by its `textures` key in `items.json`, with files named the same way
+after the base's textures. `CONTRACT.md` has the rules.
 
 ## Messages
 
