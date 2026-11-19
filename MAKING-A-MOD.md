@@ -500,8 +500,10 @@ of a real piece of furniture, its `base`. `mod.json` names the file:
   - It is the piece facing south: 0x1000 to 0x1FFC or 0x3000 to 0x33C4, a
     multiple of 4.
   - These cannot be a base: fossils, gyroids, clothing, a mannequin or
-    umbrella with a design, and pieces that become a pocket item (balloons,
-    diaries, fans and pinwheels). The Mods tab names a refused one.
+    umbrella for a design, pieces with no model, and every piece a player
+    carries as an item (umbrellas, fish, bugs, tools, balloons, fans,
+    pinwheels and diaries). The item list on the site has a filter for the
+    pieces that can be a base. The Mods tab names a refused one.
 - `price`: optional, 1 to 99999 Bells. A shop asks it when its stock entry
   sets no price.
 
