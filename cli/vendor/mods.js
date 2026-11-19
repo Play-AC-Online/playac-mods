@@ -4,12 +4,19 @@
 (function (root) {
   'use strict';
 
-  const DB_NAME = 'acweb-mods';
-  const FLAG = 'acweb.mods';
+  const TT_FLAG = 'acweb.moddev';
+  const TT_SUFFIX = '~testtown';
+  const TT_ON = (function () {
+    try { return !!root.localStorage && root.localStorage.getItem(TT_FLAG) === '1'; } catch (_) { return false; }
+  })();
+  function townKey(name) { return TT_ON ? name + TT_SUFFIX : name; }
 
-  const MODSET_KEY = 'acweb.modset';
+  const DB_NAME = townKey('acweb-mods');
+  const FLAG = townKey('acweb.mods');
 
-  const MODLIST_KEY = 'acweb.modlist';
+  const MODSET_KEY = townKey('acweb.modset');
+
+  const MODLIST_KEY = townKey('acweb.modlist');
 
   const SKIP_KEY = 'acweb.mods.skip';
   const MODS_DIR = '/mods';
@@ -45,6 +52,7 @@
   const MAX_ZIP = 16777216;
   const MESSAGE_BYTES_MAX = 400;
   const MESSAGES_MAX = 256;
+  const MOD_ITEM_TEXTURE_FILES_MAX = 16;
   const MOD_ITEMS_MAX = 64;
   const MOD_RENAMES_MAX = 64;
   const NAME_CHARS = 60;
@@ -116,13 +124,15 @@
   const MSG_KEY_RE = /^[a-z0-9_.-]{1,48}$/;
 
   const SHOP_TARGETS = ['flower', 'nook'];
-  const NOOK_FLOWER_ONLY = ['name', 'hours', 'greeting', 'stock_line'];
+  const NOOK_FLOWER_ONLY = ['name', 'greeting', 'stock_line'];
   const PERSONALITIES = ['normal', 'peppy', 'lazy', 'jock', 'cranky', 'snooty'];
 
   const MOD_ITEM_ID_RE = /^[a-z0-9][a-z0-9-]{0,31}$/;
   const MOD_ITEM_FULL_RE = /^([a-z0-9][a-z0-9-]{0,31}\.[a-z0-9][a-z0-9-]{0,47}):([a-z0-9][a-z0-9-]{0,31})$/;
   const MOD_ITEM_NAME_RE = /^[A-Za-z0-9](?:[A-Za-z0-9 '.,!&-]{0,14}[A-Za-z0-9'.,!&-])?$/;
-  const MOD_ITEM_KEYS = ['id', 'name', 'base', 'price'];
+  const MOD_ITEM_KEYS = ['id', 'name', 'base', 'price', 'textures'];
+
+  const ITEM_TEXTURE_NAME_RE = /^tex1_[0-9]{1,5}x[0-9]{1,5}_[0-9a-fA-F]{16}(?:_[0-9a-fA-F]{16}|_\$)?_[0-9]{1,2}\.(?:[pP][nN][gG]|[dD][dD][sS])$/;
   const LIMITS = {
     MAX_ZIP: MAX_ZIP, MAX_UNPACKED: MAX_UNPACKED, MAX_FILES: MAX_FILES, MAX_PATH: MAX_PATH,
     MAX_MANIFEST: MAX_MANIFEST, MAX_JSON: MAX_JSON, MAX_LUA: MAX_LUA,
@@ -188,7 +198,8 @@
     ["shop-hours-same", [new RegExp("\"hours\" open and close must differ"), new RegExp("'s hours open and close at the same time"), new RegExp("\"open\" and \"close\" are the same time")]],
     ["shop-hours", [new RegExp("\"hours\" must be \\{"), new RegExp("'s hours need \"open\" and \"close\""), new RegExp("^shops: hours need")]],
     ["shop-text", [new RegExp("\"(greeting|stock_line)\" must be 1 to 160"), new RegExp("'s \\S+ must be 1 to \\d+ characters on at most"), new RegExp("\"greeting\" and \"stock_line\" must be")]],
-    ["nook-flower-key", [new RegExp("is the flower shop's"), new RegExp("Nook's shop takes only \"mode\" and \"stock\"")]],
+    ["nook-flower-key", [new RegExp("is the flower shop's"), new RegExp("Nook's shop takes only \"mode\", \"hours\" and \"stock\"")]],
+    ["nook-hours-mode", [new RegExp("\"mode\" and \"hours\" do not go together"), new RegExp("mode and hours do not go together")]],
     ["nook-mode", [new RegExp("\"mode\" must be \"add\" or \"replace\""), new RegExp("'s mode must be \"add\" or \"replace\""), new RegExp("^shops: Nook's \"mode\" must be")]],
     ["nook-stock", [new RegExp("\"stock\" must list 1 to 16"), new RegExp("'s stock must list 1 to 16"), new RegExp("^shops: Nook's \"stock\" must list")]],
     ["nook-item-refused", [new RegExp("^shops: a Nook's stock item cannot be sold"), new RegExp("so the game leaves it out of Nook's shop")]],
@@ -226,6 +237,10 @@
     ["item-name", [new RegExp("\"name\" must be 1 to 16 letters"), new RegExp("'s name must be 1 to 16 letters")]],
     ["item-base", [new RegExp("\"base\" must be"), new RegExp("'s base .*must be")]],
     ["item-price", [new RegExp("^items: item \\d+ \"price\" must be"), new RegExp("item .*'s price must be a whole number"), new RegExp("^items: a price must be a whole number")]],
+    ["item-textures", [new RegExp("\"textures\" must be a folder inside the mod"), new RegExp("'s textures must be a folder inside the mod")]],
+    ["item-textures-count", [new RegExp("\"textures\" folder .* holds \\d+ files"), new RegExp("'s textures folder .* holds \\d+ files"), new RegExp("textures folder holds more than \\d+ files")]],
+    ["item-textures-name", [new RegExp("\"textures\" file .* is not a .png or .dds texture name"), new RegExp("'s textures file .* is not a .png or .dds texture name")]],
+    ["item-textures-overlap", [new RegExp("textures\"? folder .*is inside content\\.textures or holds it")]],
     ["item-malformed", [new RegExp("^items: a malformed item is left out")]],
     ["item-base-refused", [new RegExp("^items: this base cannot be a mod item")]],
     ["items-too-many-total", [new RegExp("^items: the game holds \\d+ mod items at most")]],
@@ -336,7 +351,7 @@
     ["upload-rights-removed", [new RegExp("can no longer share mods"), new RegExp("^Mod uploads are switched off for your account")]],
     ["upload-version-exists", [new RegExp("version of the mod is already uploaded"), new RegExp("That version is already shared")]],
     ["upload-screenshot", [new RegExp("[Ss]creenshot")]],
-    ["upload-changelog", [new RegExp("[Cc]hangelog"), new RegExp("Say in one line what this version changes")]],
+    ["upload-changelog", [new RegExp("[Cc]hangelog")]],
     ["upload-form", [new RegExp("^The upload form"), new RegExp("^Send one zip at a time")]],
     ["upload-not-owner", [new RegExp("already (uploaded|shares) a mod with (this|that) id")]],
     ["upload-too-many", [new RegExp("mods an hour"), new RegExp("a lot of uploads for one hour"), new RegExp("reached the hourly upload limit"), new RegExp("waiting for review"), new RegExp("the most mods waiting for review")]],
@@ -1153,7 +1168,34 @@
   function modItemBaseOk(v) {
     return (v & 3) === 0 && ((v >= 0x1000 && v <= 0x1ffc) || (v >= 0x3000 && v <= 0x33c4));
   }
-  function validateItems(doc) {
+
+  function itemTexturesErrs(at, p, files) {
+    const bad = at + '"textures" must be a folder inside the mod with files in it';
+    if (typeof p !== 'string' || !p.length) return [bad];
+    const dir = p.replace(/\/$/, '');
+    if (pathProblem(dir)) return [bad];
+    if (!files) return [];
+    const folder = dir + '/';
+    const under = files.names.filter(function (n) { return n.startsWith(folder); });
+    if (!under.length) return [bad];
+    const errs = [];
+    if (typeof files.textures === 'string' && files.textures.length) {
+      const t = files.textures.replace(/\/+$/, '') + '/';
+      if (folder.startsWith(t) || t.startsWith(folder)) {
+        errs.push(at + '"textures" folder ' + folder + ' is inside content.textures or holds it: there its pictures would change every copy of the base');
+      }
+    }
+    if (under.length > MOD_ITEM_TEXTURE_FILES_MAX) {
+      errs.push(at + '"textures" folder ' + folder + ' holds ' + under.length + ' files, at most ' + MOD_ITEM_TEXTURE_FILES_MAX);
+    }
+    for (const n of under) {
+      if (!ITEM_TEXTURE_NAME_RE.test(n.slice(n.lastIndexOf('/') + 1))) {
+        errs.push(at + '"textures" file ' + n + ' is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)');
+      }
+    }
+    return errs;
+  }
+  function validateItems(doc, files) {
     const errs = [];
     const items = new Map();
     if (!isObj(doc) || !Array.isArray(doc.items) || doc.items.length < 1 || doc.items.length > MOD_ITEMS_MAX) {
@@ -1185,6 +1227,7 @@
       if (has(it, 'price') && (typeof it.price !== 'number' || !Number.isInteger(it.price) || it.price < 1 || it.price > ITEM_PRICE_MAX)) {
         errs.push(at + '"price" must be a whole number from 1 to ' + ITEM_PRICE_MAX);
       }
+      if (has(it, 'textures')) errs.push.apply(errs, itemTexturesErrs(at, it.textures, files));
       if (typeof it.id === 'string' && MOD_ITEM_ID_RE.test(it.id) && !items.has(it.id)) items.set(it.id, { base: base });
     });
     return { errs: errs, items: items };
@@ -1221,7 +1264,7 @@
     if (c.items) {
       const d = doc(c.items);
       if (d !== undefined) {
-        const r = validateItems(d);
+        const r = validateItems(d, { names: names, textures: c.textures });
         add(c.items, r.errs);
         ctx = { modId: m.id, items: r.items };
         if (isObj(m.renames)) {
@@ -1260,13 +1303,7 @@
       if (has(s, 'name') && (typeof s.name !== 'string' || cpLen(s.name) < 1 || cpLen(s.name) > SHOP_NAME_CHARS || s.name.indexOf('\n') >= 0)) {
         errs.push(at + '"name" must be 1 to ' + SHOP_NAME_CHARS + ' characters on one line');
       }
-      if (has(s, 'hours')) {
-        const h = s.hours;
-        if (!isObj(h) || typeof h.open !== 'string' || typeof h.close !== 'string' ||
-            !HHMM_RE.test(h.open) || !HHMM_RE.test(h.close)) {
-          errs.push(at + '"hours" must be { "open": "HH:MM", "close": "HH:MM" }');
-        } else if (h.open === h.close) errs.push(at + '"hours" open and close must differ');
-      }
+      if (has(s, 'hours')) errs.push.apply(errs, hoursErrs(s.hours, at));
       for (const k of ['greeting', 'stock_line']) {
         if (!has(s, k)) continue;
         const v = s[k];
@@ -1313,6 +1350,14 @@
     return errs;
   }
 
+  function hoursErrs(h, at) {
+    if (!isObj(h) || typeof h.open !== 'string' || typeof h.close !== 'string' ||
+        !HHMM_RE.test(h.open) || !HHMM_RE.test(h.close)) {
+      return [at + '"hours" must be { "open": "HH:MM", "close": "HH:MM" }'];
+    }
+    return h.open === h.close ? [at + '"hours" open and close must differ'] : [];
+  }
+
   function hex4(v) { return '0x' + v.toString(16).padStart(4, '0'); }
 
   function validateMessages(doc) {
@@ -1334,9 +1379,14 @@
   function validateNook(s, at, ctx) {
     const errs = [];
     for (const k of NOOK_FLOWER_ONLY) {
-      if (has(s, k)) errs.push(at + '"' + k + '" is the flower shop\'s: Nook\'s shop takes only "mode" and "stock"');
+      if (has(s, k)) errs.push(at + '"' + k + '" is the flower shop\'s: Nook\'s shop takes only "mode", "hours" and "stock"');
     }
     if (has(s, 'mode') && s.mode !== 'add' && s.mode !== 'replace') errs.push(at + '"mode" must be "add" or "replace"');
+    if (has(s, 'hours')) {
+      errs.push.apply(errs, hoursErrs(s.hours, at));
+
+      if (has(s, 'mode')) errs.push(at + '"mode" and "hours" do not go together: with hours the goods are Nook\'s whole stock');
+    }
     if (!Array.isArray(s.stock) || s.stock.length < 1 || s.stock.length > NOOK_STOCK_MAX) {
       errs.push(at + '"stock" must list 1 to ' + NOOK_STOCK_MAX + ' items');
       return errs;
@@ -1725,8 +1775,8 @@
       ' and about ' + mbWords(free) + ' is free. Remove a mod you do not use or free some space on this device, then try again';
   }
 
-  const COUNT_KEY = 'acweb.mods.n';
-  const CLEARED_KEY = 'acweb.mods.cleared';
+  const COUNT_KEY = townKey('acweb.mods.n');
+  const CLEARED_KEY = townKey('acweb.mods.cleared');
   function rememberCount(n) {
     try { root.localStorage.setItem(COUNT_KEY, String(n)); } catch (_) {   }
   }
@@ -2110,7 +2160,7 @@
     if (opts && opts.deleteData) addWipe(id);
   }
 
-  const WIPE_KEY = 'acweb.mods.wipe';
+  const WIPE_KEY = townKey('acweb.mods.wipe');
   function pendingWipe() {
     try {
       const v = JSON.parse(root.localStorage.getItem(WIPE_KEY) || '[]');
@@ -3473,6 +3523,162 @@
     if (state.dev) logPush('info', state.dev.id, 'loaded in developer mode from ' + state.dev.source.label);
   }
 
+  const TT_MARK = 'acweb.testtown';
+  const TT_MAKE = 'acweb.testtown.make';
+  const TT_TOWN_DBS = ['/save', 'acweb-mods'];
+
+  const TT_TOWN_KEYS = ['acweb.mods', 'acweb.mods.n', 'acweb.modset', 'acweb.modlist', 'acweb.mods.wipe'];
+  const TT_DELETE_MS = 10000;
+  let ttState = null;
+
+  function testTownDb(name) {
+    return TT_ON && TT_TOWN_DBS.indexOf(String(name)) >= 0 ? name + TT_SUFFIX : name;
+  }
+
+  function ttReadMark() {
+    try {
+      const m = JSON.parse(lsGet(TT_MARK) || 'null');
+      if (m && (m.from === 'copy' || m.from === 'fresh') && typeof m.at === 'number') return m;
+    } catch (_) {   }
+    return null;
+  }
+
+  function ttReq(req) {
+    return new Promise(function (resolve, reject) {
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function () { reject(req.error || new Error('IndexedDB refused a read')); };
+    });
+  }
+
+  function ttOpenExisting(name) {
+    return new Promise(function (resolve, reject) {
+      let absent = false;
+      let req;
+      try { req = idb().open(name); } catch (e) { reject(e); return; }
+      req.onupgradeneeded = function () {
+        absent = true;
+        try { req.transaction.abort(); } catch (_) {   }
+      };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function (ev) {
+        try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (_) {   }
+        if (absent) resolve(null); else reject(req.error || new Error(name + ' could not be opened'));
+      };
+      req.onblocked = function () { reject(new Error(name + ' is held open by another tab')); };
+    });
+  }
+
+  function ttDelete(name) {
+    return new Promise(function (resolve, reject) {
+      let req;
+      try { req = idb().deleteDatabase(name); } catch (e) { reject(e); return; }
+      let done = false;
+      const t = typeof root.setTimeout === 'function' ? root.setTimeout(function () {
+        if (!done) { done = true; reject(new Error('the old test town could not be removed (another tab holds it)')); }
+      }, TT_DELETE_MS) : null;
+      const end = function (err) {
+        if (done) return;
+        done = true;
+        if (t !== null) root.clearTimeout(t);
+        if (err) reject(err); else resolve();
+      };
+      req.onsuccess = function () { end(null); };
+      req.onerror = function () { end(req.error || new Error('the old test town could not be removed')); };
+
+    });
+  }
+
+  async function ttCopyDb(src, dst) {
+    const from = await ttOpenExisting(src);
+    if (!from) return 0;
+    let shape = [];
+    let version = 1;
+    try {
+      version = from.version;
+      const names = Array.prototype.slice.call(from.objectStoreNames);
+      if (names.length) {
+        const tx = from.transaction(names, 'readonly');
+        shape = names.map(function (n) {
+          const st = tx.objectStore(n);
+          return {
+            name: n, keyPath: st.keyPath, autoIncrement: st.autoIncrement,
+            indexes: Array.prototype.slice.call(st.indexNames).map(function (i) {
+              const ix = st.index(i);
+              return { name: i, keyPath: ix.keyPath, unique: ix.unique, multiEntry: ix.multiEntry };
+            }),
+            keys: ttReq(st.getAllKeys()), values: ttReq(st.getAll())
+          };
+        });
+        for (const s of shape) { s.keys = await s.keys; s.values = await s.values; }
+      }
+    } finally { from.close(); }
+    const to = await new Promise(function (resolve, reject) {
+      let req;
+      try { req = idb().open(dst, version); } catch (e) { reject(e); return; }
+      req.onupgradeneeded = function () {
+        const db = req.result;
+        for (const s of shape) {
+          if (db.objectStoreNames.contains(s.name)) continue;
+          const st = db.createObjectStore(s.name, s.keyPath === null
+            ? { autoIncrement: s.autoIncrement } : { keyPath: s.keyPath, autoIncrement: s.autoIncrement });
+          for (const ix of s.indexes) st.createIndex(ix.name, ix.keyPath, { unique: ix.unique, multiEntry: ix.multiEntry });
+        }
+      };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function () { reject(req.error || new Error(dst + ' could not be made')); };
+      req.onblocked = function () { reject(new Error(dst + ' is held open by another tab')); };
+    });
+    let n = 0;
+    try {
+      if (shape.length) {
+        await new Promise(function (resolve, reject) {
+          const tx = to.transaction(shape.map(function (s) { return s.name; }), 'readwrite');
+          for (const s of shape) {
+            const st = tx.objectStore(s.name);
+            for (let i = 0; i < s.values.length; i++) {
+              if (s.keyPath === null) st.put(s.values[i], s.keys[i]); else st.put(s.values[i]);
+              n++;
+            }
+          }
+          tx.oncomplete = function () { resolve(); };
+          tx.onerror = function () { reject(tx.error || new Error('the copy could not be written')); };
+          tx.onabort = function () { reject(tx.error || new Error('the copy could not be written')); };
+        });
+      }
+    } finally { to.close(); }
+    return n;
+  }
+
+  async function testTownPrepare(opts) {
+    if (!TT_ON) return (ttState = { on: false, made: null, mark: null });
+    const had = ttReadMark();
+    if (had || (opts && opts.make === false)) return (ttState = { on: true, made: null, mark: had });
+    const asked = lsGet(TT_MAKE) === 'fresh' ? 'fresh' : 'copy';
+    let error = null;
+    let records = 0;
+    try {
+      for (const n of TT_TOWN_DBS) await ttDelete(n + TT_SUFFIX);
+      if (asked === 'copy') for (const n of TT_TOWN_DBS) records += await ttCopyDb(n, n + TT_SUFFIX);
+    } catch (e) {
+      error = String((e && e.message) || e);
+      for (const n of TT_TOWN_DBS) { try { await ttDelete(n + TT_SUFFIX); } catch (_) {   } }
+    }
+    const copied = asked === 'copy' && !error;
+    for (const k of TT_TOWN_KEYS) lsSet(k + TT_SUFFIX, copied ? lsGet(k) : null);
+    lsSet(CLEARED_KEY, null);
+    const mark = { v: 1, from: copied ? 'copy' : 'fresh', asked: asked, at: Date.now(), records: records };
+    if (error) mark.error = error;
+    lsSet(TT_MARK, JSON.stringify(mark));
+    lsSet(TT_MAKE, null);
+    return (ttState = { on: true, made: mark.from, mark: mark });
+  }
+
+  const testTown = {
+    on: TT_ON, SUFFIX: TT_SUFFIX, FLAG: TT_FLAG, MARK_KEY: TT_MARK, MAKE_KEY: TT_MAKE, TOWN_DBS: TT_TOWN_DBS.slice(),
+    dbName: testTownDb, key: townKey, mark: ttReadMark, prepare: testTownPrepare,
+    state: function () { return ttState; }
+  };
+
   const DEV_DB = 'acweb-mods-dev';
   const DEV_FLAG = 'acweb.moddev';
   const DEV_STORED = 'acweb.mods.dev';
@@ -3762,8 +3968,11 @@
 
     log: readLog, logPush: logPush, readEntries: readEntries,
     devLoad: devLoad, devApply: devApply, devUnload: devUnload, devState: devState, devTainted: devTainted,
-    devTiers: devTiers
+    devTiers: devTiers,
+
+    testTown: testTown
   };
   root._acwebMods = api;
+  root._acwebTestTown = testTown;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

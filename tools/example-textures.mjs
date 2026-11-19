@@ -498,6 +498,211 @@ export function cloverGrassFiles() {
   return files;
 }
 
+/* ── The Tea Chest's own pictures ────────────────────────────────────
+ * The Tea Chest (fixture.items, and Evening Tea Room's) is a mod item on base
+ * 0x1008, a chest of drawers, and carries pictures of its own (items file "textures"): a tea-green
+ * chest with gold knobs and a leaf on its door, drawn here from scratch. Every
+ * other copy of the base keeps its own look. Five textures, all CI4 (fmt 8)
+ * with one palette, named `$` (any palette). Their texel hashes were matched to
+ * the base's assets with the game's build (int_sum_blue_bureau01_*):
+ *
+ *   door    32x48 c988a8858188d369   front  16x64 895b4783983a7baf
+ *   side    16x64 4618d1e388af25e4   top    16x16 57a5e6f04e0b17fb
+ *   inside  16x16 e8b389b00291a38f
+ *
+ * Each picture keeps the band layout of the texture it replaces (a light top
+ * edge, a dark frame, panels and two small drawers on the front), so it lands
+ * on the model's faces where a chest's parts are; the art in it is ours. Drawn
+ * at 2x (an uncompressed DDS, like the texture examples). */
+export const TEA_CHEST = { door: 'c988a8858188d369', front: '895b4783983a7baf', side: '4618d1e388af25e4', top: '57a5e6f04e0b17fb', inside: 'e8b389b00291a38f' };
+const TEA = { light: [176, 214, 140], base: [104, 158, 88], mid: [84, 132, 72], dark: [44, 80, 46], knob: [222, 170, 70], knobDark: [150, 100, 36], leaf: [210, 236, 170], vein: [92, 140, 70] };
+
+/* A w x h picture (in texels of the original) drawn at scale TEA_SCALE by
+ * paint(x, y) in original texel units, with a little fixed grain so it does not
+ * read flat. */
+const TEA_SCALE = 2;
+function teaCanvas(w, h, seed, paint) {
+  const k = TEA_SCALE;
+  const c = new Canvas(w * k, h * k);
+  const rand = rng(seed);
+  for (let y = 0; y < h * k; y++) {
+    for (let x = 0; x < w * k; x++) {
+      const col = paint(x / k, y / k);
+      const g = (rand() - 0.5) * 10;
+      c.set(x, y, [col[0] + g, col[1] + g, col[2] + g]);
+    }
+  }
+  return c;
+}
+
+/* A leaf: an ellipse along a diagonal, with a vein down its middle. */
+function inLeaf(x, y, cx, cy, len, wid) {
+  const u = ((x - cx) + (y - cy)) / Math.SQRT2, v = ((x - cx) - (y - cy)) / Math.SQRT2;
+  const d = (u * u) / (len * len) + (v * v) / (wid * wid);
+  return d <= 1 ? (Math.abs(v) < 0.35 ? 'vein' : 'leaf') : null;
+}
+
+const knobAt = (x, y, kx, ky) => (x >= kx && x < kx + 3 && y >= ky && y < ky + 2 ? (y < ky + 1 ? TEA.knob : TEA.knobDark) : null);
+
+export function teaChestDoor() {
+  return teaCanvas(32, 48, 3740, (x, y) => {
+    if (y < 6) return TEA.light;
+    if (x < 4 || x >= 28 || y >= 43) return TEA.dark;
+    if (x < 5 || x >= 27 || y < 7 || y >= 42) return TEA.mid;
+    const k = knobAt(x, y, 6, 24);
+    if (k) return k;
+    const l = inLeaf(x, y, 17, 24, 9, 4);
+    if (l) return l === 'vein' ? TEA.vein : TEA.leaf;
+    return TEA.base;
+  });
+}
+
+export function teaChestFront() {
+  return teaCanvas(16, 64, 3741, (x, y) => {
+    if (y < 3) return TEA.light;
+    if (x >= 13) return x >= 14 ? TEA.base : TEA.dark;
+    if (y < 4 || y >= 60) return TEA.dark;
+    if (x >= 12) return TEA.dark;
+    if (y >= 42 && y < 43) return TEA.light;
+    if (y >= 50 && y < 51) return TEA.dark;
+    if (y >= 51 && y < 52) return TEA.light;
+    if (y >= 58) return TEA.dark;
+    const k = knobAt(x, y, 4, 46) || knobAt(x, y, 4, 54);
+    if (k) return k;
+    if (y < 42) return (x + y) % 9 === 0 ? TEA.mid : TEA.base; /* a faint diagonal grain */
+    return TEA.base;
+  });
+}
+
+export function teaChestSide() {
+  return teaCanvas(16, 64, 3742, (x, y) => {
+    if (y < 2) return TEA.light;
+    if (y >= 60) return TEA.dark;
+    if (x >= 5 && x < 6) return TEA.dark;
+    if (x >= 6 && x < 9) return TEA.light;
+    if (x >= 9 && x < 10) return TEA.dark;
+    const band = Math.floor(y / 16);
+    return band % 2 ? TEA.mid : TEA.base;
+  });
+}
+
+export function teaChestTop({ inside = false } = {}) {
+  return teaCanvas(16, 16, inside ? 3744 : 3743, (x, y) => {
+    if (x < 1 || y < 1 || x >= 15 || y >= 15) return TEA.dark;
+    if (x < 2 || y < 2 || x >= 14 || y >= 14) return inside ? TEA.mid : TEA.light;
+    if (inside) return TEA.mid;
+    const l = inLeaf(x, y, 8, 8, 5, 2.2);
+    if (l) return l === 'vein' ? TEA.vein : TEA.leaf;
+    return TEA.base;
+  });
+}
+
+/* The Tea Chest's files, by path inside the mod (folder `dir`). */
+export function teaChestFiles(dir = 'items/tea-chest') {
+  const pic = (w, h, tex, c) => [`${dir}/tex1_${w}x${h}_${tex}_$_8.dds`, dds(c.w, c.h, c.px)];
+  return Object.fromEntries([
+    pic(32, 48, TEA_CHEST.door, teaChestDoor()),
+    pic(16, 64, TEA_CHEST.front, teaChestFront()),
+    pic(16, 64, TEA_CHEST.side, teaChestSide()),
+    pic(16, 16, TEA_CHEST.top, teaChestTop()),
+    pic(16, 16, TEA_CHEST.inside, teaChestTop({ inside: true })),
+  ]);
+}
+
+/* ── After Hours' Ghost Lantern ───────────────────────────────────────
+ * The example mod After Hours sells one piece of its own among the gyroids,
+ * the Ghost Lantern, made on the tall lantern (0x122C, model int_sum_touro02).
+ * Four of its textures, all CI4 (fmt 8), named `$` (any palette); hashes from
+ * the game's build (int_sum_touro02_*):
+ *
+ *   mado     16x32 4f8aaa9bcfcdaf16  (the square window, half of it)
+ *   madomaru 16x32 0d673c8f9b3a70fb  (the round window, half of it)
+ *   madoyoko 16x32 6707ef8a75e6e7ea  (the stone beside the windows)
+ *   stand    16x32 39b3254f69f1b89d  (the post)
+ *
+ * The windows are see-through in the game's pictures (alpha 0): the square one
+ * on x 9..15, y 6..24 (a corner cut at 6, 23, 24), the round one on x 0..3,
+ * y 12..19. The model mirrors each half, so the window is whole on the lantern.
+ * Here they are filled with a ghost-green glow, and the square window holds a
+ * face: an eye each side of the mirror line and a mouth on it. The stone around
+ * is the lantern's grey-olive with moss running down it. The other six textures
+ * stay the base's. The art is ours. Drawn at 2x. */
+export const GHOST_LANTERN = {
+  mado: '4f8aaa9bcfcdaf16', madomaru: '0d673c8f9b3a70fb', madoyoko: '6707ef8a75e6e7ea', stand: '39b3254f69f1b89d',
+};
+const GHOST = { stone: [92, 92, 70], stoneLight: [128, 128, 100], stoneDark: [56, 56, 42], moss: [62, 92, 46], mossDark: [40, 64, 32],
+  glow: [150, 255, 190], glowEdge: [70, 200, 140], glowDeep: [36, 140, 104], eye: [14, 40, 30] };
+
+/* Stone with moss: a few fixed streaks run down from the top. */
+function mossyStone(x, y, streaks) {
+  const fx = Math.floor(x), fy = Math.floor(y);
+  for (const [sx, len] of streaks) {
+    if (fx === sx && fy < len) return fy > len - 3 ? GHOST.mossDark : GHOST.moss;
+    if (Math.abs(fx - sx) === 1 && fy < len - 4) return GHOST.mossDark;
+  }
+  /* a fixed speckle: a hash of the texel, so it has no rows or diagonals */
+  let h = (fx * 374761393 + fy * 668265263) >>> 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177) >>> 0;
+  const v = (h ^ (h >>> 16)) % 16;
+  return v < 2 ? GHOST.stoneLight : v < 4 ? GHOST.stoneDark : GHOST.stone;
+}
+
+/* The glow: bright in the middle (dx, dy from its centre, r its size), deeper
+ * toward the frame. */
+function glowAt(dx, dy, r) {
+  const d = Math.hypot(dx, dy) / r;
+  return d < 0.45 ? GHOST.glow : d < 0.8 ? GHOST.glowEdge : GHOST.glowDeep;
+}
+
+/* mado's window: x 9..15, y 6..24, the corners cut where the base cuts them. */
+function inSquareWindow(x, y) {
+  const fx = Math.floor(x), fy = Math.floor(y);
+  if (fy < 6 || fy > 24) return false;
+  if (fy === 6 || fy === 23) return fx >= 10;
+  if (fy === 24) return fx >= 13;
+  return fx >= 9;
+}
+
+export function ghostLanternWindow() {
+  return teaCanvas(16, 32, 3777, (x, y) => {
+    if (!inSquareWindow(x, y)) return mossyStone(x, y, [[3, 9], [6, 4]]);
+    /* an eye each side of the mirror (x 16): this half's is at 12..13 */
+    const fx = Math.floor(x), fy = Math.floor(y);
+    if (fx >= 12 && fx <= 13 && fy >= 11 && fy <= 14) return GHOST.eye;
+    /* the mouth, a round O on the mirror line */
+    if ((x - 16) ** 2 + ((y - 19) * 0.8) ** 2 <= 4.2 && (x - 16) ** 2 + ((y - 19) * 0.8) ** 2 >= 1.2) return GHOST.eye;
+    return glowAt(x - 15.5, y - 15, 9);
+  });
+}
+
+export function ghostLanternRound() {
+  return teaCanvas(16, 32, 3778, (x, y) => {
+    const fx = Math.floor(x), fy = Math.floor(y);
+    const open = fy >= 12 && fy <= 19 && fx <= (fy === 12 || fy === 19 ? 1 : fy === 13 || fy === 18 ? 2 : 3);
+    if (open) return glowAt(x, y - 16, 4.5);
+    return mossyStone(x, y, [[8, 7], [13, 11]]);
+  });
+}
+
+export function ghostLanternSide() {
+  return teaCanvas(16, 32, 3779, (x, y) => mossyStone(x, y, [[4, 12], [10, 6], [14, 9]]));
+}
+
+export function ghostLanternPost() {
+  return teaCanvas(16, 32, 3780, (x, y) => mossyStone(x, y, [[2, 8], [7, 14], [12, 5]]));
+}
+
+/* The Ghost Lantern's files, by path inside the mod (folder `dir`). */
+export function ghostLanternFiles(dir = 'items/ghost-lantern') {
+  const pic = (w, h, tex, c) => [`${dir}/tex1_${w}x${h}_${tex}_$_8.dds`, dds(c.w, c.h, c.px)];
+  return Object.fromEntries([
+    pic(16, 32, GHOST_LANTERN.mado, ghostLanternWindow()),
+    pic(16, 32, GHOST_LANTERN.madomaru, ghostLanternRound()),
+    pic(16, 32, GHOST_LANTERN.madoyoko, ghostLanternSide()),
+    pic(16, 32, GHOST_LANTERN.stand, ghostLanternPost()),
+  ]);
+}
+
 /* ── The texture starter kit ─────────────────────────────────────────────────
  * One picture so the kit is not empty: it installs, the town ground turns into
  * a bold two-green check (spring to autumn), and the modder can see a texture

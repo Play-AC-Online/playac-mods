@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/shops.schema.json",
   "title": "Play AC Online shops.json",
-  "description": "Restocks and rewords a shop: the flower shop or Nook's. For target nook, the goods are added to or replace the day's roll per spot kind, in every store size, from the next restock. Nook's goods are off in The City. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
+  "description": "Restocks and rewords a shop: the flower shop or Nook's. For target nook, the goods are added to or replace the day's roll per spot kind, in every store size, from the next restock. A nook entry with hours sells its goods only inside them, as the shop's whole stock: each spot of a kind it lists takes one of its goods, every other spot is bare, and the day's own stock is back when the hours end. Nook's opens for those hours when it is shut for the night. A new set is picked each day when there are more goods than spots. Nook's goods are off in The City. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/#shops",
   "type": "object",
   "required": [
     "shops"
@@ -29,7 +29,7 @@
               "flower",
               "nook"
             ],
-            "description": "Which shop: \"flower\" or \"nook\". One shop per target. A nook entry takes only mode and stock."
+            "description": "Which shop: \"flower\" or \"nook\". One shop per target. A nook entry takes only mode, hours and stock."
           },
           "name": {
             "type": "string",
@@ -47,14 +47,16 @@
             "properties": {
               "open": {
                 "type": "string",
-                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+                "description": "When the shop opens, on a 24-hour clock."
               },
               "close": {
                 "type": "string",
-                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+                "description": "When the shop closes, on a 24-hour clock."
               }
             },
-            "description": "HH:MM. Open and close must differ. Close may be past midnight. Hours can only shorten the shop's own."
+            "description": "HH:MM. Open and close must differ. Close may be past midnight. For the flower shop, hours can only shorten the shop's own. For Nook's, the goods are the whole stock inside the hours and nothing outside them, and the shop opens for them when it is shut for the night. It does not open before its morning opening, on a renovation day or in a sale's hours."
           },
           "greeting": {
             "type": "string",
@@ -106,7 +108,7 @@
               "add",
               "replace"
             ],
-            "description": "Nook's only. \"add\" (the default) puts the goods in at most half of each kind's spots. \"replace\" puts them in all of them."
+            "description": "Nook's only, and not with hours. \"add\" (the default) puts the goods in at most half of each kind's spots. \"replace\" puts them in all of them."
           }
         },
         "allOf": [
@@ -129,9 +131,31 @@
                 }
               }
             }
+          },
+          {
+            "description": "Nook's \"mode\" and \"hours\" do not go together: with hours the goods are the whole stock.",
+            "if": {
+              "required": [
+                "target",
+                "hours"
+              ],
+              "properties": {
+                "target": {
+                  "const": "nook"
+                }
+              }
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "mode"
+                ]
+              }
+            }
           }
         ]
-      }
+      },
+      "description": "The shops this file changes, at most one for each target."
     }
   }
 }

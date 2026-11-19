@@ -31,19 +31,19 @@ it, or fork it to start from it.
 | Example | Kind | Repository | Mod ZIP |
 |---|---|---|---|
 | [Springtime Town](https://github.com/Play-AC-Online/playac-example-springtime-town) | Textures and villager lines, no code | [`playac-example-springtime-town`](https://github.com/Play-AC-Online/playac-example-springtime-town) | [example.springtime-town-1.0.0.zip](https://github.com/Play-AC-Online/playac-example-springtime-town/releases/download/v1.0.0/example.springtime-town-1.0.0.zip) |
-| [Evening Tea Room](https://github.com/Play-AC-Online/playac-example-evening-tea-room) | Shop, hours, new furniture | [`playac-example-evening-tea-room`](https://github.com/Play-AC-Online/playac-example-evening-tea-room) | [example.evening-tea-room-1.0.0.zip](https://github.com/Play-AC-Online/playac-example-evening-tea-room/releases/download/v1.0.0/example.evening-tea-room-1.0.0.zip) |
-| [Harvest Post](https://github.com/Play-AC-Online/playac-example-harvest-post) | Calendar days, letters, a script with commands and a timer | [`playac-example-harvest-post`](https://github.com/Play-AC-Online/playac-example-harvest-post) | [example.harvest-post-1.0.0.zip](https://github.com/Play-AC-Online/playac-example-harvest-post/releases/download/v1.0.0/example.harvest-post-1.0.0.zip) |
+| [After Hours](https://github.com/Play-AC-Online/playac-example-after-hours) | Nook's hours, textured item | [`playac-example-after-hours`](https://github.com/Play-AC-Online/playac-example-after-hours) | [example.after-hours-2.0.0.zip](https://github.com/Play-AC-Online/playac-example-after-hours/releases/download/v2.0.0/example.after-hours-2.0.0.zip) |
+| [Harvest Post](https://github.com/Play-AC-Online/playac-example-harvest-post) | Calendar days, letters, a script with commands and a timer | [`playac-example-harvest-post`](https://github.com/Play-AC-Online/playac-example-harvest-post) | [example.harvest-post-1.1.0.zip](https://github.com/Play-AC-Online/playac-example-harvest-post/releases/download/v1.1.0/example.harvest-post-1.1.0.zip) |
 
 ## Downloads
 
 Every download is a file of a release of a public repository on GitHub. The
 site links them and serves none of them.
 
-- Starter kits, one ZIP each, ready to install: [playac-lines-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-f0109585eb45/playac-lines-kit.zip), [playac-script-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-f0109585eb45/playac-script-kit.zip), [playac-shop-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-f0109585eb45/playac-shop-kit.zip), [playac-texture-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-f0109585eb45/playac-texture-kit.zip). They are
+- Starter kits, one ZIP each, ready to install: [playac-lines-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-4b294ddb88e2/playac-lines-kit.zip), [playac-script-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-4b294ddb88e2/playac-script-kit.zip), [playac-shop-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-4b294ddb88e2/playac-shop-kit.zip), [playac-texture-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-4b294ddb88e2/playac-texture-kit.zip). They are
   the folders in [`templates/`](templates/), zipped.
-- The AI pack: [playac-mod-ai.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-f0109585eb45/playac-mod-ai.zip), for
+- The AI pack: [playac-mod-ai.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-4b294ddb88e2/playac-mod-ai.zip), for
   [an AI assistant](setup/ai-assistant.md).
-- Both are in the release [downloads-f0109585eb45](https://github.com/Play-AC-Online/playac-mods/releases/tag/downloads-f0109585eb45).
+- Both are in the release [downloads-4b294ddb88e2](https://github.com/Play-AC-Online/playac-mods/releases/tag/downloads-4b294ddb88e2).
 - The `playac-mod` tool: release 0.2.0 is
   [playac-mod-0.2.0.tgz](https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v0.2.0/playac-mod-0.2.0.tgz), in the release
   [cli-v0.2.0](https://github.com/Play-AC-Online/playac-mods/releases/tag/cli-v0.2.0).
@@ -58,8 +58,8 @@ game runs from your own disc file: https://playaconline.com/your-disc/
 
 ```bash
 npm install -g https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v0.2.0/playac-mod-0.2.0.tgz
-git clone https://github.com/Play-AC-Online/playac-example-evening-tea-room.git
-cd playac-example-evening-tea-room
+git clone https://github.com/Play-AC-Online/playac-example-after-hours.git
+cd playac-example-after-hours
 playac-mod check
 playac-mod pack
 ```
@@ -68,7 +68,7 @@ To start your own, copy an example repository or a starter kit in
 [`templates/`](templates/).
 
 That line installs release 0.2.0 from its GitHub release here. Its SHA-256 is
-`81985666acf9b709b88f1307b71498c68d343a1cabfb7d295373e56f25f38df0`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
+`747f1b69277894627d9502436962b8346b4f00c1e8380bd89f6f377dd58f5675`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
 shows how to check it. Install the tool only from that address. A package
 named `playac-mod` on the npm registry is not the game's.
 

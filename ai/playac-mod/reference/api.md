@@ -73,7 +73,7 @@ Reserved keys, refused: `game`, `save`. Top-level keys reserved for planned feat
 
 ### shops (`content.shops`)
 
-Restocks and rewords a shop: the flower shop or Nook's. For target nook, the goods are added to or replace the day's roll per spot kind, in every store size, from the next restock. Nook's goods are off in The City. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so. (since api 1)
+Restocks and rewords a shop: the flower shop or Nook's. For target nook, the goods are added to or replace the day's roll per spot kind, in every store size, from the next restock. A nook entry with hours sells its goods only inside them, as the shop's whole stock: each spot of a kind it lists takes one of its goods, every other spot is bare, and the day's own stock is back when the hours end. Nook's opens for those hours when it is shut for the night. A new set is picked each day when there are more goods than spots. Nook's goods are off in The City. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so. (since api 1)
 
 Schema:
 
@@ -105,7 +105,7 @@ Schema:
               "flower",
               "nook"
             ],
-            "description": "Which shop: \"flower\" or \"nook\". One shop per target. A nook entry takes only mode and stock."
+            "description": "Which shop: \"flower\" or \"nook\". One shop per target. A nook entry takes only mode, hours and stock."
           },
           "name": {
             "type": "string",
@@ -123,14 +123,16 @@ Schema:
             "properties": {
               "open": {
                 "type": "string",
-                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+                "description": "When the shop opens, on a 24-hour clock."
               },
               "close": {
                 "type": "string",
-                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+                "description": "When the shop closes, on a 24-hour clock."
               }
             },
-            "description": "HH:MM. Open and close must differ. Close may be past midnight. Hours can only shorten the shop's own."
+            "description": "HH:MM. Open and close must differ. Close may be past midnight. For the flower shop, hours can only shorten the shop's own. For Nook's, the goods are the whole stock inside the hours and nothing outside them, and the shop opens for them when it is shut for the night. It does not open before its morning opening, on a renovation day or in a sale's hours."
           },
           "greeting": {
             "type": "string",
@@ -182,7 +184,7 @@ Schema:
               "add",
               "replace"
             ],
-            "description": "Nook's only. \"add\" (the default) puts the goods in at most half of each kind's spots. \"replace\" puts them in all of them."
+            "description": "Nook's only, and not with hours. \"add\" (the default) puts the goods in at most half of each kind's spots. \"replace\" puts them in all of them."
           }
         },
         "allOf": [
@@ -205,9 +207,31 @@ Schema:
                 }
               }
             }
+          },
+          {
+            "description": "Nook's \"mode\" and \"hours\" do not go together: with hours the goods are the whole stock.",
+            "if": {
+              "required": [
+                "target",
+                "hours"
+              ],
+              "properties": {
+                "target": {
+                  "const": "nook"
+                }
+              }
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "mode"
+                ]
+              }
+            }
           }
         ]
-      }
+      },
+      "description": "The shops this file changes, at most one for each target."
     }
   }
 }
@@ -236,7 +260,7 @@ Schema:
 
 ### textures (`content.textures`)
 
-A folder of replacement textures, named the way Dolphin names a custom texture. A mod's texture beats the HD pack. Among mods, the one lower in the list wins. The exception is that a file for one exact palette beats any mod's "$" (every palette) file for the same texture (rule load_order_last_wins). All mods' DDS textures together may take 96 MB on the graphics card, or 24 MB on a phone. Their PNGs may take 96 MB of pixels, or 24 MB on a phone. A texture past its limit is left out and named on its mod's row. A mod's texture is read a little each frame after it is first drawn, so the game's own texture shows for a moment before it. Use the texture inspector (Settings, Mods, Developer) to find a texture's name. (since api 1)
+A folder of replacement textures, named the way Dolphin names a custom texture. A mod's texture beats the HD pack. Among mods, the one lower in the list wins. The exception is that a file for one exact palette beats any mod's "$" (every palette) file for the same texture (rule load_order_last_wins). All mods' DDS textures together may take 96 MB on the graphics card, or 24 MB on a phone. Their PNGs may take 96 MB of pixels, or 24 MB on a phone. A texture past its limit is left out and named on its mod's row. A mod's texture is read a little each frame after it is first drawn, so the game's own texture shows for a moment before it. Find a texture's name in the model viewer (/viewer/). (since api 1)
 
 ### scripts (`scripts.main`)
 
@@ -244,7 +268,7 @@ Lua 5.4 source text, run once when the game starts. Bytecode is refused. The scr
 
 ### items (`content.items`)
 
-New furniture, each on a vanilla base piece. The game also refuses a base with no model, fossils, gyroids, clothing, design pieces and pieces that become a pocket item. In the save, a mod item is its base piece. A file beside the save (mod-items.json) maps it back. Removing the mod therefore leaves the base piece behind, and reinstalling restores the mod item. That file belongs to the save it was written beside. Next to another save of the same town, such as a backup put back or an older town file imported, it is not used. Those pieces are then plain base pieces again. (since api 1)
+New furniture, each on a vanilla base piece. The game also refuses a base with no model, fossils, gyroids, clothing, design pieces and pieces that become a pocket item. In the save, a mod item is its base piece. A file beside the save (mod-items.json) maps it back. Removing the mod therefore leaves the base piece behind, and reinstalling restores the mod item. That file belongs to the save it was written beside. Next to another save of the same town, such as a backup put back or an older town file imported, it is not used. Those pieces are then plain base pieces again. An item may carry its own pictures ("textures"). They replace the base piece's textures on that item alone, in a house and on Nook's floor. On the flower shop's bench a furniture good is a leaf. Every other copy of the base keeps its look. (since api 1)
 
 Schema:
 
@@ -292,9 +316,15 @@ Schema:
             "minimum": 1,
             "maximum": 99999,
             "description": "The price in Bells. Leave it out for the base piece's price."
+          },
+          "textures": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A folder inside the mod with this item's own pictures: 1 to 16 .png or .dds files named like a texture mod's files, with the base piece's texture names. Only this item draws them. The folder may not be inside content.textures or hold it."
           }
         }
-      }
+      },
+      "description": "The new items. Each one stands on a base piece of the game's own furniture."
     }
   }
 }
@@ -376,7 +406,8 @@ Schema:
             "description": "The stationery, default 0."
           }
         }
-      }
+      },
+      "description": "The letter templates. A script mails one with cmd.send_letter, and a calendar day can name one."
     }
   }
 }
@@ -444,12 +475,14 @@ Schema:
               "month": {
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 12
+                "maximum": 12,
+                "description": "1 for January to 12 for December."
               },
               "day": {
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 31
+                "maximum": 31,
+                "description": "The day of the month. Not with week or weekday."
               },
               "week": {
                 "anyOf": [
@@ -463,12 +496,14 @@ Schema:
                       "last"
                     ]
                   }
-                ]
+                ],
+                "description": "The week of the month: 1 to 4, or \"last\". Needs weekday."
               },
               "weekday": {
                 "type": "integer",
                 "minimum": 0,
-                "maximum": 6
+                "maximum": 6,
+                "description": "0 for Sunday to 6 for Saturday. Needs week."
               }
             }
           },
@@ -487,7 +522,8 @@ Schema:
               "minLength": 1,
               "maxLength": 160,
               "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
-            }
+            },
+            "description": "Lines villagers say on the day. They come ahead of every talk pool."
           },
           "letter": {
             "type": "string",
@@ -495,7 +531,8 @@ Schema:
             "description": "The id of a letter in this mod's letters file, mailed on the day. It is mailed once per town per day, the first time the player is free in their own town. It follows the same rules as cmd.send_letter: it goes to the mailbox or else the post office, and counts against the daily letter limit. No permission or script is needed."
           }
         }
-      }
+      },
+      "description": "The dated days."
     }
   }
 }
@@ -561,10 +598,12 @@ Schema:
               "minLength": 1,
               "maxLength": 160,
               "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
-            }
+            },
+            "description": "The pool's lines. The game picks one."
           }
         }
-      }
+      },
+      "description": "The pools. A pool speaks for everyone, for one personality or for one villager."
     }
   }
 }
@@ -795,6 +834,7 @@ Each mod runs in its own Lua 5.4 state with only these standard libraries. It ta
 | `items.per_mod` | 64 items | Items in one mod's items file. |
 | `items.total` | 512 items | Mod items across every switched-on mod. |
 | `items.renames` | 64 renames | Entries in one mod.json "renames". |
+| `items.texture_files` | 16 files | Pictures in one mod item's own textures folder (its "textures" setting), counting the files in its subfolders. |
 | `lua.event_deadline_ms` | 125 milliseconds | Wall-clock backstop on one event run, for time the instruction count cannot see: one long call into C, or a garbage collection. The instruction budget is what stops an event run that does too much, and it counts the same on every device. On a slow device it is stretched by the device's pace (lua.pace_frame_ms). A busy device does not stop a mod that stays inside its budget. |
 | `lua.frame_budget_ms` | 4 milliseconds | Lua time all mods together get per frame. Once it is spent, every game event without an answer waits for the next frame, and villager_talked is skipped for the rest of that frame. command_finished and question_answered always run. It never stops or strikes a mod. At least one waiting event runs each frame, so on a slow device events wait longer but still run. |
 | `lua.slow_run_ms` | 8 milliseconds | An event run longer than this is a strike. On a slow device it is stretched by the device's pace (lua.pace_frame_ms). |

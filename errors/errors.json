@@ -62,7 +62,7 @@
     },
     {
       "id": "inspector",
-      "title": "The texture inspector (developer mode)"
+      "title": "The texture inspector (removed)"
     },
     {
       "id": "devmode",
@@ -1543,21 +1543,45 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 \"hours\" is the flower shop's: Nook's shop takes only \"mode\" and \"stock\"",
-          "shops: shop 1 \"greeting\" is the flower shop's: Nook's shop takes only \"mode\" and \"stock\"",
-          "shops: shop 1 \"name\" is the flower shop's: Nook's shop takes only \"mode\" and \"stock\"",
-          "shops: shop 1 \"stock_line\" is the flower shop's: Nook's shop takes only \"mode\" and \"stock\""
+          "shops: shop 1 \"name\" is the flower shop's: Nook's shop takes only \"mode\", \"hours\" and \"stock\"",
+          "shops: shop 1 \"greeting\" is the flower shop's: Nook's shop takes only \"mode\", \"hours\" and \"stock\"",
+          "shops: shop 1 \"stock_line\" is the flower shop's: Nook's shop takes only \"mode\", \"hours\" and \"stock\""
         ],
         "registry": [
-          "shops.json: shop 1's hours is the flower shop's. Nook's shop takes only mode and stock."
+          "shops.json: shop 1's name is the flower shop's. Nook's shop takes only mode, hours and stock."
         ],
         "game": [
-          "shops: Nook's shop takes only \"mode\" and \"stock\", not: hours"
+          "shops: Nook's shop takes only \"mode\", \"hours\" and \"stock\", not: name"
         ]
       },
       "api": [],
-      "meaning": "Nook keeps his own name, hours and lines. A \"nook\" entry takes only \"mode\" and \"stock\".",
-      "fix": "Take \"name\", \"hours\", \"greeting\" and \"stock_line\" out of the \"nook\" entry. They belong to the flower shop."
+      "meaning": "Nook keeps his own name and lines. A \"nook\" entry takes only \"mode\", \"hours\" and \"stock\".",
+      "fix": "Take \"name\", \"greeting\" and \"stock_line\" out of the \"nook\" entry. They belong to the flower shop."
+    },
+    {
+      "code": "nook-hours-mode",
+      "area": "shops",
+      "title": "Nook's \"mode\" and \"hours\" together",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "shops: shop 1 \"mode\" and \"hours\" do not go together: with hours the goods are Nook's whole stock"
+        ],
+        "registry": [
+          "shops.json: shop 1's mode and hours do not go together. With hours the goods are Nook's whole stock."
+        ],
+        "game": [
+          "shops: Nook's \"mode\" and \"hours\" do not go together: with hours the goods are the whole stock"
+        ]
+      },
+      "api": [],
+      "meaning": "With \"hours\", your goods are everything Nook sells inside those hours and every other spot is bare. \"mode\" says how goods share the day's own stock, so it has nothing to do there.",
+      "fix": "Take \"mode\" out of a \"nook\" entry with \"hours\", or take \"hours\" out to add to the day's stock."
     },
     {
       "code": "nook-mode",
@@ -2352,15 +2376,15 @@
       ],
       "messages": {
         "page": [
-          "items: item 1 \"model\" is not an item setting (only id, name, base, price)"
+          "items: item 1 \"model\" is not an item setting (only id, name, base, price, textures)"
         ],
         "registry": [
-          "items.json: item 1's \"model\" is not an item setting. Use id, name, base, price."
+          "items.json: item 1's \"model\" is not an item setting. Use id, name, base, price, textures."
         ]
       },
       "api": [],
-      "meaning": "An item may only have id, name, base and price.",
-      "fix": "Remove the other keys. The look comes from \"base\", and a texture mod can recolour it."
+      "meaning": "An item may only have id, name, base, price and textures.",
+      "fix": "Remove the other keys. The shape comes from \"base\". Its pictures come from \"textures\", a folder of the item's own pictures."
     },
     {
       "code": "item-id",
@@ -2466,6 +2490,103 @@
       "fix": "Use a whole number from 1 to 99999, or remove \"price\"."
     },
     {
+      "code": "item-textures",
+      "area": "items",
+      "title": "An item \"textures\" is not a folder in the mod",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "items: item 1 \"textures\" must be a folder inside the mod with files in it"
+        ],
+        "registry": [
+          "items.json: item \"tea-chest\"'s textures must be a folder inside the mod with files in it."
+        ],
+        "game": [
+          "items: an item's \"textures\" must be a folder inside the mod, its pictures are left out: tea-chest"
+        ]
+      },
+      "api": [],
+      "meaning": "An item's \"textures\" names a folder inside the mod that holds the item's own pictures. The path is not one, or nothing is in it.",
+      "fix": "Put the item's pictures in a folder, like items/tea-chest/, and name that folder in \"textures\". Or remove \"textures\" to draw the base piece's pictures."
+    },
+    {
+      "code": "item-textures-count",
+      "area": "items",
+      "title": "An item has more than 16 pictures",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "items: item 1 \"textures\" folder items/tea-chest/ holds 17 files, at most 16"
+        ],
+        "registry": [
+          "items.json: item \"tea-chest\"'s textures folder \"items/tea-chest/\" holds 17 files, at most 16."
+        ],
+        "game": [
+          "items: an item's textures folder holds more than 16 files, the rest are left out: tea-chest"
+        ]
+      },
+      "api": [],
+      "meaning": "One item's textures folder holds at most 16 files, counting its subfolders. A piece of furniture draws only a few pictures.",
+      "fix": "Keep only the pictures the base piece draws. The model viewer lists the base piece's textures."
+    },
+    {
+      "code": "item-textures-name",
+      "area": "items",
+      "title": "A file in an item's textures folder is not a texture",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload"
+      ],
+      "messages": {
+        "page": [
+          "items: item 1 \"textures\" file items/tea-chest/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)"
+        ],
+        "registry": [
+          "items.json: item \"tea-chest\"'s textures file \"items/tea-chest/notes.txt\" is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)."
+        ]
+      },
+      "api": [],
+      "meaning": "Every file in an item's textures folder is a picture named after the base piece's texture, the way a texture mod names its files.",
+      "fix": "Rename the picture to the name the model viewer shows for the base piece's texture, ending in .png or .dds. Move any other file out of the folder."
+    },
+    {
+      "code": "item-textures-overlap",
+      "area": "items",
+      "title": "An item's textures folder is part of content.textures",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "items: item 1 \"textures\" folder textures/tea-chest/ is inside content.textures or holds it: there its pictures would change every copy of the base",
+          "items: item 1 \"textures\" folder art/ is inside content.textures or holds it: there its pictures would change every copy of the base"
+        ],
+        "registry": [
+          "items.json: item \"tea-chest\"'s textures folder \"textures/tea-chest/\" is inside content.textures or holds it. There its pictures would change every copy of the base."
+        ],
+        "game": [
+          "items: an item's textures folder is inside content.textures or holds it, its pictures are left out: tea-chest"
+        ]
+      },
+      "api": [],
+      "meaning": "The pictures in content.textures change every copy of a texture in the game. An item's own pictures must be outside that folder, or they would change every copy of the base piece too.",
+      "fix": "Move the item's pictures to a folder of their own beside the textures folder, like items/tea-chest/."
+    },
+    {
       "code": "item-malformed",
       "area": "items",
       "title": "The game left out a malformed item",
@@ -2478,8 +2599,8 @@
         ]
       },
       "api": [],
-      "meaning": "The game left out one item. Its id, name or base breaks the rules, or it holds a key other than id, name, base and price. Installing checks this first, so it shows only in developer mode or after an installed mod was edited.",
-      "fix": "Run `playac-mod check` and fix the item it names. An item has an id, a name, a base and an optional price, and no other keys."
+      "meaning": "The game left out one item. Its id, name or base breaks the rules, or it holds a key other than id, name, base, price and textures. Installing checks this first, so it shows only in developer mode or after an installed mod was edited.",
+      "fix": "Run `playac-mod check` and fix the item it names. An item has an id, a name, a base, an optional price and optional textures, and no other keys."
     },
     {
       "code": "item-base-refused",
@@ -3050,7 +3171,7 @@
         ]
       },
       "api": [],
-      "meaning": "Every pixel of this texture equals a texture from the game or the HD pack. A mod may only hold art you made, and a PNG saved from the model viewer or the texture inspector is the game's art.",
+      "meaning": "Every pixel of this texture equals a texture from the game or the HD pack. A mod may only hold art you made, and a PNG saved from the model viewer is the game's art.",
       "fix": "Paint your own picture into the file and keep the file name. Delete files you did not change."
     },
     {
@@ -3235,7 +3356,7 @@
       "area": "inspector",
       "title": "The game is not in a scene yet",
       "where": [
-        "Settings, Mods, Developer (open the game with ?moddev=1)"
+        "Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer)"
       ],
       "messages": {
         "site": [
@@ -3244,14 +3365,15 @@
       },
       "api": [],
       "meaning": "The inspector records what the game draws, and nothing is drawn on the title screen.",
-      "fix": "Load your town first, then press Record textures."
+      "fix": "Load your town first, then press Record textures.",
+      "retired": "The in-game texture inspector is gone. The model viewer names every texture a mod can replace, the town's ground, menus and effects too, without loading a town."
     },
     {
       "code": "inspector-texture-gone",
       "area": "inspector",
       "title": "That texture is no longer kept",
       "where": [
-        "Settings, Mods, Developer (open the game with ?moddev=1)"
+        "Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer)"
       ],
       "messages": {
         "site": [
@@ -3260,14 +3382,15 @@
       },
       "api": [],
       "meaning": "The inspector keeps up to 512 textures and 16 MB, and drops the one drawn longest ago. Stop recording frees them all.",
-      "fix": "Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG or Flash."
+      "fix": "Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG or Flash.",
+      "retired": "The in-game texture inspector is gone. The model viewer names every texture a mod can replace, the town's ground, menus and effects too, without loading a town."
     },
     {
       "code": "inspector-export",
       "area": "inspector",
       "title": "The starter mod could not be exported",
       "where": [
-        "Settings, Mods, Developer (open the game with ?moddev=1)"
+        "Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer)"
       ],
       "messages": {
         "site": [
@@ -3510,7 +3633,7 @@
       },
       "api": [],
       "meaning": "The game reads only .dds and .png files in the textures folder that carry a texture name, like tex1_64x64_hash_14. It skips anything else there.",
-      "fix": "Name the file after the texture it replaces. The texture inspector copies the name for you. Save it as .dds (BC7, BC1, BC3 or uncompressed RGBA) or .png, then reload."
+      "fix": "Name the file after the texture it replaces. The model viewer copies the name for you. Save it as .dds (BC7, BC1, BC3 or uncompressed RGBA) or .png, then reload."
     },
     {
       "code": "mods-cleared",
@@ -4642,23 +4765,20 @@
     {
       "code": "upload-changelog",
       "area": "upload",
-      "title": "A changelog line is needed",
+      "title": "The changelog line could not be used",
       "where": [
         "Share a mod, when you upload"
       ],
       "messages": {
         "registry": [
-          "Say in one line what this version changes.",
-          "The changelog line must be 1 to 300 characters of text, with at most 4 line breaks.",
+          "The changelog line must be at most 300 characters of text, with at most 4 line breaks.",
           "The changelog line has a word the site does not allow. Say it another way.",
           "Send one changelog line."
         ]
       },
-      "api": [
-        "changelog_required"
-      ],
-      "meaning": "Every shared version needs one line on what it changes. The line shows in the version list on the mod's page.",
-      "fix": "Write the line in Share a mod, or as this version's section of CHANGELOG.md. Keep it to 300 characters and 4 line breaks. It goes through the site's word filter."
+      "api": [],
+      "meaning": "A shared version may carry one optional line on what it changes. The line that came with this one could not be used.",
+      "fix": "Shorten the line in Share a mod, or in this version's section of CHANGELOG.md, or leave it out. Keep it to 300 characters and 4 line breaks. It goes through the site's word filter."
     },
     {
       "code": "upload-form",
@@ -4677,7 +4797,7 @@
         ]
       },
       "api": [],
-      "meaning": "An upload is a form with the ZIP, the screenshots and the changelog line. This one was not sent the way the site sends it.",
+      "meaning": "An upload is a form with the ZIP, the screenshots and an optional changelog line. This one was not sent the way the site sends it.",
       "fix": "Share from Settings, Mods. A script of your own must send multipart/form-data with the parts zip, screenshot and changelog."
     },
     {

@@ -298,6 +298,25 @@ test('check warns on packed files the game never reads, naming tool files', asyn
   assert.ok(r.result.files >= 8, 'still packed: the pack rule is unchanged');
 });
 
+/* an item's own "textures" folder is read by the game, so its
+ * files are not unused. The After Hours example's layout: content.items, and
+ * the Ghost Lantern's pictures in items/ghost-lantern/, named nowhere in mod.json. */
+test('check does not call an item\'s own textures unused', async () => {
+  const pic = (h) => `items/ghost-lantern/tex1_16x32_${h}_$_8.dds`;
+  const entries = {
+    'mod.json': enc(JSON.stringify({ ...base, scope: 'world', content: { items: 'items.json' } })),
+    'items.json': enc(JSON.stringify({ items: [{ id: 'ghost-lantern', name: 'Ghost Lantern', base: '0x122C', price: 2600, textures: 'items/ghost-lantern/' }] })),
+    [pic('0d673c8f9b3a70fb')]: dds(16, 32, new Uint8Array(16 * 32 * 4)),
+    [pic('39b3254f69f1b89d')]: dds(16, 32, new Uint8Array(16 * 32 * 4)),
+    'items/old-lantern/tex1_16x32_4f8aaa9bcfcdaf16_$_8.dds': dds(16, 32, new Uint8Array(16 * 32 * 4)),
+  };
+  const r = await checkEntries(entries, { lua: false, items: null });
+  assert.equal(r.ok, true, JSON.stringify(r.problems));
+  const unused = (f) => r.warnings.some((w) => w.file === f && /nothing in mod\.json points at it/.test(w.message));
+  for (const f of [pic('0d673c8f9b3a70fb'), pic('39b3254f69f1b89d'), 'items.json']) assert.ok(!unused(f), f);
+  assert.ok(unused('items/old-lantern/tex1_16x32_4f8aaa9bcfcdaf16_$_8.dds'), 'a folder no item names is still unused');
+});
+
 /* the CLI's edges. */
 test('the CLI: usage mistakes exit 2, -h and -v, --json always JSON, --port checked', async () => {
   let r = await quiet(() => main(['-h']));

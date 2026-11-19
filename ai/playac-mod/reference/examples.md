@@ -211,83 +211,85 @@ MIT, see [LICENSE](LICENSE).
 
 - `textures/`: 6 binary file(s), not shown
 
-## example.evening-tea-room
+## example.after-hours
 
-Repository: https://github.com/Play-AC-Online/playac-example-evening-tea-room (tag v1.0.0)
+Repository: https://github.com/Play-AC-Online/playac-example-after-hours (tag v2.0.0)
 
-### example.evening-tea-room/README.md
+### example.after-hours/README.md
 
 ```
-# Evening Tea Room
+# After Hours
 
 A World mod (`"scope": "world"`) in two halves:
 
-- **The shop** (`shops.json`, `messages/en.json`): in the evening the flower
-  shop becomes the Evening Tea Room, with its own sign, hours, greeting and
-  goods.
-- **The furniture** (`items.json`): two pieces of furniture of the mod's own,
-  a Tea Chest and a Reading Chair, sold in that shop.
+- **The shop** (`shops.json`): from 1 AM to 3 AM the town shop opens again,
+  and all it sells is gyroids. Every other spot is empty.
+- **The lantern** (`items.json`, `items/ghost-lantern/`): the Ghost Lantern,
+  a tall lantern of the mod's own with its own pictures, sold among them.
 
 A shop changes the town, so the mod is a World mod.
 
 ## In the game
 
-![sign at noon](media/sign-at-noon.webp)
+![door at night](media/door-at-night.webp)
 
-At noon the flower shop's door stays shut and its sign is the mod's: Evening Tea Room, open 3:00 PM to 1:00 AM.
+1:20 AM in the rain: the town shop is lit and open, hours after it would usually shut.
 
-![shop at six](media/shop-at-six.webp)
+![shop at night](media/shop-at-night.webp)
 
-Inside at 6 PM: the west bench holds the mod's Tea Chest and Reading Chair, and the other tables four fruits at the mod's prices.
+Inside at night every shelf is bare. The only goods are by the counter: tonight a Ghost Lantern and a gyroid.
 
-![stock line](media/stock-line.webp)
+![ghost lantern](media/ghost-lantern.webp)
 
-Ask Joan what's in stock and she answers with the mod's stock line.
+The Ghost Lantern, the mod's own piece: a tall lantern with green glowing windows, a face in them, and moss down its stone. Only this lantern wears these pictures.
 
-![placed](media/placed.webp)
+![shop by day](media/shop-by-day.webp)
 
-Bought and put in your room through the pocket menu: the blue chest in the middle is the mod's Tea Chest.
+The same shop at 10 AM: the day's own goods on every shelf. The mod changes nothing outside its hours.
 
 [![Play the film](media/film.webp)](media/film.mp4)
 
-The film (click the picture): Knocking at noon gets the Evening Tea Room sign and its hours; in the evening the shop is open with the mod's furniture and fruit, and Joan greets you and answers what's in stock with the mod's words.
+The film (click the picture): Inside the shop at 1:20 AM with the mod: empty shelves, and by the counter only tonight's gyroid and the Ghost Lantern.
 
 ## The shop
 
-`shops.json` gives the flower shop a name, hours, a greeting, an answer to
-"What's in stock?" and six goods with prices.
+`shops.json` has one entry for the town shop, `"target": "nook"`, with
+`hours` and a `stock` of sixteen goods: fifteen gyroids and the Ghost Lantern.
 
-- `hours` is 15:00 to 01:00. Hours can only shorten the shop's own, and a
-  close past midnight is fine. Outside them the door stays shut and its sign
-  shows the name and the hours.
-- The flower shop has six table spots, so it sells at most six goods. Here they
-  are the mod's two items and four fruits.
+- `hours` is 01:00 to 03:00. Inside them the mod's goods are the shop's whole
+  stock: each furniture spot holds one of them and every other spot is bare. The shop opens for these hours even though it is shut at night.
+- Outside them nothing changes. The shop keeps its own hours and its own goods,
+  and the day's stock is still there when it opens in the morning.
+- The shop has fewer furniture spots than sixteen goods, so it shows a few of
+  them each night, and a different few the next night.
 - A good may be an item of the same mod, named by its full id,
-  `example.evening-tea-room:tea-chest`. Without a `price` it takes the item's own price
-  from `items.json`. The fruits have a price of their own.
+  `example.after-hours:ghost-lantern`. Without a `price` it takes the item's
+  own price from `items.json`. The gyroids sell at the game's own price.
+- An entry with `hours` takes no `mode`: there is no day's stock to share.
 
-`messages/en.json` holds one line, `hours`. Other mods can read it as
-`example.evening-tea-room:hours`, with `message("example.evening-tea-room:hours")` in a
-script, so a villager could tell you when the tea room opens.
+## The lantern
 
-## The furniture
+`items.json` lists the new item. It has an `id`, a `name`, a `price`, a `base`
+(the game's own piece it is built on, here the tall lantern) and `textures`,
+a folder of pictures only this item draws.
 
-`items.json` lists the new items. Each has an `id`, a `name`, a `price`
-and a `base`: the game's own piece it is built on. The base is what the
-player sees and what the game saves. The mod's id is kept beside it.
-
+- The pictures in `items/ghost-lantern/` are named like texture mod files,
+  after the base's textures. Only the Ghost Lantern wears them: a tall lantern
+  next to it keeps its own look. Four of the lantern's textures are replaced,
+  the windows and the stone beside them, and the rest stay the base's.
+- A gyroid cannot be a base, so the mod's own piece is a lantern.
 - With the mod installed, the piece is the mod's item, with its own name.
 - Remove the mod and the piece stays in the house as the plain base piece.
 - Put the mod back and it is the mod's item again.
 
-Other files name an item as `example.evening-tea-room:tea-chest`: the mod id, a
+Other files name an item as `example.after-hours:ghost-lantern`: the mod id, a
 colon, and the item id. Never change an item's id once players have it. To
 rename one in a later version, map the old id to the new one with `"renames"`
 in `mod.json`.
 
 ## Install
 
-In Play AC Online, open the Mods tab. Evening Tea Room is in the mod list as an
+In Play AC Online, open the Mods tab. After Hours is in the mod list as an
 official example: install it from there. Or download its ZIP from the
 [cookbook](https://playaconline.com/modding/cookbook/) and add the file in the
 Mods tab.
@@ -298,9 +300,9 @@ This repository is one mod, laid out the way the GitHub import wants it:
 `mod.json` at the top, and a tag named for the version in `mod.json`.
 
 1. Copy the repository to your own account.
-2. Change `"id"` in `mod.json` to your own, like `yourname.evening-tea-room`.
-   Ids that start with `example.` are kept for these examples, so the import
-   refuses them.
+2. Change `"id"` in `mod.json` to your own, like `yourname.after-hours`, and
+   the full ids in `shops.json` with it. Ids that start with `example.` are
+   kept for these examples, so the import refuses them.
 3. Tag the commit with the version, like `v1.0.0`.
 4. In the Mods tab, choose Import from GitHub and paste
    `github.com/<you>/<repository>@v1.0.0`.
@@ -315,100 +317,87 @@ captions in `media/media.json`. `.playac/screenshots/` holds the listing's
 screenshots. The pack rule leaves the pictures, the film and the screenshots
 out of the mod.
 
+## History
+
+This repository held Evening Tea Room (1.0.0, tag `v1.0.0`), the flower shop
+as an evening tea room. After Hours took its place in 2.0.0.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).
 ```
 
-### example.evening-tea-room/items.json
+### example.after-hours/items.json
 
 ```json
 {
   "items": [
-    { "id": "tea-chest", "name": "Tea Chest", "base": "0x1008", "price": 1800 },
-    { "id": "reading-chair", "name": "Reading Chair", "base": "0x10f8", "price": 1200 }
+    { "id": "ghost-lantern", "name": "Ghost Lantern", "base": "0x122C", "price": 2600, "textures": "items/ghost-lantern/" }
   ]
 }
 ```
 
-### example.evening-tea-room/messages/en.json
-
-```json
-{
-  "hours": "The Evening Tea Room is open from 3 PM until 1 AM."
-}
-```
-
-### example.evening-tea-room/mod.json
+### example.after-hours/mod.json
 
 ```json
 {
   "schema": 1,
   "api": 1,
-  "id": "example.evening-tea-room",
-  "name": "Evening Tea Room",
-  "version": "1.0.0",
+  "id": "example.after-hours",
+  "name": "After Hours",
+  "version": "2.0.0",
   "authors": [
     "Play AC Online"
   ],
-  "description": "The flower shop becomes a tea room, open from 3 PM until 1 AM. On its tables: a Tea Chest and a Reading Chair of the mod's own, and fruit for tea. Remove the mod and the furniture stays in your house as the plain pieces it is built on.",
+  "description": "From 1 AM to 3 AM the town shop opens again, and all it sells is gyroids. A different few stand on the floor each night, and among them, now and then, a Ghost Lantern of the mod's own, its windows glowing green. Every other spot is empty. The rest of the day the shop is its usual self. Remove the mod and a Ghost Lantern you bought stays in your house as the plain tall lantern it is built on.",
   "scope": "world",
   "content": {
     "items": "items.json",
-    "shops": "shops.json",
-    "messages": "messages/en.json"
+    "shops": "shops.json"
   },
   "assets_original": true
 }
 ```
 
-### example.evening-tea-room/shops.json
+### example.after-hours/shops.json
 
 ```json
 {
   "shops": [
     {
-      "target": "flower",
-      "name": "Evening Tea Room",
+      "target": "nook",
       "hours": {
-        "open": "15:00",
-        "close": "01:00"
+        "open": "01:00",
+        "close": "03:00"
       },
-      "greeting": "Welcome to the Evening Tea Room! Sit down and take your time. Everything on the tables goes lovely with a cup.",
-      "stock_line": "A Tea Chest and a Reading Chair, made here and nowhere else, and four kinds of fruit for tea. Point at one for the price.",
       "stock": [
-        {
-          "item": "example.evening-tea-room:tea-chest"
-        },
-        {
-          "item": "example.evening-tea-room:reading-chair"
-        },
-        {
-          "item": "0x2800",
-          "price": 600
-        },
-        {
-          "item": "0x2801",
-          "price": 600
-        },
-        {
-          "item": "0x2802",
-          "price": 600
-        },
-        {
-          "item": "0x2803",
-          "price": 600
-        }
+        { "item": "example.after-hours:ghost-lantern" },
+        { "item": "0x1768" },
+        { "item": "0x1738" },
+        { "item": "0x16E4" },
+        { "item": "0x1780" },
+        { "item": "0x15BC" },
+        { "item": "0x15E0" },
+        { "item": "0x16C0" },
+        { "item": "0x16CC" },
+        { "item": "0x16FC" },
+        { "item": "0x16F0" },
+        { "item": "0x16B0" },
+        { "item": "0x1728" },
+        { "item": "0x1744" },
+        { "item": "0x1774" },
+        { "item": "0x1798" }
       ]
     }
   ]
 }
 ```
 
+- `items/ghost-lantern/`: 4 binary file(s), not shown
 
 ## example.harvest-post
 
-Repository: https://github.com/Play-AC-Online/playac-example-harvest-post (tag v1.0.0)
+Repository: https://github.com/Play-AC-Online/playac-example-harvest-post (tag v1.1.0)
 
 ### example.harvest-post/README.md
 
@@ -422,11 +411,15 @@ A World mod (`"scope": "world"`) in two halves:
   October 21. A notice goes up on the bulletin board and villagers talk about
   it all day.
 - **The post** (`main.lua`, `messages/en.json`): once a game day, a script
-  mails you a letter with a little present. A worked example of mod commands
-  and a timer.
+  mails you a letter with a little present. On fair day it runs a fruit
+  contest with a 100 Bell entry fee. A worked example of mod commands, a
+  question, a setting, a timer and a function other mods can call.
 
-A board notice changes the town, so the whole mod is a World mod. The script
-half would run in a Just you mod too.
+A board notice changes the town, so the whole mod is a World mod. It still
+does not count for a friend visit: only a World mod with textures, shops or
+items does, so two friends need not both have it. The board notice goes up in
+the player's own town only. The script half alone would run in a Just you mod
+too.
 
 ## In the game
 
@@ -457,11 +450,17 @@ The film (click the picture): The Harvest Fair notice on the bulletin board and 
 - On each day a notice goes up on the town bulletin board. It is posted once,
   in the player's own town only. Villagers say one of the day's lines before
   their hello.
-- `fair-thanks` in `letters.json` is a letter template. A script of this mod
-  can mail it with `cmd.send_letter{ template = "fair-thanks" }`, and another
-  mod's command names it `example.harvest-post:fair-thanks`. The player's name goes
-  where `{player}` is, and an apple comes with it.
-- The letter signs "The Fair Committee". The mailbox list has room for 8
+- `letters.json` holds two letter templates. The player's name goes where
+  `{player}` is, and an apple comes with each.
+- `fair-thanks` is mailed by the script, with
+  `cmd.send_letter{ template = "fair-thanks" }`, once a player pays to enter
+  the fruit contest. Another mod's command would name it
+  `example.harvest-post:fair-thanks`.
+- `apple-day` is mailed by the calendar, with no script: the Apple Day entry
+  in `calendar.json` says `"letter": "apple-day"`. It goes out once on the day,
+  the first time the player is free in their own town, and it counts against
+  the mod's 3 letters a day.
+- The thank-you signs "The Fair Committee". The mailbox list has room for 8
   characters, so `sender` names it "The Fair" there.
 
 Letter and notice text is plain ASCII and must fit six lines of the paper. The
@@ -484,6 +483,67 @@ game applies it at the end of a frame's update, once the player is free.
 - The game's cap is 3 letters a day from one mod, per town. The refusal's code
   is `command-day-cap`.
 
+## The post: a setting
+
+`mod.json` declares one setting, `present`, a `choice` of `fruit` or `none`.
+The player sets it on the Mods tab, and `settings.get("present")` reads it.
+With `none` the daily letter comes with no present.
+
+- A setting has no `scope`, so it is `world`, the default: the value is part
+  of the town. A friend visit compares it, and a visitor lent the mod runs the
+  host's value.
+- A World setting may decide what the town gets, so the letter command after
+  it is allowed. A `"scope": "client"` setting is each player's own, and in a
+  handler that read one the game refuses `send_letter`, `give_item`,
+  `take_item` and `take_bells` with `command-client-setting`. The script kit
+  shows a client setting.
+
+## The fruit contest: a question and a take
+
+On the Harvest Fair, the first time a resident enters the town, the script
+asks them to enter the fruit contest.
+
+- `cmd.ask{ text = message("contest"), choices = { "Apple", "Pear", "Not today" } }`
+  puts the question in the player's thought window. It has 2 to 4 answers of
+  up to 16 characters.
+- `question_answered` brings back `e.id` (what `cmd.ask` returned),
+  `e.choice` (counting from 1) and `e.text`. Both are `nil` when the window
+  closed with no pick.
+- For Apple or Pear, `cmd.take_bells{ amount = 100 }` asks for the fee. The
+  game shows its own question, which names the amount and the mod, and the
+  player says yes or no there. The script cannot change those words.
+- `command_finished` with `e.command == "take_bells"` says how it went:
+  `e.via` is `"taken"` on yes, and `e.code` is `command-declined` on no, or
+  `command-not-held` when the wallet holds less than 100 Bells.
+- Once the fee is taken the script mails `fair-thanks`.
+- A take is refused on a visit, so the contest is asked only at home:
+  `store.town()` starts with `"v:"` away from home.
+
+## The fair at 6 PM: hour_changed and show_line
+
+`hour_changed` fires on the game's own hourly update, with `e.hour` from 0 to
+23. At 18 on fair day the script runs `cmd.show_line(message("packing_up"))`,
+which puts a line in the player's thought window once they are free.
+
+`game.calendar_today()` tells the script which of its calendar days fall today.
+It lists this mod's own days only, by their `id` in `calendar.json`.
+
+## A function other mods can call
+
+`remote.add("fair_today", ...)` offers a function to other mods while the
+script loads. `"exports"` in `mod.json` lists it, with one line that says what
+it returns, and the game then lets the script offer only the names listed.
+
+Another mod names Harvest Post in `"optional_depends"` and calls it:
+
+```lua
+if remote.version("example.harvest-post") and remote.has("example.harvest-post", "fair_today") then
+  local fair = remote.call("example.harvest-post", "fair_today")
+end
+```
+
+The script kit in the modding guide does exactly that.
+
 ## The post: timers
 
 A letter the game could not take now (both boxes full, or the player away from
@@ -492,6 +552,8 @@ home) is tried again half a game hour later.
 - `timer.after(30, "retry", p.id)` counts game minutes. The timer is kept with
   the town's data, so it still fires after a save and a reload.
 - `timer_fired` brings back the name and the data: here, whose letter it was.
+- `timer.cancel(id)` cancels a waiting timer. When the letter gets through on
+  the next scene first, the script cancels the retry.
 
 ## The post: saved data
 
@@ -507,6 +569,13 @@ home) is tried again half a game hour later.
 
 `day_started` sends the day's letter. `scene_entered` tries too, since a game
 loaded on a day it already saw does not run `day_started` again.
+
+`command_finished` comes for every command, the line and the question too
+(`e.via` is `"shown"` for those), so the script reads `e.command` first.
+
+`letter_read` fires when the player reads a letter. `e.letter` is
+`"example.harvest-post:fair-thanks"` or `"example.harvest-post:apple-day"` for
+this mod's templates, and `nil` for a letter sent as plain `text`.
 
 ## Install
 
@@ -562,6 +631,7 @@ MIT, see [LICENSE](LICENSE).
       "id": "apple-day",
       "date": { "month": 10, "day": 21 },
       "board": "APPLE DAY\nShare an apple with a friend\ntoday. Any apple will do,\nbut a red one says it best.",
+      "letter": "apple-day",
       "talk": [
         "Happy Apple Day! Have you shared an apple with anyone yet?",
         "An apple a day, they say. Today it's an apple for everyone!"
@@ -584,6 +654,15 @@ MIT, see [LICENSE](LICENSE).
       "sender": "The Fair",
       "item": "0x2800",
       "paper": 12
+    },
+    {
+      "id": "apple-day",
+      "header": "Dear {player},",
+      "body": "Happy Apple Day! Here is an\napple to share with a friend.\nOr plant it, and share the\ntree for years to come.",
+      "footer": "The Harvest Post",
+      "sender": "Harvest",
+      "item": "0x2800",
+      "paper": 12
     }
   ]
 }
@@ -592,19 +671,26 @@ MIT, see [LICENSE](LICENSE).
 ### example.harvest-post/main.lua
 
 ```lua
--- Harvest Post, the script half: once a game day, a letter with a little
--- present arrives in the mailbox. A worked example of mod commands: an event
--- handler never changes the game itself, it QUEUES a command, and the game
--- applies it at the end of a frame's update, once the player is free. mod.json
--- must name the command in "permissions".
+-- Harvest Post, the script half. Four small pieces in one file:
 --
--- It also shows a timer. A letter the game could not take now (both boxes
--- full, or the player away from home) is tried again half a game hour later.
+--   1. The post: once a game day, a letter with a little present arrives in
+--      the mailbox. A setting decides the present. A timer tries again later.
+--   2. The fruit contest, on fair day only: a question (cmd.ask), an entry
+--      fee (cmd.take_bells) and a thank-you letter from letters.json.
+--   3. A line at 6 PM on fair day (hour_changed, cmd.show_line).
+--   4. A function other mods can call (remote.add, mod.json "exports").
 --
--- The day's letter is remembered in store.player, so each resident of the town
--- gets their own. The game's cap is per town, not per player: 3 letters a day
--- from one mod, so in a town of four the fourth resident to play that day
--- gets none.
+-- An event handler never changes the game itself. It QUEUES a command, and the
+-- game applies it at the end of a frame's update, once the player is free.
+-- mod.json must name each command in "permissions". command_finished then
+-- says how each one went, whatever kind it was.
+--
+-- The game's cap is per town, not per player: 3 letters a day from one mod,
+-- so in a town of four the fourth resident to play that day gets none.
+
+local MOD = "example.harvest-post"
+local FAIR = "harvest-fair" -- a day's id in calendar.json
+local ENTRY_FEE = 100
 
 -- Fruit: always a fine present (the shop's item rules refuse money, turnips,
 -- tickets, grab bags, fossils and reserve ids).
@@ -617,17 +703,52 @@ local function today()
   return t.year * 10000 + t.month * 100 + t.day
 end
 
-local function send_today()
-  local day = today()
-  if not day or store.player.get("sent") == day then return end
+-- Is one of this mod's calendar days today? game.calendar_today() lists the
+-- ids of this mod's own days that fall on the town's date, and only its own.
+local function is_today(day_id)
+  for _, id in ipairs(game.calendar_today()) do
+    if id == day_id then return true end
+  end
+  return false
+end
+
+-- store.town() names the town the store is for. It starts with "v:" away from
+-- home, on a friend's town, where a take is refused.
+local function at_home()
+  local town = store.town()
+  return town ~= nil and town:sub(1, 2) ~= "v:"
+end
+
+-- ── 4. A function for other mods ────────────────────────────────────────────
+-- remote.add offers it while the script loads. mod.json "exports" lists the
+-- names a mod offers, each with a line that says what it returns. Another mod
+-- names this one in "optional_depends" and asks with remote.call.
+remote.add("fair_today", function()
+  return is_today(FAIR)
+end)
+
+-- ── 1. The post ─────────────────────────────────────────────────────────────
+
+-- "present" is a setting from mod.json, set by the player on the Mods tab.
+-- It is a World setting (the default scope), so it is part of the town: a
+-- visitor lent this mod runs the host's choice. A World setting may decide
+-- what the town gets, so the letter command below is allowed after it.
+local function present()
+  if settings.get("present") == "none" then return nil end
   -- rng() counts the numbers this mod has drawn in this town today and keeps
   -- that count with the town, so a reload carries on from it: reloading the
   -- game cannot reroll the present.
-  local gift = GIFTS[rng(#GIFTS)]
+  return GIFTS[rng(#GIFTS)]
+end
+
+local function send_today()
+  local day = today()
+  if not day or store.player.get("sent") == day then return end
+  local gift = present()
   local id, why, code = cmd.send_letter{ text = message("letter"), item = gift, from = message("from") }
   if id then
     store.player.set("sent", day)
-    log("letter #" .. id .. " queued with item " .. string.format("0x%04X", gift))
+    log("letter #" .. id .. " queued" .. (gift and string.format(" with item 0x%04X", gift) or ", no present"))
   else
     log("no letter today: " .. why .. " (" .. code .. ")")
     -- The town's letters for today are used up: do not ask again until tomorrow.
@@ -635,19 +756,14 @@ local function send_today()
   end
 end
 
--- A new day, and the first scene of each session (a game loaded on a day it
--- already saw does not run day_started again).
-on("day_started", send_today)
-on("scene_entered", send_today)
-
 -- Try again later. timer.after counts GAME minutes and keeps the timer with
 -- this town's data, so it still fires after a save and a reload. One timer per
 -- resident is enough: a second refusal finds the first still waiting. The name
 -- comes back in timer_fired, and the data says whose letter it was.
 --
--- The mark that a timer is waiting is kept in the town's store under the
--- resident's id, not in store.player. The timer may fire while another
--- resident plays, and only the town's store can be cleared then.
+-- The timer's id is kept in the town's store under the resident's id, not in
+-- store.player. The timer may fire while another resident plays, and only the
+-- town's store can be cleared then.
 local RETRY_MINUTES = 30
 local function retry_key(id) return "retry:" .. tostring(id) end
 local function retry_later()
@@ -661,12 +777,106 @@ local function retry_later()
   end
 end
 
--- What happened to it: e.via is "mailbox", or "post_office" when the mailbox
--- was full. A refusal has e.code (stable, for the script) and e.message (for
--- the log).
+-- The letter got through some other way first: the waiting timer is not
+-- needed now. timer.cancel answers true when there was one to cancel.
+local function cancel_retry()
+  local p = game.player()
+  if not p then return end
+  local timer_id = store.get(retry_key(p.id))
+  if timer_id then
+    log("retry timer cancelled: " .. tostring(timer.cancel(timer_id)))
+    store.set(retry_key(p.id), nil)
+  end
+end
+
+-- ── 2. The fruit contest ────────────────────────────────────────────────────
+
+local ask_id = nil   -- the contest question, while it is out
+local thanks = {}    -- command ids of thank-you letters, so their results are not the post's
+
+-- cmd.ask puts a question with 2 to 4 answers in the player's thought window.
+-- The pick comes back in question_answered. Asked once per fair day per
+-- resident, in their own town.
+local function invite()
+  local day = today()
+  if not day or ask_id or not at_home() or not is_today(FAIR) then return end
+  if store.player.get("contest") == day then return end
+  local id, why, code = cmd.ask{ text = message("contest"), choices = { "Apple", "Pear", "Not today" } }
+  if id then
+    ask_id = id
+    store.player.set("contest", day) -- asked today, whatever the answer
+  else
+    log("no contest question: " .. why .. " (" .. code .. ")")
+  end
+end
+
+-- e.choice counts from 1 and e.text is the answer. Both are nil when the
+-- player closed the window with no pick.
+on("question_answered", function(e)
+  if e.id ~= ask_id then return end
+  ask_id = nil
+  if e.choice == nil or e.choice == 3 then
+    log("contest: not entered")
+    return
+  end
+  -- take_bells shows the game's own question, which names the amount and this
+  -- mod, so the player always sees what they pay. Its one result comes back in
+  -- command_finished: via "taken", or command-declined for a no.
+  local id, why, code = cmd.take_bells{ amount = ENTRY_FEE }
+  if id then
+    store.player.set("fruit", e.text)
+  else
+    log("contest: no entry fee asked: " .. why .. " (" .. code .. ")")
+  end
+end)
+
+-- ── 3. A line at 6 PM on fair day ───────────────────────────────────────────
+
+-- hour_changed fires on the game's own hourly update. cmd.show_line puts a
+-- line in the player's thought window once the player is free.
+on("hour_changed", function(e)
+  if e.hour ~= 18 or not is_today(FAIR) then return end
+  local id, why, code = cmd.show_line(message("packing_up"))
+  if not id then log("no packing-up line: " .. why .. " (" .. code .. ")") end
+end)
+
+-- ── Events ──────────────────────────────────────────────────────────────────
+
+-- A new day, and the first scene of each session (a game loaded on a day it
+-- already saw does not run day_started again).
+on("day_started", send_today)
+on("scene_entered", function(e)
+  send_today()
+  if e.name == "town" then invite() end
+end)
+
+-- What happened to each command. e.command names its kind. e.via says how it
+-- was applied ("mailbox" or "post_office" for a letter, "taken" for a take,
+-- "shown" for a line or a question). A refusal has e.code (stable, for the
+-- script) and e.message (for the log).
 on("command_finished", function(e)
+  if e.command == "take_bells" then
+    if e.ok then
+      log("contest: entered with " .. tostring(store.player.get("fruit")) .. ", " .. ENTRY_FEE .. " Bells paid")
+      -- the letters.json template: header, body, sign-off, present and paper
+      local id, why, code = cmd.send_letter{ template = "fair-thanks" }
+      if id then thanks[id] = true else log("no thank-you letter: " .. why .. " (" .. code .. ")") end
+    else
+      -- command-declined: the player said no. command-not-held: the wallet
+      -- holds less than the fee. Nothing was taken either way.
+      log("contest: no entry (" .. e.code .. ")")
+    end
+    return
+  end
+  if e.command ~= "send_letter" then return end -- the line and the question report "shown"
+  if thanks[e.id] then
+    thanks[e.id] = nil
+    log("thank-you letter " .. (e.ok and ("delivered via " .. e.via) or ("not delivered: " .. e.message)))
+    return
+  end
   if e.ok then
     log("letter #" .. e.id .. " delivered via " .. e.via)
+    cancel_retry()
   elseif e.code == "command-day-cap" then
     log("letter #" .. e.id .. " not delivered: " .. e.message)
   else
@@ -691,6 +901,15 @@ on("timer_fired", function(e)
   local p = game.player()
   if p and p.id == e.data then send_today() end
 end)
+
+-- The player read a letter. e.letter names a letters.json letter as
+-- "<mod id>:<letter id>" when a mod mailed it: the contest's thank-you, or
+-- Apple Day's, which calendar.json mails with no script at all.
+on("letter_read", function(e)
+  if e.first_time and e.letter and e.letter:sub(1, #MOD + 1) == MOD .. ":" then
+    log("read " .. e.letter)
+  end
+end)
 ```
 
 ### example.harvest-post/messages/en.json
@@ -698,7 +917,9 @@ end)
 ```json
 {
   "letter": "Good morning! Here is a little something to start your day. Have a lovely time in town, and come back tomorrow for another!",
-  "from": "A friend"
+  "from": "A friend",
+  "contest": "The fruit contest is on! It costs 100 Bells to enter. Which fruit will you show?",
+  "packing_up": "The Harvest Fair is packing up for the year. See you next September!"
 }
 ```
 
@@ -710,11 +931,11 @@ end)
   "api": 1,
   "id": "example.harvest-post",
   "name": "Harvest Post",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "authors": [
     "Play AC Online"
   ],
-  "description": "Two calendar days of our own, the Harvest Fair and Apple Day, with a notice on the bulletin board and villagers talking about it all day. And once a game day, a script mails you a letter with a little present: a worked example of mod commands and a timer.",
+  "description": "Two calendar days of our own, the Harvest Fair and Apple Day, with a notice on the bulletin board, villagers talking about it all day and a letter on Apple Day. On fair day you can enter the fruit contest for 100 Bells and get a thank-you letter. And once a game day, a script mails you a letter with a little present: a worked example of mod commands, a question, a setting and a timer.",
   "scope": "world",
   "content": {
     "calendar": "calendar.json",
@@ -726,12 +947,31 @@ end)
     "events": [
       "day_started",
       "scene_entered",
+      "hour_changed",
+      "question_answered",
       "command_finished",
-      "timer_fired"
+      "timer_fired",
+      "letter_read"
     ]
   },
   "permissions": [
-    "send_letter"
+    "send_letter",
+    "show_line",
+    "ask",
+    "take_bells"
+  ],
+  "exports": {
+    "fair_today": "true when today is the Harvest Fair in this town, else false."
+  },
+  "settings": [
+    {
+      "name": "present",
+      "type": "choice",
+      "label": "Present in the daily letter",
+      "description": "Fruit puts a piece of fruit in each day's letter. None sends the letter alone.",
+      "choices": ["fruit", "none"],
+      "default": "fruit"
+    }
   ],
   "assets_original": true
 }

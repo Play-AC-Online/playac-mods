@@ -9,6 +9,9 @@ never changes after it is listed.
 
 ## 0.2.0
 
+- `check` knows an item's own pictures: an items-file `textures` folder of up
+  to 16 `.png` or `.dds` files named after its base's textures, outside
+  `content.textures`. It does not call those pictures unused.
 - Removed `new`, `types`, `publish`, `status`, `yank`, `unyank` and `logout`,
   and the sign-in they used. Start a mod from an example repository or a
   starter kit. Share it from the website, by upload or "Import from GitHub".

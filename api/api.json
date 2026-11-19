@@ -386,6 +386,18 @@
       }
     },
     {
+      "name": "items.texture_files",
+      "value": 16,
+      "unit": "files",
+      "since": 1,
+      "description": "Pictures in one mod item's own textures folder (its \"textures\" setting), counting the files in its subfolders.",
+      "sources": {
+        "js": "MOD_ITEM_TEXTURE_FILES_MAX",
+        "go": "maxModItemTextureFiles",
+        "c": "PC_MOD_ITEM_TEXTURE_FILES_MAX"
+      }
+    },
+    {
       "name": "lua.event_deadline_ms",
       "value": 125,
       "unit": "milliseconds",
@@ -2095,8 +2107,31 @@
       "since": 1,
       "manifest_key": "content.shops",
       "format": "json",
+      "title": "shops.json",
+      "guides": [
+        {
+          "path": "/modding/guides/flower-shop/",
+          "title": "The flower shop"
+        },
+        {
+          "path": "/modding/guides/more-targets/#nook",
+          "title": "Nook's store"
+        }
+      ],
+      "error_areas": [
+        "shops"
+      ],
+      "limits": [
+        "shops.per_file",
+        "shops.stock",
+        "nook.stock",
+        "shops.name_chars",
+        "shops.line_chars",
+        "shops.line_newlines",
+        "shops.price_max"
+      ],
       "schema_file": "shops.schema.json",
-      "description": "Restocks and rewords a shop: the flower shop or Nook's. For target nook, the goods are added to or replace the day's roll per spot kind, in every store size, from the next restock. Nook's goods are off in The City. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so.",
+      "description": "Restocks and rewords a shop: the flower shop or Nook's. For target nook, the goods are added to or replace the day's roll per spot kind, in every store size, from the next restock. A nook entry with hours sells its goods only inside them, as the shop's whole stock: each spot of a kind it lists takes one of its goods, every other spot is bare, and the day's own stock is back when the hours end. Nook's opens for those hours when it is shut for the night. A new set is picked each day when there are more goods than spots. Nook's goods are off in The City. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so.",
       "schema": {
         "type": "object",
         "required": [
@@ -2124,7 +2159,7 @@
                     "flower",
                     "nook"
                   ],
-                  "description": "Which shop: \"flower\" or \"nook\". One shop per target. A nook entry takes only mode and stock."
+                  "description": "Which shop: \"flower\" or \"nook\". One shop per target. A nook entry takes only mode, hours and stock."
                 },
                 "name": {
                   "type": "string",
@@ -2142,14 +2177,16 @@
                   "properties": {
                     "open": {
                       "type": "string",
-                      "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                      "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+                      "description": "When the shop opens, on a 24-hour clock."
                     },
                     "close": {
                       "type": "string",
-                      "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                      "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+                      "description": "When the shop closes, on a 24-hour clock."
                     }
                   },
-                  "description": "HH:MM. Open and close must differ. Close may be past midnight. Hours can only shorten the shop's own."
+                  "description": "HH:MM. Open and close must differ. Close may be past midnight. For the flower shop, hours can only shorten the shop's own. For Nook's, the goods are the whole stock inside the hours and nothing outside them, and the shop opens for them when it is shut for the night. It does not open before its morning opening, on a renovation day or in a sale's hours."
                 },
                 "greeting": {
                   "type": "string",
@@ -2201,7 +2238,7 @@
                     "add",
                     "replace"
                   ],
-                  "description": "Nook's only. \"add\" (the default) puts the goods in at most half of each kind's spots. \"replace\" puts them in all of them."
+                  "description": "Nook's only, and not with hours. \"add\" (the default) puts the goods in at most half of each kind's spots. \"replace\" puts them in all of them."
                 }
               },
               "allOf": [
@@ -2224,9 +2261,31 @@
                       }
                     }
                   }
+                },
+                {
+                  "description": "Nook's \"mode\" and \"hours\" do not go together: with hours the goods are the whole stock.",
+                  "if": {
+                    "required": [
+                      "target",
+                      "hours"
+                    ],
+                    "properties": {
+                      "target": {
+                        "const": "nook"
+                      }
+                    }
+                  },
+                  "then": {
+                    "not": {
+                      "required": [
+                        "mode"
+                      ]
+                    }
+                  }
                 }
               ]
-            }
+            },
+            "description": "The shops this file changes, at most one for each target."
           }
         }
       },
@@ -2255,6 +2314,21 @@
       "since": 1,
       "manifest_key": "content.messages",
       "format": "json",
+      "title": "messages file",
+      "guides": [
+        {
+          "path": "/modding/guides/lines/#file",
+          "title": "Lines and messages: the messages file"
+        }
+      ],
+      "error_areas": [
+        "messages"
+      ],
+      "limits": [
+        "messages.lines",
+        "messages.key_bytes",
+        "messages.text_bytes"
+      ],
       "schema_file": "messages.schema.json",
       "description": "Lines a script or another mod can use, by key. A script reads its own with message(\"key\") and another mod's with message(\"author.mod:key\"). This file cannot carry a $schema key, because every key is a line. Point your editor at messages.schema.json in its settings instead.",
       "schema": {
@@ -2278,7 +2352,25 @@
       "since": 1,
       "manifest_key": "content.textures",
       "format": "folder",
-      "description": "A folder of replacement textures, named the way Dolphin names a custom texture. A mod's texture beats the HD pack. Among mods, the one lower in the list wins. The exception is that a file for one exact palette beats any mod's \"$\" (every palette) file for the same texture (rule load_order_last_wins). All mods' DDS textures together may take 96 MB on the graphics card, or 24 MB on a phone. Their PNGs may take 96 MB of pixels, or 24 MB on a phone. A texture past its limit is left out and named on its mod's row. A mod's texture is read a little each frame after it is first drawn, so the game's own texture shows for a moment before it. Use the texture inspector (Settings, Mods, Developer) to find a texture's name.",
+      "title": "textures folder",
+      "guides": [
+        {
+          "path": "/modding/guides/textures/",
+          "title": "Textures"
+        }
+      ],
+      "error_areas": [
+        "textures",
+        "inspector"
+      ],
+      "limits": [
+        "textures.png_side",
+        "textures.png_decoded_bytes",
+        "textures.png_decoded_bytes_phone",
+        "textures.dds_bytes",
+        "textures.dds_bytes_phone"
+      ],
+      "description": "A folder of replacement textures, named the way Dolphin names a custom texture. A mod's texture beats the HD pack. Among mods, the one lower in the list wins. The exception is that a file for one exact palette beats any mod's \"$\" (every palette) file for the same texture (rule load_order_last_wins). All mods' DDS textures together may take 96 MB on the graphics card, or 24 MB on a phone. Their PNGs may take 96 MB of pixels, or 24 MB on a phone. A texture past its limit is left out and named on its mod's row. A mod's texture is read a little each frame after it is first drawn, so the game's own texture shows for a moment before it. Find a texture's name in the model viewer (/viewer/).",
       "naming": [
         {
           "pattern": "tex1_<w>x<h>_<data>_<fmt>.dds",
@@ -2306,6 +2398,25 @@
       "since": 1,
       "manifest_key": "scripts.main",
       "format": "lua",
+      "title": "main.lua",
+      "guides": [
+        {
+          "path": "/modding/guides/scripts/",
+          "title": "Scripts (Lua)"
+        }
+      ],
+      "error_areas": [
+        "scripts",
+        "script"
+      ],
+      "limits": [
+        "file.lua_bytes",
+        "lua.memory_bytes",
+        "lua.budget",
+        "lua.deadline_ms",
+        "lua.event_deadline_ms",
+        "lua.handlers_per_event"
+      ],
       "description": "Lua 5.4 source text, run once when the game starts. Bytecode is refused. The script registers handlers with on() and returns nothing. Each mod has its own Lua state, and mods cannot see each other's globals.",
       "example": "on(\"villager_talked\", function(e) return \"Hi \" .. e.villager.name .. \"!\" end)"
     },
@@ -2314,8 +2425,29 @@
       "since": 1,
       "manifest_key": "content.items",
       "format": "json",
+      "title": "items.json",
+      "guides": [
+        {
+          "path": "/modding/guides/mod-items/",
+          "title": "New items"
+        },
+        {
+          "path": "/modding/guides/mod-items/#look",
+          "title": "New items: its own look"
+        }
+      ],
+      "error_areas": [
+        "items"
+      ],
+      "limits": [
+        "items.per_mod",
+        "items.total",
+        "items.price_max",
+        "items.renames",
+        "items.texture_files"
+      ],
       "schema_file": "mod-items.schema.json",
-      "description": "New furniture, each on a vanilla base piece. The game also refuses a base with no model, fossils, gyroids, clothing, design pieces and pieces that become a pocket item. In the save, a mod item is its base piece. A file beside the save (mod-items.json) maps it back. Removing the mod therefore leaves the base piece behind, and reinstalling restores the mod item. That file belongs to the save it was written beside. Next to another save of the same town, such as a backup put back or an older town file imported, it is not used. Those pieces are then plain base pieces again.",
+      "description": "New furniture, each on a vanilla base piece. The game also refuses a base with no model, fossils, gyroids, clothing, design pieces and pieces that become a pocket item. In the save, a mod item is its base piece. A file beside the save (mod-items.json) maps it back. Removing the mod therefore leaves the base piece behind, and reinstalling restores the mod item. That file belongs to the save it was written beside. Next to another save of the same town, such as a backup put back or an older town file imported, it is not used. Those pieces are then plain base pieces again. An item may carry its own pictures (\"textures\"). They replace the base piece's textures on that item alone, in a house and on Nook's floor. On the flower shop's bench a furniture good is a leaf. Every other copy of the base keeps its look.",
       "schema": {
         "type": "object",
         "required": [
@@ -2359,9 +2491,15 @@
                   "minimum": 1,
                   "maximum": 99999,
                   "description": "The price in Bells. Leave it out for the base piece's price."
+                },
+                "textures": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "A folder inside the mod with this item's own pictures: 1 to 16 .png or .dds files named like a texture mod's files, with the base piece's texture names. Only this item draws them. The folder may not be inside content.textures or hold it."
                 }
               }
-            }
+            },
+            "description": "The new items. Each one stands on a base piece of the game's own furniture."
           }
         }
       },
@@ -2371,7 +2509,8 @@
             "id": "cup",
             "name": "Tea cup",
             "base": "0x1000",
-            "price": 800
+            "price": 800,
+            "textures": "items/cup/"
           }
         ]
       }
@@ -2381,6 +2520,15 @@
       "since": 1,
       "manifest_key": "none (engine-owned)",
       "format": "json",
+      "title": "mod-items.json (the game's)",
+      "guides": [
+        {
+          "path": "/modding/guides/mod-items/#save",
+          "title": "New items: how it is kept"
+        }
+      ],
+      "error_areas": [],
+      "limits": [],
       "description": "/save/card_a/mod-items.json. The game writes it beside the home save, and a mod never reads or writes it. It records which placed or carried base pieces are which mod item, and which renames have run. It rides in the cloud save and in a friend visit's town copy."
     },
     {
@@ -2388,6 +2536,26 @@
       "since": 1,
       "manifest_key": "content.letters",
       "format": "json",
+      "title": "letters.json",
+      "guides": [
+        {
+          "path": "/modding/guides/more-targets/#letters",
+          "title": "Letters"
+        }
+      ],
+      "error_areas": [
+        "letters"
+      ],
+      "limits": [
+        "letters.per_file",
+        "letters.header_chars",
+        "letters.body_chars",
+        "letters.body_lines",
+        "letters.footer_chars",
+        "letters.sender_chars",
+        "commands.papers",
+        "commands.letters_per_day"
+      ],
       "schema_file": "letters.schema.json",
       "description": "Letter templates that a mod command (send_letter) mails through the mailbox, named \"<mod id>:<letter id>\". The game wraps the body at the paper's width in its own font and refuses one that needs more than 6 lines. It also refuses a present that is money, turnips, a ticket, a grab bag, a fossil or not an item. Either scope.",
       "schema": {
@@ -2455,7 +2623,8 @@
                   "description": "The stationery, default 0."
                 }
               }
-            }
+            },
+            "description": "The letter templates. A script mails one with cmd.send_letter, and a calendar day can name one."
           }
         }
       },
@@ -2478,6 +2647,25 @@
       "since": 1,
       "manifest_key": "content.calendar",
       "format": "json",
+      "title": "calendar.json",
+      "guides": [
+        {
+          "path": "/modding/guides/more-targets/#calendar",
+          "title": "Calendar days"
+        }
+      ],
+      "error_areas": [
+        "calendar"
+      ],
+      "limits": [
+        "calendar.per_file",
+        "calendar.talk_lines",
+        "calendar.board_per_day",
+        "letters.body_chars",
+        "letters.body_lines",
+        "talk.line_chars",
+        "commands.letters_per_day"
+      ],
       "schema_file": "calendar.schema.json",
       "description": "Calendar days: dated days with safe effects only, and no script. A day can have a notice on the town bulletin board. The notice is posted once on the day in the player's own town, never on a visit or in The City, and needs scope world. A day can have villager lines for the day, which come ahead of talk pools. A day can have a letter from the same mod's letters file. The letter is mailed once on the day to the player's mailbox in their own town, never on a visit or in The City, and counts against the mod's daily letter limit. A day cannot add decorations, because the game has no data format for them.",
       "schema": {
@@ -2535,12 +2723,14 @@
                     "month": {
                       "type": "integer",
                       "minimum": 1,
-                      "maximum": 12
+                      "maximum": 12,
+                      "description": "1 for January to 12 for December."
                     },
                     "day": {
                       "type": "integer",
                       "minimum": 1,
-                      "maximum": 31
+                      "maximum": 31,
+                      "description": "The day of the month. Not with week or weekday."
                     },
                     "week": {
                       "anyOf": [
@@ -2554,12 +2744,14 @@
                             "last"
                           ]
                         }
-                      ]
+                      ],
+                      "description": "The week of the month: 1 to 4, or \"last\". Needs weekday."
                     },
                     "weekday": {
                       "type": "integer",
                       "minimum": 0,
-                      "maximum": 6
+                      "maximum": 6,
+                      "description": "0 for Sunday to 6 for Saturday. Needs week."
                     }
                   }
                 },
@@ -2578,7 +2770,8 @@
                     "minLength": 1,
                     "maxLength": 160,
                     "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
-                  }
+                  },
+                  "description": "Lines villagers say on the day. They come ahead of every talk pool."
                 },
                 "letter": {
                   "type": "string",
@@ -2586,7 +2779,8 @@
                   "description": "The id of a letter in this mod's letters file, mailed on the day. It is mailed once per town per day, the first time the player is free in their own town. It follows the same rules as cmd.send_letter: it goes to the mailbox or else the post office, and counts against the daily letter limit. No permission or script is needed."
                 }
               }
-            }
+            },
+            "description": "The dated days."
           }
         }
       },
@@ -2624,6 +2818,23 @@
       "since": 1,
       "manifest_key": "content.talk",
       "format": "json",
+      "title": "talk.json",
+      "guides": [
+        {
+          "path": "/modding/guides/more-targets/#talk",
+          "title": "Villager lines"
+        }
+      ],
+      "error_areas": [
+        "talk"
+      ],
+      "limits": [
+        "talk.pools",
+        "talk.lines_per_pool",
+        "talk.line_chars",
+        "talk.line_newlines",
+        "talk.villager_chars"
+      ],
       "schema_file": "talk.schema.json",
       "description": "Villager line pools. On an ordinary talk where no script said a line, a villager says at most one data line a day, then their own hello. A special talk never uses a pool. Today's calendar lines come first. Otherwise the most specific matching pools are used: this villager, else this personality, else everyone. When several mods have pools that match, their lines are put together and one is picked. It is not always the first mod's. The game keeps which villagers had their line today per town with the save, so restarting the game does not make them say one again. Either scope. Pools run in The City too.",
       "schema": {
@@ -2679,10 +2890,12 @@
                     "minLength": 1,
                     "maxLength": 160,
                     "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
-                  }
+                  },
+                  "description": "The pool's lines. The game picks one."
                 }
               }
-            }
+            },
+            "description": "The pools. A pool speaks for everyone, for one personality or for one villager."
           }
         }
       },

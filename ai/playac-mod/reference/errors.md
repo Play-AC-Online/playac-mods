@@ -1421,22 +1421,43 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    shops: shop 1 "hours" is the flower shop's: Nook's shop takes only "mode" and "stock"
-    shops: shop 1 "greeting" is the flower shop's: Nook's shop takes only "mode" and "stock"
-    shops: shop 1 "name" is the flower shop's: Nook's shop takes only "mode" and "stock"
-    shops: shop 1 "stock_line" is the flower shop's: Nook's shop takes only "mode" and "stock"
+    shops: shop 1 "name" is the flower shop's: Nook's shop takes only "mode", "hours" and "stock"
+    shops: shop 1 "greeting" is the flower shop's: Nook's shop takes only "mode", "hours" and "stock"
+    shops: shop 1 "stock_line" is the flower shop's: Nook's shop takes only "mode", "hours" and "stock"
 
 From the mod list (upload):
 
-    shops.json: shop 1's hours is the flower shop's. Nook's shop takes only mode and stock.
+    shops.json: shop 1's name is the flower shop's. Nook's shop takes only mode, hours and stock.
 
 From the game (Mods tab row):
 
-    shops: Nook's shop takes only "mode" and "stock", not: hours
+    shops: Nook's shop takes only "mode", "hours" and "stock", not: name
 
-What it means: Nook keeps his own name, hours and lines. A "nook" entry takes only "mode" and "stock".
+What it means: Nook keeps his own name and lines. A "nook" entry takes only "mode", "hours" and "stock".
 
-How to fix it: Take "name", "hours", "greeting" and "stock_line" out of the "nook" entry. They belong to the flower shop.
+How to fix it: Take "name", "greeting" and "stock_line" out of the "nook" entry. They belong to the flower shop.
+
+### nook-hours-mode
+
+**Nook's "mode" and "hours" together**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: shop 1 "mode" and "hours" do not go together: with hours the goods are Nook's whole stock
+
+From the mod list (upload):
+
+    shops.json: shop 1's mode and hours do not go together. With hours the goods are Nook's whole stock.
+
+From the game (Mods tab row):
+
+    shops: Nook's "mode" and "hours" do not go together: with hours the goods are the whole stock
+
+What it means: With "hours", your goods are everything Nook sells inside those hours and every other spot is bare. "mode" says how goods share the day's own stock, so it has nothing to do there.
+
+How to fix it: Take "mode" out of a "nook" entry with "hours", or take "hours" out to add to the day's stock.
 
 ### nook-mode
 
@@ -1706,15 +1727,15 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    items: item 1 "model" is not an item setting (only id, name, base, price)
+    items: item 1 "model" is not an item setting (only id, name, base, price, textures)
 
 From the mod list (upload):
 
-    items.json: item 1's "model" is not an item setting. Use id, name, base, price.
+    items.json: item 1's "model" is not an item setting. Use id, name, base, price, textures.
 
-What it means: An item may only have id, name, base and price.
+What it means: An item may only have id, name, base, price and textures.
 
-How to fix it: Remove the other keys. The look comes from "base", and a texture mod can recolour it.
+How to fix it: Remove the other keys. The shape comes from "base". Its pictures come from "textures", a folder of the item's own pictures.
 
 ### item-id
 
@@ -1803,6 +1824,91 @@ What it means: A price is a whole number of Bells from 1 to 99999. Leave it out 
 
 How to fix it: Use a whole number from 1 to 99999, or remove "price".
 
+### item-textures
+
+**An item "textures" is not a folder in the mod**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    items: item 1 "textures" must be a folder inside the mod with files in it
+
+From the mod list (upload):
+
+    items.json: item "tea-chest"'s textures must be a folder inside the mod with files in it.
+
+From the game (Mods tab row):
+
+    items: an item's "textures" must be a folder inside the mod, its pictures are left out: tea-chest
+
+What it means: An item's "textures" names a folder inside the mod that holds the item's own pictures. The path is not one, or nothing is in it.
+
+How to fix it: Put the item's pictures in a folder, like items/tea-chest/, and name that folder in "textures". Or remove "textures" to draw the base piece's pictures.
+
+### item-textures-count
+
+**An item has more than 16 pictures**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    items: item 1 "textures" folder items/tea-chest/ holds 17 files, at most 16
+
+From the mod list (upload):
+
+    items.json: item "tea-chest"'s textures folder "items/tea-chest/" holds 17 files, at most 16.
+
+From the game (Mods tab row):
+
+    items: an item's textures folder holds more than 16 files, the rest are left out: tea-chest
+
+What it means: One item's textures folder holds at most 16 files, counting its subfolders. A piece of furniture draws only a few pictures.
+
+How to fix it: Keep only the pictures the base piece draws. The model viewer lists the base piece's textures.
+
+### item-textures-name
+
+**A file in an item's textures folder is not a texture**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
+
+In the game page (install, check tool):
+
+    items: item 1 "textures" file items/tea-chest/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)
+
+From the mod list (upload):
+
+    items.json: item "tea-chest"'s textures file "items/tea-chest/notes.txt" is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt).
+
+What it means: Every file in an item's textures folder is a picture named after the base piece's texture, the way a texture mod names its files.
+
+How to fix it: Rename the picture to the name the model viewer shows for the base piece's texture, ending in .png or .dds. Move any other file out of the folder.
+
+### item-textures-overlap
+
+**An item's textures folder is part of content.textures**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    items: item 1 "textures" folder textures/tea-chest/ is inside content.textures or holds it: there its pictures would change every copy of the base
+    items: item 1 "textures" folder art/ is inside content.textures or holds it: there its pictures would change every copy of the base
+
+From the mod list (upload):
+
+    items.json: item "tea-chest"'s textures folder "textures/tea-chest/" is inside content.textures or holds it. There its pictures would change every copy of the base.
+
+From the game (Mods tab row):
+
+    items: an item's textures folder is inside content.textures or holds it, its pictures are left out: tea-chest
+
+What it means: The pictures in content.textures change every copy of a texture in the game. An item's own pictures must be outside that folder, or they would change every copy of the base piece too.
+
+How to fix it: Move the item's pictures to a folder of their own beside the textures folder, like items/tea-chest/.
+
 ### item-malformed
 
 **The game left out a malformed item**
@@ -1813,9 +1919,9 @@ From the game (Mods tab row):
 
     items: a malformed item is left out: tea-chest
 
-What it means: The game left out one item. Its id, name or base breaks the rules, or it holds a key other than id, name, base and price. Installing checks this first, so it shows only in developer mode or after an installed mod was edited.
+What it means: The game left out one item. Its id, name or base breaks the rules, or it holds a key other than id, name, base, price and textures. Installing checks this first, so it shows only in developer mode or after an installed mod was edited.
 
-How to fix it: Run `playac-mod check` and fix the item it names. An item has an id, a name, a base and an optional price, and no other keys.
+How to fix it: Run `playac-mod check` and fix the item it names. An item has an id, a name, a base, an optional price and optional textures, and no other keys.
 
 ### item-base-refused
 
@@ -2786,7 +2892,7 @@ From the mod list (upload):
 
     "textures/tex1_64x64_626709d910129694_14.dds" is an unchanged copy of a texture from the game (tex1_64x64_626709d910129694_14). Upload only art you made yourself.
 
-What it means: Every pixel of this texture equals a texture from the game or the HD pack. A mod may only hold art you made, and a PNG saved from the model viewer or the texture inspector is the game's art.
+What it means: Every pixel of this texture equals a texture from the game or the HD pack. A mod may only hold art you made, and a PNG saved from the model viewer is the game's art.
 
 How to fix it: Paint your own picture into the file and keep the file name. Delete files you did not change.
 
@@ -2961,15 +3067,15 @@ From the game (Mods tab row):
 
 What it means: The game reads only .dds and .png files in the textures folder that carry a texture name, like tex1_64x64_hash_14. It skips anything else there.
 
-How to fix it: Name the file after the texture it replaces. The texture inspector copies the name for you. Save it as .dds (BC7, BC1, BC3 or uncompressed RGBA) or .png, then reload.
+How to fix it: Name the file after the texture it replaces. The model viewer copies the name for you. Save it as .dds (BC7, BC1, BC3 or uncompressed RGBA) or .png, then reload.
 
-## The texture inspector (developer mode)
+## The texture inspector (removed)
 
 ### inspector-no-scene
 
-**The game is not in a scene yet**
+**The game is not in a scene yet** (retired)
 
-Seen in: Settings, Mods, Developer (open the game with ?moddev=1).
+Seen in: Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer).
 
 On the site:
 
@@ -2981,9 +3087,9 @@ How to fix it: Load your town first, then press Record textures.
 
 ### inspector-texture-gone
 
-**That texture is no longer kept**
+**That texture is no longer kept** (retired)
 
-Seen in: Settings, Mods, Developer (open the game with ?moddev=1).
+Seen in: Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer).
 
 On the site:
 
@@ -2997,7 +3103,7 @@ How to fix it: Walk back to where the texture is drawn, so it is recorded again.
 
 **The starter mod could not be exported** (retired)
 
-Seen in: Settings, Mods, Developer (open the game with ?moddev=1).
+Seen in: Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer).
 
 On the site:
 
@@ -4227,22 +4333,19 @@ How to fix it: Add a screenshot in Share a mod, or in .playac/screenshots/, whic
 
 ### upload-changelog
 
-**A changelog line is needed**
+**The changelog line could not be used**
 
 Seen in: Share a mod, when you upload.
 
 From the mod list (upload):
 
-    Say in one line what this version changes.
-    The changelog line must be 1 to 300 characters of text, with at most 4 line breaks.
+    The changelog line must be at most 300 characters of text, with at most 4 line breaks.
     The changelog line has a word the site does not allow. Say it another way.
     Send one changelog line.
 
-Registry codes: `changelog_required`
+What it means: A shared version may carry one optional line on what it changes. The line that came with this one could not be used.
 
-What it means: Every shared version needs one line on what it changes. The line shows in the version list on the mod's page.
-
-How to fix it: Write the line in Share a mod, or as this version's section of CHANGELOG.md. Keep it to 300 characters and 4 line breaks. It goes through the site's word filter.
+How to fix it: Shorten the line in Share a mod, or in this version's section of CHANGELOG.md, or leave it out. Keep it to 300 characters and 4 line breaks. It goes through the site's word filter.
 
 ### upload-form
 
@@ -4258,7 +4361,7 @@ From the mod list (upload):
     The upload form has no boundary.
     Send one zip at a time.
 
-What it means: An upload is a form with the ZIP, the screenshots and the changelog line. This one was not sent the way the site sends it.
+What it means: An upload is a form with the ZIP, the screenshots and an optional changelog line. This one was not sent the way the site sends it.
 
 How to fix it: Share from Settings, Mods. A script of your own must send multipart/form-data with the parts zip, screenshot and changelog.
 

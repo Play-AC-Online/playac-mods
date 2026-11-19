@@ -206,8 +206,10 @@ const TOOL_FILES = new Set(['package.json', 'package-lock.json', 'npm-shrinkwrap
  * package.json, a stray export. A warning, not a problem: the pack rule is
  * shared with the registry's GitHub import (pack-cases.json), and an extra
  * file is harmless, only wasted bytes that players download. Docs (.md .txt)
- * and scripts (warned about on their own) are left alone. */
-export function unusedFileWarnings(manifest, names) {
+ * and scripts (warned about on their own) are left alone.
+ * itemsDoc: the parsed content.items file, if any. each item's own
+ * "textures" folder is read by the game too, so its files are used. */
+export function unusedFileWarnings(manifest, names, itemsDoc) {
   if (!isObj(manifest)) return [];
   const c = isObj(manifest.content) ? manifest.content : {};
   const used = new Set(['mod.json']);
@@ -217,6 +219,11 @@ export function unusedFileWarnings(manifest, names) {
     used.add(c[k]);
   }
   if (typeof c.textures === 'string' && c.textures) dirs.push(c.textures.replace(/\/$/, '') + '/');
+  if (isObj(itemsDoc) && Array.isArray(itemsDoc.items)) {
+    for (const it of itemsDoc.items) {
+      if (isObj(it) && typeof it.textures === 'string' && it.textures) dirs.push(it.textures.replace(/\/+$/, '') + '/');
+    }
+  }
   const out = [];
   for (const name of names) {
     const lower = name.toLowerCase();
@@ -260,7 +267,7 @@ function textureWarnings(dir, names, ents, warn) {
     const png = lower.endsWith('.png');
     if (!lower.endsWith('.dds') && !png) continue;
     if (!TEXTURE_NAME_RE.test(base)) {
-      warn(name, 'is not a texture name the game matches. A name looks like tex1_<w>x<h>_<hash>[_<palette>]_<format>.dds or .png. Find names with the texture inspector.');
+      warn(name, 'is not a texture name the game matches. A name looks like tex1_<w>x<h>_<hash>[_<palette>]_<format>.dds or .png. Find names in the model viewer (playaconline.com/viewer/).');
       continue;
     }
     const key = lower.slice(0, -4);
@@ -375,7 +382,7 @@ export async function checkEntries(entries, opts = {}) {
       warn('mod.json', `"api" is ${api}. The game's newest API level is ${mods.API_MAX}.`);
     }
     if (typeof c.textures === 'string') textureWarnings(c.textures.replace(/\/$/, '') + '/', names, ents, warn);
-    for (const w of unusedFileWarnings(manifest, names)) warn(w.file, w.message);
+    for (const w of unusedFileWarnings(manifest, names, c.items ? docOf(c.items) : undefined)) warn(w.file, w.message);
     const scripts = isObj(manifest) && isObj(manifest.scripts) ? manifest.scripts : null;
     const main = scripts && scripts.main;
     for (const name of names.filter((x) => x.endsWith('.lua'))) {

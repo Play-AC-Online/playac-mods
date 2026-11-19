@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/calendar.schema.json",
   "title": "Play AC Online calendar file",
-  "description": "Calendar days: dated days with safe effects only, and no script. A day can have a notice on the town bulletin board. The notice is posted once on the day in the player's own town, never on a visit or in The City, and needs scope world. A day can have villager lines for the day, which come ahead of talk pools. A day can have a letter from the same mod's letters file. The letter is mailed once on the day to the player's mailbox in their own town, never on a visit or in The City, and counts against the mod's daily letter limit. A day cannot add decorations, because the game has no data format for them. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/",
+  "description": "Calendar days: dated days with safe effects only, and no script. A day can have a notice on the town bulletin board. The notice is posted once on the day in the player's own town, never on a visit or in The City, and needs scope world. A day can have villager lines for the day, which come ahead of talk pools. A day can have a letter from the same mod's letters file. The letter is mailed once on the day to the player's mailbox in their own town, never on a visit or in The City, and counts against the mod's daily letter limit. A day cannot add decorations, because the game has no data format for them. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/#calendar",
   "type": "object",
   "required": [
     "days"
@@ -57,12 +57,14 @@
               "month": {
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 12
+                "maximum": 12,
+                "description": "1 for January to 12 for December."
               },
               "day": {
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 31
+                "maximum": 31,
+                "description": "The day of the month. Not with week or weekday."
               },
               "week": {
                 "anyOf": [
@@ -76,12 +78,14 @@
                       "last"
                     ]
                   }
-                ]
+                ],
+                "description": "The week of the month: 1 to 4, or \"last\". Needs weekday."
               },
               "weekday": {
                 "type": "integer",
                 "minimum": 0,
-                "maximum": 6
+                "maximum": 6,
+                "description": "0 for Sunday to 6 for Saturday. Needs week."
               }
             }
           },
@@ -100,7 +104,8 @@
               "minLength": 1,
               "maxLength": 160,
               "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
-            }
+            },
+            "description": "Lines villagers say on the day. They come ahead of every talk pool."
           },
           "letter": {
             "type": "string",
@@ -108,7 +113,8 @@
             "description": "The id of a letter in this mod's letters file, mailed on the day. It is mailed once per town per day, the first time the player is free in their own town. It follows the same rules as cmd.send_letter: it goes to the mailbox or else the post office, and counts against the daily letter limit. No permission or script is needed."
           }
         }
-      }
+      },
+      "description": "The dated days."
     }
   }
 }
