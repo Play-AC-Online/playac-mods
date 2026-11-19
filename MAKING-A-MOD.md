@@ -431,7 +431,7 @@ A World mod can also add goods to Nook's shop, in every store size:
 }
 ```
 
-- A `"nook"` entry takes only `mode` and `stock`. `name`, `hours`, `greeting`
+- A `"nook"` entry takes only `mode`, `hours` and `stock`. `name`, `greeting`
   and `stock_line` are for the flower shop.
 - Each good stands where Nook's own goods of its kind stand. The kinds are
   furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas,
@@ -449,6 +449,33 @@ A World mod can also add goods to Nook's shop, in every store size:
   the floor. Catalogue orders stay at the usual price.
 - The goods show from the next morning's restock.
 - In The City, Nook's is the game's own.
+
+With `hours`, the goods are not added to the day's stock. They are Nook's
+whole stock inside the hours, and nothing of yours is there outside them:
+
+```json
+{
+  "shops": [{
+    "target": "nook",
+    "hours": { "open": "01:00", "close": "03:00" },
+    "stock": [
+      { "item": "0x1768" },
+      { "item": "0x1738" },
+      { "item": "0x16E4" }
+    ]
+  }]
+}
+```
+
+- Inside the hours each spot of a kind you list holds one of your goods.
+  Every other spot is bare.
+- If the shop is shut for the night then, it opens for your hours. It does
+  not open in the hour before its morning opening, on a renovation day or in
+  a sale's hours.
+- The day's own stock is never changed: it is back when your hours end.
+- What is bought inside the hours stays sold out until the game restarts.
+- An entry with `hours` takes no `mode`.
+- The After Hours example does this: from 1 AM to 3 AM, only gyroids.
 
 ## Items
 

@@ -1008,10 +1008,16 @@ reinstalling restores the name.
   closed tab whose record does not match the pockets that came home), the
   player's carried mod items become their plain bases, never another mod item.
 ## shops.json, target nook
-- An entry `{ "target": "nook", "mode": ..., "stock": [...] }`. It takes only `mode` and
-  `stock`: `name`, `hours`, `greeting`, `stock_line` are the flower shop's and are
-  refused. Unknown other keys are refused, as for the flower shop.
-- `mode`: optional, `"add"` (the default) or `"replace"`.
+- An entry `{ "target": "nook", "mode": ..., "hours": ..., "stock": [...] }`. It takes
+  only `mode`, `hours` and `stock`: `name`, `greeting`, `stock_line` are the flower
+  shop's and are refused (`nook-flower-key`). Unknown other keys are refused, as for
+  the flower shop.
+- `mode`: optional, `"add"` (the default) or `"replace"`. Not with `hours`.
+- `hours`: optional, the flower shop's shape and rules (`{ "open": "HH:MM", "close":
+  "HH:MM" }`, strict, open == close refused, close may be past midnight). `mode` and
+  `hours` together are refused (`nook-hours-mode`): with hours the goods are the
+  whole stock, so how they share the day's roll has nothing to say. What hours do is
+  below, under "With hours".
 - `stock`: 1..16 entries `{ "item": "0x" + 4 hex (string), "price": optional integer
   1..99999 }`, no item twice (compared as numbers, so `"0x10aa"` = `"0x10AA"`).
 - Only C knows the item tables. It drops (and reports) a good that is money, turnips,
@@ -1027,9 +1033,22 @@ reinstalling restores the name.
   store does not stock that day (paper on a grab-bag sale day) is left alone. When a
   mod lists more goods of a kind than it gets spots, the date and town pick which.
   Changes show from the next restock (the next day), not the day a mod is installed.
+- With hours, none of that: the goods never enter the day's roll. While the game
+  clock is inside the hours they are Nook's WHOLE stock: each spot the day's roll gave
+  a kind the mod lists (a spot already sold that day counts) holds one of the mod's
+  goods of that kind, and every other spot is bare, the rare spot and the plant
+  spots included (no grab bags, no raffle). More goods of a kind than spots: the roll's
+  day and the town pick which, a new set each day. The list is built from the day's
+  goods into memory of its own and never written to the save, so the day's stock is
+  back as it was when the hours end. A good bought inside the hours stays sold out
+  until the game restarts; a restart sets the goods out again. When the shop is shut
+  for the night (after closing, before 6:00) inside the hours, it opens for them, as
+  it does when Nook is knocked awake. It does not open in the hour before its morning
+  opening, on a renovation day or in a sale's hours, and a sale's goods beat the mod's.
 - Price: the mod's price for a good it lists, raised to at least Nook's buy-back for
   it; no price is retail. Only for goods bought off the floor (a catalog order pays
-  retail).
+  retail). With hours, only inside them: the same good rolled by the day itself sells
+  at its own price.
 - World content: off in the City (the game's own roll and prices there). The last mod
   in load order with a nook entry wins, whole (see "Two mods, one shop" below).
 - Two mods, one shop (decided): for the flower shop and for Nook's stock the
