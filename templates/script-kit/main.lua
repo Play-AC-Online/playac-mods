@@ -26,8 +26,22 @@ local function fair_today()
     return false
   end
   if not remote.has(HARVEST, "fair_today") then return false end
-  log("Harvest Post", version, "is here")
-  return remote.call(HARVEST, "fair_today") == true
+  local fair = remote.call(HARVEST, "fair_today") == true
+  log("Harvest Post", version, "is here, fair today:", fair)
+  return fair
+end
+
+-- The fair line, once a day, the first time you are in town. A scene is the
+-- place to ask: the town and its calendar are loaded by then.
+local fair_asked = nil -- the day it was asked
+local function fair_line()
+  if fair_asked == game.day_number() then return end
+  fair_asked = game.day_number()
+  -- show_line puts a line in your thought window once you are free.
+  if fair_today() then
+    local id, why, code = cmd.show_line(message("fair"))
+    if not id then log("no fair line:", why, code) end
+  end
 end
 
 -- A new day in the game (also when the game starts on a new day). A restart
@@ -40,11 +54,6 @@ on("day_started", function(e)
     store.set("days", (store.get("days") or 0) + 1)
   end
   log("day", today, "days seen in this town:", store.get("days"))
-  -- show_line puts a line in your thought window once you are free.
-  if fair_today() then
-    local id, why, code = cmd.show_line(message("fair"))
-    if not id then log("no fair line:", why, code) end
-  end
 end)
 
 -- You got an item: picked up, caught with the net or the rod, or dug up. It
@@ -125,6 +134,7 @@ end
 on("scene_entered", function(e)
   log("scene", e.scene, e.name or "(no name)")
   give_apple()
+  if e.name == "town" then fair_line() end
 end)
 
 -- Mark the apple as given only here, when the game says it was. A refusal has
