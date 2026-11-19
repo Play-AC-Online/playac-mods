@@ -646,11 +646,11 @@ Seen in: Share a mod, when you upload.
 
 From the mod list (upload):
 
-    The id "example.tea-house" starts with "example", which is reserved for the site's own mods. Use your own name before the dot.
+    The id "example.tea-stall" starts with "example", which is reserved for the site's own mods. Use your own name before the dot.
 
 What it means: The mod list keeps the author names playaconline, official, admin and example for the site's own mods. You can install such a mod from a file, but you cannot share it.
 
-How to fix it: Change the part before the dot to your own name, like "yourname.tea-house".
+How to fix it: Change the part before the dot to your own name, like "yourname.tea-stall".
 
 ### manifest-id
 
@@ -664,22 +664,22 @@ In the game page (install, check tool):
 
 From the mod list (upload):
 
-    The id "Tea House" must look like author.mod-name: lowercase letters, digits and dashes, one dot.
+    The id "Tea Stall" must look like author.mod-name: lowercase letters, digits and dashes, one dot.
 
 What it means: The id is your name, a dot and the mod's name. It uses lowercase letters, digits and dashes, starts with a letter or digit, and has up to 32 characters before the dot and 48 after.
 
-How to fix it: Use something like "yourname.tea-house". The id names the mod everywhere and cannot change later.
+How to fix it: Use something like "yourname.tea-stall". The id names the mod everywhere and cannot change later.
 
 Bad (mod.json):
 
 ```
-"id": "YourName/Tea House"
+"id": "YourName/Tea Stall"
 ```
 
 Fixed (mod.json):
 
 ```
-"id": "yourname.tea-house"
+"id": "yourname.tea-stall"
 ```
 
 ### manifest-name
@@ -1509,7 +1509,7 @@ Seen in: Mods tab, on the mod's row after a restart; the Mod log in Settings, Mo
 
 From the game (Mods tab row):
 
-    shops: a later mod changes the flower shop too, so this mod's flower shop is not used: bean.tea-house
+    shops: a later mod changes the flower shop too, so this mod's flower shop is not used: bean.tea-stall
     shops: a later mod changes Nook's stock too, so this mod's Nook stock is not used: bean.nook-extras
 
 What it means: This is not an error in the mod. Two switched-on mods change the same shop, and the mod lower in the list has the whole shop. The message names that mod, and the rest of this mod loads as usual.
@@ -1730,7 +1730,7 @@ From the mod list (upload):
 
     items.json: item 1's id must be 1 to 32 of a-z, 0-9 and -, starting with a letter or digit.
 
-What it means: An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-house:tea-chest.
+What it means: An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-stall:tea-chest.
 
 How to fix it: Use 1 to 32 lowercase letters, digits and dashes. Start with a letter or digit.
 
@@ -3303,7 +3303,7 @@ Seen in: the Mods tab.
 
 On the site:
 
-    The game stopped responding the last time it started with this mod on: Tea House. It started without mods this time. Your mods are still installed.
+    The game stopped responding the last time it started with this mod on: Tea Stall. It started without mods this time. Your mods are still installed.
 
 What it means: The game stopped responding with these mods on, so this start ran once without them. One start that froze is enough. A freeze or crash later, during play, counts the second time in a row. The model viewer loads mods too, and the same rules watch it, so a viewer that froze as it started counts as well. Nothing was switched off or removed.
 
@@ -4425,7 +4425,7 @@ From the mod list (upload):
 
 Registry codes: `prefix_taken`
 
-What it means: The part of a mod id before the dot belongs to the account that first uploaded under it, even while that upload waits for review. In kim.tea-house that part is kim. It is free again only if every upload under it was refused.
+What it means: The part of a mod id before the dot belongs to the account that first uploaded under it, even while that upload waits for review. In kim.tea-stall that part is kim. It is free again only if every upload under it was refused.
 
 How to fix it: Change "id" in mod.json to start with your own name.
 
@@ -4490,7 +4490,7 @@ Seen in: Share a mod, when you upload.
 
 From the mod list (upload):
 
-    Write it as github.com/<owner>/<repo>@<tag>, for example github.com/you/tea-house@v1.2.0.
+    Write it as github.com/<owner>/<repo>@<tag>, for example github.com/you/tea-stall@v1.2.0.
     That is not a GitHub owner and repository name.
 
 Registry codes: `bad_source`
@@ -4740,7 +4740,7 @@ Seen in: the Multiplayer panel, when a visit is refused.
 In the game page (install, check tool):
 
     the friend's mods would not all load here: they unpack to 30 MB, and the game keeps 24 MB for mods on a phone
-    the friend's mods would not all load here: bean.tea-house needs kim.lib, which is not installed
+    the friend's mods would not all load here: bean.tea-stall needs kim.lib, which is not installed
     the friend's mods did not all load
     a lent mod is missing from this tab
 
@@ -4771,7 +4771,7 @@ Seen in: the Multiplayer panel, when a visit is refused.
 On the site:
 
     Your World mods don't match. Visits need the same World mods (the ones visitors can see) in both towns (or none). Change them in Settings, Mods.
-    Kim's town runs Tea House 1.2.0, you don't. Visits need the same World mods (the ones visitors can see) in both towns. Change them in Settings, Mods.
+    Kim's town runs Tea Stall 1.2.0, you don't. Visits need the same World mods (the ones visitors can see) in both towns. Change them in Settings, Mods.
 
 Registry codes: `modset_mismatch`
 
@@ -4787,10 +4787,10 @@ Seen in: the Multiplayer panel, when a visit is refused.
 
 In the game page (install, check tool):
 
-    the download for bean.tea-house 1.2.0 does not match the friend's copy
-    the download for bean.tea-house 1.2.0 is a different mod
+    the download for bean.tea-stall 1.2.0 does not match the friend's copy
+    the download for bean.tea-stall 1.2.0 is a different mod
     the friend's mods do not add up to their town's mod set
-    the friend's settings for bean.tea-house are not ones that mod takes
+    the friend's settings for bean.tea-stall are not ones that mod takes
 
 From the mod list (upload):
 
@@ -4798,7 +4798,7 @@ From the mod list (upload):
 
 On the site:
 
-    Couldn't load Kim's mods for this visit. Couldn't download Tea House: the mod list answered 404.
+    Couldn't load Kim's mods for this visit. Couldn't download Tea Stall: the mod list answered 404.
 
 What it means: You agreed to visit with your friend's mods, and one could not be downloaded, did not match your friend's version or had settings the mod does not take. Nothing was kept or installed, and the visit was left.
 
