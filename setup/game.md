@@ -59,8 +59,7 @@ disc you own, see https://playaconline.com/your-disc/.
 ## 3. Developer mode
 
 Developer mode adds tools for making mods to the Mods tab. You can load a mod
-from a folder, reload it as you save and use the texture inspector. It changes
-nothing in your town.
+from a folder and reload it as you save. It changes nothing in your town.
 
 1. Open the game with `?moddev=1` at the end of the address:
 
@@ -70,7 +69,7 @@ nothing in your town.
 3. Open **Settings** with the gear at the top, then the **Mods** tab.
 
 **Check it worked:** at the bottom of the Mods tab there is a **Developer**
-section with **Load a mod you are making** and **Record textures**.
+section with **Load a mod you are making**.
 
 Opening the game with `?moddev=1` only shows the section. It loads no mod.
 The next step does that.

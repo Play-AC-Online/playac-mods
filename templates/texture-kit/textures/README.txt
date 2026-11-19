@@ -1,5 +1,5 @@
 Put your .dds or .png textures in this folder, each named exactly as the
-model viewer or the texture inspector shows it, for example:
+model viewer shows it, for example:
 
     tex1_32x32_626709d910129694_193ca5974976e36e_8.dds
 
