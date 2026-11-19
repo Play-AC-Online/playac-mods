@@ -1,0 +1,38 @@
+{
+  "pools": [
+    {
+      "lines": [
+        "Did you hear? The river was extra sparkly this morning.",
+        "I've been practising my whistling. Want to hear? Maybe later.",
+        "If you find a shiny rock, tell me first, okay?"
+      ]
+    },
+    {
+      "personality": "peppy",
+      "lines": [
+        "Ooh, it's you! Today is going to be amazing, I can tell!",
+        "I did ten twirls in a row this morning. Ten!"
+      ]
+    },
+    {
+      "personality": "lazy",
+      "lines": [
+        "I had a snack, then a nap, then another snack. Busy day."
+      ]
+    },
+    {
+      "personality": "cranky",
+      "lines": [
+        "Hmph. You again. Well, I suppose that's fine.",
+        "Back in my day, the trees were taller."
+      ]
+    },
+    {
+      "villager": "Bob",
+      "chance": 50,
+      "lines": [
+        "Bob here! I've been thinking about lunch all day."
+      ]
+    }
+  ]
+}
