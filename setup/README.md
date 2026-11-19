@@ -46,8 +46,9 @@ Three more guides are for anyone:
 
 To see a mod work before you set anything up:
 
-1. Open https://playaconline.com/modding/downloads/ and download the
-   **Villager lines kit**.
+1. Open the newest "Starter kits and AI pack" release of this repository,
+   https://github.com/Play-AC-Online/playac-mods/releases, and download the
+   **Villager lines kit**, `playac-lines-kit.zip`.
 2. Load your town on https://playaconline.com/play/ (see [The game](game.md)).
 3. Open **Settings, Mods, Install from a file, Choose a file** and pick the kit's
    ZIP.

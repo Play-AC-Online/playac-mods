@@ -101,7 +101,8 @@ clean`, and the repository page on GitHub shows `mod.json`.
   playac-mod can run in your repository.
 - To move to a newer release, copy the three lines from a fresh
   `playac-mod new yourname.pin --github`. Or copy the version and SHA-256 from
-  https://playaconline.com/modding/downloads/playac-mod-releases.json.
+  the release list,
+  https://github.com/Play-AC-Online/playac-mods/releases/download/cli-releases/releases.json.
 
 ### Or start from an example
 

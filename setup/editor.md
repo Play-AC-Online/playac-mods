@@ -50,7 +50,8 @@ these:
 
 - A mod made with `playac-mod new` has one already
   ([Node.js and playac-mod](node-and-cli.md)).
-- Each starter kit from https://playaconline.com/modding/downloads/ has one.
+- Each starter kit has one. The kits are the `templates/` folders, and
+  as ZIPs in the newest "Starter kits and AI pack" release: https://github.com/Play-AC-Online/playac-mods/releases.
 - For any other mod, copy one from a kit or make it as in
   [step 5](#5-the-settings-by-hand).
 

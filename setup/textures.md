@@ -15,7 +15,8 @@ https://playaconline.com/modding/guides/textures/
 Get one in any of these ways:
 
 - **The texture kit (recommended):** download it from
-  https://playaconline.com/modding/downloads/ and unzip it. It works as it is,
+  the newest "Starter kits and AI pack" release of this repository,
+  https://github.com/Play-AC-Online/playac-mods/releases, and unzip it. It works as it is,
   and turns the town grass into a green check. Its pictures are in
   `textures/`.
 - **The Clover Meadow example:** the `playac-example-clover-meadow`
