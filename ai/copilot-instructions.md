@@ -237,7 +237,7 @@ Texture facts: names are `tex1_<w>x<h>_<texture hash>_<palette hash>_<format>.dd
 {
   "shops": [{
     "target": "flower",
-    "name": "Tea House",
+    "name": "Tea Stall",
     "hours": { "open": "15:00", "close": "01:00" },
     "greeting": "Welcome in!",
     "stock_line": "Fresh fruit on every table.",

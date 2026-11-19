@@ -42,25 +42,9 @@ piece of furniture or clothing, a tool or a building. Start here.
    - **Any palette** copies the `$` name of a texture with a palette.
    - **Save PNG** saves the picture to look at.
 
-### In the game, with the texture inspector
-
-The ground, the sky, the water, the menus and the effects are not models, so
-the viewer cannot show them. The game shows you every texture it draws, under
-the same file names.
-
-1. Open https://playaconline.com/play/?moddev=1 and load your town.
-   [The game](game.md) explains developer mode.
-2. Open **Settings, Mods**. In the **Developer** section at the bottom, press
-   **Record textures**.
-3. Close Settings and walk to where the texture is drawn.
-4. Open **Settings, Mods** again. The newest textures are listed first. The
-   filter box narrows them by name or size, such as `64x64`.
-5. Use the buttons on each texture to find the right one:
-   - **Flash** draws it bright magenta in the game for 3 seconds, so you can
-     see which it is.
-   - **Copy name** copies its file name.
-   - **Any palette** copies the `$` name of a texture with a palette.
-   - **PNG** saves the picture to look at.
+The town grass, the cliffs and the river banks are not models. Their names
+are listed under common textures in the textures guide:
+https://playaconline.com/modding/guides/textures/#common
 
 **Check it worked:** paste the name somewhere. A texture with no palette is
 named like `tex1_32x32_8b5a1b4a83d4d7c7_14`. A texture with a palette has its
@@ -76,7 +60,7 @@ place of the palette part matches all of them, like
 `tex1_32x32_626709d910129694_$_8.dds`. Press **Any palette** to copy that
 name. Use the exact name to change one season only.
 
-A PNG saved from the viewer or the inspector is the game's own art. Use it
+A PNG saved from the viewer is the game's own art. Use it
 only for the size and the layout, draw your own picture, and never share the
 game's. The mod list refuses an unchanged copy.
 
@@ -219,10 +203,9 @@ picture you save is drawn again at once.
 ## If your texture does not show
 
 - The name must match exactly. Upper and lower case do not matter. Copy it
-  from the viewer or the inspector rather than typing it.
+  from the viewer rather than typing it.
 - Grass, trees and the like change palette with the season and the hour. Use
-  the `$` name, or record the texture again at that time to get its other
-  names.
+  the `$` name.
 - When two mods replace the same texture, the mod lower in the Mods tab list
   wins.
 - The Mod log names a file the game could not read.

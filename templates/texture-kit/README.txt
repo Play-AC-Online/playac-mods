@@ -10,9 +10,8 @@ place of a palette, so the picture is drawn by day and by night.
 
 Start your own mod from this kit. Find the names of the textures you want
 in the model viewer: https://playaconline.com/viewer/ (pick a model, press
-Textures, then Copy name). The ground, the sky, the water and the menus are
-not models: find those with the texture inspector in the game, at
-https://playaconline.com/play/?moddev=1 in Settings, Mods, Developer.
+Textures, then Copy name). It shows the textures of models, such as
+furniture, trees, buildings and villagers.
 
 1. Open mod.json in any text editor. Change "yourname" in "id" and "authors"
    to your own name (lower case letters, digits and dashes), and give the mod

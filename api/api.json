@@ -1225,7 +1225,7 @@
       "since": 1,
       "required": true,
       "description": "author.mod-name, in lowercase letters, digits and dashes, with one dot. The author parts playaconline, official, admin and example are reserved for the site's own mods in the mod list. The mod list also refuses an author part that passes for one of them (official-, examples, playaconline-official).",
-      "example": "yourname.tea-house",
+      "example": "yourname.tea-stall",
       "schema": {
         "type": "string",
         "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}$",
@@ -1237,7 +1237,7 @@
       "since": 1,
       "required": true,
       "description": "The name players see, 1 to 60 characters after trimming spaces. The mod list also refuses a name with a line break, another control character or a hidden text-direction character.",
-      "example": "Tea House",
+      "example": "Tea Stall",
       "schema": {
         "type": "string",
         "pattern": "^\\s*\\S(?:[\\s\\S]{0,58}\\S)?\\s*$"
@@ -1277,7 +1277,7 @@
       "since": 1,
       "required": false,
       "description": "Optional text of at most 500 characters. null is refused. Leave the key out instead.",
-      "example": "The flower shop becomes a tea house in the evening.",
+      "example": "The flower shop becomes a tea stall in the evening.",
       "schema": {
         "type": "string",
         "maxLength": 500
@@ -1498,7 +1498,7 @@
       "required": false,
       "description": "Maps an old full item id of this mod to the full id of an item in this mod's items file. At most 64. Needs content.items. Each rename runs once per save, and mod-items.json records it. A renamed item already in a house therefore keeps working.",
       "example": {
-        "yourname.tea-house:old-cup": "yourname.tea-house:cup"
+        "yourname.tea-stall:old-cup": "yourname.tea-stall:cup"
       },
       "schema": {
         "type": "object",
@@ -2234,12 +2234,12 @@
         "shops": [
           {
             "target": "flower",
-            "name": "Tea House",
+            "name": "Tea Stall",
             "hours": {
               "open": "15:00",
               "close": "01:00"
             },
-            "greeting": "Welcome to the tea house!",
+            "greeting": "Welcome to the tea stall!",
             "stock": [
               {
                 "item": "0x2800",

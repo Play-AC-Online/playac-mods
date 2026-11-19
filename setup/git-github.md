@@ -71,11 +71,11 @@ import from it.
 git init -b main         # older Git: git init, then git branch -M main after the commit
 git add .
 git commit -m "First version"
-gh repo create tea-house --public --source . --push
+gh repo create tea-stall --public --source . --push
 ```
 
 Without `gh`, make an empty public repository on github.com. Then run
-`git remote add origin https://github.com/<you>/tea-house.git` and
+`git remote add origin https://github.com/<you>/tea-stall.git` and
 `git push -u origin main`.
 
 **Check it worked:** `git status` says `nothing to commit, working tree
@@ -87,8 +87,8 @@ The site can import a tagged version from GitHub. It reads two things at that
 tag:
 
 - **The mod.** Every file the game would read, the same as `playac-mod pack`.
-- **The listing.** 1 to 4 screenshots in `.playac/screenshots/`, and the
-  changelog line.
+- **The listing.** 1 to 4 screenshots in `.playac/screenshots/`, and a
+  changelog line if you wrote one. The changelog line is optional.
   - Screenshots are PNG or JPEG, at least 200 pixels a side and up to 2 MB
     each.
   - The changelog line comes from this version's section of `CHANGELOG.md`,
@@ -99,7 +99,7 @@ The steps:
 
 1. Take screenshots of your mod in the game and put them in
    `.playac/screenshots/`.
-2. Write the version's section in `CHANGELOG.md`.
+2. If you like, write the version's section in `CHANGELOG.md`.
 3. Make sure `"version"` in `mod.json` is the version you are sharing.
 4. Commit, tag with the same version and push the tag:
 
@@ -112,7 +112,7 @@ The steps:
    ```
 
 5. Send it for review: in the game, open **Settings, Mods, Share a mod** and
-   paste `github.com/<you>/tea-house@v0.1.0`. The tag must match `"version"`
+   paste `github.com/<you>/tea-stall@v0.1.0`. The tag must match `"version"`
    in `mod.json`.
 
 **Check it worked:** the version shows under **Mods you shared** as **Waiting
