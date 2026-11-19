@@ -59,8 +59,8 @@ How the codes are used:
   JPEG, at least 200 pixels a side and up to 2 MB each. To take one, press
   Cmd+Shift+4 on macOS or Win+Shift+S on Windows. On Linux use the Print
   Screen key or your desktop's Screenshot app.
-- **A changelog line.** One line about what this version changes, up to 300
-  characters.
+- **A changelog line, if you like.** One line about what this version
+  changes, up to 300 characters. It is optional.
 - **The rules.** Read them once: https://playaconline.com/modding/rules/. Share
   only your own work, with nothing from Nintendo or any other franchise. The
   checklist is at https://playaconline.com/modding/testing/.
@@ -69,8 +69,8 @@ How the codes are used:
 
 1. Start the game, open **Settings, Mods** and scroll to **Share a mod**.
 2. The first time, it asks your age and asks you to accept the mod rules.
-3. Under **Upload a mod**, choose the ZIP. Add the screenshots and the
-   changelog line.
+3. Under **Upload a mod**, choose the ZIP. Add the screenshots. A
+   changelog line is optional.
 4. Choose **Send for review**.
 5. If it asks for a code, type the one your authenticator app shows.
 
