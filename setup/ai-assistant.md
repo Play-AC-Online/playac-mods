@@ -16,7 +16,9 @@ Pick one:
 - **With playac-mod** (easiest): `playac-mod new` already puts the pack in
   every new mod, for Claude Code and Copilot. There is nothing to download.
   `--no-ai` leaves it out.
-- **Download it:** https://playaconline.com/modding/ai/playac-mod-ai.zip
+- **Download it:** `playac-mod-ai.zip` is a file of the newest "Starter kits
+  and AI pack" release of this repository: https://github.com/Play-AC-Online/playac-mods/releases.
+  https://playaconline.com/modding/ai/ links it too.
 - **From this repository:** the `ai/` folder holds the same files.
   `ai/pack.json` lists where each one goes in a mod folder.
 

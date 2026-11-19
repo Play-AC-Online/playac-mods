@@ -18,7 +18,8 @@ Get one in any of these ways:
   mod**. That gives you a ZIP with the textures you picked, a `mod.json` and a
   README. Unzip it.
 - **The texture kit:** download it from
-  https://playaconline.com/modding/downloads/ and unzip it. It works as it is,
+  the newest "Starter kits and AI pack" release of this repository,
+  https://github.com/Play-AC-Online/playac-mods/releases, and unzip it. It works as it is,
   and turns the town grass into a green check. Its pictures are in
   `textures/`.
 - **With the tool:** run `playac-mod new yourname.my-textures --kind texture`
