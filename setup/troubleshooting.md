@@ -45,10 +45,10 @@ The errors catalogue explains each code and gives its fix:
 
 | You see | Code | Fix |
 |---|---|---|
-| ... is an uncompressed DDS of 24 bits a pixel | `texture-format` | Save 32-bit RGBA, or BC1 or BC3. In GIMP choose Format RGBA8. In ImageMagick add `-alpha on`. See [Texture tools](textures.md#4-save-it-png-or-dds). |
+| ... is an uncompressed DDS of 24 bits a pixel | `texture-format` | Save 32-bit RGBA, or BC1 or BC3. In GIMP choose Format RGBA8. In ImageMagick add `-alpha on`. See [Texture tools](textures.md#png-or-dds). |
 | ... stores 7 mip levels | `texture-mipmaps` | Save with no mipmaps. GIMP: Mipmaps, No mipmaps. Paint.NET: untick Generate Mip Maps. ImageMagick: `-define dds:mipmaps=0`. texconv: `-m 1`. |
 | ... is an unchanged copy of a texture from the game | `texture-copied` | Paint over it, or delete the files you did not change. |
-| My texture does not show, and there is no message | | The name must match exactly. Seasons and hours change palettes, so use the `$` name. See [Texture tools](textures.md#if-your-texture-does-not-show). |
+| My texture does not show, and there is no message | | The `tex1_...` part must match exactly, so use Save all or Copy name. Seasons and hours change palettes, so use the `$` name. See [Texture tools](textures.md#if-your-texture-does-not-show). |
 
 ## Scripts
 

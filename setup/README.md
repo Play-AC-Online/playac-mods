@@ -31,8 +31,8 @@ Three more guides are for anyone:
    `playac-mod`. Check and pack your first mod.
 3. [Editor](editor.md). Set up VS Code, or any editor, to check your JSON
    files as you type. Add the Lua extension that knows the game's script API.
-4. [Texture tools](textures.md). Find a texture's name, paint over it and save
-   it as PNG or DDS.
+4. [Texture tools](textures.md). Save all of a model's textures in the viewer,
+   paint over them and watch them change live with `playac-mod dev`.
 5. [AI assistant](ai-assistant.md). Give any assistant the mod rules, so it
    writes mods that install the first time.
 6. [Git and GitHub](git-github.md) (optional). Keep your mod in a repository

@@ -93,7 +93,7 @@ Any program that saves PNG works. These are free:
 - Many game textures are tiny and tile. Paint at 4x and check that the edges
   meet.
 
-### 4. Save it, PNG or DDS
+### PNG or DDS
 
 Start with PNG. Use DDS when your pictures are big or many.
 
