@@ -686,7 +686,8 @@ an entry is a "day". The game's own festivals are "the game's festivals".
 - Which talks: the same ordinary talks a `villager_talked` handler gets (not a first
   meeting, an errand, delivery or contest going with the player, a villager moving
   out, the first-job errands, a pitfall or bee chase, an islander, Kamakura, summer
-  camp).
+  camp). Nor a chat while the player has not had all ten first-job tips
+  (`mPr_CheckFirstJobHint`): each chat's topic is the next tip until then.
 - Which line: today's calendar day lines first, on half of the asks (calendar.json
   `talk`). Else the most specific pools that FIT decide: this villager's, else this
   personality's, else everyone's, where a pool fits when the season, time and weather

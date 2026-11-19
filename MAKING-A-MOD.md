@@ -651,7 +651,7 @@ your talk pools can be what the villager says. No script is needed:
   every villager's small talk.
 - Pools never speak on a first meeting, while a villager has an errand, a
   delivery or a contest going with you, when they are moving out, or on an
-  island, and they never take the place of a trade, a letter, a memory, a hint
+  island, nor in a new player's first ten chats, whose topics are tips, and they never take the place of a trade, a letter, a memory, a hint
   or an event.
 - To say something before the hello, or only when something in the game is
   true (an item in your pockets, a day your script counts), use a script's
