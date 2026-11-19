@@ -44,10 +44,13 @@ https://playaconline.com/modding/guides/textures/
 <label>_tex1_<width>x<height>_<texture hash>_<palette hash>_<format>.png
 ```
 
-- **Labels.** The label is optional. The game matches only the `tex1_...`
-  part. A label is 1 to 40 lower case letters, digits and dashes, then one
-  underscore: `bookshelf-top_tex1_32x32_626709d910129694_$_8.png`. Two files
-  for the same texture are an error, such as one texture under two labels.
+- **Labels.** The label is optional. The game matches the part after the
+  last `_tex1_`. A label is 1 to 40 lower case letters, digits and dashes,
+  then one underscore: `bookshelf-top_tex1_32x32_626709d910129694_$_8.png`.
+  Any other label is refused (`texture-label`). Two files that are one texture
+  once the labels are taken off are refused (`texture-label-twice`). A `.png`
+  and a `.dds` of the same name with no labels install with a warning
+  (`texture-twice`).
 - **`$` names.** `$` in place of the palette hash matches the pixels under
   every palette, so the picture shows all day and all year. **Save all** uses
   the `$` name where there is one.
