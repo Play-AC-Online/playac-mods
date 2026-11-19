@@ -71,11 +71,11 @@ import from it.
 git init -b main         # older Git: git init, then git branch -M main after the commit
 git add .
 git commit -m "First version"
-gh repo create tea-house --public --source . --push
+gh repo create tea-stall --public --source . --push
 ```
 
 Without `gh`, make an empty public repository on github.com. Then run
-`git remote add origin https://github.com/<you>/tea-house.git` and
+`git remote add origin https://github.com/<you>/tea-stall.git` and
 `git push -u origin main`.
 
 **Check it worked:** `git status` says `nothing to commit, working tree
@@ -112,7 +112,7 @@ The steps:
    ```
 
 5. Send it for review: in the game, open **Settings, Mods, Share a mod** and
-   paste `github.com/<you>/tea-house@v0.1.0`. The tag must match `"version"`
+   paste `github.com/<you>/tea-stall@v0.1.0`. The tag must match `"version"`
    in `mod.json`.
 
 **Check it worked:** the version shows under **Mods you shared** as **Waiting

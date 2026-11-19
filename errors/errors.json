@@ -116,7 +116,7 @@
       "messages": {
         "page": [
           "the friend's mods would not all load here: they unpack to 30 MB, and the game keeps 24 MB for mods on a phone",
-          "the friend's mods would not all load here: bean.tea-house needs kim.lib, which is not installed",
+          "the friend's mods would not all load here: bean.tea-stall needs kim.lib, which is not installed",
           "the friend's mods did not all load",
           "a lent mod is missing from this tab"
         ]
@@ -744,12 +744,12 @@
       ],
       "messages": {
         "registry": [
-          "The id \"example.tea-house\" starts with \"example\", which is reserved for the site's own mods. Use your own name before the dot."
+          "The id \"example.tea-stall\" starts with \"example\", which is reserved for the site's own mods. Use your own name before the dot."
         ]
       },
       "api": [],
       "meaning": "The mod list keeps the author names playaconline, official, admin and example for the site's own mods. You can install such a mod from a file, but you cannot share it.",
-      "fix": "Change the part before the dot to your own name, like \"yourname.tea-house\"."
+      "fix": "Change the part before the dot to your own name, like \"yourname.tea-stall\"."
     },
     {
       "code": "manifest-id",
@@ -765,19 +765,19 @@
           "\"id\" must look like author.mod-name (lowercase letters, digits and dashes, at most 32 + 48)"
         ],
         "registry": [
-          "The id \"Tea House\" must look like author.mod-name: lowercase letters, digits and dashes, one dot."
+          "The id \"Tea Stall\" must look like author.mod-name: lowercase letters, digits and dashes, one dot."
         ]
       },
       "api": [],
       "meaning": "The id is your name, a dot and the mod's name. It uses lowercase letters, digits and dashes, starts with a letter or digit, and has up to 32 characters before the dot and 48 after.",
-      "fix": "Use something like \"yourname.tea-house\". The id names the mod everywhere and cannot change later.",
+      "fix": "Use something like \"yourname.tea-stall\". The id names the mod everywhere and cannot change later.",
       "bad": {
         "file": "mod.json",
-        "text": "\"id\": \"YourName/Tea House\""
+        "text": "\"id\": \"YourName/Tea Stall\""
       },
       "good": {
         "file": "mod.json",
-        "text": "\"id\": \"yourname.tea-house\""
+        "text": "\"id\": \"yourname.tea-stall\""
       }
     },
     {
@@ -2262,7 +2262,7 @@
       ],
       "messages": {
         "game": [
-          "shops: a later mod changes the flower shop too, so this mod's flower shop is not used: bean.tea-house",
+          "shops: a later mod changes the flower shop too, so this mod's flower shop is not used: bean.tea-stall",
           "shops: a later mod changes Nook's stock too, so this mod's Nook stock is not used: bean.nook-extras"
         ]
       },
@@ -2380,7 +2380,7 @@
         ]
       },
       "api": [],
-      "meaning": "An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-house:tea-chest.",
+      "meaning": "An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-stall:tea-chest.",
       "fix": "Use 1 to 32 lowercase letters, digits and dashes. Start with a letter or digit."
     },
     {
@@ -3537,7 +3537,7 @@
       ],
       "messages": {
         "site": [
-          "The game stopped responding the last time it started with this mod on: Tea House. It started without mods this time. Your mods are still installed."
+          "The game stopped responding the last time it started with this mod on: Tea Stall. It started without mods this time. Your mods are still installed."
         ]
       },
       "api": [],
@@ -4873,7 +4873,7 @@
       "api": [
         "prefix_taken"
       ],
-      "meaning": "The part of a mod id before the dot belongs to the account that first uploaded under it, even while that upload waits for review. In kim.tea-house that part is kim. It is free again only if every upload under it was refused.",
+      "meaning": "The part of a mod id before the dot belongs to the account that first uploaded under it, even while that upload waits for review. In kim.tea-stall that part is kim. It is free again only if every upload under it was refused.",
       "fix": "Change \"id\" in mod.json to start with your own name."
     },
     {
@@ -4943,7 +4943,7 @@
       ],
       "messages": {
         "registry": [
-          "Write it as github.com/<owner>/<repo>@<tag>, for example github.com/you/tea-house@v1.2.0.",
+          "Write it as github.com/<owner>/<repo>@<tag>, for example github.com/you/tea-stall@v1.2.0.",
           "That is not a GitHub owner and repository name."
         ]
       },
@@ -5033,7 +5033,7 @@
       "messages": {
         "site": [
           "Your World mods don't match. Visits need the same World mods (the ones visitors can see) in both towns (or none). Change them in Settings, Mods.",
-          "Kim's town runs Tea House 1.2.0, you don't. Visits need the same World mods (the ones visitors can see) in both towns. Change them in Settings, Mods."
+          "Kim's town runs Tea Stall 1.2.0, you don't. Visits need the same World mods (the ones visitors can see) in both towns. Change them in Settings, Mods."
         ]
       },
       "api": [
@@ -5051,16 +5051,16 @@
       ],
       "messages": {
         "page": [
-          "the download for bean.tea-house 1.2.0 does not match the friend's copy",
-          "the download for bean.tea-house 1.2.0 is a different mod",
+          "the download for bean.tea-stall 1.2.0 does not match the friend's copy",
+          "the download for bean.tea-stall 1.2.0 is a different mod",
           "the friend's mods do not add up to their town's mod set",
-          "the friend's settings for bean.tea-house are not ones that mod takes"
+          "the friend's settings for bean.tea-stall are not ones that mod takes"
         ],
         "registry": [
           "Invalid mod list: the mod list does not match the mod set hash."
         ],
         "site": [
-          "Couldn't load Kim's mods for this visit. Couldn't download Tea House: the mod list answered 404."
+          "Couldn't load Kim's mods for this visit. Couldn't download Tea Stall: the mod list answered 404."
         ]
       },
       "api": [],

@@ -421,12 +421,12 @@ export function cobbleTownFiles() {
 }
 
 
-/* ── Clover Meadow ──────────────────────────────────────────────────────── */
+/* ── Clover Grass ──────────────────────────────────────────────────────── */
 
 /* The town grass, every palette it is drawn with (season, time of day). The
  * names say WHICH texture to replace; the pixels below are drawn from scratch. */
-/* Clover Meadow moved here from build-examples.mjs so the cookbook can
- * offer its ZIP too (its README said to install a ZIP the site did not have). */
+/* the clover grass moved here from build-examples.mjs so the cookbook
+ * could offer its ZIP. */
 export const CLOVER_GRASS = [
   ['626709d910129694', ['193ca5974976e36e', '20430b0042498b04', '4f54e78515f0a185', '8910d24f6fbd5f83', '8b8a1c2cacd60254', '963dc45f18e13cf7', 'b2e512f9c0fe88ad', 'e7f9e59c09c5f9d0', 'f83e63a8b6cb47b7']],
   ['903adc6355e36f59', ['193ca5974976e36e', '20430b0042498b04', '4f54e78515f0a185', '8910d24f6fbd5f83', '8b8a1c2cacd60254', '963dc45f18e13cf7', 'b2e512f9c0fe88ad', 'e7f9e59c09c5f9d0', 'f83e63a8b6cb47b7']],
@@ -436,9 +436,9 @@ export const CLOVER_GRASS = [
   ['e2ab673814e71af6', ['6d5ff5628ae85b42', 'ce63d23d746a058a', 'd9eb32f9a8b17411']],
 ];
 
-/* Seamless clover meadow, 128x128: periodic value noise for the ground, then
+/* Seamless clover grass, 128x128: periodic value noise for the ground, then
  * three-leaf clovers and a few tiny white flowers on a fixed seed. */
-export function cloverMeadow(size = 128) {
+export function cloverGrass(size = 128) {
   let seed = 2604;
   const rand = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
   const px = new Uint8Array(size * size * 4);
@@ -491,9 +491,9 @@ export function cloverMeadow(size = 128) {
  * per texture and palette, all the same picture). CLOVER_GRASS still lists the
  * palettes: the README teaches them (what a `$` covers, and the one-palette
  * file that would beat it), and perPalette() below rebuilds the old layout. */
-export function cloverMeadowFiles() {
+export function cloverGrassFiles() {
   const files = {};
-  const img = dds(128, 128, cloverMeadow());
+  const img = dds(128, 128, cloverGrass());
   for (const [tex] of CLOVER_GRASS) files[name(32, 32, tex, '$')] = img;
   return files;
 }
@@ -554,19 +554,19 @@ export const GENERATED_KITS = {
   'texture-kit': textureKitFiles,
 };
 
-/* The texture fixture: Clover Meadow's `$` grass, Blossom Lane's
+/* The texture fixture: Clover Grass's `$` grass, Blossom Lane's
  * per-palette tree crowns and Cobble Town's `$` cliff and bank faces in one
  * mod, so the tests keep every kind of texture name the three examples had.
- * The grass is Clover Meadow's alone (Blossom Lane and Cobble Town drew grass
+ * The grass is Clover Grass's alone (Blossom Lane and Cobble Town drew grass
  * too; one picture per name). */
 export function textureFixtureFiles() {
-  return { ...blossomLaneFiles(), ...cobbleTownFiles(), ...cloverMeadowFiles() };
+  return { ...blossomLaneFiles(), ...cobbleTownFiles(), ...cloverGrassFiles() };
 }
 
 /* What each fixture draws, by folder name (mods/fixtures). build-examples.mjs
- * adds these files. The Springtime Town example's repo (Clover Meadow
- * before it) holds its drawn DDS as real files (written once from
- * cloverMeadowFiles), so no example is drawn here any more. */
+ * adds these files. The Springtime Town example's repo holds its drawn DDS
+ * as real files (written once from cloverGrassFiles), so no example is drawn
+ * here any more. */
 export const GENERATED = {
   'fixture.textures': textureFixtureFiles,
 };
