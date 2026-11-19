@@ -1,6 +1,6 @@
 {
   "name": "playac-mod",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Check, pack and try mods for Play AC Online.",
   "license": "MIT",
   "type": "module",
