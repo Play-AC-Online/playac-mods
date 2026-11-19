@@ -4,8 +4,7 @@
  *
  * Lua syntax checked with no luac, an on() the game refuses is an error,
  * check takes a ZIP, pack writes beside the folder, CHANGELOG.md stays out,
- * dev moves off a taken port, new --github, the screenshot size and the
- * --github tag checked before the sign-in, status and yank. */
+ * dev moves off a taken port, a Finder ZIP of a repo. */
 import test from 'node:test';
 import './gen-checkout.mjs'; /* builds the generated files these tests read, in a checkout */
 import assert from 'node:assert/strict';
@@ -19,13 +18,11 @@ import { fflate, mods } from '../lib/contract.mjs';
 import { checkEntries, checkFolder, handZipRefuses } from '../lib/check.mjs';
 import { leftOutReason } from '../lib/files.mjs';
 import { luaSyntaxError } from '../lib/luasyntax.mjs';
-import { scaffoldFiles, writeFiles } from '../lib/scaffold.mjs';
+import { modFiles, writeFiles } from './mod.mjs';
 import { startDevFree } from '../lib/dev.mjs';
-import { githubPreflight, imageKind, imageSize, listingFor, myVersions, parseGitHubSource, setYanked, statusLines } from '../lib/publish.mjs';
 import { main } from '../bin/playac-mod.mjs';
 import { CHECKOUT } from '../lib/checkout.mjs';
 
-process.env.PLAYAC_CONFIG_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-cfg-'));
 const enc = (s) => new TextEncoder().encode(s);
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'playac-onb-'));
 const quiet = async (fn) => {
@@ -36,26 +33,6 @@ const quiet = async (fn) => {
   try { return { code: await fn(), out: out.join('\n') }; } finally { console.log = log; console.error = error; }
 };
 const base = { schema: 1, api: 1, id: 'test.mod', name: 'Test Mod', version: '1.0.0', authors: ['Tester'], scope: 'client', assets_original: true };
-
-/* A PNG of w x h (one grey row repeated), enough for a header and a decoder. */
-function png(w, h) {
-  const crc = (buf) => {
-    let c = ~0;
-    for (const b of buf) { c ^= b; for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1)); }
-    return ~c >>> 0;
-  };
-  const chunk = (type, data) => {
-    const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
-    const td = Buffer.concat([Buffer.from(type), data]);
-    const c = Buffer.alloc(4); c.writeUInt32BE(crc(td));
-    return Buffer.concat([len, td, c]);
-  };
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4); ihdr[8] = 8; ihdr[9] = 0;
-  const raw = Buffer.alloc((w + 1) * h, 0x80);
-  for (let y = 0; y < h; y++) raw[y * (w + 1)] = 0;
-  return Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk('IHDR', ihdr), chunk('IDAT', zlib.deflateSync(raw)), chunk('IEND', Buffer.alloc(0))]);
-}
 
 test('Lua syntax is checked by the game\'s own parser, no luac needed', async () => {
   assert.equal(await luaSyntaxError('main.lua', 'local x <const> = 1\nreturn x'), '', 'Lua 5.4 syntax parses');
@@ -92,7 +69,7 @@ test('on() for an event not in scripts.events is a problem, not a warning: the g
 
 test('check takes a ZIP, as the Mods tab reads it; a hand-made ZIP with dist/ in it is refused', async () => {
   const dir = path.join(tmp(), 'bean.zipcheck');
-  writeFiles(dir, scaffoldFiles('bean.zipcheck', 'lines', { ai: false }));
+  writeFiles(dir, modFiles('bean.zipcheck', 'lines'));
   let r = await quiet(() => main(['pack', dir]));
   assert.equal(r.code, 0, r.out);
   const zip = path.join(path.dirname(dir), 'bean.zipcheck-0.1.0.zip');
@@ -100,7 +77,7 @@ test('check takes a ZIP, as the Mods tab reads it; a hand-made ZIP with dist/ in
   assert.ok(!fs.existsSync(path.join(dir, 'dist')));
   r = await quiet(() => main(['check', zip]));
   assert.equal(r.code, 0, r.out);
-  assert.match(r.out, /ok {3}bean\.zipcheck-0\.1\.0\.zip: bean\.zipcheck 0\.1\.0/);
+  assert.match(r.out, /ok {3}bean\.zipcheck 0\.1\.0/);
   /* the old trap: a ZIP inside the folder, then Compress on the folder */
   fs.mkdirSync(path.join(dir, 'dist'));
   fs.copyFileSync(zip, path.join(dir, 'dist', 'old.zip'));
@@ -125,7 +102,7 @@ test('CHANGELOG.md at the top stays out of the mod, so editing it keeps the cont
   assert.ok(leftOutReason('CHANGELOG.md'));
   assert.equal(leftOutReason('docs/CHANGELOG.md'), '');
   const dir = tmp();
-  writeFiles(dir, scaffoldFiles('bean.log', 'lines', { ai: false }));
+  writeFiles(dir, modFiles('bean.log', 'lines'));
   const a = await checkFolder(dir, { lua: false });
   fs.writeFileSync(path.join(dir, 'CHANGELOG.md'), '## 0.1.0\n- first\n');
   const b = await checkFolder(dir, { lua: false });
@@ -133,29 +110,9 @@ test('CHANGELOG.md at the top stays out of the mod, so editing it keeps the cont
   assert.ok(!Object.keys(b.entries).includes('CHANGELOG.md'));
 });
 
-test('new --github adds the workflow and a CHANGELOG.md; the workflow runs a release pinned by its SHA-256', async () => {
-  const dir = path.join(tmp(), 'bean.gh');
-  const r = await quiet(() => main(['new', 'bean.gh', '--dir', dir, '--github', '--no-ai']));
-  assert.equal(r.code, 0, r.out);
-  assert.ok(fs.existsSync(path.join(dir, '.github/workflows/mod.yml')));
-  assert.match(fs.readFileSync(path.join(dir, 'CHANGELOG.md'), 'utf8'), /## 0\.1\.0/);
-  assert.match(r.out, /publish --github/);
-  const yml = fs.readFileSync(path.join(dir, '.github/workflows/mod.yml'), 'utf8');
-  /* one release by URL and hash, never the npm name */
-  const pin = await import('../lib/pin.mjs');
-  const rel = pin.pickRelease(pin.readReleases(pin.RELEASES_JSON), JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../package.json'), 'utf8')).version);
-  assert.match(yml, new RegExp(`PLAYAC_MOD_SHA256: '${rel.sha256}'`));
-  assert.match(yml, /sha256sum -c -/);
-  assert.doesNotMatch(yml, /npx[^\n]*playac-mod|npm view/);
-  /* the listing reads its changelog line from it */
-  fs.mkdirSync(path.join(dir, '.playac/screenshots'), { recursive: true });
-  fs.writeFileSync(path.join(dir, '.playac/screenshots/a.png'), png(640, 480));
-  assert.equal(listingFor(dir, '0.1.0').changelog, 'First version.');
-});
-
 test('dev moves to the next free port when the default is taken', async () => {
   const dir = tmp();
-  writeFiles(dir, scaffoldFiles('bean.port', 'lines', { ai: false }));
+  writeFiles(dir, modFiles('bean.port', 'lines'));
   const busy = net.createServer();
   await new Promise((res) => busy.listen(0, '127.0.0.1', res));
   const p = busy.address().port;
@@ -175,127 +132,19 @@ test('dev moves to the next free port when the default is taken', async () => {
   }
 });
 
-test('a screenshot outside 200..4096 px is refused before the sign-in', () => {
-  assert.deepEqual(imageSize(png(320, 240), 'image/png'), { w: 320, h: 240 });
-  const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 4, 0, 0, 0xff, 0xc0, 0, 11, 8, 0, 150, 1, 44, 1, 1, 17, 0, 0, 0]);
-  assert.deepEqual(imageSize(jpeg, 'image/jpeg'), { w: 300, h: 150 });
-  const dir = tmp();
-  fs.writeFileSync(path.join(dir, 'small.png'), png(120, 90));
-  assert.throws(() => listingFor(dir, '1.0.0', { shots: [path.join(dir, 'small.png')], changelog: 'x' }), /120x90\. A screenshot's sides must be 200 to 4096 pixels/);
-  fs.writeFileSync(path.join(dir, 'ok.png'), png(400, 300));
-  assert.equal(listingFor(dir, '1.0.0', { shots: [path.join(dir, 'ok.png')], changelog: 'x' }).shots.length, 1);
-});
-
-test('a screenshot the registry would refuse for its area, depth or scan order is refused before the sign-in', () => {
-  const dir = tmp();
-  const shot = (name, bytes) => { fs.writeFileSync(path.join(dir, name), bytes); return path.join(dir, name); };
-  const tryShot = (f) => listingFor(dir, '1.0.0', { shots: [f], changelog: 'x' });
-  /* 4096x4096 passes the side rule and is over a 4K screen of pixels */
-  assert.throws(() => tryShot(shot('huge.png', png(4096, 4096))), /4096x4096\. A screenshot is at most a 4K screen of pixels \(3840 by 2160\)/);
-  assert.equal(tryShot(shot('4k.png', png(3840, 2160))).shots.length, 1);
-  /* a 16 bit PNG: IHDR's bit depth byte */
-  const deep = png(400, 300);
-  deep[24] = 16;
-  assert.equal(imageKind(deep, 'image/png'), 'deep');
-  assert.equal(imageKind(png(400, 300), 'image/png'), '');
-  assert.throws(() => tryShot(shot('deep.png', deep)), /is a 16 bit PNG/);
-  /* JPEG headers: baseline (C0) and progressive (C2), w x h */
-  const jpeg = (marker, w, h) => Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 4, 0, 0, 0xff, marker, 0, 11, 8, h >> 8, h & 255, w >> 8, w & 255, 1, 1, 17, 0, 0, 0]);
-  assert.equal(imageKind(jpeg(0xc0, 2560, 1440), 'image/jpeg'), '');
-  assert.equal(imageKind(jpeg(0xc2, 2560, 1440), 'image/jpeg'), 'progressive');
-  assert.throws(() => tryShot(shot('prog.jpg', jpeg(0xc2, 2560, 1440))), /is a progressive JPEG of 2560x1440\. One larger than 1920 by 1080 is refused/);
-  assert.equal(tryShot(shot('prog-hd.jpg', jpeg(0xc2, 1920, 1080))).shots.length, 1);
-  assert.equal(tryShot(shot('base.jpg', jpeg(0xc0, 3840, 2160))).shots.length, 1);
-  /* The server's rule, byte for byte: over 1920x1080 a JPEG is refused when
-   * FF C2 occurs anywhere in what is left after the EXIF, ICC and comment
-   * segments are dropped. The tool used to walk the markers and stop at the
-   * first byte it could not follow, saying "not progressive": one junk byte
-   * after the start passed here and was refused by the site after the sign-in. */
-  const big = jpeg(0xc0, 2560, 1440);
-  const junk = Buffer.concat([big.subarray(0, 2), Buffer.from([0x00]), jpeg(0xc2, 2560, 1440).subarray(2)]);
-  assert.equal(imageKind(junk, 'image/jpeg'), 'progressive', 'a progressive frame behind a junk byte');
-  /* FF C2 in EXIF only is no progressive JPEG: the server drops EXIF first, so a 4K baseline photo passes */
-  const exif = Buffer.concat([big.subarray(0, 2), Buffer.from([0xff, 0xe1, 0, 6, 0xff, 0xc2, 0, 0x11]), big.subarray(2, big.length - 2), Buffer.from([0xff, 0xda, 0, 2, 0x11])]);
-  assert.equal(imageKind(exif, 'image/jpeg'), '');
-  /* in a segment the server keeps (JFIF), it counts */
-  const jfif = Buffer.concat([big.subarray(0, 2), Buffer.from([0xff, 0xe0, 0, 4, 0xff, 0xc2]), big.subarray(2, big.length - 2), Buffer.from([0xff, 0xda, 0, 2, 0x11])]);
-  assert.equal(imageKind(jfif, 'image/jpeg'), 'progressive');
-  /* and a small one is never held to it */
-  assert.equal(tryShot(shot('junk-hd.jpg', Buffer.concat([jpeg(0xc2, 1920, 1080), Buffer.from([0xff, 0xc2])]))).shots.length, 1);
-});
-
-test('a JPEG over 1920x1080: the tool and the server give the same answer for the same bytes', { skip: !CHECKOUT && 'needs the game\'s source checkout' }, async () => {
-  const { jpegWithoutMetadata } = await import('../lib/publish.mjs');
-  const { cases } = JSON.parse(fs.readFileSync(path.join(CHECKOUT.contract, 'jpeg-progressive-cases.json'), 'utf8'));
-  assert.ok(cases.length >= 15, `only ${cases.length} cases`);
-  for (const c of cases) {
-    const raw = Buffer.from(c.hex, 'hex');
-    assert.equal(Buffer.from(jpegWithoutMetadata(raw)).toString('hex'), c.stripped, `${c.name}: what is left after the metadata is dropped`);
-    assert.equal(imageKind(raw, 'image/jpeg') === 'progressive', c.progressive, c.name);
-  }
-});
-
-test('publish --github: the tag is checked against mod.json, the listing and git first', () => {
-  assert.deepEqual(parseGitHubSource('github.com/you/tea@v1.2.0'), { owner: 'you', repo: 'tea', tag: 'v1.2.0', version: '1.2.0' });
-  assert.deepEqual(parseGitHubSource('you/tea@1.2.0').version, '1.2.0');
-  assert.throws(() => parseGitHubSource('you/tea@latest'), /The tag must be the mod's version/);
-  assert.throws(() => parseGitHubSource('tea@v1'), /owner/);
-  const dir = tmp();
-  fs.writeFileSync(path.join(dir, 'mod.json'), JSON.stringify({ ...base, version: '1.1.0' }));
-  const none = () => null;
-  let r = githubPreflight(dir, parseGitHubSource('you/tea@v1.2.0'), none);
-  assert.ok(r.problems.some((p) => /says 1\.2\.0, but mod\.json says "version": "1\.1\.0"/.test(p)));
-  assert.ok(r.problems.some((p) => /screenshot/.test(p)));
-  /* a repo where the tag exists but was never pushed */
-  fs.writeFileSync(path.join(dir, 'mod.json'), JSON.stringify({ ...base, version: '1.2.0' }));
-  fs.mkdirSync(path.join(dir, '.playac/screenshots'), { recursive: true });
-  fs.writeFileSync(path.join(dir, '.playac/screenshots/a.png'), png(400, 300));
-  fs.writeFileSync(path.join(dir, 'CHANGELOG.md'), '## 1.2.0\n- new\n');
-  const fake = (answers) => (args) => answers[args[0]] || { status: 0, stdout: '' };
-  r = githubPreflight(dir, parseGitHubSource('you/tea@v1.2.0'), fake({ 'rev-parse': { status: 0, stdout: 'true\n' }, tag: { status: 0, stdout: 'v1.2.0\n' }, 'ls-remote': { status: 0, stdout: '' } }));
-  assert.deepEqual(r.problems, ['The tag v1.2.0 is not on GitHub yet. Run: git push origin v1.2.0']);
-  r = githubPreflight(dir, parseGitHubSource('you/tea@v1.2.0'), fake({ 'rev-parse': { status: 0 }, tag: { status: 0, stdout: '' } }));
-  assert.match(r.problems[0], /There is no tag v1\.2\.0 here/);
-  r = githubPreflight(dir, parseGitHubSource('you/tea@v1.2.0'), fake({ 'rev-parse': { status: 0 }, tag: { status: 0, stdout: 'v1.2.0' }, 'ls-remote': { status: 0, stdout: 'abc\trefs/tags/v1.2.0\n' } }));
-  assert.deepEqual(r.problems, []);
-});
-
-test('status and yank: the author\'s versions with the CLI token', async () => {
-  const calls = [];
-  const rows = [
-    { id: 'r1', mod_id: 'bean.tea', version: '1.0.0', state: 'superseded' },
-    { id: 'r2', mod_id: 'bean.tea', version: '1.1.0', state: 'listed' },
-    { id: 'r3', mod_id: 'bean.other', version: '0.1.0', state: 'rejected', reason_title: 'Not your own work', reject_reason: 'traced' },
-  ];
-  const f = async (url, init = {}) => {
-    calls.push({ url, init });
-    if (url.endsWith('/api/mods/mine')) return { ok: true, status: 200, json: async () => ({ mods: rows }) };
-    if (url.endsWith('/api/mods/r2/yank')) return { ok: true, status: 200, json: async () => ({ mod: { ...rows[1], state: 'yanked' } }) };
-    return { ok: false, status: 404, json: async () => ({ error: 'not_found' }) };
-  };
-  const list = await myVersions('https://api.test', 'tok', { fetch: f });
-  assert.equal(calls[0].init.headers.Authorization, 'Bearer tok');
-  assert.deepEqual(statusLines(list, 'bean.tea'), ['bean.tea 1.0.0  Older version', 'bean.tea 1.1.0  Listed']);
-  assert.deepEqual(statusLines(list, 'bean.other'), ['bean.other 0.1.0  Refused', '    Not your own work: traced']);
-  assert.deepEqual(statusLines(list, 'bean.none'), ['You have no uploads of bean.none yet.']);
-  const m = await setYanked('https://api.test', 'tok', 'r2', true, 'breaks the shop', { fetch: f });
-  assert.equal(m.state, 'yanked');
-  assert.deepEqual(JSON.parse(calls[1].init.body), { reason: 'breaks the shop' });
-  await assert.rejects(setYanked('https://api.test', 'tok', 'r9', false, '', { fetch: f }), /The site did not list that version again/);
-  /* usage */
-  assert.equal((await quiet(() => main(['yank']))).code, 2);
-  assert.equal((await quiet(() => main(['status', tmp()]))).code, 2);
-});
-
-/* Finder's Compress (or Explorer's Send to) of a `playac-mod new`
- * folder carries .gitignore, .vscode/, .playac/ and .github/. The game drops
- * every hidden name, so that ZIP installs and `check` says so. */
-test('a Finder ZIP of a new folder, hidden files and all, is a mod the game takes', async () => {
+/* Finder's Compress (or Explorer's Send to) of a mod repo carries
+ * .gitignore, .vscode/, .github/ and the rest. The game drops every hidden
+ * name, so that ZIP installs and `check` says so. */
+test('a Finder ZIP of a mod repo, hidden files and all, is a mod the game takes', async () => {
   const dir = path.join(tmp(), 'bean.finder');
-  assert.equal((await quiet(() => main(['new', 'bean.finder', '--dir', dir, '--github', '--no-ai']))).code, 0);
-  fs.mkdirSync(path.join(dir, '.claude'), { recursive: true });
-  fs.writeFileSync(path.join(dir, '.claude/settings.json'), '{}');
-  fs.writeFileSync(path.join(dir, '.DS_Store'), 'x');
+  writeFiles(dir, {
+    ...modFiles('bean.finder', 'lines'),
+    '.gitignore': 'dist/\n',
+    '.vscode/settings.json': '{}',
+    '.github/workflows/mod.yml': 'name: check\n',
+    '.claude/settings.json': '{}',
+    '.DS_Store': 'x',
+  });
   const files = {};
   const all = (abs, rel) => {
     for (const e of fs.readdirSync(abs, { withFileTypes: true })) {
@@ -306,14 +155,13 @@ test('a Finder ZIP of a new folder, hidden files and all, is a mod the game take
   };
   all(dir, '');
   files['__MACOSX/bean.finder/._mod.json'] = enc('x');
-  for (const hidden of ['.gitignore', '.vscode/settings.json', '.github/workflows/mod.yml']) assert.ok(files[`bean.finder/${hidden}`], hidden);
   const hand = path.join(tmp(), 'bean.finder.zip');
   fs.writeFileSync(hand, fflate.zipSync(files));
   const r = await quiet(() => main(['check', hand]));
   assert.equal(r.code, 0, r.out);
   const read = mods.readMod(new Uint8Array(fs.readFileSync(hand)), fflate);
   assert.deepEqual(Object.keys(read.entries).filter((p) => p.split('/').some((s) => s.startsWith('.'))), []);
-  /* and a folder check no longer warns about them */
+  /* and a folder check does not warn about them */
   const c = await checkFolder(dir);
   assert.ok(!c.warnings.some((w) => /\.gitignore|\.vscode|\.github|\.claude/.test(String(w.message ?? w))), JSON.stringify(c.warnings));
 });

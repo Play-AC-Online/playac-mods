@@ -15,18 +15,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { CHECKOUT } from './checkout.mjs';
-import { typeSources } from './types.mjs';
+import { VENDOR } from './contract.mjs';
 
 const TARGETS = ['flower', 'nook'];
 const WHERE = { flower: 'the flower shop', nook: 'Nook\'s shop' };
 const ITEM_RE = /^0x[0-9a-fA-F]{4}$/;
 
-/* The path of items.json, or null: $PLAYAC_ITEMS_JSON, then the types'
- * sources (api/, vendor/api, ...), then the site's copy. */
+/* The path of items.json, or null: $PLAYAC_ITEMS_JSON, then the checkout's
+ * generated API outputs, then vendor/api, then the site's copy. */
 export function findItemsFile() {
   const list = [];
   if (process.env.PLAYAC_ITEMS_JSON) list.push(path.resolve(process.env.PLAYAC_ITEMS_JSON));
-  for (const dir of typeSources()) list.push(path.join(dir, 'items.json'), path.join(dir, 'schemas', 'items.json'));
+  for (const dir of [...(CHECKOUT ? CHECKOUT.api : []), path.join(VENDOR, 'api')]) list.push(path.join(dir, 'items.json'));
   if (CHECKOUT) list.push(CHECKOUT.siteItems);
   return list.find((f) => fs.existsSync(f)) || null;
 }

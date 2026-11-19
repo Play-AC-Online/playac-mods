@@ -12,7 +12,7 @@
  *
  * It is a pattern read, not a parser, so it can be wrong. Nothing depends on
  * it: the engine enforces events and permissions when the script runs. So a
- * guess from here never stops `pack` or `publish`: check.mjs marks
+ * guess from here never stops `pack`: check.mjs marks
  * each problem that came from this file with `scan: true`. */
 
 /* The value of one backslash escape in a short string, as Lua 5.4 reads it

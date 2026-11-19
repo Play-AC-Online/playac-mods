@@ -1,7 +1,7 @@
 {
   "name": "playac-mod",
   "version": "0.2.0",
-  "description": "Make, check, pack, try and publish mods for Play AC Online.",
+  "description": "Check, pack and try mods for Play AC Online.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -10,9 +10,7 @@
   "files": [
     "bin/",
     "lib/",
-    "fallback/",
     "vendor/",
-    "template/",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"

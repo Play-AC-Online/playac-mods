@@ -192,7 +192,7 @@ function on(event, fn) end
 ---@param ... any Values to print.
 function log(...) end
 
----A line from a messages file. "key" reads this mod's own line, and "author.mod:key" reads another mod's. Returns nil when there is no such line. A mod's messages can be a folder of translations. The line then comes in the game's language (en, de, es, fr or it, from the disc), with English as the fallback.
+---A line from a messages file. "key" reads this mod's own line, and "author.mod:key" reads another mod's. Returns nil when there is no such line.
 ---@param key string "key" or "author.mod:key".
 ---@return string?
 function message(key) end
@@ -349,14 +349,14 @@ function cmd.show_line(text) end
 ---@return playac.CommandCode? code The refusal's stable code (command_codes).
 function cmd.ask(t) end
 
----Asks the player to hand over items from their pockets. The game shows its own question, which names the item, the count and this mod. The mod's name stands between quotes, and a mod item is named as the pockets show it, both in the game's language where the mod has a translation. A script cannot change that text. On yes the items leave the pockets and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the pockets do not hold that many. Only plain pocket slots count. A wrapped present or an item held for a villager's errand is never taken. Items a command cannot give cannot be taken either (money bags, turnips, tickets, grab bags, fossils). It is refused on a visit and in The City, so a lent mod can never take anything.
+---Asks the player to hand over items from their pockets. The game shows its own question, which names the item, the count and this mod. The mod's name stands between quotes, and a mod item is named as the pockets show it. A script cannot change that text. On yes the items leave the pockets and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the pockets do not hold that many. Only plain pocket slots count. A wrapped present or an item held for a villager's errand is never taken. Items a command cannot give cannot be taken either (money bags, turnips, tickets, grab bags, fossils). It is refused on a visit and in The City, so a lent mod can never take anything.
 ---@param t table { item, count? }. item is an item number, "0x" and four hex digits, or this mod's own "author.mod:thing". count is 1 to 15 and is 1 when left out. An item number matches plain pieces only, never a mod item standing on that piece.
 ---@return integer? id The command's id. When it is refused at once: nil, then a message and a code.
 ---@return string? message Why it was refused, in words.
 ---@return playac.CommandCode? code The refusal's stable code (command_codes).
 function cmd.take_item(t) end
 
----Asks the player to pay Bells from their wallet. The game shows its own question, which names the amount and this mod. The mod's name stands between quotes, in the game's language where the mod translates it. A script cannot change that text. On yes the Bells leave the wallet and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the wallet holds less than the amount, so the wallet never goes below zero. The bank account and money bags in the pockets are never touched. It is refused on a visit and in The City, so a lent mod can never take anything.
+---Asks the player to pay Bells from their wallet. The game shows its own question, which names the amount and this mod. The mod's name stands between quotes. A script cannot change that text. On yes the Bells leave the wallet and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the wallet holds less than the amount, so the wallet never goes below zero. The bank account and money bags in the pockets are never touched. It is refused on a visit and in The City, so a lent mod can never take anything.
 ---@param t table { amount }. amount is a whole number of Bells, 1 to 99999.
 ---@return integer? id The command's id. When it is refused at once: nil, then a message and a code.
 ---@return string? message Why it was refused, in words.

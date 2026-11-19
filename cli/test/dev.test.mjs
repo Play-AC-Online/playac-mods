@@ -10,7 +10,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fflate, mods } from '../lib/contract.mjs';
 import { changeEvents, kindOf, snapshot, startDev, PROTOCOL } from '../lib/dev.mjs';
-import { scaffoldFiles, writeFiles } from '../lib/scaffold.mjs';
+import { modFiles, writeFiles } from './mod.mjs';
 
 const SITE = 'https://playaconline.com';
 
@@ -80,7 +80,7 @@ function events(url, headers) {
 
 async function served(kind) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-dev-'));
-  writeFiles(dir, scaffoldFiles('bean.dev', kind));
+  writeFiles(dir, modFiles('bean.dev', kind));
   const dev = await startDev(dir, { port: 0, poll: 50, lua: false });
   return { dir, dev, origin: SITE };
 }
@@ -142,7 +142,7 @@ test('only the site may read it: other origins and other Host names are refused'
 
 test('--origin adds a site', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-dev-'));
-  writeFiles(dir, scaffoldFiles('bean.dev', 'lines'));
+  writeFiles(dir, modFiles('bean.dev', 'lines'));
   const dev = await startDev(dir, { port: 0, poll: 50, lua: false, origins: ['http://localhost:5190/'] });
   try {
     assert.equal((await get(`${dev.url}/__playac/index`, { Origin: 'http://localhost:5190' })).status, 200);
@@ -209,35 +209,22 @@ test('kindOf and changeEvents: adds and removes are manifest changes too', () =>
 });
 
 /* every content key sends its own kind, so the game hears about it. */
-test('kindOf: each content file and a messages folder name a kind', () => {
-  const man = { content: { messages: 'messages', talk: 'talk.json', letters: 'mail/letters.json', calendar: 'calendar.json', items: 'items.json', shops: 'shops.json' } };
+test('kindOf: each content file names a kind', () => {
+  const man = { content: { messages: 'messages/en.json', talk: 'talk.json', letters: 'mail/letters.json', calendar: 'calendar.json', items: 'items.json', shops: 'shops.json' } };
   assert.equal(kindOf('messages/en.json', man), 'lines');
-  assert.equal(kindOf('messages/de.json', man), 'lines');
+  assert.equal(kindOf('messages/de.json', man), '', 'a messages file is one file, never a folder');
   assert.equal(kindOf('talk.json', man), 'talk');
   assert.equal(kindOf('mail/letters.json', man), 'letters');
   assert.equal(kindOf('calendar.json', man), 'calendar');
   assert.equal(kindOf('events.json', man), '', 'no such content file');
   assert.equal(kindOf('items.json', man), 'items');
-  assert.equal(kindOf('messagesx.json', man), '', 'a name that only starts like the folder is not in it');
-  assert.equal(kindOf('messages/en.json', { content: { messages: 'messages/' } }), 'lines');
-});
-
-/* a translations file sent nothing, so the game kept the old text. */
-test('kindOf: a file in the content.translations folder is a translations change', () => {
-  const man = { content: { messages: 'messages/en.json', translations: 'translations' } };
-  assert.equal(kindOf('translations/de.json', man), 'translations');
-  assert.equal(kindOf('translations/fr.json', { content: { translations: 'translations/' } }), 'translations');
-  assert.equal(kindOf('translationsx.json', man), '', 'a name that only starts like the folder is not in it');
-  assert.deepEqual(changeEvents(new Map([['translations/de.json', '1']]), new Map([['translations/de.json', '2']]), man), [
-    { kind: 'translations', files: ['translations/de.json'] },
-  ]);
 });
 
 /* every content file the game reloads with no restart (mods.js
  * devTiers, which api-drift.test.mjs holds to api.json dev_reload_hot) must
  * send a change event, or the page never hears of the save. */
 test('kindOf: every content key the game reloads hot sends a change', () => {
-  const file = { textures: 'tex/tex1_a.dds', messages: 'msg/en.json', translations: 'tr/de.json' };
+  const file = { textures: 'tex/tex1_a.dds' };
   const content = {};
   for (const k of mods.CONTENT_KEYS) content[k] = file[k] ? file[k].slice(0, file[k].indexOf('/')) : k + '.json';
   const man = { content };
@@ -249,7 +236,7 @@ test('kindOf: every content key the game reloads hot sends a change', () => {
 
 async function servedTalk() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-dev2-'));
-  writeFiles(dir, scaffoldFiles('bean.two', 'lines'));
+  writeFiles(dir, modFiles('bean.two', 'lines'));
   const m = JSON.parse(fs.readFileSync(path.join(dir, 'mod.json'), 'utf8'));
   m.content = { ...m.content, talk: 'talk.json' };
   fs.writeFileSync(path.join(dir, 'mod.json'), JSON.stringify(m, null, 2));

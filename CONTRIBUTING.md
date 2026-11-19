@@ -11,7 +11,7 @@ Some files are written here, and the rest are generated.
   `ai/playac-mod/SKILL.md`. A pull request to these can be merged. The part of
   the skill between its "generated facts" markers is the exception: it is
   written from the API spec.
-- **Generated:** everything else (`api/`, `errors/`, `cli/`, `template/`,
+- **Generated:** everything else (`api/`, `errors/`, `cli/`,
   `tools/`, the rest of `ai/` and the top-level files). Each sync replaces
   them, so a change to them has to be made in the game's sources. It then
   arrives with the next sync.

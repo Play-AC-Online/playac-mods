@@ -21,7 +21,7 @@
  *                          in the ZIP; anything else is 404).
  *
  * change.kind is what the game must reload, one event per kind:
- *   "lines"     the content.messages file, or a file in its folder (hot)
+ *   "lines"     the content.messages file      (hot)
  *   "shop"      the content.shops file         (hot)
  *   "talk"      the content.talk file          (hot)
  *   "letters"   the content.letters file       (hot)
@@ -29,8 +29,6 @@
  *   "items"     the content.items file         (hot; the game says
  *               in its mod log what waits: pieces already placed keep
  *               their base, a new id for them is a mod.json rename)
- *   "translations" a file in the content.translations folder (hot: the
- *               game's data reload reads the translations again)
  *   "lua"      any .lua file                  (hot: restart that mod's script)
  *   "textures"  files under content.textures   (hot if the game can evict)
  *   "manifest"  mod.json, or a file added or removed (needs a restart)
@@ -92,12 +90,9 @@ export function kindOf(file, manifest) {
   if (file === 'mod.json') return 'manifest';
   const c = (manifest && typeof manifest.content === 'object' && manifest.content) || {};
   if (file === c.messages) return 'lines';
-  if (typeof c.messages === 'string' && c.messages && file.startsWith(c.messages.replace(/\/$/, '') + '/')) return 'lines';
   if (file === c.shops) return 'shop';
   /* the other data files */
   for (const k of ['talk', 'letters', 'calendar', 'items']) if (file === c[k]) return k;
-  /* a file in the content.translations folder. */
-  if (typeof c.translations === 'string' && c.translations && file.startsWith(c.translations.replace(/\/$/, '') + '/')) return 'translations';
   if (file.endsWith('.lua')) return 'lua';
   if (typeof c.textures === 'string' && file.startsWith(c.textures.replace(/\/$/, '') + '/')) return 'textures';
   return '';
@@ -144,7 +139,7 @@ export function changeEvents(prev, next, manifest) {
     else if (prev.get(file) !== sum) put(kindOf(file, manifest), file);
   }
   for (const file of prev.keys()) if (!next.has(file)) { put('manifest', file); put(kindOf(file, manifest), file); }
-  const order = ['manifest', 'items', 'lines', 'shop', 'talk', 'letters', 'calendar', 'translations', 'lua', 'textures'];
+  const order = ['manifest', 'items', 'lines', 'shop', 'talk', 'letters', 'calendar', 'lua', 'textures'];
   return order.filter((k) => byKind.has(k)).map((k) => ({ kind: k, files: [...byKind.get(k)].sort() }));
 }
 

@@ -1,5 +1,5 @@
 {
-  "note": "Generated from the Play AC Online mod API spec and errors catalogue. Do not edit by hand. The playac-mod CLI copies these into a new mod (from -> to), except scaffold: false.",
+  "note": "Generated from the Play AC Online mod API spec and errors catalogue. Do not edit by hand. Where each file goes in a mod project (from -> to). scaffold: false marks a file to keep out of the mod folder.",
   "files": [
     {
       "from": "playac-mod/SKILL.md",

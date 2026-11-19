@@ -13,6 +13,9 @@ sync is one commit. The lists below are the places to read what changed.
 - The guides, the starter kits, the mod contract and the AI skill are written
   here now, and a pull request to them can be merged. The mod contract is new
   here: the full rule list the game checks every mod against.
+- The template repository is gone. Start from an example repository or a
+  starter kit.
+- The tool keeps `check`, `dev` and `pack`. Share a mod from the website.
 - The example mods moved out. Each is its own repository now, laid out like a
   mod repository of yours, and the README lists them.
 - Added a licence (MIT), this file, CONTRIBUTING.md, SECURITY.md and issue forms.

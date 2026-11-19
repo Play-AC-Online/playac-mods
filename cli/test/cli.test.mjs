@@ -1,4 +1,4 @@
-/* playac-mod: new, check, pack and the pack rule.
+/* playac-mod: check, pack and the pack rule.
  *
  *   node --test cli/test/
  *
@@ -17,14 +17,12 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { fflate, mods, EXTS } from '../lib/contract.mjs';
 import { CHECKOUT } from '../lib/checkout.mjs';
-import { aiPackDir } from '../lib/aipack.mjs';
 import { checkEntries, checkFolder, TEXTURE_NAME_RE } from '../lib/check.mjs';
 import { leftOutReason, readFolder } from '../lib/files.mjs';
 import { pack, zipEntries } from '../lib/pack.mjs';
-import { KINDS, scaffoldFiles, writeFiles, GRASS_TEXTURE, dds } from '../lib/scaffold.mjs';
-import { writeEditorSettings, writeTypes, TYPE_FILES } from '../lib/types.mjs';
+import { KINDS, modFiles, writeFiles, GRASS_TEXTURE, dds } from './mod.mjs';
 import { commandText } from '../lib/help.mjs';
-import { devSteps, main, nodeTooOld, parseArgs, typesFrom } from '../bin/playac-mod.mjs';
+import { devSteps, main, nodeTooOld, parseArgs, versionLine } from '../bin/playac-mod.mjs';
 
 /* A test that reads the game's source checkout (the contract cases, the examples,
  * the build scripts) is skipped in a copy that has none. */
@@ -41,32 +39,16 @@ const quiet = async (fn) => {
 };
 const base = { schema: 1, api: 1, id: 'test.mod', name: 'Test Mod', version: '1.0.0', authors: ['Tester'], scope: 'client', assets_original: true };
 
-test('every kind scaffolds a mod that passes check and the game\'s own readMod', async () => {
+test('every test mod passes check and the game\'s own readMod', async () => {
   for (const kind of KINDS) {
     const dir = tmp();
-    writeFiles(dir, scaffoldFiles(`bean.${kind}-mod`, kind));
-    writeTypes(dir);
+    writeFiles(dir, modFiles(`bean.${kind}-mod`, kind));
     const r = await checkFolder(dir, { lua: false });
     assert.deepEqual(r.problems, [], kind);
-    assert.deepEqual(r.warnings, [], `${kind} has no warnings`);
-    /* The ZIP through the game's reader directly, not through check. */
     const mod = mods.readMod(r.result.zip, fflate);
     assert.equal(mod.manifest.id, `bean.${kind}-mod`);
-    assert.equal(mod.manifest.api, mods.API_MAX, 'a new mod says the newest api level');
-    assert.ok(!mod.names.some((n) => n.startsWith('.')), `${kind}: .playac, .vscode and .gitignore stay out of the ZIP`);
-    const m = JSON.parse(fs.readFileSync(path.join(dir, 'mod.json'), 'utf8'));
-    assert.equal(m.$schema, './.playac/schemas/mod.schema.json');
-    for (const f of TYPE_FILES) assert.ok(fs.existsSync(path.join(dir, '.playac', f)), f);
-    const vs = JSON.parse(fs.readFileSync(path.join(dir, '.vscode/settings.json'), 'utf8'));
-    assert.deepEqual(vs['Lua.workspace.library'], ['.playac/playac.lua']);
   }
-});
-
-test('the shop kind is a world mod; the texture kind names a texture the loader matches', () => {
-  assert.equal(JSON.parse(scaffoldFiles('a.b', 'shop')['mod.json']).scope, 'world');
   assert.match(GRASS_TEXTURE, TEXTURE_NAME_RE);
-  assert.throws(() => scaffoldFiles('Not An Id', 'lines'), /yourname\.mod-name/);
-  assert.throws(() => scaffoldFiles('a.b', 'items'), /--kind/);
 });
 
 test('check agrees with readMod on every case in the contract\'s cases.json', SOURCE_ONLY, async () => {
@@ -172,7 +154,7 @@ test('check takes PNG textures by the engine\'s rules', async () => {
 
 test('pack is deterministic: same bytes twice, in any time zone, in any file order', async () => {
   const dir = tmp();
-  writeFiles(dir, scaffoldFiles('bean.det', 'shop'));
+  writeFiles(dir, modFiles('bean.det', 'shop'));
   const a = await pack(readFolder(dir).entries);
   const shuffled = Object.fromEntries(Object.entries(readFolder(dir).entries).reverse());
   const b = await pack(shuffled);
@@ -239,11 +221,10 @@ test('the pack rule\'s file types are exactly the ones mods.js accepts', () => {
 
 test('the CLI: check exits 1 with per-file errors, pack writes <id>-<version>.zip beside the folder', async () => {
   const dir = path.join(tmp(), 'bean.cli');
-  writeFiles(dir, scaffoldFiles('bean.cli', 'lines'));
+  writeFiles(dir, modFiles('bean.cli', 'lines'));
   let r = await quiet(() => main(['check', dir, '--no-lua']));
   assert.equal(r.code, 0, r.out);
   assert.match(r.out, /ok {3}bean\.cli 0\.1\.0/);
-  assert.match(r.out, /NOTE: Lua syntax was not checked \(--no-lua\)/);
   fs.writeFileSync(path.join(dir, 'messages/en.json'), '{"line1": ""}');
   r = await quiet(() => main(['check', dir, '--no-lua']));
   assert.equal(r.code, 1);
@@ -265,14 +246,7 @@ test('the CLI: check exits 1 with per-file errors, pack writes <id>-<version>.zi
   assert.match(r.out, /skip {2}dist\/x\.zip: not a mod file type/);
 });
 
-test('the CLI: new refuses to overwrite, help and bad usage', async () => {
-  const dir = tmp();
-  let r = await quiet(() => main(['new', 'bean.x', '--dir', dir, '--kind', 'script']));
-  assert.equal(r.code, 0, r.out);
-  r = await quiet(() => main(['new', 'bean.x', '--dir', dir]));
-  assert.equal(r.code, 1);
-  assert.match(r.out, /already exists/);
-  assert.equal((await quiet(() => main(['new', 'bean.y', '--kind', 'items']))).code, 2);
+test('the CLI: help and bad usage', async () => {
   assert.equal((await quiet(() => main(['frobnicate']))).code, 2);
   assert.equal((await quiet(() => main(['help']))).code, 0);
   assert.deepEqual(parseArgs(['dev', '--origin', 'a', '--origin=b', '--port', '0']).flags, { origin: ['a', 'b'], port: '0' });
@@ -289,46 +263,6 @@ test('a Lua syntax error is a problem, with or without a luac installed', async 
   assert.ok(c.problems.some((p) => p.file === 'main.lua' && p.script));
 });
 
-test('the template repo exports with a working mod, its workflow and no generated files', SOURCE_ONLY, async () => {
-  const { exportTemplate, TEMPLATE_ID } = await import('../scripts/export-template.mjs');
-  for (const opts of [{}, { example: 'example.tea-house' }, { kind: 'texture' }]) {
-    const out = tmp();
-    const list = await exportTemplate(out, { ...opts, force: true });
-    for (const f of ['mod.json', 'README.md', '.github/workflows/mod.yml', '.vscode/settings.json', '.gitignore']) {
-      assert.ok(list.includes(f), `${JSON.stringify(opts)}: ${f}`);
-    }
-    assert.ok(!list.some((f) => f.startsWith('.playac/')));
-    const r = await checkFolder(out, { lua: false });
-    assert.equal(r.ok, true, JSON.stringify(r.problems));
-    assert.equal(r.manifest.id, TEMPLATE_ID);
-    assert.equal(r.manifest.version, '0.1.0');
-    assert.ok(!mods.readMod(r.result.zip, fflate).names.some((n) => n.startsWith('.')), 'the workflow and settings never ship');
-  }
-  await assert.rejects(exportTemplate(tmp(), { example: 'example.nope' }), /no example/);
-});
-
-/* every new mod carries the AI skill pack (ai/pack.json), and a
- * problem check prints a link to its errors catalogue entry. */
-test('new adds the AI skill pack per its pack.json; --no-ai leaves it out', async () => {
-  const packList = JSON.parse(fs.readFileSync(path.join(aiPackDir(), 'pack.json'), 'utf8'));
-  const files = scaffoldFiles('bean.ai-mod', 'lines');
-  for (const f of packList.files.filter((x) => x.scaffold !== false)) {
-    assert.ok(files[f.to], f.to);
-    assert.deepEqual(Buffer.from(files[f.to]), fs.readFileSync(path.join(aiPackDir(), f.from)), f.to);
-  }
-  assert.ok(files['.claude/skills/playac-mod/SKILL.md'] && files['.github/copilot-instructions.md']);
-  assert.equal(files['AGENTS.md'], undefined, 'a top-level .md would ship in the mod ZIP');
-  assert.equal(scaffoldFiles('bean.ai-mod', 'lines', { ai: false })['.claude/skills/playac-mod/SKILL.md'], undefined);
-  for (const k of Object.keys(files)) if (/^\.(claude|github)\//.test(k)) assert.ok(leftOutReason(k), k);
-  /* The hidden parts stay out of the mod's ZIP, and the mod still passes check. */
-  assert.ok(leftOutReason('.claude/skills/playac-mod/SKILL.md'));
-  assert.ok(leftOutReason('.github/copilot-instructions.md'));
-  const dir = tmp();
-  writeFiles(dir, files);
-  writeTypes(dir);
-  assert.equal((await checkFolder(dir)).ok, true);
-});
-
 test('check links each problem to its errors catalogue entry', async () => {
   const dir = tmp();
   fs.writeFileSync(path.join(dir, 'mod.json'), JSON.stringify({ ...base, scope: 'client', content: { shops: 'shops.json' } }));
@@ -338,30 +272,12 @@ test('check links each problem to its errors catalogue entry', async () => {
   assert.match(out, /see https:\/\/playaconline\.com\/modding\/errors\/#shops-need-world/);
 });
 
-/* the scaffold's .gitignore leaves out only what `types` writes, so the
- * listing a GitHub import reads (.playac/screenshots, .playac/changelog.txt)
- * is committed. Asked of git itself. */
-test('.gitignore keeps the generated types out and the listing in (git check-ignore)', async (t) => {
-  if (spawnSync('git', ['--version']).status !== 0) { t.skip('no git'); return; }
-  const dir = tmp();
-  writeFiles(dir, scaffoldFiles('bean.git-mod', 'lines'));
-  writeTypes(dir);
-  fs.mkdirSync(path.join(dir, '.playac/screenshots'), { recursive: true });
-  fs.writeFileSync(path.join(dir, '.playac/screenshots/town.png'), 'x');
-  fs.writeFileSync(path.join(dir, '.playac/changelog.txt'), 'First.');
-  assert.equal(spawnSync('git', ['init', '-q'], { cwd: dir }).status, 0);
-  const ignored = (p) => spawnSync('git', ['check-ignore', '-q', p], { cwd: dir }).status === 0;
-  for (const p of ['.playac/playac.lua', '.playac/schemas/mod.schema.json', 'dist/bean.git-mod-0.1.0.zip', 'node_modules/x/y.js']) assert.ok(ignored(p), `${p} is ignored`);
-  for (const p of ['.playac/screenshots/town.png', '.playac/changelog.txt', 'mod.json', 'CHANGELOG.md']) assert.ok(!ignored(p), `${p} is committed`);
-});
-
 /* a packed file nothing in mod.json reads is a warning, a tool's file
  * by its name; the pack rule (shared with the GitHub import) is unchanged. */
 test('check warns on packed files the game never reads, naming tool files', async () => {
   const entries = {
-    'mod.json': enc(JSON.stringify({ ...base, content: { messages: 'lang', textures: 'textures/' } })),
+    'mod.json': enc(JSON.stringify({ ...base, content: { messages: 'lang/en.json', textures: 'textures/' } })),
     'lang/en.json': enc('{"hi":"Hello"}'),
-    'lang/de.json': enc('{"hi":"Hallo"}'),
     'textures/tex1_32x32_0123456789abcdef_14.dds': dds(32, 32, new Uint8Array(32 * 32 * 4)),
     'package.json': enc('{"name":"x"}'),
     'package-lock.json': enc('{}'),
@@ -376,28 +292,31 @@ test('check warns on packed files the game never reads, naming tool files', asyn
   assert.match(by('package-lock.json'), /a tool's file/);
   assert.match(by('old/backup.json'), /nothing in mod\.json points at it/);
   assert.match(by('art/cover.png'), /nothing in mod\.json points at it/);
-  for (const f of ['mod.json', 'lang/en.json', 'lang/de.json', 'README.md', 'textures/tex1_32x32_0123456789abcdef_14.dds']) {
+  for (const f of ['mod.json', 'lang/en.json', 'README.md', 'textures/tex1_32x32_0123456789abcdef_14.dds']) {
     assert.ok(!r.warnings.some((w) => w.file === f && /points at it|tool's file/.test(w.message)), f);
   }
-  assert.ok(r.result.files >= 9, 'still packed: the pack rule is unchanged');
+  assert.ok(r.result.files >= 8, 'still packed: the pack rule is unchanged');
 });
 
 /* the CLI's edges. */
 test('the CLI: usage mistakes exit 2, -h and -v, --json always JSON, --port checked', async () => {
-  assert.equal((await quiet(() => main(['new']))).code, 2, 'new with no id is a usage mistake');
   let r = await quiet(() => main(['-h']));
   assert.equal(r.code, 0);
-  for (const c of ['new', 'check', 'pack', 'dev', 'types', 'publish', 'status', 'yank', 'unyank', 'logout']) assert.match(r.out, new RegExp(`^  ${c}\\b`, 'm'), `help lists ${c}`);
+  for (const c of ['check', 'pack', 'dev', 'help', 'version']) assert.match(r.out, new RegExp(`^  ${c}\\b`, 'm'), `help lists ${c}`);
+  for (const c of ['new', 'types', 'publish', 'status', 'yank', 'unyank', 'logout']) {
+    assert.doesNotMatch(r.out, new RegExp(`^  ${c}\\b`, 'm'), `help does not list ${c}`);
+    assert.equal((await quiet(() => main([c]))).code, 2, `${c} is not a command`);
+  }
   r = await quiet(() => main(['-v']));
   assert.equal(r.code, 0);
-  assert.match(r.out, /^playac-mod \d+\.\d+\.\d+, (build [0-9a-f]{12}|run from source) \(API levels? \d/);
+  assert.match(r.out, /^playac-mod \d+\.\d+\.\d+, (build [0-9a-f]{12}|from source), API levels? \d/);
   r = await quiet(() => main(['check', path.join(tmp(), 'nope'), '--json']));
   assert.equal(r.code, 1);
   const j = JSON.parse(r.out);
   assert.equal(j.ok, false);
   assert.match(j.problems[0].message, /does not exist/);
   const dir = tmp();
-  writeFiles(dir, scaffoldFiles('bean.port-mod', 'lines'));
+  writeFiles(dir, modFiles('bean.port-mod', 'lines'));
   r = await quiet(() => main(['dev', dir, '--port', 'abc']));
   assert.equal(r.code, 2);
   assert.match(r.out, /--port must be a number from 0 to 65535/);
@@ -408,43 +327,17 @@ test('the CLI: usage mistakes exit 2, -h and -v, --json always JSON, --port chec
   try {
     r = await quiet(() => main(['dev', dir, '--port', String(busy.address().port)]));
     assert.equal(r.code, 1);
-    assert.match(r.out, /already in use.*--port/);
+    assert.match(r.out, /is not free.*--port/);
   } finally { busy.close(); }
 });
 
-/* nobody owns "playac-mod" on npm yet, so whoever registers it would
- * run code in every mod repo's CI that resolves the name there. The workflow
- * downloads one frozen release by URL and refuses it unless its SHA-256 is
- * the pinned one; it never names the package to npm or npx. */
-test('the template workflow runs one release, pinned by SHA-256, and never asks npm by name', async () => {
-  const pin = await import('../lib/pin.mjs');
-  const tpl = fs.readFileSync(pin.WORKFLOW_TEMPLATE, 'utf8');
-  const list = pin.readReleases(pin.RELEASES_JSON);
-  assert.ok(list && list.releases.length, 'releases/releases.json lists a release');
-  const rel = pin.pickRelease(list, '0.0.0');
-  for (const yml of [pin.renderWorkflow(tpl, rel, false), pin.renderWorkflow(tpl, rel, true)]) {
-    assert.doesNotMatch(yml, /npx[^\n]*playac-mod|npm (view|exec|install|i|info|show)\s[^\n]*\bplayac-mod(@|\s|$)/m, 'no npm or npx lookup of the name');
-    assert.doesNotMatch(yml, /__PLAYAC_MOD_/);
-    assert.match(yml, new RegExp(`PLAYAC_MOD_SHA256: '${rel.sha256}'`));
-    assert.match(yml, /sha256sum -c -/);
-    assert.match(yml, /npm install -g --ignore-scripts [^\n]*"\$RUNNER_TEMP\/playac-mod\.tgz"/);
-    /* the check step runs only after the hash step: no step may skip it */
-    assert.ok(yml.indexOf('sha256sum -c') < yml.indexOf('run: playac-mod check'));
-  }
-  /* the one switch to npm changes only where the same file comes from */
-  assert.match(pin.renderWorkflow(tpl, rel, false), new RegExp(`PLAYAC_MOD_URL: 'https://playaconline\\.com/modding/downloads/playac-mod-${rel.version}\\.tgz'`));
-  assert.match(pin.renderWorkflow(tpl, rel, true), new RegExp(`PLAYAC_MOD_URL: 'https://registry\\.npmjs\\.org/playac-mod/-/playac-mod-${rel.version}\\.tgz'`));
-  assert.throws(() => pin.renderWorkflow(tpl, null), /no playac-mod release/);
-});
-
 test('releases are frozen: every listed file is there with its hash; a changed byte is refused', SOURCE_ONLY, async () => {
-  const { checkReleases, record } = await import('../scripts/release.mjs');
-  const pin = await import('../lib/pin.mjs');
+  const { checkReleases, record, readReleases, RELEASES_DIR, RELEASES_JSON } = await import('../scripts/release.mjs');
   assert.deepEqual(checkReleases(), []);
   const dir = tmp();
-  const list = pin.readReleases(pin.RELEASES_JSON);
-  const r = list.releases[0];
-  const bytes = fs.readFileSync(path.join(pin.RELEASES_DIR, r.file));
+  const list = readReleases(RELEASES_JSON);
+  const r = list.releases[list.releases.length - 1];
+  const bytes = fs.readFileSync(path.join(RELEASES_DIR, r.file));
   const { build, ...hashes } = r;
   assert.deepEqual(record(r.version, bytes), hashes, 'the record is the file\'s own hashes');
   if (build !== undefined) assert.match(build, /^[0-9a-f]{12}$/);
@@ -465,62 +358,8 @@ test('releases are frozen: every listed file is there with its hash; a changed b
     if (name === 'package/package.json' && !prefix) assert.ok(!JSON.parse(tar.subarray(at + 512, at + 512 + size).toString('utf8')).dependencies, 'no dependencies: nothing else is fetched');
     at += 512 + Math.ceil(size / 512) * 512;
   }
-  for (const f of ['package/package.json', 'package/bin/playac-mod.mjs', 'package/vendor/mods.js', 'package/vendor/source.json', 'package/template/.github/workflows/mod.yml']) assert.ok(names.includes(f), f);
-});
-
-test('new --github pins the workflow to a release from the list; with no list it refuses', async () => {
-  const pin = await import('../lib/pin.mjs');
-  const r = pin.pickRelease({ releases: [{ version: '0.1.0', sha256: 'a'.repeat(64) }, { version: '0.10.0', sha256: 'b'.repeat(64) }, { version: '0.2.0', sha256: 'c'.repeat(64) }] }, '9.9.9');
-  assert.equal(r.version, '0.10.0', 'the newest, by number');
-  assert.equal(pin.pickRelease({ releases: [{ version: '0.1.0', sha256: 'a'.repeat(64) }, { version: '0.2.0', sha256: 'c'.repeat(64) }] }, '0.1.0').version, '0.1.0', 'its own version when released');
-  assert.equal(pin.pickRelease({ releases: [{ version: '0.1.0', sha256: 'nope' }] }, '0.1.0'), null, 'a record with no real hash is no pin');
-  const none = path.join(tmp(), 'none.json');
-  fs.writeFileSync(none, '{"releases":[]}');
-  const was = process.env.PLAYAC_MOD_RELEASES;
-  process.env.PLAYAC_MOD_RELEASES = none;
-  try {
-    const dir = path.join(tmp(), 'bean.nopin');
-    const out = await quiet(() => main(['new', 'bean.nopin', '--dir', dir, '--github', '--no-ai']));
-    assert.equal(out.code, 1);
-    assert.match(out.out, /pins the check workflow to a release of playac-mod by its SHA-256/);
-    assert.ok(!fs.existsSync(path.join(dir, '.github/workflows/mod.yml')), 'no unpinned workflow is written');
-  } finally {
-    if (was === undefined) delete process.env.PLAYAC_MOD_RELEASES; else process.env.PLAYAC_MOD_RELEASES = was;
-  }
-});
-
-/* a dependency's mod.json "exports" become remote.call hints in the
- * dependent's .playac/playac.lua (a sibling folder, or $PLAYAC_LIBS); a
- * library with broken exports, or none, adds nothing. */
-test('types turns a dependency\'s exports into remote.call hints', () => {
-  const root = tmp();
-  const libDir = path.join(root, 'craftlib');
-  const userDir = path.join(root, 'workshop');
-  fs.mkdirSync(libDir);
-  fs.mkdirSync(userDir);
-  fs.writeFileSync(path.join(libDir, 'mod.json'), JSON.stringify({ ...base, id: 'power.craftlib', scripts: { main: 'main.lua', events: ['villager_talked'] },
-    exports: { count_pieces: 'How many workshop pieces the player bought.', is_bench: 'Whether an item is the Maker\'s Bench.' } }));
-  fs.writeFileSync(path.join(userDir, 'mod.json'), JSON.stringify({ ...base, id: 'power.workshop', depends: { 'power.craftlib': '>=1.0.0', 'power.gone': '*' } }));
-  const out = writeTypes(userDir);
-  const lua = fs.readFileSync(path.join(userDir, '.playac/playac.lua'), 'utf8');
-  assert.match(lua, /---@alias PlayacExports_power_craftlib\n---\| "count_pieces" # How many workshop pieces the player bought\.\n---\| "is_bench" # /);
-  assert.match(lua, /---@param mod "power\.craftlib"\n---@param name PlayacExports_power_craftlib\n/);
-  assert.match(lua, /function remote\.call\(mod, name, \.\.\.\) end\n$/);
-  assert.ok(out.some((w) => /remote\.call hints for power\.craftlib/.test(w.file) && w.from === libDir));
-  /* run again: the file is copied fresh, so the hints are there once */
-  writeTypes(userDir);
-  assert.equal(fs.readFileSync(path.join(userDir, '.playac/playac.lua'), 'utf8').split('@alias PlayacExports_power_craftlib').length, 2);
-  /* broken exports: nothing added */
-  fs.writeFileSync(path.join(libDir, 'mod.json'), JSON.stringify({ ...base, id: 'power.craftlib', exports: ['count_pieces'] }));
-  writeTypes(userDir);
-  assert.doesNotMatch(fs.readFileSync(path.join(userDir, '.playac/playac.lua'), 'utf8'), /PlayacExports_/);
-  /* a library elsewhere, named in PLAYAC_LIBS */
-  const far = tmp();
-  fs.writeFileSync(path.join(far, 'mod.json'), JSON.stringify({ ...base, id: 'power.gone', scripts: { main: 'main.lua', events: ['villager_talked'] }, exports: { ping: 'Says pong.' } }));
-  const was = process.env.PLAYAC_LIBS;
-  process.env.PLAYAC_LIBS = far;
-  try { writeTypes(userDir); } finally { if (was === undefined) delete process.env.PLAYAC_LIBS; else process.env.PLAYAC_LIBS = was; }
-  assert.match(fs.readFileSync(path.join(userDir, '.playac/playac.lua'), 'utf8'), /---\| "ping" # Says pong\./);
+  for (const f of ['package/package.json', 'package/bin/playac-mod.mjs', 'package/vendor/mods.js', 'package/vendor/api/items.json']) assert.ok(names.includes(f), f);
+  for (const f of ['package/lib/publish.mjs', 'package/lib/scaffold.mjs', 'package/lib/types.mjs']) assert.ok(!names.includes(f), `${f} is gone`);
 });
 
 /* Setup dry run: npm only warns about engines, so the tool names the Node
@@ -531,16 +370,6 @@ test('a Node.js older than package.json engines is refused with the fix', () => 
   for (const v of ['16.20.1', 'v18.16.9', '17.9.0', '0.12.0']) assert.equal(nodeTooOld(v, '18.17'), true, v);
   for (const v of ['18.17.0', 'v18.20.5', '20.4.0', '26.13.1']) assert.equal(nodeTooOld(v, '18.17'), false, v);
   assert.equal(nodeTooOld(process.versions.node), false, 'the Node running the tests is supported');
-});
-
-test('types says where its files came from without a long relative path', () => {
-  const pkg = path.resolve(path.dirname(BIN), '..');
-  const version = JSON.parse(fs.readFileSync(path.join(pkg, 'package.json'), 'utf8')).version;
-  assert.equal(typesFrom(path.join(pkg, 'vendor', 'api', 'playac.lua'), '/somewhere/else'), `playac-mod ${version}`);
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pm-from-'));
-  assert.equal(typesFrom(path.join(tmp, 'api', 'playac.lua'), tmp), path.join('api', 'playac.lua'));
-  assert.equal(typesFrom('/opt/api/playac.lua', tmp), '/opt/api/playac.lua');
-  fs.rmSync(tmp, { recursive: true, force: true });
 });
 
 /* a stranger's first hour with the tool. Each of these was wrong:
@@ -573,7 +402,7 @@ test('help: one screen per command, from the same list the parser and the docs r
 test('an unknown option is refused by name, a missing value is said, exit 2', async () => {
   let r = await quiet(() => main(['check', '--bogus']));
   assert.equal(r.code, 2);
-  assert.match(r.out, /Unknown option --bogus for check\. Run "playac-mod check --help"/);
+  assert.match(r.out, /Unknown option --bogus for check\./);
   assert.doesNotMatch(r.out, /needs a value/);
   r = await quiet(() => main(['check', '--kind', 'lines']));
   assert.equal(r.code, 2, 'an option of another command is unknown here');
@@ -584,10 +413,6 @@ test('an unknown option is refused by name, a missing value is said, exit 2', as
   r = await quiet(() => main(['check', '-x']));
   assert.equal(r.code, 2);
   assert.match(r.out, /Unknown option -x/);
-  /* --github: a switch for new, a value for publish */
-  assert.equal(parseArgs(['new', 'a.b', '--github']).flags.github, true);
-  assert.equal(parseArgs(['publish', '--github', 'you/x@v1.0.0']).flags.github, 'you/x@v1.0.0');
-  assert.throws(() => parseArgs(['publish', '--github']), /--github needs a value/);
 });
 
 test('check, pack and dev outside a mod folder say so, with no word of a ZIP', async () => {
@@ -595,65 +420,16 @@ test('check, pack and dev outside a mod folder say so, with no word of a ZIP', a
   for (const cmd of ['check', 'pack', 'dev']) {
     const r = await quiet(() => main([cmd, empty]));
     assert.equal(r.code, 2, cmd);
-    assert.match(r.out, /is not a mod\. There is no mod\.json in it/, cmd);
-    assert.match(r.out, new RegExp(`playac-mod ${cmd} <folder>`), cmd);
+    assert.match(r.out, /has no mod\.json/, cmd);
     assert.doesNotMatch(r.out, /ZIP/, cmd);
   }
   const r = await quiet(() => main(['check', empty, '--json']));
   assert.equal(JSON.parse(r.out).ok, false, '--json still answers JSON');
 });
 
-test('new tells a first-time author what sharing needs, in its output and its README', async () => {
-  const dir = tmp();
-  const r = await quiet(() => main(['new', 'bean.first', '--dir', dir]));
-  assert.equal(r.code, 0, r.out);
-  assert.match(r.out, /playac-mod publish --help/);
-  assert.doesNotMatch(r.out, /npx/);
-  const readme = fs.readFileSync(path.join(dir, 'README.md'), 'utf8');
-  assert.doesNotMatch(readme, /npx/);
-  const share = readme.slice(readme.indexOf('## Share it'));
-  assert.ok(share.indexOf('two-factor') < share.indexOf('playac-mod publish  '), 'two-factor is named before the command');
-  assert.ok(share.indexOf('.playac/screenshots/') < share.indexOf('playac-mod publish  '), 'the screenshot folder is named before the command');
-  /* and publish itself, run on that fresh folder, explains instead of only refusing */
-  const p = await quiet(() => main(['publish', dir, '--no-lua']));
-  assert.equal(p.code, 1);
-  assert.match(p.out, /needs 1 to 4 screenshots.*Nothing was sent.*publish --help/s);
-  const help = (await quiet(() => main(['publish', '--help']))).out;
-  for (const need of [/two-factor/, /\.playac\/screenshots\//, /CHANGELOG\.md/]) assert.match(help, need);
-});
-
-test('the version scheme: a build id per package, and a notice when a newer release is out', async () => {
-  const { noticeFor, updateNotice, versionLine, newerThan } = await import('../lib/update.mjs');
-  assert.match(versionLine('1.2.3', 'abcdef012345'), /^playac-mod 1\.2\.3, build abcdef012345 \(API levels? /);
-  assert.match(versionLine('1.2.3', ''), /run from source/);
-  assert.equal(newerThan('0.10.0', '0.9.9'), true);
-  assert.equal(newerThan('0.2.0', '0.2.0'), false);
-  const sha = 'a'.repeat(64);
-  const list = { releases: [{ version: '0.1.0', sha256: sha }, { version: '0.3.0', sha256: sha, build: '111111111111' }] };
-  const n = noticeFor(list, '0.2.0', '', false);
-  assert.match(n, /A newer playac-mod is out: 0\.3\.0\. You have 0\.2\.0\./);
-  assert.match(n, /npm install -g https:\/\/playaconline\.com\/modding\/downloads\/playac-mod-0\.3\.0\.tgz/);
-  assert.match(n, new RegExp(`SHA-256 of that file: ${sha}`));
-  assert.doesNotMatch(n, /npx|npm install -g playac-mod\b(?!-)/, 'never the bare name while it is not on npm');
-  assert.equal(noticeFor(list, '0.3.0', '111111111111', false), '', 'the released build says nothing');
-  assert.match(noticeFor(list, '0.3.0', '222222222222', false), /build 222222222222, which is not the 0\.3\.0 release \(build 111111111111\)/);
-  assert.equal(noticeFor({ releases: [{ version: '9.9.9', sha256: 'nope' }] }, '0.1.0', '', false), '', 'a record with no real hash is no release');
-  /* when it asks: a terminal only, never CI, never when switched off; once a day */
-  const dir = tmp();
-  let calls = 0;
-  const fetchFn = async () => { calls++; return { ok: true, json: async () => list }; };
-  const base = { fetchFn, dir, build: '', now: 1e12 };
-  assert.equal(await updateNotice('0.2.0', { ...base, tty: false, env: {} }), '');
-  assert.equal(await updateNotice('0.2.0', { ...base, tty: true, env: { CI: '1' } }), '');
-  assert.equal(await updateNotice('0.2.0', { ...base, tty: true, env: { PLAYAC_NO_UPDATE_CHECK: '1' } }), '');
-  assert.equal(calls, 0);
-  assert.match(await updateNotice('0.2.0', { ...base, tty: true, env: {} }), /0\.3\.0/);
-  assert.match(await updateNotice('0.2.0', { ...base, tty: true, env: {}, now: 1e12 + 3600e3 }), /0\.3\.0/);
-  assert.equal(calls, 1, 'the list is read once a day');
-  await updateNotice('0.2.0', { ...base, tty: true, env: {}, now: 1e12 + 25 * 3600e3 });
-  assert.equal(calls, 2);
-  /* an unreachable site says nothing and does not throw */
-  assert.equal(await updateNotice('0.2.0', { fetchFn: async () => { throw new Error('offline'); }, dir: tmp(), build: '', now: 1, tty: true, env: {} }), '');
+test('the version line: the version, the build and the API level', () => {
+  assert.match(versionLine('1.2.3', 'abcdef012345'), /^playac-mod 1\.2\.3, build abcdef012345, API levels? /);
+  assert.match(versionLine('1.2.3', ''), /from source/);
 });
 
 test('the package: its build id names its files, and it carries its licence, notices and changelog', SOURCE_ONLY, async () => {
@@ -683,8 +459,8 @@ test('the package: its build id names its files, and it carries its licence, not
  * be missing from every modder's check. This fails until a release is cut. */
 test('the install line is current: the newest release is this checkout\'s tool, and facts.ts names it', SOURCE_ONLY, async () => {
   const { packageFiles, buildOf } = await import('../scripts/tarball.mjs');
-  const pin = await import('../lib/pin.mjs');
-  const list = pin.readReleases(pin.RELEASES_JSON).releases;
+  const { readReleases, RELEASES_JSON } = await import('../scripts/release.mjs');
+  const list = readReleases(RELEASES_JSON).releases;
   const newest = list[list.length - 1];
   const version = JSON.parse(fs.readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')).version;
   /* the steps, with the commands, are in MAINTAINERS.md under "Releases" */
@@ -696,72 +472,35 @@ test('the install line is current: the newest release is this checkout\'s tool, 
   assert.equal((/export const CLI_RELEASE_SHA256 = '([^']+)'/.exec(facts) || [])[1], newest.sha256, 'facts.ts CLI_RELEASE_SHA256 is its hash');
 });
 
-test('pack says one hash in words, and every schema names its own file', async () => {
+test('pack says one hash; the others are in --json', async () => {
   const dir = path.join(tmp(), 'bean.world');
-  writeFiles(dir, scaffoldFiles('bean.world', 'shop'));
+  writeFiles(dir, modFiles('bean.world', 'shop'));
   const r = await quiet(() => main(['pack', dir, '--no-lua']));
   assert.equal(r.code, 0, r.out);
-  assert.match(r.out, /^content hash {2}[0-9a-f]{64}$/m);
+  assert.match(r.out, /^content hash [0-9a-f]{64}$/m);
   assert.doesNotMatch(r.out, /modset|zip sha256/, 'the two hashes only tools need are in --json');
   const j = JSON.parse((await quiet(() => main(['pack', dir, '--no-lua', '--json']))).out);
   assert.ok(j.sha256 && j.modset_line && j.content_sha);
-  /* a schema's $id is the address it is served at, which ends in its file name */
-  writeTypes(dir);
-  const schemas = path.join(dir, '.playac', 'schemas');
-  for (const f of fs.readdirSync(schemas)) {
-    const id = JSON.parse(fs.readFileSync(path.join(schemas, f), 'utf8')).$id;
-    if (id) assert.equal(id.split('/').pop(), f, `${f} says it is ${id}`);
-  }
 });
 
-/* every place said only "open the game with ?moddev=1". The game reads
- * from the dev server only after the author presses Connect in the dev panel
- * (DevModPanel.svelte is the one caller of useServer), so the loop as written
- * loaded nothing. Each place that tells the loop must name Connect and the one
- * restart. */
-test('dev: what it prints, its help, the new mod\'s README and the template name Connect and the restart', () => {
+/* the game reads from the dev server only after the author presses
+ * Connect in the dev panel, so each place that tells the loop names Connect
+ * and the one restart. */
+test('dev: what it prints, its help and the README name Connect and the restart', () => {
   const told = (text, what) => {
     assert.match(text, /\?moddev=1/, `${what}: the address`);
     assert.match(text, /Settings, Mods, Load a mod you are making/, `${what}: where`);
     assert.match(text, /Connect/, `${what}: Connect`);
     assert.match(text, /Restart now once/, `${what}: the restart`);
-    assert.match(text, /after\s+you reload the page/, `${what}: Connect again after a reload`);
   };
-  const usual = devSteps('http://127.0.0.1:2604', 2604, false).join('\n');
+  const usual = devSteps('http://127.0.0.1:2604', 2604).join('\n');
   told(usual, 'dev on the usual port');
-  assert.match(usual, /Press Connect beside "playac-mod dev address"\. The box already holds http:\/\/127\.0\.0\.1:2604\./);
-  assert.doesNotMatch(usual, /was taken/);
-  const moved = devSteps('http://127.0.0.1:2605', 2605, false).join('\n');
-  told(moved, 'dev on the next free port');
-  assert.match(moved, /^NOTE: Port 2604 was taken/);
-  assert.match(moved, /Put http:\/\/127\.0\.0\.1:2605 in "playac-mod dev address" and press Connect\./);
-  /* the author chose the port: nothing "was taken" */
-  const chosen = devSteps('http://127.0.0.1:3000', 3000, true).join('\n');
-  told(chosen, 'dev --port');
-  assert.doesNotMatch(chosen, /was taken/);
-  assert.match(chosen, /Put http:\/\/127\.0\.0\.1:3000 in/);
+  assert.doesNotMatch(usual, /127\.0\.0\.1:2604/, 'the box already holds the usual address');
+  const moved = devSteps('http://127.0.0.1:2605', 2605).join('\n');
+  told(moved, 'dev on another port');
+  assert.match(moved, /put http:\/\/127\.0\.0\.1:2605 in "playac-mod dev address"/);
   told(commandText('dev'), 'dev --help');
-  for (const kind of KINDS) told(scaffoldFiles('me.loop', kind)['README.md'], `the ${kind} README`);
   const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-  told(fs.readFileSync(path.join(pkg, 'template', 'README.md'), 'utf8'), 'the template README');
   told(fs.readFileSync(path.join(pkg, 'README.md'), 'utf8'), 'the tool README');
-});
-
-/* the guides send an author who copied an example to `types` "for the
- * editor files". It wrote .playac/ only, so the editor had no settings that
- * point at it. */
-test('types: writes the VS Code settings when the folder has none, and keeps the author\'s', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-editor-'));
-  try {
-    assert.deepEqual(writeEditorSettings(dir).sort(), ['.vscode/extensions.json', '.vscode/settings.json']);
-    const settings = JSON.parse(fs.readFileSync(path.join(dir, '.vscode/settings.json'), 'utf8'));
-    assert.deepEqual(settings['Lua.workspace.library'], ['.playac/playac.lua']);
-    assert.ok(!fs.existsSync(path.join(dir, '.gitignore')), 'a repository\'s .gitignore is not touched');
-    fs.writeFileSync(path.join(dir, '.vscode/settings.json'), '{"mine": true}');
-    assert.deepEqual(writeEditorSettings(dir), []);
-    assert.equal(fs.readFileSync(path.join(dir, '.vscode/settings.json'), 'utf8'), '{"mine": true}');
-  } finally {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
 });
 

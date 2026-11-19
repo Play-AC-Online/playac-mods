@@ -81,12 +81,12 @@
   const PERMISSIONS = ['send_letter', 'give_item', 'show_line', 'ask', 'take_item', 'take_bells'];
   const EXTS = ['.json', '.lua', '.dds', '.png', '.txt', '.md'];
 
-  const CONTENT_KEYS = ['textures', 'messages', 'shops', 'items', 'letters', 'calendar', 'talk', 'translations'];
+  const CONTENT_KEYS = ['textures', 'messages', 'shops', 'items', 'letters', 'calendar', 'talk'];
   const BASE_CONTENT_KEYS = ['textures', 'messages', 'shops'];
   const TARGET_CONTENT_KEYS = ['letters', 'calendar', 'talk'];
 
   const TAGS = ['textures', 'clothing', 'furniture', 'scenery', 'villagers', 'dialogue', 'shops',
-    'seasonal', 'holidays', 'quality-of-life', 'translation', 'humor', 'accessibility', 'scripts'];
+    'seasonal', 'holidays', 'quality-of-life', 'humor', 'accessibility', 'scripts'];
 
   const API_MIN = 1;
   const API_MAX = 1;
@@ -106,10 +106,6 @@
   const CALENDAR_DATE_KEYS = ['month', 'day', 'week', 'weekday'];
   const TALK_FILE_KEYS = ['$schema', 'pools'];
   const TALK_POOL_KEYS = ['personality', 'villager', 'chance', 'lines'];
-
-  const LANGS = ['en', 'de', 'es', 'fr', 'it'];
-
-  const TRANSLATION_LANGS = ['de', 'es', 'fr', 'it'];
 
   const SETTING_SCOPES = ['world', 'client'];
   const SCRIPT_KEYS = ['main', 'events'];
@@ -136,10 +132,6 @@
 
   const ERROR_DOCS = "https://playaconline.com/modding/errors/";
   const ERROR_CODES = [
-    ["translations-folder", [new RegExp("\"?content\\.translations\"?: .* is not one of de\\.json")]],
-    ["translations-not-object", [new RegExp("^translations/[a-z]{2}: the file is not a JSON object"), new RegExp("a translations file must be a JSON object"), new RegExp("^translations: a file is not a JSON object")]],
-    ["translations-key", [new RegExp("names no text in this mod"), new RegExp("^translations: a key names no text")]],
-    ["translations-text", [new RegExp("^translations/[a-z]{2}: \"[^\"]*\" must be "), new RegExp(": the translation \"[^\"]*\" "), new RegExp("^translations: a text breaks the rule")]],
     ["visit-lend-wont-load", [new RegExp("^the friend.s mods (would not|did not) all load"), new RegExp("^a lent mod is missing from this tab")]],
     ["zip-too-big", [new RegExp("the ZIP is over 16 MB"), new RegExp("^The (ZIP|zip) is larger than \\d+ MB")]],
     ["zip-unreadable", [new RegExp("not a ZIP the game can (open|read)"), new RegExp("that is not a file the game can read"), new RegExp("^This is not a ZIP file we can read"), new RegExp("^The upload is empty"), new RegExp("can't be read from the ZIP"), new RegExp("not the size its ZIP header says"), new RegExp("^The upload did not arrive whole")]],
@@ -177,8 +169,8 @@
     ["shops-need-world", [new RegExp("changes what visitors see, so \"scope\" must be \"world\""), new RegExp("content\\.shops changes what visitors see"), new RegExp("^shops change what visitors see")]],
     ["content-not-object", [new RegExp("^\"content\" must be an object"), new RegExp("^content must be an object")]],
     ["content-unknown", [new RegExp("^\"content\\.[^\"]*\" is not something a mod can add yet"), new RegExp("^content\\.\\S+ is not something a mod can add yet")]],
-    ["content-path", [new RegExp("^\"content\\.[^\"]*\" must be a path inside the mod"), new RegExp("^content\\.\\S+ must be a path inside the mod"), new RegExp("^(textures|messages|shops|items|letters|calendar|talk|translations) path is not inside the mod"), new RegExp("^content: a value must be a path inside the mod")]],
-    ["content-missing", [new RegExp("^\"content\\.[^\"]*\" names .*, which is not"), new RegExp("^content\\.\\S+ names \".*\", which is not"), new RegExp("^cannot open "), new RegExp("^translations: the folder is not in the mod")]],
+    ["content-path", [new RegExp("^\"content\\.[^\"]*\" must be a path inside the mod"), new RegExp("^content\\.\\S+ must be a path inside the mod"), new RegExp("^(textures|messages|shops|items|letters|calendar|talk) path is not inside the mod"), new RegExp("^content: a value must be a path inside the mod")]],
+    ["content-missing", [new RegExp("^\"content\\.[^\"]*\" names .*, which is not"), new RegExp("^content\\.\\S+ names \".*\", which is not"), new RegExp("^cannot open ")]],
     ["scripts-not-object", [new RegExp("^\"scripts\" must be an object"), new RegExp("^scripts must be an object")]],
     ["scripts-unknown-key", [new RegExp("is not a scripts setting")]],
     ["scripts-main-missing", [new RegExp("^\"scripts\\.main\" names .*, which is not in the mod"), new RegExp("^scripts\\.main names \".*\", which is not in the ZIP"), new RegExp("^scripts\\.main could not be read")]],
@@ -250,7 +242,6 @@
     ["manifest-data-version", [new RegExp("^\"?data_version\"? must be a whole number"), new RegExp("which needs a \"?data_version\"?")]],
     ["manifest-setting-value", [new RegExp(" default must be true or false"), new RegExp(" min and max must be whole numbers from"), new RegExp(" default must be a whole number from min to max"), new RegExp(" choices must list 2 to 16 different texts"), new RegExp(" default must be one of its choices"), new RegExp(" max_length must be a whole number from 1 to 200"), new RegExp(" default must be text of at most max_length"), new RegExp("^settings: \".*\" \"?(default|min|choices|max_length)\"?( and \"?max\"?)? must")]],
     ["manifest-settings", [new RegExp(" is declared twice"), new RegExp(" type must be one of bool, number, choice, text"), new RegExp(", which a [a-z]+ setting does not take"), new RegExp(" label must be 1 to 60 characters"), new RegExp(" description must be text of at most 200 characters"), new RegExp(" \"?scope\"? must be \"world\" or \"client\""), new RegExp("^\"?settings\"? must be a list of at most"), new RegExp("^settings: setting \\d+ "), new RegExp("^settings: \".*\" (is declared twice|\"?type\"? must be one of|has \".*\", which a|\"?label\"? must be|\"?description\"? must be)")]],
-    ["messages-translations", [new RegExp("\"?content\\.messages\"?: .* is not one of en\\.json"), new RegExp("names a folder without en\\.json"), new RegExp("is not in en\\.json \\(a translation")]],
     ["setting-refused", [new RegExp(" must be on or off$"), new RegExp(" must be a whole number from -?\\d+ to -?\\d+$"), new RegExp(" must be one of: "), new RegExp(" characters, on one line$"), new RegExp(" has no setting \"")]],
     ["boot-dependency", [new RegExp("^needs .*, which (is not installed|is switched off|did not load)$"), new RegExp("^needs .* is installed$"), new RegExp("is in a dependency cycle"), new RegExp("^cannot run with .*: switch one of them off")]],
     ["engine-dependency", [new RegExp("^not loaded: needs .*, which the game did not load before it"), new RegExp("^not loaded: needs .*, and the game loaded ")]],
@@ -259,7 +250,7 @@
     ["messages-too-many", [new RegExp("at most 256 lines per mod"), new RegExp("has \\d+ lines, more than"), new RegExp("^messages: a mod has at most")]],
     ["messages-key", [new RegExp("^messages(/[a-z]{2})?: key .* must be 1 to 48"), new RegExp(": the line id \".*\" must be"), new RegExp("^messages: a key must be")]],
     ["messages-text", [new RegExp("^messages(/[a-z]{2})?: \".*\" must be text of 1 to 400"), new RegExp(": the line \".*\" must be text of 1 to"), new RegExp("^messages: a line must be text")]],
-    ["messages-out-of-memory", [new RegExp("^messages: out of memory"), new RegExp("^translations: out of memory")]],
+    ["messages-out-of-memory", [new RegExp("^messages: out of memory")]],
     ["texture-copied", [new RegExp("is an unchanged copy of a texture from")]],
     ["texture-mipmaps", [new RegExp("mip levels\\. Save it with one level"), new RegExp("bytes after its image")]],
     ["texture-size", [new RegExp("A texture is 1 to \\d+ pixels a side"), new RegExp("A PNG in a mod is at most"), new RegExp("\" is a \\d+x\\d+ \\S+\\.$"), new RegExp("^PNG texture is over \\d+x\\d+")]],
@@ -335,7 +326,6 @@
     ["command-not-held", [new RegExp("the pockets do not hold \\d+ of that item"), new RegExp("the wallet holds fewer than \\d+ Bells"), new RegExp("the pockets no longer hold those items"), new RegExp("the wallet no longer holds that many Bells")]],
     ["command-declined", [new RegExp("the player said no, nothing was taken")]],
     ["upload-name-word", [new RegExp("^The mod's name has a word the site does not allow")]],
-    ["upload-translation-word", [new RegExp("^[^ ]+: \"mod/name\" has a word the site does not allow")]],
     ["upload-author-word", [new RegExp("^An author name has a word the site does not allow")]],
     ["upload-not-text", [new RegExp("is not text\\. A \\.txt, \\.md or \\.lua file must be")]],
     ["file-lone-cr", [new RegExp("has a carriage return with no line feed after it")]],
@@ -363,8 +353,6 @@
     ["upload-too-many-images", [new RegExp("different pictures. Split it"), new RegExp("pictures add up to more than")]],
     ["import-bad-source", [new RegExp("github.com/<owner>/<repo>@<tag>"), new RegExp("^That is not a GitHub owner")]],
     ["mod-conflict", [new RegExp("^A moderator took this version out of the list"), new RegExp("Another decision on this version came first"), new RegExp("^The moderators are looking at this version")]],
-    ["cli-sign-in-code", [new RegExp("^No sign-in is waiting with that code"), new RegExp("^That code was already approved or denied")]],
-    ["cli-token-scope", [new RegExp("^A playac-mod sign-in can only upload mods")]],
     ["status-update-available", [new RegExp("^Update available")]],
     ["status-yanked", [new RegExp("^This version was withdrawn from the mod list")]],
     ["status-mods-switched-off", [new RegExp("^Mods are switched off for everyone")]],
@@ -751,9 +739,6 @@
             if (p.endsWith('/')) p = p.slice(0, -1);
             if (pathProblem(p)) errs.push(what + ' must be a path inside the mod');
             else if (!isDir(p)) errs.push(what + ' names ' + content[k] + ', which is not a folder with files in the mod');
-          } else if (k === 'messages' && !isFile(p) &&
-                     !pathProblem(p.replace(/\/$/, '')) && isDir(p.replace(/\/$/, ''))) {
-
           } else {
             if (pathProblem(p)) errs.push(what + ' must be a path inside the mod');
             else if (!isFile(p)) errs.push(what + ' names ' + p + ', which is not in the mod');
@@ -907,15 +892,6 @@
     return errs;
   }
 
-  function messageFiles(m, names) {
-    const p = m && m.content && m.content.messages;
-    if (typeof p !== 'string' || !p.length) return [];
-    if (names.indexOf(p) >= 0) return [{ lang: 'en', path: p }];
-    const dir = p.replace(/\/$/, '') + '/';
-    return names.filter(function (n) { return n.startsWith(dir); })
-      .map(function (n) { return { lang: n.slice(dir.length).replace(/\.json$/, ''), path: n }; });
-  }
-
   function dataRules(m, names) {
     let errs = linkProblems(m, 'depends').concat(linkProblems(m, 'optional_depends'), linkProblems(m, 'conflicts'));
 
@@ -940,19 +916,6 @@
       else {
         const seen = new Set();
         s.forEach(function (one, k) { errs = errs.concat(settingProblems(one, k, seen)); });
-      }
-    }
-    if (isObj(m.content) && typeof m.content.messages === 'string' && names.indexOf(m.content.messages) < 0) {
-      const files = messageFiles(m, names);
-      if (files.length) {
-        for (const f of files) {
-          if (LANGS.indexOf(f.lang) < 0 || f.path.slice(-5) !== '.json') {
-            errs.push('"content.messages": ' + f.path + ' is not one of ' + LANGS.map(function (l) { return l + '.json'; }).join(' '));
-          }
-        }
-        if (!files.some(function (f) { return f.lang === 'en'; })) {
-          errs.push('"content.messages" names a folder without en.json: English is the fallback for every language');
-        }
       }
     }
     return errs;
@@ -1239,162 +1202,7 @@
       if (typeof p !== 'string' || !p.length || pathProblem(p)) errs.push(what + ' must be a path inside the mod');
       else if (names.indexOf(p) < 0) errs.push(what + ' names ' + p + ', which is not in the mod');
     }
-
-    if (has(m.content, 'translations')) {
-      delete base.content.translations;
-      errs.push.apply(errs, translationFolderProblems(m, names));
-    }
     return { base: base, errs: errs };
-  }
-
-  function translationFiles(m, names) {
-    const p = m && m.content && m.content.translations;
-    if (typeof p !== 'string' || !p.length) return [];
-    const dir = p.replace(/\/$/, '') + '/';
-    return names.filter(function (n) { return n.startsWith(dir); })
-      .map(function (n) { return { lang: n.slice(dir.length).replace(/\.json$/, ''), path: n }; });
-  }
-
-  function translationFolderProblems(m, names) {
-    const p = m.content.translations;
-    const what = '"content.translations"';
-    if (typeof p !== 'string' || !p.length || pathProblem(p.replace(/\/$/, ''))) return [what + ' must be a path inside the mod'];
-    const files = translationFiles(m, names);
-    if (!files.length) return [what + ' names ' + p + ', which is not a folder with files in the mod'];
-    const errs = [];
-    for (const f of files) {
-      if (TRANSLATION_LANGS.indexOf(f.lang) < 0 || f.path.slice(-5) !== '.json') {
-        errs.push(what + ': ' + f.path + ' is not one of ' + TRANSLATION_LANGS.map(function (l) { return l + '.json'; }).join(' ') +
-          ' (English is the text in the mod\'s own files)');
-      }
-    }
-    return errs;
-  }
-
-  const TR_NUMBER_RE = /^[1-9][0-9]{0,3}$/;
-
-  function translationRule(key, m, docs) {
-    const parts = typeof key === 'string' ? key.split('/') : [];
-    const lines = function (max, newlines) {
-      return function (v) {
-        return typeof v === 'string' && cpLen(v) >= 1 && cpLen(v) <= max && v.split('\n').length - 1 <= newlines ? ''
-          : 'must be 1 to ' + max + ' characters with at most ' + newlines + ' line breaks';
-      };
-    };
-    const paper = function (v) {
-      return paperOk(v) ? '' : 'must be 1 to ' + PAPER_BYTES + ' plain characters on at most ' + PAPER_LINES + ' lines' + paperCharNote(v);
-    };
-    const plain = function (max) {
-      return function (v) { const n = plainLen(v, false, false); return n >= 1 && n <= max ? '' : 'must be 1 to ' + max + ' plain characters'; };
-    };
-    const trimmed = function (max) {
-      return function (v) {
-        return typeof v === 'string' && cpLen(v.trim()) >= 1 && cpLen(v.trim()) <= max && !hasControl(v.trim()) ? '' : 'must be 1 to ' + max + ' characters';
-      };
-    };
-    const text = function (max) {
-      return function (v) { return typeof v === 'string' && cpLen(v) >= 1 && cpLen(v) <= max ? '' : 'must be text of 1 to ' + max + ' characters'; };
-    };
-    const list = function (doc, k) { return isObj(doc) && Array.isArray(doc[k]) ? doc[k] : []; };
-    const byId = function (l, id) { return l.filter(function (e) { return isObj(e) && e.id === id; })[0]; };
-    const nth = function (l, n) { return TR_NUMBER_RE.test(n) && Array.isArray(l) ? l[Number(n) - 1] : undefined; };
-    if (parts[0] === 'mod' && parts.length === 2) {
-      if (parts[1] === 'name' && typeof m.name === 'string') return trimmed(NAME_CHARS);
-      if (parts[1] === 'description' && typeof m.description === 'string' && m.description.length) return text(DESCRIPTION_CHARS);
-      return null;
-    }
-    if (parts[0] === 'settings' && parts.length === 3) {
-      const st = declaredSettings(m).filter(function (x) { return isObj(x) && x.name === parts[1]; })[0];
-      if (!st) return null;
-
-      if (parts[2] === 'label') {
-        return function (v) {
-          return trimmed(SETTING_LABEL_CHARS)(v) === '' && !hiddenChar(v.trim(), false) ? ''
-            : 'must be 1 to ' + SETTING_LABEL_CHARS + ' characters ' + HIDDEN_LINE_RULE;
-        };
-      }
-      if (parts[2] === 'description' && typeof st.description === 'string' && st.description.length) {
-        return function (v) {
-          return text(SETTING_DESC_CHARS)(v) === '' && !hiddenChar(v, true) ? ''
-            : 'must be text of 1 to ' + SETTING_DESC_CHARS + ' characters, ' + HIDDEN_TEXT_RULE;
-        };
-      }
-      return null;
-    }
-    if (parts[0] === 'items' && parts.length === 3 && parts[2] === 'name') {
-      if (!byId(list(docs.items, 'items'), parts[1])) return null;
-      return function (v) {
-        return typeof v === 'string' && MOD_ITEM_NAME_RE.test(v) ? ''
-          : 'must be 1 to 16 letters, digits, spaces or \' . , ! & -, starting with a letter or digit and not ending with a space';
-      };
-    }
-    if (parts[0] === 'shops' && parts.length === 3 && parts[1] === 'flower') {
-      const shop = list(docs.shops, 'shops').filter(function (x) { return isObj(x) && x.target === 'flower'; })[0];
-      if (!shop || typeof shop[parts[2]] !== 'string') return null;
-      if (parts[2] === 'name') {
-        return function (v) {
-          return typeof v === 'string' && cpLen(v) >= 1 && cpLen(v) <= SHOP_NAME_CHARS && v.indexOf('\n') < 0 ? ''
-            : 'must be 1 to ' + SHOP_NAME_CHARS + ' characters on one line';
-        };
-      }
-      if (parts[2] === 'greeting' || parts[2] === 'stock_line') return lines(SHOP_LINE_CHARS, SHOP_LINE_NEWLINES);
-      return null;
-    }
-    if (parts[0] === 'letters' && parts.length === 3) {
-      const L = byId(list(docs.letters, 'letters'), parts[1]);
-      if (!L || typeof L[parts[2]] !== 'string') return null;
-      if (parts[2] === 'header') {
-        return function (v) {
-          const h = plainLen(v, false, true);
-          return h >= 1 && h <= LETTER_HEADER_MAX && v.indexOf('{player}') === v.lastIndexOf('{player}') ? ''
-            : 'must be 1 to ' + LETTER_HEADER_MAX + ' plain characters besides one {player}';
-        };
-      }
-      if (parts[2] === 'body') return paper;
-      if (parts[2] === 'footer') return plain(LETTER_FOOTER_MAX);
-      if (parts[2] === 'sender') return plain(LETTER_SENDER_MAX);
-      return null;
-    }
-    if (parts[0] === 'calendar' && (parts.length === 3 || parts.length === 4)) {
-      const day = byId(list(docs.calendar, 'days'), parts[1]);
-      if (!day) return null;
-      if (parts.length === 3 && parts[2] === 'board' && typeof day.board === 'string') return paper;
-      if (parts.length === 4 && parts[2] === 'talk' && typeof nth(day.talk, parts[3]) === 'string') return lines(TALK_LINE_CHARS, TALK_LINE_NEWLINES);
-      return null;
-    }
-    if (parts[0] === 'talk' && parts.length === 3) {
-      const pool = nth(list(docs.talk, 'pools'), parts[1]);
-      if (isObj(pool) && typeof nth(pool.lines, parts[2]) === 'string') return lines(TALK_LINE_CHARS, TALK_LINE_NEWLINES);
-      return null;
-    }
-    return null;
-  }
-
-  function validateTranslations(doc, lang, m, docs) {
-    const at = 'translations/' + lang + ': ';
-    if (!isObj(doc)) return [at + 'the file is not a JSON object of key to text'];
-    const errs = [];
-    for (const k of Object.keys(doc)) {
-      const rule = translationRule(k, m, docs || {});
-      if (!rule) { errs.push(at + JSON.stringify(k) + ' names no text in this mod'); continue; }
-      const why = rule(doc[k]);
-      if (why) errs.push(at + JSON.stringify(k) + ' ' + why);
-    }
-    return errs;
-  }
-
-  function displayTranslations(m, names, read) {
-    const out = {};
-    for (const f of translationFiles(m, names)) {
-      const r = read(f.path);
-      if (!r || !isObj(r.value)) continue;
-      const keep = {};
-      for (const k of Object.keys(r.value)) {
-        if ((k.indexOf('mod/') === 0 || k.indexOf('settings/') === 0) && typeof r.value[k] === 'string') keep[k] = r.value[k];
-      }
-      if (Object.keys(keep).length) out[f.lang] = keep;
-    }
-    return out;
   }
 
   function contentProblems(manifest, names, read) {
@@ -1410,10 +1218,8 @@
       return r.value;
     };
     let ctx = null;
-    const docs = {};
     if (c.items) {
       const d = doc(c.items);
-      docs.items = d;
       if (d !== undefined) {
         const r = validateItems(d);
         add(c.items, r.errs);
@@ -1426,40 +1232,13 @@
         }
       }
     }
-    if (c.shops) { const d = doc(c.shops); docs.shops = d; if (d !== undefined) add(c.shops, validateShops(d, ctx)); }
+    if (c.shops) { const d = doc(c.shops); if (d !== undefined) add(c.shops, validateShops(d, ctx)); }
 
     let letters = null;
-    if (c.letters) { const d = doc(c.letters); docs.letters = d; if (d !== undefined) { add(c.letters, validateLetters(d)); letters = letterIds(d); } else letters = undefined; }
-    if (c.calendar) { const d = doc(c.calendar); docs.calendar = d; if (d !== undefined) add(c.calendar, validateCalendar(d, m.scope, letters)); }
-    if (c.talk) { const d = doc(c.talk); docs.talk = d; if (d !== undefined) add(c.talk, validateTalk(d)); }
-    if (c.messages) {
-
-      const files = messageFiles(m, names);
-      const docs = {};
-      for (const f of files) {
-        const d = doc(f.path);
-        if (d === undefined) continue;
-        const e = validateMessages(d);
-        add(f.path, files.length > 1 ? e.map(function (x) { return x.replace(/^messages:/, 'messages/' + f.lang + ':'); }) : e);
-        if (!e.length) docs[f.lang] = d;
-      }
-      if (files.length > 1 && docs.en) {
-        for (const lang of Object.keys(docs)) {
-          if (lang === 'en') continue;
-          const extra = Object.keys(docs[lang]).filter(function (k) { return !has(docs.en, k); });
-          const at = files.filter(function (f) { return f.lang === lang; })[0];
-          if (extra.length) add(at ? at.path : c.messages, ['messages/' + lang + ': ' + JSON.stringify(extra[0]) + ' is not in en.json (a translation holds only keys en.json has)']);
-        }
-      }
-    }
-
-    if (c.translations) {
-      for (const f of translationFiles(m, names)) {
-        if (TRANSLATION_LANGS.indexOf(f.lang) < 0) continue;
-        const d = doc(f.path);
-        if (d !== undefined) add(f.path, validateTranslations(d, f.lang, m, docs));
-      }
-    }
+    if (c.letters) { const d = doc(c.letters); if (d !== undefined) { add(c.letters, validateLetters(d)); letters = letterIds(d); } else letters = undefined; }
+    if (c.calendar) { const d = doc(c.calendar); if (d !== undefined) add(c.calendar, validateCalendar(d, m.scope, letters)); }
+    if (c.talk) { const d = doc(c.talk); if (d !== undefined) add(c.talk, validateTalk(d)); }
+    if (c.messages) { const d = doc(c.messages); if (d !== undefined) add(c.messages, validateMessages(d)); }
     return out;
   }
 
@@ -1868,7 +1647,6 @@
     if (problems.length) fail(problems);
     const manifest = json['mod.json'];
     let errs = validateManifest(manifest, n.names);
-    let display = {};
     if (!errs.length) {
 
       const read = function (p) {
@@ -1877,12 +1655,11 @@
         return parseFile(p, n.entries[p]);
       };
       errs = contentProblems(manifest, n.names, read).map(function (x) { return x.message; });
-      if (!errs.length) display = displayTranslations(manifest, n.names, read);
     }
     if (errs.length) fail(errs);
     let unpacked = 0;
     for (const name of n.names) unpacked += n.entries[name].length;
-    return { manifest: manifest, entries: n.entries, names: n.names, unpacked: unpacked, display: display };
+    return { manifest: manifest, entries: n.entries, names: n.names, unpacked: unpacked };
   }
 
   function lowMemoryDevice() {
@@ -2159,7 +1936,7 @@
   function summary(r) {
     return { id: r.id, manifest: r.manifest, sha256: r.sha256, contentSha: r.contentSha, size: r.size,
              unpacked: r.unpacked, enabled: r.enabled, order: r.order, source: r.source, installedAt: r.installedAt,
-             removed: r.removed, registry: r.registry, settings: r.settings || {}, display: r.display || {} };
+             removed: r.removed, registry: r.registry, settings: r.settings || {} };
   }
 
   async function refreshModset(db) {
@@ -2265,7 +2042,6 @@
           size: bytes.length, unpacked: mod.unpacked, enabled: stillRemoved ? false : (prev && !unkilled ? prev.enabled : true), order: order,
           source: (opts && opts.source) || 'file', installedAt: Date.now()
         };
-        if (Object.keys(mod.display).length) row.display = mod.display;
         if (stillRemoved) { row.removed = prev.removed; row.registry = prev.registry; }
 
         if (prev && isObj(prev.settings)) row.settings = prev.settings;
@@ -2558,18 +2334,6 @@
     return wins.some(function (w) {
       try { return !!w.location && new URLSearchParams(w.location.search).get('nomods') === '1'; } catch (_) { return false; }
     });
-  }
-
-  const MOD_LANGS = ['en', 'de', 'es', 'fr', 'it'];
-  function modLangInUrl() {
-    const wins = [root];
-    try { if (root.parent && root.parent !== root) wins.push(root.parent); } catch (_) {   }
-    for (const w of wins) {
-      let v = null;
-      try { v = w.location ? new URLSearchParams(w.location.search).get('modlang') : null; } catch (_) { v = null; }
-      if (v && MOD_LANGS.indexOf(v) >= 0) return v;
-    }
-    return '';
   }
 
   function consumeSkip() {
@@ -3388,7 +3152,6 @@
     let set = '';
     let prevBoots = 0;
     let watchDead = null;
-    if (devOn()) state.modLang = modLangInUrl() || undefined;
 
     const sources = new Map();
     const tagSources = function () {
@@ -3620,7 +3383,6 @@
           const wipe = pendingWipe();
           const doc = { schema: 1, modset: state.modset, mods: index };
           if (wipe.length) doc.wipe = wipe;
-          if (state.modLang) doc.lang = state.modLang;
           FS.writeFile(MODS_DIR + '/index.json', JSON.stringify(doc));
           written = true;
 
@@ -3709,7 +3471,6 @@
     for (const k of state.skipped || []) logPush('refused', k.id, 'did not load: ' + k.error);
     for (const r of state.removed || []) logPush('refused', r.id, 'switched off: ' + removedWords(r.reason));
     if (state.dev) logPush('info', state.dev.id, 'loaded in developer mode from ' + state.dev.source.label);
-    if (state.modLang) logPush('info', '', 'developer mode: mod lines in "' + state.modLang + '" (?modlang=' + state.modLang + ')');
   }
 
   const DEV_DB = 'acweb-mods-dev';
@@ -3878,13 +3639,10 @@
   function devTiers(paths, manifest) {
     const c = (manifest && manifest.content) || {};
     const tex = typeof c.textures === 'string' ? c.textures.replace(/\/+$/, '') + '/' : null;
-    const msgDir = typeof c.messages === 'string' && c.messages ? c.messages.replace(/\/+$/, '') + '/' : null;
-    const trDir = typeof c.translations === 'string' && c.translations ? c.translations.replace(/\/+$/, '') + '/' : null;
     let what = 0;
     for (const p of paths) {
       if (p === c.items) what |= DEV_ITEMS;
-      else if (p === c.messages || p === c.shops || p === c.letters || p === c.calendar || p === c.talk ||
-               (msgDir && p.startsWith(msgDir)) || (trDir && p.startsWith(trDir))) what |= DEV_DATA;
+      else if (p === c.messages || p === c.shops || p === c.letters || p === c.calendar || p === c.talk) what |= DEV_DATA;
       else if (lowerExt(p) === '.lua') what |= DEV_LUA;
       else if (tex && p.startsWith(tex)) what |= DEV_TEXTURES;
     }
@@ -3974,7 +3732,7 @@
     validateItems: validateItems,
     normalizeEntries: normalizeEntries, parseJsonStrict: parseJsonStrict, readMod: readMod,
 
-    contentProblems: contentProblems, messageFiles: messageFiles, isJunk: isJunk, EXTS: EXTS.slice(), LETTER_SENDER_MAX: LETTER_SENDER_MAX,
+    contentProblems: contentProblems, isJunk: isJunk, EXTS: EXTS.slice(), LETTER_SENDER_MAX: LETTER_SENDER_MAX,
     contentSha: contentSha, modsetHash: modsetHash, modsetList: modsetList, countsForVisits: countsForVisits,
     VANILLA_OUTPUT_COMMANDS: VANILLA_OUTPUT_COMMANDS, planLoad: planLoad,
     list: list, install: install, remove: remove, setEnabled: setEnabled, move: move, setOrder: setOrder,
@@ -3988,11 +3746,10 @@
     lowMemoryDevice: lowMemoryDevice, enabledCap: enabledCap, takeClearedNotice: takeClearedNotice,
     checkStatus: checkStatus, refreshStatus: refreshStatus,
 
-    LANGS: LANGS, setSetting: setSetting, exportAll: exportAll,
+    setSetting: setSetting, exportAll: exportAll,
     effectiveSettings: effectiveSettings, settingValueOk: settingValueOk, settingsSha: settingsSha,
 
-    TRANSLATION_LANGS: TRANSLATION_LANGS, translationFiles: translationFiles, translationRule: translationRule,
-    validateTranslations: validateTranslations, SETTING_SCOPES: SETTING_SCOPES, settingScope: settingScope,
+    SETTING_SCOPES: SETTING_SCOPES, settingScope: settingScope,
     worldSettings: worldSettings, clientSettings: clientSettings,
     resolveLoad: resolveLoad, parseRange: parseRange, inRange: inRange, compareVersions: compareVersions,
     pendingWipe: pendingWipe,

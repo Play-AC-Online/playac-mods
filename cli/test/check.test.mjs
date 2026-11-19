@@ -12,8 +12,7 @@ import { checkEntries, jsonFault, lineCol } from '../lib/check.mjs';
 import { readDds } from '../lib/dds.mjs';
 import { scanScript, stripLua } from '../lib/scriptscan.mjs';
 import { itemTable, shopItemWarnings } from '../lib/items.mjs';
-import { dds } from '../lib/scaffold.mjs';
-import { exportHints, findLibraries } from '../lib/types.mjs';
+import { dds } from './mod.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -248,13 +247,12 @@ test('a JSON syntax error carries its line and column, and is listed once', asyn
 test('check lists the manifest\'s problems AND every content file\'s, where readMod stops at the manifest', async () => {
   const man = {
     ...base, version: '1.0', scope: 'world',
-    content: { shops: 'shops.json', messages: 'lines/', letters: 'letters.json', calendar: 'calendar.json', talk: 'talk.json', items: 'items.json' },
+    content: { shops: 'shops.json', messages: 'lines/en.json', letters: 'letters.json', calendar: 'calendar.json', talk: 'talk.json', items: 'items.json' },
   };
   const entries = {
     'mod.json': js(man),
     'shops.json': js({ shops: [{ target: 'flower', stock: [] }] }),
     'lines/en.json': js({ 'Bad Key': 'x' }),
-    'lines/de.json': js({ ok: '' }),
     'letters.json': js({ letters: [] }),
     'calendar.json': js({ days: [{ id: 'e', date: { month: 13, day: 1 }, talk: ['hi'] }] }),
     'talk.json': js({ pools: [{ personality: 'grumpy', lines: ['hi'] }] }),
@@ -267,8 +265,7 @@ test('check lists the manifest\'s problems AND every content file\'s, where read
   const r = await check(entries);
   assert.ok(said(r, 'mod.json', /"version"/));
   assert.ok(said(r, 'shops.json', /"stock" must list 1 to 6/), JSON.stringify(r.problems, null, 1));
-  assert.ok(said(r, 'lines/en.json', /^messages\/en: key "Bad Key"/));
-  assert.ok(said(r, 'lines/de.json', /^messages\/de: "ok" must be text/));
+  assert.ok(said(r, 'lines/en.json', /^messages: key "Bad Key"/));
   assert.ok(said(r, 'letters.json', /^letters: "letters" must be a list/));
   assert.ok(said(r, 'calendar.json', /^calendar: day 1 "date"/));
   assert.ok(said(r, 'talk.json', /^talk: pool 1 "personality"/));
@@ -280,9 +277,12 @@ test('a content file with any name is parsed, with a position, like readMod\'s d
   assert.deepEqual(r.problems.map((p) => [p.file, p.message]), [['lines.txt', 'lines.txt: line 1, column 7: this is not valid JSON (expected a value, found "}")']]);
 });
 
-test('the translation rule and the unknown-key rule, as readMod has them', async () => {
-  const tr = await check({ 'mod.json': js({ ...base, content: { messages: 'm/' } }), 'm/en.json': js({ a: 'x' }), 'm/fr.json': js({ b: 'y' }) });
-  assert.deepEqual(tr.problems.map((p) => [p.file, p.message]), [['m/fr.json', 'messages/fr: "b" is not in en.json (a translation holds only keys en.json has)']]);
+test('a messages folder and the unknown-key rule, as readMod has them', async () => {
+  /* content.messages names one file; a folder of languages is refused */
+  const folder = await check({ 'mod.json': js({ ...base, content: { messages: 'm' } }), 'm/en.json': js({ a: 'x' }), 'm/fr.json': js({ a: 'y' }) });
+  assert.deepEqual(folder.problems.map((p) => [p.file, mods.errorCode(p.message)]), [['mod.json', 'content-missing']]);
+  const tr = await check({ 'mod.json': js({ ...base, content: { translations: 'translations/' } }), 'translations/de.json': js({ 'mod/name': 'Testmod' }) });
+  assert.deepEqual(tr.problems.map((p) => [p.file, mods.errorCode(p.message)]), [['mod.json', 'content-unknown']]);
   /* an unknown key, in mod.json and in a content file's entry, with the key it is close to and the catalogue's code */
   const typo = await check({ 'mod.json': js({ ...base, scope: 'world', permisions: ['ask'], content: { shops: 'shops.json' } }), 'shops.json': js({ shops: [{ target: 'nook', stock: [{ item: '0x1000' }], mod: 'add' }] }) }, { items: null });
   assert.deepEqual(typo.problems.map((p) => [p.file, p.message, mods.errorCode(p.message)]), [
@@ -305,10 +305,10 @@ test('no copies of the game\'s rules in the CLI: their words live in mods.js onl
   const lib = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'lib');
   const src = fs.readdirSync(lib).filter((f) => f.endsWith('.mjs') && !f.startsWith('luasyntax.wasm'))
     .map((f) => fs.readFileSync(path.join(lib, f), 'utf8')).join('\n');
-  for (const words of ['is not in en.json', 'unknown key "', 'did you mean', 'which is not in ', "=== '__MACOSX'", "['.json', '.lua'"]) {
+  for (const words of ['unknown key "', 'did you mean', 'which is not in ', "=== '__MACOSX'", "['.json', '.lua'"]) {
     assert.ok(!src.includes(words), `lib/ holds a copy of a mods.js rule: ${words}`);
   }
-  for (const k of ['contentProblems', 'messageFiles', 'isJunk', 'EXTS']) assert.ok(mods[k], `mods.js exports ${k}`);
+  for (const k of ['contentProblems', 'isJunk', 'EXTS']) assert.ok(mods[k], `mods.js exports ${k}`);
 });
 
 /* ── shop goods against items.json ── */
@@ -397,15 +397,13 @@ test('a .lua or .json file with a lone carriage return is refused, once, in the 
  * see (control, format, text-direction, blank filler), in check as in the game
  * and the mod list; a line break stays fine in a description. */
 test('a setting label or description with a hidden character is refused, as readMod refuses it', async () => {
-  const mk = (st, tr) => ({
-    'mod.json': js({ ...base, content: tr ? { translations: 'translations/' } : undefined, settings: [{ name: 'greet', type: 'bool', default: true, label: 'Say hello', ...st }] }),
-    ...(tr ? { 'translations/de.json': js(tr) } : {}),
+  const mk = (st) => ({
+    'mod.json': js({ ...base, settings: [{ name: 'greet', type: 'bool', default: true, label: 'Say hello', ...st }] }),
   });
   for (const [files, re] of [
     [mk({ label: 'Say\u200bhello' }), /"label" must be 1 to 60 characters on one line, with no invisible, text-direction or control character/],
     [mk({ label: 'Say \u202ehello' }), /"label" must be 1 to 60 characters on one line, with no invisible, text-direction or control character/],
     [mk({ description: 'A hello\u200e here.' }), /"description" must be text of at most 200 characters, with no invisible, text-direction or control character but a line break/],
-    [mk({ description: 'A hello here.' }, { 'settings/greet/label': 'Hal\u2060lo' }), /"settings\/greet\/label" must be 1 to 60 characters on one line, with no invisible/],
   ]) {
     const r = await check(files);
     assert.equal(r.ok, false, JSON.stringify(files['mod.json'].length));
@@ -433,24 +431,7 @@ test('a letter footer over 8 characters with no sender warns: the mailbox list s
   assert.ok(said(long, 'letters.json', /"sender" must be 1 to 8 plain characters/), JSON.stringify(long.problems));
 });
 
-/* ── translations of the data files, optional dependencies, a setting's scope ── */
-
-test('check reads a translations folder: the game\'s rules, by file, and its files are not "unused"', async () => {
-  const mod = (de) => ({
-    'mod.json': js({ ...base, content: { letters: 'letters.json', translations: 'translations/' } }),
-    'letters.json': js({ letters: [{ id: 'hello', header: 'Dear {player},', body: 'Hi.', footer: 'A friend' }] }),
-    'translations/de.json': js(de),
-  });
-  let r = await check(mod({ 'mod/name': 'Testmod', 'letters/hello/body': 'Hallo.' }));
-  assert.equal(r.ok, true, JSON.stringify(r.problems));
-  assert.ok(!r.warnings.some((w) => w.file === 'translations/de.json'), 'a file of the translations folder is read by the game: no "nothing points at it"');
-  r = await check(mod({ 'letters/helo/body': 'Hallo.' }));
-  assert.ok(said(r, 'translations/de.json', /"letters\/helo\/body" names no text in this mod/), JSON.stringify(r.problems));
-  r = await check(mod({ 'letters/hello/body': 'Grüße!' }));
-  assert.ok(said(r, 'translations/de.json', /must be 1 to 192 plain characters.*"ü" at character 3/), JSON.stringify(r.problems));
-  r = await check({ ...mod({}), 'translations/en.json': js({}) });
-  assert.ok(said(r, 'mod.json', /translations\/en\.json is not one of de\.json es\.json fr\.json it\.json/), JSON.stringify(r.problems));
-});
+/* ── optional dependencies, a setting's scope ── */
 
 test('check reads optional_depends by the game\'s rules', async () => {
   let r = await check({ 'mod.json': js({ ...base, optional_depends: { 'bean.lib': '>=1.0.0' } }) });
@@ -491,15 +472,3 @@ test('the script scan: a client setting read in a script that also sends or give
   assert.ok(said(bad, 'mod.json', /"scope" must be "world" or "client"/), JSON.stringify(bad.problems));
 });
 
-test('types offers the functions of a mod named in optional_depends, as for depends', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'playac-opt-'));
-  try {
-    fs.mkdirSync(path.join(dir, 'app'));
-    fs.mkdirSync(path.join(dir, 'weather'));
-    fs.writeFileSync(path.join(dir, 'weather', 'mod.json'), JSON.stringify({ ...base, id: 'bean.weather', exports: { today: 'The weather today.' } }));
-    const libs = findLibraries(path.join(dir, 'app'), { ...base, optional_depends: { 'bean.weather': '*' } }, {});
-    assert.deepEqual(Object.keys(libs), ['bean.weather']);
-    assert.match(exportHints(libs), /---@param mod "bean\.weather"/);
-    assert.deepEqual(findLibraries(path.join(dir, 'app'), { ...base }, {}), {});
-  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
-});
