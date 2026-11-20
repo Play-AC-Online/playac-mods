@@ -498,8 +498,8 @@ export function cloverGrassFiles() {
   return files;
 }
 
-/* ── The Tea Chest's own pictures ────────────────────────────────────
- * The Tea Chest (fixture.items, and Evening Tea Room's) is a mod item on base
+/* ── The Toy Chest's own pictures ────────────────────────────────────
+ * The Toy Chest (the test fixture fixture.items) is a mod item on base
  * 0x1008, a chest of drawers, and carries pictures of its own (items file "textures"): a tea-green
  * chest with gold knobs and a leaf on its door, drawn here from scratch. Every
  * other copy of the base keeps its own look. Five textures, all CI4 (fmt 8)
@@ -514,7 +514,7 @@ export function cloverGrassFiles() {
  * edge, a dark frame, panels and two small drawers on the front), so it lands
  * on the model's faces where a chest's parts are; the art in it is ours. Drawn
  * at 2x (an uncompressed DDS, like the texture examples). */
-export const TEA_CHEST = { door: 'c988a8858188d369', front: '895b4783983a7baf', side: '4618d1e388af25e4', top: '57a5e6f04e0b17fb', inside: 'e8b389b00291a38f' };
+export const TOY_CHEST = { door: 'c988a8858188d369', front: '895b4783983a7baf', side: '4618d1e388af25e4', top: '57a5e6f04e0b17fb', inside: 'e8b389b00291a38f' };
 const TEA = { light: [176, 214, 140], base: [104, 158, 88], mid: [84, 132, 72], dark: [44, 80, 46], knob: [222, 170, 70], knobDark: [150, 100, 36], leaf: [210, 236, 170], vein: [92, 140, 70] };
 
 /* A w x h picture (in texels of the original) drawn at scale TEA_SCALE by
@@ -544,7 +544,7 @@ function inLeaf(x, y, cx, cy, len, wid) {
 
 const knobAt = (x, y, kx, ky) => (x >= kx && x < kx + 3 && y >= ky && y < ky + 2 ? (y < ky + 1 ? TEA.knob : TEA.knobDark) : null);
 
-export function teaChestDoor() {
+export function toyChestDoor() {
   return teaCanvas(32, 48, 3740, (x, y) => {
     if (y < 6) return TEA.light;
     if (x < 4 || x >= 28 || y >= 43) return TEA.dark;
@@ -557,7 +557,7 @@ export function teaChestDoor() {
   });
 }
 
-export function teaChestFront() {
+export function toyChestFront() {
   return teaCanvas(16, 64, 3741, (x, y) => {
     if (y < 3) return TEA.light;
     if (x >= 13) return x >= 14 ? TEA.base : TEA.dark;
@@ -574,7 +574,7 @@ export function teaChestFront() {
   });
 }
 
-export function teaChestSide() {
+export function toyChestSide() {
   return teaCanvas(16, 64, 3742, (x, y) => {
     if (y < 2) return TEA.light;
     if (y >= 60) return TEA.dark;
@@ -586,7 +586,7 @@ export function teaChestSide() {
   });
 }
 
-export function teaChestTop({ inside = false } = {}) {
+export function toyChestTop({ inside = false } = {}) {
   return teaCanvas(16, 16, inside ? 3744 : 3743, (x, y) => {
     if (x < 1 || y < 1 || x >= 15 || y >= 15) return TEA.dark;
     if (x < 2 || y < 2 || x >= 14 || y >= 14) return inside ? TEA.mid : TEA.light;
@@ -597,15 +597,15 @@ export function teaChestTop({ inside = false } = {}) {
   });
 }
 
-/* The Tea Chest's files, by path inside the mod (folder `dir`). */
-export function teaChestFiles(dir = 'items/tea-chest') {
+/* The Toy Chest's files, by path inside the mod (folder `dir`). */
+export function toyChestFiles(dir = 'items/toy-chest') {
   const pic = (w, h, tex, c) => [`${dir}/tex1_${w}x${h}_${tex}_$_8.dds`, dds(c.w, c.h, c.px)];
   return Object.fromEntries([
-    pic(32, 48, TEA_CHEST.door, teaChestDoor()),
-    pic(16, 64, TEA_CHEST.front, teaChestFront()),
-    pic(16, 64, TEA_CHEST.side, teaChestSide()),
-    pic(16, 16, TEA_CHEST.top, teaChestTop()),
-    pic(16, 16, TEA_CHEST.inside, teaChestTop({ inside: true })),
+    pic(32, 48, TOY_CHEST.door, toyChestDoor()),
+    pic(16, 64, TOY_CHEST.front, toyChestFront()),
+    pic(16, 64, TOY_CHEST.side, toyChestSide()),
+    pic(16, 16, TOY_CHEST.top, toyChestTop()),
+    pic(16, 16, TOY_CHEST.inside, toyChestTop({ inside: true })),
   ]);
 }
 

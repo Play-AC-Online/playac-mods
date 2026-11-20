@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/talk.schema.json",
   "title": "Play AC Online talk pools file",
-  "description": "Villager line pools. On an ordinary talk where no script said a line, a villager says at most one data line a day, then their own hello. A special talk never uses a pool. Today's calendar lines come first. Otherwise the most specific matching pools are used: this villager, else this personality, else everyone. When several mods have pools that match, their lines are put together and one is picked. It is not always the first mod's. The game keeps which villagers had their line today per town with the save, so restarting the game does not make them say one again. Either scope. Pools run in The City too. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/#talk",
+  "description": "Villager lines that are part of the conversation. A villager's talk is their hello, which ends in a menu. When the player chooses to chat, the game picks a topic, fresh every time: a trade, a letter, a memory, a hint, an event, or small talk about the weather, the time of day or the month. When the game picks small talk, a line from a pool can be what the villager says instead, whenever the player chooses to chat and the game picks small talk. A special talk (a first meeting, an errand, a villager moving out, the first-job errands) never uses a pool, nor does a new player's first ten chats, whose topics are tips, and neither does a trade, letter, memory, hint or event topic. Today's calendar lines come first: on their day they are half of every villager's small talk. Otherwise the most specific pools that fit are used: this villager, else this personality, else everyone. A pool fits when its season, time and weather, if it names them, are the ones now. Each pool that fits rolls its chance; the lines of the pools that pass are put together, from every mod, and one is picked, never the one this villager said last when there is another. When the most specific pools all roll no, the villager makes the game's own small talk. Nothing is saved. Either scope. Pools run in The City too. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/#talk",
   "type": "object",
   "required": [
     "pools"
@@ -40,11 +40,37 @@
             "maxLength": 8,
             "description": "A villager's name, any case. Not with personality."
           },
+          "season": {
+            "enum": [
+              "spring",
+              "summer",
+              "fall",
+              "winter"
+            ],
+            "description": "Only in this season: spring is March to May, summer June to August, fall September to November, winter December to February."
+          },
+          "time": {
+            "enum": [
+              "morning",
+              "day",
+              "evening",
+              "night"
+            ],
+            "description": "Only at this time of day, the game's own four: morning 5 to 12, day 12 to 17, evening 17 to midnight, night midnight to 5."
+          },
+          "weather": {
+            "enum": [
+              "clear",
+              "rain",
+              "snow"
+            ],
+            "description": "Only in this weather. Cherry blossom and falling leaves count as clear."
+          },
           "chance": {
             "type": "integer",
             "minimum": 1,
             "maximum": 100,
-            "description": "Days in 100 the pool speaks to a villager. Default 100."
+            "description": "Small talk in 100 where this pool's line is said, when the pool fits. Default 100: every small talk it fits."
           },
           "lines": {
             "type": "array",
@@ -56,11 +82,11 @@
               "maxLength": 160,
               "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
             },
-            "description": "The pool's lines. The game picks one."
+            "description": "The pool's lines. The game picks one each time."
           }
         }
       },
-      "description": "The pools. A pool speaks for everyone, for one personality or for one villager."
+      "description": "The pools. A pool speaks for everyone, for one personality or for one villager, and can be kept to a season, a time of day or the weather."
     }
   }
 }

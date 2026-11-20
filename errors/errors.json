@@ -61,10 +61,6 @@
       "title": "Textures and images"
     },
     {
-      "id": "inspector",
-      "title": "The texture inspector (removed)"
-    },
-    {
       "id": "devmode",
       "title": "Developer mode and the Mod log"
     },
@@ -1444,7 +1440,7 @@
         ]
       },
       "api": [],
-      "meaning": "The shop name is shown on the closed sign. It is optional, 1 to 40 characters on one line, and a line break in it is refused.",
+      "meaning": "The flower shop's name is shown on its door sign while the shop is shut. It is optional, 1 to 40 characters on one line, and a line break in it is refused.",
       "fix": "Shorten it and take out any line break, or leave it out."
     },
     {
@@ -1494,7 +1490,7 @@
         ]
       },
       "api": [],
-      "meaning": "\"hours\" is { \"open\": \"HH:MM\", \"close\": \"HH:MM\" } in 24-hour time with two digits each, so \"09:00\", not \"9:00\" or \"9am\". Close can be after midnight, and the shop still shuts from 2 AM to 7 AM.",
+      "meaning": "\"hours\" is { \"open\": \"HH:MM\", \"close\": \"HH:MM\" } in 24-hour time with two digits each, so \"09:00\", not \"9:00\" or \"9am\". Close can be after midnight. The hours say when your entry applies, the same on every shop.",
       "fix": "Write both times with two-digit hours and minutes.",
       "bad": {
         "file": "shops.json",
@@ -1532,9 +1528,9 @@
       "fix": "Keep the line to 160 characters and at most 3 line breaks."
     },
     {
-      "code": "nook-flower-key",
+      "code": "shop-field-unsupported",
       "area": "shops",
-      "title": "A flower shop setting on Nook's shop",
+      "title": "A field this shop does not have",
       "where": [
         "Mods tab, when you install a ZIP",
         "the check tool (playac-mod check)",
@@ -1543,50 +1539,25 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 \"name\" is the flower shop's: Nook's shop takes only \"mode\", \"hours\" and \"stock\"",
-          "shops: shop 1 \"greeting\" is the flower shop's: Nook's shop takes only \"mode\", \"hours\" and \"stock\"",
-          "shops: shop 1 \"stock_line\" is the flower shop's: Nook's shop takes only \"mode\", \"hours\" and \"stock\""
+          "shops: shop 1 \"name\" is not a field of Nook's store: it takes \"target\", \"hours\", \"stock\", \"mode\"",
+          "shops: shop 1 \"greeting\" is not a field of Nook's store: it takes \"target\", \"hours\", \"stock\", \"mode\"",
+          "shops: shop 1 \"stock_line\" is not a field of Nook's store: it takes \"target\", \"hours\", \"stock\", \"mode\""
         ],
         "registry": [
-          "shops.json: shop 1's name is the flower shop's. Nook's shop takes only mode, hours and stock."
+          "shops.json: shop 1's name is not a field of Nook's store. It takes target, hours, stock, mode."
         ],
         "game": [
-          "shops: Nook's shop takes only \"mode\", \"hours\" and \"stock\", not: name"
+          "shops: \"name\" is not a field of Nook's store, so the shop is left out"
         ]
       },
       "api": [],
-      "meaning": "Nook keeps his own name and lines. A \"nook\" entry takes only \"mode\", \"hours\" and \"stock\".",
-      "fix": "Take \"name\", \"greeting\" and \"stock_line\" out of the \"nook\" entry. They belong to the flower shop."
+      "meaning": "Every shop takes the same entry, and each field means the same on every shop. A shop that cannot use a field does not have it: Nook's store has no \"name\", \"greeting\", \"stock_line\". The message names the shop and the field.",
+      "fix": "Take the field out of that shop's entry. The table in the Shops guide shows the fields each shop has."
     },
     {
-      "code": "nook-hours-mode",
+      "code": "shop-mode",
       "area": "shops",
-      "title": "Nook's \"mode\" and \"hours\" together",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "shops: shop 1 \"mode\" and \"hours\" do not go together: with hours the goods are Nook's whole stock"
-        ],
-        "registry": [
-          "shops.json: shop 1's mode and hours do not go together. With hours the goods are Nook's whole stock."
-        ],
-        "game": [
-          "shops: Nook's \"mode\" and \"hours\" do not go together: with hours the goods are the whole stock"
-        ]
-      },
-      "api": [],
-      "meaning": "With \"hours\", your goods are everything Nook sells inside those hours and every other spot is bare. \"mode\" says how goods share the day's own stock, so it has nothing to do there.",
-      "fix": "Take \"mode\" out of a \"nook\" entry with \"hours\", or take \"hours\" out to add to the day's stock."
-    },
-    {
-      "code": "nook-mode",
-      "area": "shops",
-      "title": "Nook's \"mode\" is not \"add\" or \"replace\"",
+      "title": "A shop's \"mode\" is not \"add\" or \"replace\"",
       "where": [
         "Mods tab, when you install a ZIP",
         "the check tool (playac-mod check)",
@@ -1601,58 +1572,12 @@
           "shops.json: shop 1's mode must be \"add\" or \"replace\"."
         ],
         "game": [
-          "shops: Nook's \"mode\" must be \"add\" or \"replace\""
+          "shops: \"mode\" must be \"add\" or \"replace\""
         ]
       },
       "api": [],
-      "meaning": "\"add\" is the default and puts your goods in up to half the spots of their kind each morning. \"replace\" puts them in all of them.",
-      "fix": "Write \"mode\": \"add\" or \"mode\": \"replace\", or leave it out."
-    },
-    {
-      "code": "nook-stock",
-      "area": "shops",
-      "title": "Nook's \"stock\" must list 1 to 16 goods",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "shops: shop 1 \"stock\" must list 1 to 16 items"
-        ],
-        "registry": [
-          "shops.json: shop 1's stock must list 1 to 16 items."
-        ],
-        "game": [
-          "shops: Nook's \"stock\" must list 1 to 16 goods"
-        ]
-      },
-      "api": [],
-      "meaning": "A \"nook\" entry lists 1 to 16 goods. How many show on a day depends on the store and the spots of each kind.",
-      "fix": "Keep 1 to 16 goods in the list."
-    },
-    {
-      "code": "nook-item-refused",
-      "area": "shops",
-      "title": "A good Nook's cannot sell",
-      "where": [
-        "Mods tab, on the mod's row after a restart",
-        "the check tool (playac-mod check)"
-      ],
-      "messages": {
-        "page": [
-          "shops: shop 1 stock 2 \"item\" 0x2800 (apple) has no spot on Nook's shelves, so the game leaves it out of Nook's shop"
-        ],
-        "game": [
-          "shops: a Nook's stock item cannot be sold, left out: 0x2800 has no spot on Nook's shelves",
-          "shops: a Nook's stock item cannot be sold, left out: 0x2100 is money"
-        ]
-      },
-      "api": [],
-      "meaning": "A Nook's good needs a spot of its kind on his shelves: furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings or flower bags. Fruit, the signboard, money, tickets, grab bags, turnips and fossils are refused. The good is left out and the rest work.",
-      "fix": "Pick a good of a kind Nook's sells. Only the game can check this, so the message shows after a restart."
+      "meaning": "Every shop entry says how its goods join the shop's own, the same way on every shop. \"add\" puts them in at most half of the spots of their kind, rounded up, and the shop's own goods keep the rest. \"replace\" makes them the whole stock: each spot of a kind you list takes one of your goods, and every other spot is bare.",
+      "fix": "Write \"mode\": \"add\" or \"mode\": \"replace\" in each shop entry."
     },
     {
       "code": "target-not-object",
@@ -2210,6 +2135,39 @@
       "fix": "Write the villager's name."
     },
     {
+      "code": "talk-when",
+      "area": "talk",
+      "title": "A pool's \"season\", \"time\" or \"weather\" is not one the game has",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "talk: pool 1 \"season\" must be spring, summer, fall or winter",
+          "talk: pool 2 \"time\" must be morning, day, evening or night",
+          "talk: pool 3 \"weather\" must be clear, rain or snow",
+          "talk: pool 1 \"time\" must be morning, day, evening or night",
+          "talk: pool 1 \"weather\" must be clear, rain or snow"
+        ],
+        "registry": [
+          "talk.json: pool 1's season must be spring, summer, fall or winter.",
+          "talk.json: pool 2's time must be morning, day, evening or night.",
+          "talk.json: pool 3's weather must be clear, rain or snow."
+        ],
+        "game": [
+          "talk: \"season\" must be spring, summer, fall or winter: pool 1",
+          "talk: \"time\" must be morning, day, evening or night: pool 2",
+          "talk: \"weather\" must be clear, rain or snow: pool 3"
+        ]
+      },
+      "api": [],
+      "meaning": "A pool can be kept to a \"season\" (spring, summer, fall or winter), a \"time\" of day (morning, day, evening or night) and the \"weather\" (clear, rain or snow), the game's own. Each is one of those words, in lowercase.",
+      "fix": "Write one of the listed words, or leave the key out for any."
+    },
+    {
       "code": "talk-chance",
       "area": "talk",
       "title": "A pool's \"chance\" is not 1 to 100",
@@ -2231,7 +2189,7 @@
         ]
       },
       "api": [],
-      "meaning": "\"chance\" is how many days in 100 the pool speaks to a villager, as a whole number from 1 to 100. Leave it out for every day.",
+      "meaning": "\"chance\" is how often, in 100 small talks, the pool's line is said when the pool fits, as a whole number from 1 to 100. Leave it out for every one.",
       "fix": "Write a whole number from 1 to 100."
     },
     {
@@ -2286,8 +2244,8 @@
       ],
       "messages": {
         "game": [
-          "shops: a later mod changes the flower shop too, so this mod's flower shop is not used: bean.tea-stall",
-          "shops: a later mod changes Nook's stock too, so this mod's Nook stock is not used: bean.nook-extras"
+          "shops: a later mod changes the flower shop too, so this mod's entry for it is not used: bean.tea-stall",
+          "shops: a later mod changes Nook's store too, so this mod's entry for it is not used: bean.night-shop"
         ]
       },
       "api": [],
@@ -2297,7 +2255,7 @@
     {
       "code": "shop-stock",
       "area": "shops",
-      "title": "\"stock\" must list 1 to 6 items",
+      "title": "\"stock\" must list 1 to the goods the shop takes",
       "where": [
         "Mods tab, when you install a ZIP",
         "the check tool (playac-mod check)",
@@ -2306,18 +2264,21 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 \"stock\" must list 1 to 6 items"
+          "shops: shop 1 \"stock\" must list 1 to 6 items for the flower shop",
+          "shops: shop 1 \"stock\" must list 1 to 16 items for Nook's store"
         ],
         "registry": [
-          "shops.json: shop 1's stock must list 1 to 6 items."
+          "shops.json: shop 1's stock must list 1 to 6 items for the flower shop.",
+          "shops.json: shop 1's stock must list 1 to 16 items for Nook's store."
         ],
         "game": [
-          "shops: \"stock\" must list 1 to 6 goods"
+          "shops: \"stock\" must list 1 to 6 goods for the flower shop",
+          "shops: \"stock\" must list 1 to 16 goods for Nook's store"
         ]
       },
       "api": [],
-      "meaning": "The flower shop has 6 table spots, so \"stock\" lists 1 to 6 goods.",
-      "fix": "Keep at most 6 items in the list."
+      "meaning": "Every shop entry lists its goods in \"stock\", at least one. The flower shop takes 1 to 6, Nook's store takes 1 to 16. How many show on a day depends on the shop's spots of each kind.",
+      "fix": "Keep the list to what the shop takes."
     },
     {
       "code": "items-list",
@@ -2341,7 +2302,7 @@
       "fix": "Put your items in an \"items\" list, at most 64 of them.",
       "good": {
         "file": "items.json",
-        "text": "{\"items\": [{\"id\": \"tea-chest\", \"name\": \"Tea Chest\", \"base\": \"0x1000\", \"price\": 1800}]}"
+        "text": "{\"items\": [{\"id\": \"ghost-lantern\", \"name\": \"Ghost Lantern\", \"base\": \"0x1000\", \"price\": 1800}]}"
       }
     },
     {
@@ -2404,7 +2365,7 @@
         ]
       },
       "api": [],
-      "meaning": "An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-stall:tea-chest.",
+      "meaning": "An item id is short and lowercase. Its full id is your mod id, a colon and this id, like bean.tea-stall:ghost-lantern.",
       "fix": "Use 1 to 32 lowercase letters, digits and dashes. Start with a letter or digit."
     },
     {
@@ -2418,13 +2379,14 @@
       ],
       "messages": {
         "page": [
-          "items: item 2 repeats the id \"tea-chest\""
+          "items: item 2 repeats the id \"ghost-lantern\"",
+          "items: item 2 repeats the id \"lamp\""
         ],
         "registry": [
-          "items.json: two items have the id \"tea-chest\"."
+          "items.json: two items have the id \"ghost-lantern\"."
         ],
         "game": [
-          "items: an id is listed twice, the second is left out: tea-chest"
+          "items: an id is listed twice, the second is left out: ghost-lantern"
         ]
       },
       "api": [],
@@ -2482,7 +2444,7 @@
           "items: item 1 \"price\" must be a whole number from 1 to 99999"
         ],
         "game": [
-          "items: a price must be a whole number of Bells, 1 to 99999, left out: tea-chest"
+          "items: a price must be a whole number of Bells, 1 to 99999, left out: ghost-lantern"
         ]
       },
       "api": [],
@@ -2504,15 +2466,15 @@
           "items: item 1 \"textures\" must be a folder inside the mod with files in it"
         ],
         "registry": [
-          "items.json: item \"tea-chest\"'s textures must be a folder inside the mod with files in it."
+          "items.json: item \"ghost-lantern\"'s textures must be a folder inside the mod with files in it."
         ],
         "game": [
-          "items: an item's \"textures\" must be a folder inside the mod, its pictures are left out: tea-chest"
+          "items: an item's \"textures\" must be a folder inside the mod, its pictures are left out: ghost-lantern"
         ]
       },
       "api": [],
       "meaning": "An item's \"textures\" names a folder inside the mod that holds the item's own pictures. The path is not one, or nothing is in it.",
-      "fix": "Put the item's pictures in a folder, like items/tea-chest/, and name that folder in \"textures\". Or remove \"textures\" to draw the base piece's pictures."
+      "fix": "Put the item's pictures in a folder, like items/ghost-lantern/, and name that folder in \"textures\". Or remove \"textures\" to draw the base piece's pictures."
     },
     {
       "code": "item-textures-count",
@@ -2526,13 +2488,14 @@
       ],
       "messages": {
         "page": [
-          "items: item 1 \"textures\" folder items/tea-chest/ holds 17 files, at most 16"
+          "items: item 1 \"textures\" folder items/ghost-lantern/ holds 17 files, at most 16",
+          "items: item 1 \"textures\" folder items/lamp/ holds 17 files, at most 16"
         ],
         "registry": [
-          "items.json: item \"tea-chest\"'s textures folder \"items/tea-chest/\" holds 17 files, at most 16."
+          "items.json: item \"ghost-lantern\"'s textures folder \"items/ghost-lantern/\" holds 17 files, at most 16."
         ],
         "game": [
-          "items: an item's textures folder holds more than 16 files, the rest are left out: tea-chest"
+          "items: an item's textures folder holds more than 16 files, the rest are left out: ghost-lantern"
         ]
       },
       "api": [],
@@ -2550,10 +2513,11 @@
       ],
       "messages": {
         "page": [
-          "items: item 1 \"textures\" file items/tea-chest/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)"
+          "items: item 1 \"textures\" file items/ghost-lantern/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)",
+          "items: item 1 \"textures\" file items/lamp/notes.txt is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)"
         ],
         "registry": [
-          "items.json: item \"tea-chest\"'s textures file \"items/tea-chest/notes.txt\" is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)."
+          "items.json: item \"ghost-lantern\"'s textures file \"items/ghost-lantern/notes.txt\" is not a .png or .dds texture name (tex1_WxH_hash[_palette]_fmt)."
         ]
       },
       "api": [],
@@ -2572,19 +2536,20 @@
       ],
       "messages": {
         "page": [
-          "items: item 1 \"textures\" folder textures/tea-chest/ is inside content.textures or holds it: there its pictures would change every copy of the base",
-          "items: item 1 \"textures\" folder art/ is inside content.textures or holds it: there its pictures would change every copy of the base"
+          "items: item 1 \"textures\" folder textures/ghost-lantern/ is inside content.textures or holds it: there its pictures would change every copy of the base",
+          "items: item 1 \"textures\" folder art/ is inside content.textures or holds it: there its pictures would change every copy of the base",
+          "items: item 1 \"textures\" folder textures/lamp/ is inside content.textures or holds it: there its pictures would change every copy of the base"
         ],
         "registry": [
-          "items.json: item \"tea-chest\"'s textures folder \"textures/tea-chest/\" is inside content.textures or holds it. There its pictures would change every copy of the base."
+          "items.json: item \"ghost-lantern\"'s textures folder \"textures/ghost-lantern/\" is inside content.textures or holds it. There its pictures would change every copy of the base."
         ],
         "game": [
-          "items: an item's textures folder is inside content.textures or holds it, its pictures are left out: tea-chest"
+          "items: an item's textures folder is inside content.textures or holds it, its pictures are left out: ghost-lantern"
         ]
       },
       "api": [],
       "meaning": "The pictures in content.textures change every copy of a texture in the game. An item's own pictures must be outside that folder, or they would change every copy of the base piece too.",
-      "fix": "Move the item's pictures to a folder of their own beside the textures folder, like items/tea-chest/."
+      "fix": "Move the item's pictures to a folder of their own beside the textures folder, like items/ghost-lantern/."
     },
     {
       "code": "item-malformed",
@@ -2595,7 +2560,7 @@
       ],
       "messages": {
         "game": [
-          "items: a malformed item is left out: tea-chest"
+          "items: a malformed item is left out: ghost-lantern"
         ]
       },
       "api": [],
@@ -2611,12 +2576,12 @@
       ],
       "messages": {
         "game": [
-          "items: this base cannot be a mod item, left out: tea-chest: base 0x1004 has no model"
+          "items: this base cannot be a mod item, left out: ghost-lantern: base 0x1768 is a gyroid"
         ]
       },
       "api": [],
       "meaning": "The game left this item out because its base cannot carry a mod item. The reason after the id says why, and the rest of the mod loads.",
-      "fix": "Pick another south-facing furniture id from the item list in the reference. A base with no model cannot be used. Neither can a fossil, a gyroid, a mannequin or umbrella design, clothing, a balloon, a diary, a fan or a pinwheel."
+      "fix": "Pick another south-facing furniture id: the item list in the reference has a filter for the pieces that can be a base. A base with no model cannot be used. Neither can a fossil, a gyroid, clothing, a mannequin or umbrella for a design, or a piece a player carries as an item: an umbrella, a fish, a bug, a tool, a balloon, a fan, a pinwheel or a diary."
     },
     {
       "code": "items-too-many-total",
@@ -2627,7 +2592,7 @@
       ],
       "messages": {
         "game": [
-          "items: the game holds 512 mod items at most, the rest are left out: tea-chest"
+          "items: the game holds 512 mod items at most, the rest are left out: ghost-lantern"
         ]
       },
       "api": [],
@@ -2645,13 +2610,14 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 stock 1 \"item\" other.mod:tea-chest is not an item in this mod's items file",
+          "shops: shop 1 stock 1 \"item\" other.mod:ghost-lantern is not an item in this mod's items file",
+          "shops: shop 1 stock 1 \"item\" other.mod:lamp is not an item in this mod's items file",
           "shops: shop 1 stock 1 \"item\" test.mod:nope is not an item in this mod's items file"
         ]
       },
       "api": [],
       "meaning": "A shop can stock this mod's own items by full id. Another mod's items cannot be stocked.",
-      "fix": "Use an id from your items file, like your.mod:tea-chest, or a vanilla item like \"0x2800\"."
+      "fix": "Use an id from your items file, like your.mod:ghost-lantern, or a vanilla item like \"0x2800\"."
     },
     {
       "code": "shop-furniture-shared",
@@ -2685,7 +2651,7 @@
         "page": [
           "\"renames\" needs \"content.items\": a rename names an item of this mod",
           "\"renames\": \"chest\" must be a full item id like author.mod:thing",
-          "\"renames\": \"test.mod:tea-chest\" renames an item to itself",
+          "\"renames\": \"test.mod:ghost-lantern\" renames an item to itself",
           "\"renames\" must be an object of old item id to new item id",
           "\"renames\": \"other.mod:chest\" must be an old id of this mod, like test.mod:old-thing",
           "\"renames\": \"test.mod:chest\" must point at an item of this mod, like test.mod:thing"
@@ -2693,7 +2659,7 @@
       },
       "api": [],
       "meaning": "\"renames\" moves items placed under an old full id to one of this mod's items, once per save. Each key is an old full id of this mod, and each value is the full id of an item in your items file.",
-      "fix": "Write it as {\"your.mod:chest\": \"your.mod:tea-chest\"} and set content.items. Do not rename an item to itself."
+      "fix": "Write it as {\"your.mod:chest\": \"your.mod:ghost-lantern\"} and set content.items. Do not rename an item to itself."
     },
     {
       "code": "shop-item-twice",
@@ -2712,7 +2678,7 @@
           "shops: shop 1 stock 2 is a duplicate item 0x10AA",
           "shops: shop 1 stock 2 is a duplicate item 0x28AA",
           "shops: shop 1 stock 2 is a duplicate item 0x28AB",
-          "shops: shop 1 stock 2 is a duplicate item test.mod:tea-chest"
+          "shops: shop 1 stock 2 is a duplicate item test.mod:lamp"
         ],
         "registry": [
           "shops.json: shop 1's stock lists item 0x2800 twice."
@@ -2735,16 +2701,18 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 stock 6 \"item\" 0x1000 (spooky wardrobe) has no shop shelf model, so the game leaves it out of the flower shop"
+          "shops: shop 1 stock 6 \"item\" 0x1000 (spooky wardrobe) has no shop shelf model, so the game leaves it out of the flower shop",
+          "shops: shop 1 stock 2 \"item\" 0x2800 (apple) cannot be sold at Nook's store, so the game leaves it out of Nook's store"
         ],
         "game": [
-          "shops: a stock item cannot be sold, left out: 0x2B00 is money",
-          "shops: a stock item cannot be sold, left out: 0x1234 has no shop shelf model"
+          "shops: a stock item cannot be sold at the flower shop, left out: 0x2B00 is money",
+          "shops: a stock item cannot be sold at the flower shop, left out: 0x1234 has no shop shelf model",
+          "shops: a stock item cannot be sold at Nook's store, left out: 0x2800 has no spot of its kind on the shelves"
         ]
       },
       "api": [],
-      "meaning": "A shop cannot sell this good, so the game left it out. The rest of the shop works. A shop cannot sell money, tickets, grab bags, turnips, fossils or a good with no shelf model. At the flower shop that includes the game's own furniture.",
-      "fix": "Pick another item from the item list in the reference. Its Flower shop column shows what the flower shop can sell. To sell furniture there, make it a mod item of your own, or sell the game's furniture at Nook's shop (target nook). `playac-mod check` warns about these goods before you install."
+      "meaning": "A shop cannot sell this good, so the game left it out. The rest of the shop works. No shop sells money, tickets, grab bags, turnips, fossils or a good with no shelf model. At the flower shop that includes the game's own furniture. At Nook's a good needs a spot of its kind: furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings or flower bags, so fruit and the signboard are refused there.",
+      "fix": "Pick another item from the item list in the reference. Its Flower shop and Nook's columns show what each shop can sell. To sell furniture at the flower shop, make it a mod item of your own, or sell the game's furniture at Nook's store (target nook). `playac-mod check` warns about these goods before you install."
     },
     {
       "code": "shop-item",
@@ -3072,17 +3040,17 @@
       ],
       "messages": {
         "page": [
-          "messages: at most 256 lines per mod"
+          "messages: a messages file has at most 256 lines"
         ],
         "registry": [
           "messages/en.json has 300 lines, more than 256."
         ],
         "game": [
-          "messages: a mod has at most 256 lines"
+          "messages: a messages file has at most 256 lines"
         ]
       },
       "api": [],
-      "meaning": "A mod can hold at most 256 lines.",
+      "meaning": "A messages file can hold at most 256 lines.",
       "fix": "Split the lines into two mods, or reuse lines."
     },
     {
@@ -3298,6 +3266,59 @@
       "fix": "Keep one of the two files and delete the other."
     },
     {
+      "code": "texture-label",
+      "area": "textures",
+      "title": "A label before a texture name breaks the label rule",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "the Mod log in Settings, Mods"
+      ],
+      "messages": {
+        "page": [
+          "textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ (\"Bookshelf\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore",
+          "items: item 1 \"textures\" folder: items/lamp/Lid_tex1_64x64_0123456789abcdef_fedcba9876543210_8.png: the label before tex1_ (\"Lid\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore",
+          "textures/_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ (\"\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore",
+          "textures/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ (\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore",
+          "textures/book_shelf_tex1_32x32_626709d910129694_$_8.png: the label before tex1_ (\"book_shelf\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore",
+          "textures/top__tex1_32x32_626709d910129694_$_8.png: the label before tex1_ (\"top_\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore"
+        ],
+        "registry": [
+          "\"textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png\": the label before tex1_ (\"Bookshelf\") must be 1 to 40 lowercase letters, digits and dashes, then one underscore."
+        ],
+        "game": [
+          "texture textures/Bookshelf_tex1_32x32_626709d910129694_$_8.png not read: the label before tex1_ must be 1 to 40 lowercase letters, digits and dashes, then one underscore"
+        ]
+      },
+      "api": [],
+      "meaning": "A texture file may carry a label before its name, so you can tell your files apart: bookshelf-top_tex1_32x32_626709d910129694_$_8.png is the same texture as tex1_32x32_626709d910129694_$_8.png. The label is 1 to 40 lowercase letters, digits and dashes, then one underscore. This one has a capital letter, a space, another underscore, nothing, or too many characters before tex1_.",
+      "fix": "Rename the file, for example Book_Shelf_tex1_... to book-shelf_tex1_.... Use lowercase letters, digits and dashes for the label, one underscore after it, and keep the tex1_ part exactly as the model viewer gave it."
+    },
+    {
+      "code": "texture-label-twice",
+      "area": "textures",
+      "title": "Two files are one texture once their labels are taken off",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload"
+      ],
+      "messages": {
+        "page": [
+          "textures/tex1_32x32_626709d910129694_$_8.dds and textures/top_tex1_32x32_626709d910129694_$_8.png are the same texture once labels are taken off: keep one file for a texture",
+          "items: item 1 \"textures\" folder: items/lamp/lid_tex1_64x64_0123456789abcdef_fedcba9876543210_8.png and items/lamp/tex1_64x64_0123456789abcdef_fedcba9876543210_8.dds are the same texture once labels are taken off: keep one file for a texture",
+          "textures/a/top_tex1_32x32_626709d910129694_$_8.png and textures/b/side_tex1_32x32_626709D910129694_$_08.png are the same texture once labels are taken off: keep one file for a texture"
+        ],
+        "registry": [
+          "\"textures/tex1_32x32_626709d910129694_$_8.dds\" and \"textures/top_tex1_32x32_626709d910129694_$_8.png\" are the same texture once labels are taken off. Keep one file for a texture."
+        ]
+      },
+      "api": [],
+      "meaning": "The game matches a texture file on its tex1_ part alone, so a labelled file and another file with the same tex1_ part (labelled or not, .png or .dds, in any subfolder of the same textures folder) replace the same texture. The game could draw only one of them, so the mod is refused rather than left to pick.",
+      "fix": "Keep one file for each texture and delete or rename the others. Different labels do not make different textures."
+    },
+    {
       "code": "picture-misnamed",
       "area": "textures",
       "title": "A picture in the wrong kind of file",
@@ -3350,59 +3371,6 @@
       "api": [],
       "meaning": "A .dds must be BC7, DXT1 (BC1), DXT5 (BC3) or uncompressed 32-bit RGBA, and a .png must be a normal PNG. Other formats and damaged files are refused, because the game would skip them.",
       "fix": "Export again as BC7, DXT5 or uncompressed RGBA 8888, with no mipmaps."
-    },
-    {
-      "code": "inspector-no-scene",
-      "area": "inspector",
-      "title": "The game is not in a scene yet",
-      "where": [
-        "Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer)"
-      ],
-      "messages": {
-        "site": [
-          "The game is not in a scene yet. Start or load your town, then try again."
-        ]
-      },
-      "api": [],
-      "meaning": "The inspector records what the game draws, and nothing is drawn on the title screen.",
-      "fix": "Load your town first, then press Record textures.",
-      "retired": "The in-game texture inspector is gone. The model viewer names every texture a mod can replace, the town's ground, menus and effects too, without loading a town."
-    },
-    {
-      "code": "inspector-texture-gone",
-      "area": "inspector",
-      "title": "That texture is no longer kept",
-      "where": [
-        "Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer)"
-      ],
-      "messages": {
-        "site": [
-          "That texture is no longer kept. It shows again once the game draws it."
-        ]
-      },
-      "api": [],
-      "meaning": "The inspector keeps up to 512 textures and 16 MB, and drops the one drawn longest ago. Stop recording frees them all.",
-      "fix": "Walk back to where the texture is drawn, so it is recorded again. Then use Copy name, PNG or Flash.",
-      "retired": "The in-game texture inspector is gone. The model viewer names every texture a mod can replace, the town's ground, menus and effects too, without loading a town."
-    },
-    {
-      "code": "inspector-export",
-      "area": "inspector",
-      "title": "The starter mod could not be exported",
-      "where": [
-        "Settings, Mods, Developer, Record textures (removed: texture names are in the model viewer)"
-      ],
-      "messages": {
-        "site": [
-          "Select at least one texture",
-          "The mod id must look like yourname.mod-name (lower case letters, digits and -)",
-          "ZIP support is not loaded in the game page. Reload and try again"
-        ]
-      },
-      "api": [],
-      "meaning": "Export needs at least one ticked texture and a mod id like yourname.mod-name. The id is lowercase letters, digits and dashes, with one dot.",
-      "fix": "Tick the textures you want, type an id like \"yourname.my-textures\", and press Export again. If ZIP support is missing, reload the page.",
-      "retired": "The inspector no longer exports a starter mod. Start from the Springtime Town example or the texture starter kit, and find names in the model viewer."
     },
     {
       "code": "dev-start-game",
@@ -4074,16 +4042,8 @@
         ]
       },
       "api": [],
-      "meaning": "\"store.player\" is kept per resident. A town can be loaded before a resident is in it, for example on the title screen. game.player() is nil then, so store.player.set has no one to save for and store.player.get returns nil.",
-      "fix": "Check game.player() first, or save from an event a player takes part in, such as villager_talked or item_picked_up. For data that belongs to the whole town, use store.",
-      "bad": {
-        "file": "main.lua",
-        "text": "on(\"day_started\", function() store.player.set(\"gift\", \"given\") end)"
-      },
-      "good": {
-        "file": "main.lua",
-        "text": "on(\"day_started\", function() if game.player() then store.player.set(\"gift\", \"given\") end end)"
-      }
+      "meaning": "\"store.player\" is kept per resident. It needs a resident in the game: game.player() names them. Every event of a town has one, day_started at boot included. When game.player() is nil, store.player.set has no one to save for and store.player.get returns nil.",
+      "fix": "Check game.player() first. For data that belongs to the whole town, use store."
     },
     {
       "code": "remote-not-exported",

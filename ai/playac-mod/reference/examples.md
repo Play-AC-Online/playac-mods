@@ -15,8 +15,9 @@ A Just you mod (`"scope": "client"`) in two halves, with no script:
 
 - **The grass** (`textures/`): the town grass is our own drawing, seamless
   green ground with clover leaves and small white flowers.
-- **The talk** (`talk.json`): on the first talk of the day, each villager says
-  one new line in their own personality's voice, then their usual hello.
+- **The talk** (`talk.json`): new small talk in each villager's own
+  personality's voice, some of it for the season, the time of day or the
+  weather.
 
 Both are data. Neither changes what a visitor sees, so the mod is Just you.
 
@@ -30,17 +31,17 @@ Before: a corner of town on a September afternoon, with no mods and the HD textu
 
 After: the same spot with Springtime Town installed. The grass is the mod's, drawn with clover and tiny white flowers; the trees, houses and paths are untouched.
 
-![mod line](media/mod-line.webp)
-
-The first talk of the day opens on a new line from the mod's talk pools, picked for the villager's personality.
-
 ![own hello](media/own-hello.webp)
 
-The next page is the villager's own hello: the mod's line comes first, and the game's conversation carries on as usual.
+Twiggy's own hello, then the menu after it. Choose "I'm bored!" to chat, and she picks a topic.
+
+![mod line](media/mod-line.webp)
+
+This time the topic is small talk, and her small talk is a line from the mod's peppy pool.
 
 [![Play the film](media/film.webp)](media/film.mp4)
 
-The film (click the picture): A walk past the houses on the mod's clover grass, then Twiggy's first talk of the day: the mod's line, then her own words. A second talk skips straight to her hello.
+The film (click the picture): A walk past the houses on the mod's clover grass, then a chat with Twiggy: her hello, "I'm bored!", and a line from the mod as her small talk.
 
 ## The grass
 
@@ -84,16 +85,23 @@ The pictures were drawn by a small program, never copied from the game.
 
 ## The talk
 
-`talk.json` holds line pools. Each personality has its own pool. On the first
-ordinary talk of the day, a villager says one line from their personality's
-pool. Then they say their usual hello and carry on as normal. Talk again the
-same day and there is no new line.
+Talk to a villager and choose to chat. After their hello they pick a topic,
+the way they always do: a trade, a letter, a hint, or small talk. When they
+pick small talk, the line can come from this mod.
+
+`talk.json` holds line pools. Each personality has its own pool, and a few
+more pools are kept to a moment: a normal villager has a line for spring, a
+peppy one for the rain, a lazy one for the evening, a jock for winter, a
+cranky one for the snow and a snooty one for a spring morning (`"season"`,
+`"time"` and `"weather"`). A pool counts only at its moment, and among the
+pools that count the game picks one line. A villager can say several of the
+mod's lines in a day, and never the same one twice running.
 
 A pool can instead name one villager (`"villager": "Bob"`), or nobody, which
-means every villager. A pool can say a line only on some days
-(`"chance": 40`). The most specific pools that match a villager decide.
+means every villager, and can be said in fewer small talks (`"chance": 30`;
+every small talk when left out). The most specific pools that fit a villager decide.
 
-The game picks the line. No script is needed.
+No script is needed.
 
 ## Install
 
@@ -142,7 +150,7 @@ MIT, see [LICENSE](LICENSE).
   "authors": [
     "Play AC Online"
   ],
-  "description": "Town grass with clover and tiny white flowers, and one new line a day from each villager in their own personality's voice. Textures and data only, no script.",
+  "description": "Town grass with clover and tiny white flowers, and new small talk from each villager in their own personality's voice, some of it for the season, the time of day or the weather. Textures and data only, no script.",
   "scope": "client",
   "content": {
     "textures": "textures/",
@@ -204,6 +212,49 @@ MIT, see [LICENSE](LICENSE).
         "I only drink tea from the finest cups. The chipped ones are for guests.",
         "One must always look one's best. Even for the fish."
       ]
+    },
+    {
+      "personality": "normal",
+      "season": "spring",
+      "lines": [
+        "The cherry trees are out! I keep finding petals in my pockets."
+      ]
+    },
+    {
+      "personality": "peppy",
+      "weather": "rain",
+      "lines": [
+        "Rain boots ON! Every puddle in town is mine today!"
+      ]
+    },
+    {
+      "personality": "lazy",
+      "time": "evening",
+      "lines": [
+        "Evening already? I was just about to start my morning nap."
+      ]
+    },
+    {
+      "personality": "jock",
+      "season": "winter",
+      "lines": [
+        "Snow training! Run in it and your legs get twice as strong!"
+      ]
+    },
+    {
+      "personality": "cranky",
+      "weather": "snow",
+      "lines": [
+        "Snow. Again. My nose has been cold since breakfast."
+      ]
+    },
+    {
+      "personality": "snooty",
+      "season": "spring",
+      "time": "morning",
+      "lines": [
+        "A spring morning, darling. Even the air is wearing perfume."
+      ]
     }
   ]
 }
@@ -213,7 +264,7 @@ MIT, see [LICENSE](LICENSE).
 
 ## example.after-hours
 
-Repository: https://github.com/Play-AC-Online/playac-example-after-hours (tag v2.0.0)
+Repository: https://github.com/Play-AC-Online/playac-example-after-hours (tag v1.0.0)
 
 ### example.after-hours/README.md
 
@@ -223,9 +274,11 @@ Repository: https://github.com/Play-AC-Online/playac-example-after-hours (tag v2
 A World mod (`"scope": "world"`) in two halves:
 
 - **The shop** (`shops.json`): from 1 AM to 3 AM the town shop opens again,
-  and all it sells is gyroids. Every other spot is empty.
+  and all it sells is gyroids, a different few each night. Every other spot
+  is empty.
 - **The lantern** (`items.json`, `items/ghost-lantern/`): the Ghost Lantern,
-  a tall lantern of the mod's own with its own pictures, sold among them.
+  a tall lantern of the mod's own with its own pictures. Now and then it
+  stands among the gyroids.
 
 A shop changes the town, so the mod is a World mod.
 
@@ -254,18 +307,24 @@ The film (click the picture): Inside the shop at 1:20 AM with the mod: empty she
 ## The shop
 
 `shops.json` has one entry for the town shop, `"target": "nook"`, with
-`hours` and a `stock` of sixteen goods: fifteen gyroids and the Ghost Lantern.
+`"mode": "replace"`, `hours` and a `stock` of sixteen goods: fifteen gyroids and
+the Ghost Lantern.
 
-- `hours` is 01:00 to 03:00. Inside them the mod's goods are the shop's whole
-  stock: each furniture spot holds one of them and every other spot is bare. The shop opens for these hours even though it is shut at night.
-- Outside them nothing changes. The shop keeps its own hours and its own goods,
-  and the day's stock is still there when it opens in the morning.
+- `hours` is 01:00 to 03:00. The entry applies only inside them, and the shop
+  opens for these hours even though it is shut at night.
+- `"mode": "replace"` makes the mod's goods the shop's whole stock: each
+  furniture spot holds one of them and every other spot is bare. `"add"` would
+  put them among the day's own goods instead.
+- Outside the hours nothing changes. The shop keeps its own hours and its own
+  goods, and the day's stock is still there when it opens in the morning.
 - The shop has fewer furniture spots than sixteen goods, so it shows a few of
-  them each night, and a different few the next night.
+  them each night, and a different few the next night. The Ghost Lantern is
+  one of the sixteen, so it is there only on some nights.
 - A good may be an item of the same mod, named by its full id,
   `example.after-hours:ghost-lantern`. Without a `price` it takes the item's
   own price from `items.json`. The gyroids sell at the game's own price.
-- An entry with `hours` takes no `mode`: there is no day's stock to share.
+- The same entry works on the flower shop: every shop takes `mode`, `hours`
+  and `stock` with the same meaning.
 
 ## The lantern
 
@@ -317,11 +376,6 @@ captions in `media/media.json`. `.playac/screenshots/` holds the listing's
 screenshots. The pack rule leaves the pictures, the film and the screenshots
 out of the mod.
 
-## History
-
-This repository held Evening Tea Room (1.0.0, tag `v1.0.0`), the flower shop
-as an evening tea room. After Hours took its place in 2.0.0.
-
 ## License
 
 MIT, see [LICENSE](LICENSE).
@@ -345,7 +399,7 @@ MIT, see [LICENSE](LICENSE).
   "api": 1,
   "id": "example.after-hours",
   "name": "After Hours",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "authors": [
     "Play AC Online"
   ],
@@ -366,6 +420,7 @@ MIT, see [LICENSE](LICENSE).
   "shops": [
     {
       "target": "nook",
+      "mode": "replace",
       "hours": {
         "open": "01:00",
         "close": "03:00"
@@ -397,7 +452,7 @@ MIT, see [LICENSE](LICENSE).
 
 ## example.harvest-post
 
-Repository: https://github.com/Play-AC-Online/playac-example-harvest-post (tag v1.1.0)
+Repository: https://github.com/Play-AC-Online/playac-example-harvest-post (tag v1.0.0)
 
 ### example.harvest-post/README.md
 
@@ -931,7 +986,7 @@ end)
   "api": 1,
   "id": "example.harvest-post",
   "name": "Harvest Post",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "authors": [
     "Play AC Online"
   ],
