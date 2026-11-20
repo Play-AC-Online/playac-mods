@@ -6,6 +6,12 @@ hello). They pick a topic, the way they always do: a trade, a letter, a
 hint, or small talk about the weather and the day. When they pick small
 talk, one of your lines can be what they say.
 
+That is a pool's place in the talk when it names none. A pool's "place"
+can put its lines elsewhere: "before" the hello, as the "hello", as the
+"topic" (the default), "after" the topic, or as the whole "conversation".
+A "topic" pool's "topics" says which topics it may stand in for:
+small_talk (the default), trade, letter, memory, hint, news, or "any".
+
 The lines are in talk.json, in pools. A pool is a list of lines, and it
 says who may say them, and when:
 
@@ -16,12 +22,14 @@ says who may say them, and when:
 - "time" is morning (5 to 12), day (12 to 17), evening (17 to midnight)
   or night (midnight to 5).
 - "weather" is clear, rain or snow.
-- "chance" is how many small talks in 100 say the pool's line. Leave it
-  out for every one.
+- "day" is the id of a day in a calendar file of this mod.
+- "chance" is how many talks in 100 that the pool fits say its line. Leave
+  it out for every one.
 
 How the game uses the pools:
 
-- Each time a villager picks small talk, the game looks at the villager's
+- Each place is picked on its own. Each time a villager picks small talk,
+  the game looks at the villager's
   own pools if there are any, else the pools for their personality, else
   the pools for everyone. A pool counts only when its season, time and
   weather are the ones now.
@@ -40,8 +48,9 @@ How the game uses the pools:
    a "name" and "description" of your own.
 2. Open talk.json. Change the lines, and add or remove pools. A file holds
    up to 32 pools, and a pool 1 to 32 lines. Each line is 1 to 160
-   characters, with at most 3 line breaks, written \n. Keep the quotes, and
-   the commas between lines and between pools.
+   characters, with at most 3 line breaks, written \n, or a list of up to 8
+   such pages in [ ], each on a clean window. Keep the quotes, and the
+   commas between lines and between pools.
 3. ZIP the folder with Finder Compress or Windows Send to. Zipping the files
    inside it works too.
    In the game, open Settings, Mods. Under Install from a file, choose
@@ -49,6 +58,7 @@ How the game uses the pools:
 4. Talk to a villager and choose to chat, a few times.
 
 A line that depends on something else, such as an item in your pockets,
-needs a Lua script. The Script kit shows one.
+or a question the player answers, needs a Lua script. The Script kit
+shows one.
 
 Guide: https://playaconline.com/modding/guides/lines/

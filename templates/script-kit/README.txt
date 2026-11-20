@@ -24,9 +24,11 @@ and remote.call.
 
 Lines or Lua? A line that is the same whatever happens needs no code: put
 it in a talk.json pool, as the Villager lines kit does. The game then picks
-a line by villager or personality, once a day, and saves who spoke. Use Lua
-when the line depends on something, such as the time, the date, the store
-or what is in your pockets.
+a line by villager or personality, season, time, weather or calendar day,
+for the place in the talk the pool names. Use Lua when the line depends on
+something, such as the date, the store or what is in your pockets, or to
+ask the player a question. The apple line goes before the hello; a talk
+table puts a line in any other place (see the comment in main.lua).
 
 Read the log lines in the Mod log. It is at the bottom of Settings, Mods,
 under For mod authors. They are also in the browser's developer console. Open it with F12, or Cmd+Option+J on a Mac,

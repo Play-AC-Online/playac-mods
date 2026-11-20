@@ -120,7 +120,7 @@ A mod that changes the flower shop is a World mod:
   `item_picked_up`, `scene_entered`, `data_migrated`, `hour_changed`,
   `item_bought`, `item_sold`, `fish_caught`, `bug_caught`, `letter_read`,
   `villager_moved_in`, `visitor_arrived`, `command_finished`,
-  `question_answered` and `timer_fired`, each once.
+  `question_answered`, `timer_fired` and `villager_answered`, each once.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item` and
   `take_bells`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
@@ -195,9 +195,10 @@ The Mods tab lists mods in load order. The arrows change it.
   earlier mod's row in the Mods tab says its shop is not used.
 - A texture file for one exact palette beats any mod's `$` file for the same
   texture, whatever the order.
-- Talk lines: before the hello, the first mod whose script returns a line
-  wins. After the hello, every mod's fitting talk pools are put together when
-  the game picks small talk, after the calendar days' lines.
+- Talk lines: each place in a talk takes one line. Every mod's script is
+  asked in order, and the first to return a line for a place takes it. The
+  places no script took get the calendar days' lines and every mod's fitting
+  talk pools, put together.
 - A mod that needs another (`depends`, below) always loads after it, whatever
   the list says. So does a mod that uses another (`optional_depends`), when
   that other mod is installed and on.
@@ -595,8 +596,10 @@ A mod can add calendar days to the town. `mod.json` names the file:
   go up on a visit or in The City. It changes your town, so the mod needs
   `"scope": "world"`.
 - `talk`: 1 to 16 lines villagers say that day. Each is 1 to 160 characters
-  with at most 3 line breaks. On the day they are half of every villager's
-  small talk, ahead of any talk pool (see Talk pools).
+  with at most 3 line breaks, or a list of 1 to 8 such pages. On the day they
+  are half of every villager's small talk, ahead of any talk pool (see Talk
+  pools). A talk pool with this day's `day` puts the day's words anywhere else
+  in the talk.
 - `letter`: the id of a letter in this mod's letters file. It is mailed once
   on the day, in your own town only. It needs no script and no permission. It
   counts against the mod's daily letter cap.
@@ -606,28 +609,47 @@ A mod can add calendar days to the town. `mod.json` names the file:
 
 ## Talk pools
 
-Talk to a villager and choose to chat (an answer such as "I'm bored!" in the
-menu after their hello). They pick a topic, fresh every time: a trade, a
-letter they got, a memory, a hint, news of an event, or small talk about the
-weather, the time of day or the month. When they pick small talk, a line from
-your talk pools can be what the villager says. No script is needed:
+A villager's talk is their hello, then a menu of three answers: one about an
+errand, one to chat (such as "I'm bored!") and never mind. Choose to chat and
+they pick a topic, fresh every time: small talk (the weather, the time of day,
+the month, plain chat), a trade, a letter they got, a memory, a hint, or news
+of an event. A pool's `place` puts its lines in one of five places:
+
+| `place` | where the line goes | what of the game's still plays |
+|---|---|---|
+| `before` | in front of the hello | all of it |
+| `hello` | instead of an everyday hello (one with news, such as a bee sting, is kept) | the menu and the topic |
+| `topic` (default) | instead of the topic the game picked, when it is one of `topics` | the hello and the menu; the talk ends after the line |
+| `after` | after the topic, as a chat's last message | everything, then the line |
+| `conversation` | the whole talk | nothing: no hello, no menu, no topic |
+
+No script is needed:
 
 ```json
 {
   "pools": [
     { "personality": "cranky", "lines": ["Hmph. Another day of\nyou walking around.", "What now? I was just\ngetting comfortable."] },
-    { "weather": "rain", "lines": ["Rain again. The flowers\nare loving it, at least."] },
-    { "season": "fall", "time": "evening", "chance": 30, "lines": ["The evenings come so\nearly now. I like it."] }
+    { "place": "hello", "weather": "rain", "lines": [["Oh, hi! Isn't the rain\nlovely?", "The flowers think so."]] },
+    { "place": "topic", "topics": ["trade", "small_talk"], "chance": 30, "lines": ["No deals today. Let's\njust talk."] },
+    { "place": "after", "time": "evening", "lines": ["Getting late. Get home\nsafe!"] }
   ]
 }
 ```
 
 - A file holds 1 to 32 pools.
+- `place`: `before`, `hello`, `topic` (the default), `after` or
+  `conversation`.
+- `topics`: only with `topic`. The topics the line may stand in for:
+  `small_talk` (the default), `trade`, `letter`, `memory`, `hint` and `news`,
+  each once, or `"any"`. A trade your line replaces does not happen. A
+  first-job tip, the birthday question and "should I move?" are never
+  replaced.
 - A pool names a `personality`, a `villager` by name, or neither. With neither
   it is for everyone. The personalities are `normal`, `peppy`, `lazy`, `jock`,
   `cranky` and `snooty`.
-- `lines`: 1 to 32, each 1 to 160 characters with at most 3 line breaks. The
-  game wraps a long line onto more pages.
+- `lines`: 1 to 32. A line is one page of 1 to 160 characters with at most 3
+  line breaks, which the game wraps over more windows when it needs to, or a
+  list of 1 to 8 such pages, each starting on a clean window.
 - A pool can be kept to a moment, with any of these:
   - `season`: `spring` (March to May), `summer` (June to August), `fall`
     (September to November) or `winter` (December to February).
@@ -635,28 +657,32 @@ your talk pools can be what the villager says. No script is needed:
     `evening` (17 to midnight) or `night` (midnight to 5).
   - `weather`: `clear`, `rain` or `snow`. Cherry blossom and falling leaves
     count as clear.
-- `chance`: optional, 1 to 100, default 100. When the pool fits, it is how many
-  small talks in 100 say its line instead of the game's own.
-- Your line comes after the villager's own hello, as the topic, whenever you
-  choose to chat and the game picks small talk, roughly one chat in four or
-  five (more often with a happy villager; trades, hints and events take the
-  rest). A villager can say several of
-  your lines in a day, and never the same one twice running when the pools
-  hold another.
-- Which line: the most specific pools that fit decide, the villager's own,
-  else their personality's, else everyone's. A pool fits when its `season`,
-  `time` and `weather` are the ones now. Each one rolls its `chance`, and one
-  line is picked from those that pass, from every mod. When none pass, the
-  villager makes the game's own small talk.
-- A calendar day's `talk` lines come first: on their day they are half of
-  every villager's small talk.
+  - `day`: the `id` of a day in this mod's calendar file.
+- `chance`: optional, 1 to 100, default 100. When the pool fits, it is in how
+  many talks in 100 its line is said.
+- A topic line for small talk comes whenever you choose to chat and the game
+  picks small talk, roughly one chat in four or five (more often with a happy
+  villager). Name more `topics` to be heard more often. Topic and after lines
+  come only when you choose to chat.
+- A villager can say several of your lines in a day, and never the same one
+  twice running when the pools hold another.
+- Which line: each place is picked on its own. The most specific pools of that
+  place that fit decide, the villager's own, else their personality's, else
+  everyone's. A pool fits when its `season`, `time`, `weather` and `day` are
+  the ones now. Each rolls its `chance`, and one line is picked from those that
+  pass, from every mod. When none pass, that part of the talk stays the
+  game's.
+- A script's `villager_talked` line for a place comes before any pool's. A
+  `conversation` pool is used only when no script took any place.
+- A calendar day's `talk` lines are topic lines for small talk: on their day
+  they are half of every villager's small talk, ahead of the pools.
 - Pools never speak on a first meeting, while a villager has an errand, a
   delivery or a contest going with you, when they are moving out, or on an
-  island, nor in a new player's first ten chats, whose topics are tips, and they never take the place of a trade, a letter, a memory, a hint
-  or an event.
-- To say something before the hello, or only when something in the game is
-  true (an item in your pockets, a day your script counts), use a script's
-  `villager_talked` handler.
+  island. A new player's first ten chats are tips, so a topic line waits for
+  those.
+- To say something only when something in the game is true (an item in your
+  pockets, a day your script counts), or to ask the player a question, use a
+  script's `villager_talked` handler.
 
 ## Scripts
 
@@ -689,7 +715,7 @@ strings. A `cmd.*` call takes a number, `"0x2800"` or your mod's own
 
 | event | `e` | return |
 |---|---|---|
-| `villager_talked` | `{ villager }` | a string: the villager says it, then their usual hello |
+| `villager_talked` | `{ villager }` | a string: the villager says it, then their usual hello; or a talk table, or a list of them (see below) |
 | `day_started` | `{ year, month, day, weekday }` | nothing |
 | `item_picked_up` | `{ item, mod_item }` | nothing |
 | `scene_entered` | `{ scene, name }` | nothing |
@@ -757,8 +783,31 @@ No event runs in the title screen demo.
 
 ### When events run
 
-- `villager_talked` runs on ordinary talks only. The first mod in load order
-  that returns a line wins. Later mods do not see that talk.
+- `villager_talked` runs on ordinary talks only. Every mod's handler runs, in
+  load order. The first line returned for a place takes it; a later one for
+  that place is written to the Mod log. A conversation takes the whole talk,
+  and the mods after it are not asked.
+- A handler returns a string (said before the hello), a talk table
+  `{ place, line, topics, ask }`, or a list of talk tables, one a place.
+  `place` is required in a table: `before`, `hello`, `topic`, `after` or
+  `conversation`, as in Talk pools. `line` is a string or a list of 1 to 8
+  pages, each 1 to 400 bytes. `topics` goes only with `topic`.
+- `ask = { text, choices }` goes only with `conversation`: its last page asks
+  the question, with 2 to 4 answers of up to 16 characters. The player's pick
+  goes to `villager_answered` (`e = { villager, choice, text }`), only in that
+  mod. Return a line, or `{ line, ask }` to ask again; `nil` ends the talk.
+
+```lua
+on("villager_talked", function(e)
+  return { place = "conversation", line = "I baked today.",
+           ask = { text = "Tea or cake?", choices = { "Tea", "Cake" } } }
+end)
+
+on("villager_answered", function(e)
+  if e.text == "Cake" then return "Cake it is!" end
+  return "Tea, then."
+end)
+```
 - Special talks never reach mods, and no handler is called. The villager's
   next ordinary talk calls the handler as usual, so keep your line for that
   one. The special talks are:
@@ -1090,7 +1139,7 @@ every change.
 | the shop | name, sign, hours and greeting at once, goods the next time you go in |
 | the script | it starts again with the new code, and its `store` is kept |
 | textures | drawn again from the new files |
-| talk, letters, calendar | read again at once: the next small talk, the next letter, the board |
+| talk, letters, calendar | read again at once: the next talk, the next letter, the board |
 | items | read again at once (see below) |
 | mod.json (renames too) | restart the game |
 
@@ -1112,8 +1161,9 @@ What to know about a mod loaded this way:
   in the same sandbox and under the same limits as any mod. Load only a folder
   you made or one you trust.
 - It loads last, so its textures and shops win.
-- A script's `villager_talked` goes to the first mod in load order, so an
-  installed mod's line can still come first.
+- A script's `villager_talked` line for a place goes to the first mod in
+  load order, so an installed mod's line for the same place can still come
+  first.
 - A file that breaks a rule is not loaded. The Mod log says why.
 - Hidden files and files a mod cannot hold, such as a `.psd` beside the
   `.dds`, are left out.
