@@ -665,8 +665,7 @@
         "visitor_arrived",
         "command_finished",
         "question_answered",
-        "timer_fired",
-        "villager_answered"
+        "timer_fired"
       ]
     }
   }

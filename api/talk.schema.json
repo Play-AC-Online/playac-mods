@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/talk.schema.json",
   "title": "Play AC Online talk pools file",
-  "description": "Villager lines placed in a villager's talk. A talk is the hello, which ends in a menu (an errand, a chat, never mind); when the player chats, the game picks a topic, fresh every time: small talk (plain chat, the time of day, the weather, the month), a trade, a letter they got, a memory, a hint, or news of an event. Every pool's \"place\" says where its line goes; there is no default: \"before\" the hello (the hello and everything after it still play), as the \"hello\" (the menu and the topic still play; only an everyday greeting is replaced, never a hello with news such as a bee sting or a collection finished), as the \"topic\" (instead of the topic the game picked when it is one of the pool's \"topics\", small talk when it names none; the talk ends after it, as small talk does), \"after\" the topic (one more message before a chat ends), or the whole \"conversation\" (no hello, no menu, no topic: the pool's pages, then the talk ends). A line is one page or a list of pages. A special talk (a first meeting, an errand, a villager moving out, the first-job errands) never uses a pool, nor do a new player's first ten chats, whose topics are tips. For each place, the most specific pools that fit are used: this villager, else this personality, else everyone. A pool fits when its season, time, weather and calendar day, if it names them, are the ones now. Each pool that fits rolls its chance; the lines of the pools that pass are put together, from every mod, and one is picked, never the one this villager said last when there is another. When the most specific pools all roll no, that place stays the game's. A script's villager_talked line takes its place first. A pool kept to a calendar \"day\" speaks only on that day, in its place, like any other pool. A conversation pool is used only when no script took any place. Nothing is saved. Either scope. Pools run in The City too. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/#talk",
+  "description": "Villager lines that are part of the conversation. A villager's talk is their hello, which ends in a menu. When the player chooses to chat, the game picks a topic, fresh every time: a trade, a letter, a memory, a hint, an event, or small talk about the weather, the time of day or the month. When the game picks small talk, a line from a pool can be what the villager says instead, whenever the player chooses to chat and the game picks small talk. A special talk (a first meeting, an errand, a villager moving out, the first-job errands) never uses a pool, nor does a new player's first ten chats, whose topics are tips, and neither does a trade, letter, memory, hint or event topic. Today's calendar lines come first: on their day they are half of every villager's small talk. Otherwise the most specific pools that fit are used: this villager, else this personality, else everyone. A pool fits when its season, time and weather, if it names them, are the ones now. Each pool that fits rolls its chance; the lines of the pools that pass are put together, from every mod, and one is picked, never the one this villager said last when there is another. When the most specific pools all roll no, the villager makes the game's own small talk. Nothing is saved. Either scope. Pools run in The City too. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/#talk",
   "type": "object",
   "required": [
     "pools"
@@ -19,45 +19,10 @@
       "items": {
         "type": "object",
         "required": [
-          "place",
           "lines"
         ],
         "additionalProperties": false,
         "properties": {
-          "place": {
-            "enum": [
-              "before",
-              "hello",
-              "topic",
-              "after",
-              "conversation"
-            ],
-            "description": "Required: where the line goes in the talk. before: ahead of the hello. hello: instead of an everyday hello. topic: instead of the topic the game picked after a chat answer. after: after the topic, before a chat ends. conversation: the whole talk."
-          },
-          "topics": {
-            "anyOf": [
-              {
-                "const": "any"
-              },
-              {
-                "type": "array",
-                "minItems": 1,
-                "maxItems": 6,
-                "uniqueItems": true,
-                "items": {
-                  "enum": [
-                    "small_talk",
-                    "trade",
-                    "letter",
-                    "memory",
-                    "hint",
-                    "news"
-                  ]
-                }
-              }
-            ],
-            "description": "Only with \"place\": \"topic\": the topics the line may stand in for. Default small_talk. \"any\" is all six. A first-job tip, the birthday question and \"should I move?\" are never replaced."
-          },
           "personality": {
             "enum": [
               "normal",
@@ -101,49 +66,27 @@
             ],
             "description": "Only in this weather. Cherry blossom and falling leaves count as clear."
           },
-          "day": {
-            "type": "string",
-            "pattern": "^[a-z0-9_.-]{1,48}$",
-            "description": "Only on this day: the id of a day in the same mod's calendar file. This is how a calendar day gets villager lines, in any place."
-          },
           "chance": {
             "type": "integer",
             "minimum": 1,
             "maximum": 100,
-            "description": "Talks in 100 where this pool's line is said, when the pool fits. Default 100: every talk it fits."
+            "description": "Small talk in 100 where this pool's line is said, when the pool fits. Default 100: every small talk it fits."
           },
           "lines": {
             "type": "array",
             "minItems": 1,
             "maxItems": 32,
             "items": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 160,
-                  "description": "A page: 1 to 160 characters, at most 3 line breaks."
-                },
-                {
-                  "type": "array",
-                  "minItems": 1,
-                  "maxItems": 8,
-                  "items": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 160,
-                    "description": "A page: 1 to 160 characters, at most 3 line breaks."
-                  },
-                  "description": "A line of 1 to 8 pages, each starting on a clean window."
-                }
-              ],
-              "description": "A villager line: one page, or a list of 1 to 8 pages."
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
             },
             "description": "The pool's lines. The game picks one each time."
           }
         }
       },
-      "description": "The pools. A pool has a place in the talk, speaks for everyone, for one personality or for one villager, and can be kept to a season, a time of day, the weather or a calendar day."
+      "description": "The pools. A pool speaks for everyone, for one personality or for one villager, and can be kept to a season, a time of day or the weather."
     }
   }
 }

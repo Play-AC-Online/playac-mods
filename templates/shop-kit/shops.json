@@ -1,26 +1,25 @@
 {
-  "shops": [
-    {
-      "target": "flower",
-      "mode": "replace",
-      "name": "My Shop",
-      "hours": { "open": "09:00", "close": "21:00" },
-      "greeting": "Hello and welcome! Have a look around.",
-      "stock_line": "Saplings and seeds today. Point at one and I'll tell you the price.",
-      "stock": [
+  "shops": {
+    "flower": {
+      "when": { "hours": { "from": "09:00", "to": "21:00" } },
+      "own_goods": false,
+      "goods": [
         { "item": "0x2900", "price": 500 },
         { "item": "0x2908", "price": 300 },
         { "item": "0x2905", "price": 300 },
         { "item": "0x2902" }
-      ]
+      ],
+      "name": "My Shop",
+      "lines": {
+        "greeting": "Hello and welcome! Have a look around.",
+        "stock": "Saplings and seeds today. Point at one and I'll tell you the price."
+      }
     },
-    {
-      "target": "nook",
-      "mode": "add",
-      "stock": [
+    "nook": {
+      "goods": [
         { "item": "0x1110", "price": 1800 },
         { "item": "0x2205", "price": 900 }
       ]
     }
-  ]
+  }
 }

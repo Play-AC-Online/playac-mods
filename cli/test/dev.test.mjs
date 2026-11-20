@@ -252,7 +252,7 @@ async function servedTalk() {
   const m = JSON.parse(fs.readFileSync(path.join(dir, 'mod.json'), 'utf8'));
   m.content = { ...m.content, talk: 'talk.json' };
   fs.writeFileSync(path.join(dir, 'mod.json'), JSON.stringify(m, null, 2));
-  fs.writeFileSync(path.join(dir, 'talk.json'), JSON.stringify({ pools: [{ place: 'topic', lines: ['One.'] }] }));
+  fs.writeFileSync(path.join(dir, 'talk.json'), JSON.stringify({ pools: [{ lines: ['One.'] }] }));
   const dev = await startDev(dir, { port: 0, poll: 50, lua: false });
   assert.ok(dev.state().ok, JSON.stringify(dev.state().problems));
   return { dir, dev };
@@ -265,7 +265,7 @@ test('a talk file edit streams its kind; undoing a broken save streams "fixed"',
     await es.ready;
     await es.next('hello');
     const talk = path.join(dir, 'talk.json');
-    fs.writeFileSync(talk, JSON.stringify({ pools: [{ place: 'topic', lines: ['Two.'] }] }));
+    fs.writeFileSync(talk, JSON.stringify({ pools: [{ lines: ['Two.'] }] }));
     let c = await es.next('change');
     assert.deepEqual([c.kind, c.files], ['talk', ['talk.json']]);
     /* broken, then the very bytes that were there: no file changed since the

@@ -17,7 +17,7 @@ A Just you mod (`"scope": "client"`) in two halves, with no script:
   green ground with clover leaves and small white flowers.
 - **The talk** (`talk.json`): new small talk in each villager's own
   personality's voice, some of it for the season, the time of day or the
-  weather, and an evening goodbye after the topic.
+  weather.
 
 Both are data. Neither changes what a visitor sees, so the mod is Just you.
 
@@ -98,16 +98,8 @@ pools that count the game picks one line. A villager can say several of the
 mod's lines in a day, and never the same one twice running.
 
 A pool can instead name one villager (`"villager": "Bob"`), or nobody, which
-means every villager, and can be said less often (`"chance": 30`; every time
-it fits when left out). The most specific pools that fit a villager decide.
-
-Every pool names its place in the talk. The small talk pools say
-`"place": "topic"`: their lines stand in for the topic the villager picks
-when you chat. The last pool says `"place": "after"`: on an evening chat,
-half the time, any villager adds a line after their topic, as the talk's
-last message. Its line is a list of two pages, each on a clean window. A
-pool's place can also be `"before"` the hello, the `"hello"` itself or the
-whole `"conversation"`.
+means every villager, and can be said in fewer small talks (`"chance": 30`;
+every small talk when left out). The most specific pools that fit a villager decide.
 
 No script is needed.
 
@@ -174,7 +166,6 @@ MIT, see [LICENSE](LICENSE).
 {
   "pools": [
     {
-      "place": "topic",
       "personality": "normal",
       "lines": [
         "I baked something this morning. The whole house smells like cinnamon now.",
@@ -183,7 +174,6 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "peppy",
       "lines": [
         "Guess what? Nothing happened today, and I'm SO excited about it!",
@@ -192,7 +182,6 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "lazy",
       "lines": [
         "I was going to nap, but then I thought about snacks. Now I'm too busy.",
@@ -201,7 +190,6 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "jock",
       "lines": [
         "I ran around the whole town twice before breakfast. Feel the burn!",
@@ -210,7 +198,6 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "cranky",
       "lines": [
         "Hmph. Kids these days don't even know how to sit on a bench properly.",
@@ -219,7 +206,6 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "snooty",
       "lines": [
         "Darling, your outfit is almost fashionable. Almost.",
@@ -228,7 +214,6 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "normal",
       "season": "spring",
       "lines": [
@@ -236,7 +221,6 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "peppy",
       "weather": "rain",
       "lines": [
@@ -244,7 +228,6 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "lazy",
       "time": "evening",
       "lines": [
@@ -252,7 +235,6 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "jock",
       "season": "winter",
       "lines": [
@@ -260,7 +242,6 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "cranky",
       "weather": "snow",
       "lines": [
@@ -268,23 +249,11 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
-      "place": "topic",
       "personality": "snooty",
       "season": "spring",
       "time": "morning",
       "lines": [
         "A spring morning, darling. Even the air is wearing perfume."
-      ]
-    },
-    {
-      "place": "after",
-      "time": "evening",
-      "chance": 50,
-      "lines": [
-        [
-          "The sky is going all pink.",
-          "Get home before the stars come out!"
-        ]
       ]
     }
   ]
@@ -492,7 +461,7 @@ Repository: https://github.com/Play-AC-Online/playac-example-harvest-post (tag v
 
 A World mod (`"scope": "world"`) in two halves:
 
-- **The calendar** (`calendar.json`, `letters.json`, `talk.json`): two days of our own.
+- **The calendar** (`calendar.json`, `letters.json`): two days of our own.
   The Harvest Fair is the third Wednesday of September and Apple Day is
   October 21. A notice goes up on the bulletin board and villagers talk about
   it all day.
@@ -515,7 +484,7 @@ On the third Wednesday of September the town bulletin board carries the mod's no
 
 ![fair line](media/fair-line.webp)
 
-All day, villagers open with a line about the fair from the mod's talk.json, then carry on in their own words.
+All day, villagers open with a line about the fair from the mod's calendar.json, then carry on in their own words.
 
 ![at the mailbox](media/at-the-mailbox.webp)
 
@@ -534,11 +503,8 @@ The film (click the picture): The Harvest Fair notice on the bulletin board and 
 - It adds two calendar days. The Harvest Fair is the third Wednesday of
   September (`week` 3, `weekday` 3). Apple Day is October 21 (`day`).
 - On each day a notice goes up on the town bulletin board. It is posted once,
-  in the player's own town only.
-- `talk.json` has a pool for each day: `"day"` names the calendar day by its
-  `id`, and `"place": "before"` puts the line before the villager's hello.
-  Every pool names its place; the others are the hello itself, the topic
-  after a chat answer, a line after the topic, and the whole conversation.
+  in the player's own town only. Villagers say one of the day's lines before
+  their hello.
 - `letters.json` holds two letter templates. The player's name goes where
   `{player}` is, and an apple comes with each.
 - `fair-thanks` is mailed by the script, with
@@ -709,13 +675,22 @@ MIT, see [LICENSE](LICENSE).
     {
       "id": "harvest-fair",
       "date": { "month": 9, "week": 3, "weekday": 3 },
-      "board": "HARVEST FAIR TODAY!\nBring your best fruit and\nshow it to your neighbours.\nThe biggest apple wins\nbragging rights for a year."
+      "board": "HARVEST FAIR TODAY!\nBring your best fruit and\nshow it to your neighbours.\nThe biggest apple wins\nbragging rights for a year.",
+      "talk": [
+        "It's the Harvest Fair! I've been polishing my pears since sunrise.",
+        "Harvest Fair day! Did you bring any fruit? Mine is the shiniest, I checked.",
+        "The fair smells like apples and wood smoke. Best day of the season!"
+      ]
     },
     {
       "id": "apple-day",
       "date": { "month": 10, "day": 21 },
       "board": "APPLE DAY\nShare an apple with a friend\ntoday. Any apple will do,\nbut a red one says it best.",
-      "letter": "apple-day"
+      "letter": "apple-day",
+      "talk": [
+        "Happy Apple Day! Have you shared an apple with anyone yet?",
+        "An apple a day, they say. Today it's an apple for everyone!"
+      ]
     }
   ]
 }
@@ -1020,8 +995,7 @@ end)
   "content": {
     "calendar": "calendar.json",
     "letters": "letters.json",
-    "messages": "messages/en.json",
-    "talk": "talk.json"
+    "messages": "messages/en.json"
   },
   "scripts": {
     "main": "main.lua",
@@ -1055,31 +1029,5 @@ end)
     }
   ],
   "assets_original": true
-}
-```
-
-### example.harvest-post/talk.json
-
-```json
-{
-  "pools": [
-    {
-      "place": "before",
-      "day": "harvest-fair",
-      "lines": [
-        "It's the Harvest Fair! I've been polishing my pears since sunrise.",
-        "Harvest Fair day! Did you bring any fruit? Mine is the shiniest, I checked.",
-        "The fair smells like apples and wood smoke. Best day of the season!"
-      ]
-    },
-    {
-      "place": "before",
-      "day": "apple-day",
-      "lines": [
-        "Happy Apple Day! Have you shared an apple with anyone yet?",
-        "An apple a day, they say. Today it's an apple for everyone!"
-      ]
-    }
-  ]
 }
 ```

@@ -27,6 +27,7 @@
   const AUTHOR_CHARS = 40;
   const AUTHORS_MAX = 8;
   const CALENDAR_MAX = 16;
+  const CALENDAR_TALK_MAX = 16;
   const DATA_VERSION_MAX = 1000000;
   const DESCRIPTION_CHARS = 500;
   const EXPORT_DESC_MAX = 120;
@@ -79,7 +80,6 @@
   const SHOPS_MAX = 2;
   const TALK_LINE_CHARS = 160;
   const TALK_LINE_NEWLINES = 3;
-  const TALK_PAGES_MAX = 8;
   const TEXTURE_LABEL_CHARS = 40;
   const VILLAGER_CHARS = 8;
 
@@ -92,7 +92,7 @@
 
   const QUOTA_MARGIN = 16 * MIB;
 
-  const EVENTS = ['villager_talked', 'day_started', 'item_picked_up', 'scene_entered', 'data_migrated', 'hour_changed', 'item_bought', 'item_sold', 'fish_caught', 'bug_caught', 'letter_read', 'villager_moved_in', 'visitor_arrived', 'command_finished', 'question_answered', 'timer_fired', 'villager_answered'];
+  const EVENTS = ['villager_talked', 'day_started', 'item_picked_up', 'scene_entered', 'data_migrated', 'hour_changed', 'item_bought', 'item_sold', 'fish_caught', 'bug_caught', 'letter_read', 'villager_moved_in', 'visitor_arrived', 'command_finished', 'question_answered', 'timer_fired'];
 
   const PERMISSIONS = ['send_letter', 'give_item', 'show_line', 'ask', 'take_item', 'take_bells'];
   const EXTS = ['.json', '.lua', '.dds', '.png', '.txt', '.md'];
@@ -117,13 +117,10 @@
   const LETTERS_FILE_KEYS = ['$schema', 'letters'];
   const LETTER_KEYS = ['id', 'header', 'body', 'footer', 'sender', 'item', 'paper'];
   const CALENDAR_FILE_KEYS = ['$schema', 'days'];
-  const CALENDAR_DAY_KEYS = ['id', 'date', 'board', 'letter'];
+  const CALENDAR_DAY_KEYS = ['id', 'date', 'board', 'talk', 'letter'];
   const CALENDAR_DATE_KEYS = ['month', 'day', 'week', 'weekday'];
   const TALK_FILE_KEYS = ['$schema', 'pools'];
-  const TALK_POOL_KEYS = ['place', 'topics', 'personality', 'villager', 'season', 'time', 'weather', 'day', 'chance', 'lines'];
-
-  const TALK_PLACES = ['before', 'hello', 'topic', 'after', 'conversation'];
-  const TALK_TOPICS = ['small_talk', 'trade', 'letter', 'memory', 'hint', 'news'];
+  const TALK_POOL_KEYS = ['personality', 'villager', 'season', 'time', 'weather', 'chance', 'lines'];
 
   const SETTING_SCOPES = ['world', 'client'];
   const SCRIPT_KEYS = ['main', 'events'];
@@ -224,14 +221,12 @@
     ["letter-paper", [new RegExp("\"paper\" must be a whole number"), new RegExp("'s paper must be a whole number")]],
     ["calendar-file", [new RegExp("\"days\" must be a list"), new RegExp("needs a \"days\" list"), new RegExp("^calendar file needs")]],
     ["calendar-date", [new RegExp("\"date\" must be"), new RegExp("'s date must be")]],
+    ["calendar-empty", [new RegExp("needs a \"board\" notice, \"talk\" lines or a \"letter\""), new RegExp("needs a board notice, talk lines or a letter")]],
     ["calendar-letter", [new RegExp("\"letter\" must be the id of a letter"), new RegExp("'s letter must be the id of a letter"), new RegExp("names no letter in this mod's letters file")]],
     ["calendar-board-world", [new RegExp("\"board\" changes the town"), new RegExp("board notice changes the town"), new RegExp("a \"board\" notice changes the town")]],
     ["calendar-board", [new RegExp("\"board\" must be 1 to \\d+ plain"), new RegExp("'s board must be 1 to \\d+ plain")]],
+    ["calendar-talk", [new RegExp("\"talk\" must list 1 to \\d+"), new RegExp("'s talk must list 1 to"), new RegExp("a talk line must be 1 to")]],
     ["talk-file", [new RegExp("^talk: \"pools\" must be a list"), new RegExp("needs a \"pools\" list"), new RegExp("^talk file needs")]],
-    ["talk-no-place", [new RegExp("\"place\" is required"), new RegExp("'s place is required")]],
-    ["talk-place", [new RegExp("\"place\" must be before, hello"), new RegExp("'s place must be before, hello")]],
-    ["talk-topics", [new RegExp("\"topics\" must be \"any\""), new RegExp("'s topics must be \"any\""), new RegExp("\"topics\" goes only with"), new RegExp("'s topics go only with")]],
-    ["talk-day", [new RegExp("\"day\" must be the id of a day"), new RegExp("'s day must be the id of a day"), new RegExp("names no day in this mod's calendar file")]],
     ["talk-who", [new RegExp("\"personality\" or a \"villager\", not both"), new RegExp("a personality or a villager, not both")]],
     ["talk-personality", [new RegExp("\"personality\" must be"), new RegExp("'s personality must be")]],
     ["talk-villager", [new RegExp("\"villager\" must be a name"), new RegExp("'s villager must be a name")]],
@@ -1338,9 +1333,8 @@
 
     let letters = null;
     if (c.letters) { const d = doc(c.letters); if (d !== undefined) { add(c.letters, validateLetters(d)); letters = letterIds(d); } else letters = undefined; }
-    let days = null;
-    if (c.calendar) { const d = doc(c.calendar); if (d !== undefined) { add(c.calendar, validateCalendar(d, m.scope, letters)); days = calendarIds(d); } else days = undefined; }
-    if (c.talk) { const d = doc(c.talk); if (d !== undefined) add(c.talk, validateTalk(d, days)); }
+    if (c.calendar) { const d = doc(c.calendar); if (d !== undefined) add(c.calendar, validateCalendar(d, m.scope, letters)); }
+    if (c.talk) { const d = doc(c.talk); if (d !== undefined) add(c.talk, validateTalk(d)); }
     if (c.messages) { const d = doc(c.messages); if (d !== undefined) add(c.messages, validateMessages(d)); }
 
     if (typeof c.textures === 'string' && c.textures.length && !pathProblem(c.textures.replace(/\/+$/, ''))) {
@@ -1528,22 +1522,8 @@
     return errs;
   }
 
-  function talkPageOk(v) {
-    return typeof v === 'string' && cpLen(v) >= 1 && cpLen(v) <= TALK_LINE_CHARS && v.split('\n').length - 1 <= TALK_LINE_NEWLINES;
-  }
-
   function talkLineOk(v) {
-    if (Array.isArray(v)) return v.length >= 1 && v.length <= TALK_PAGES_MAX && v.every(talkPageOk);
-    return talkPageOk(v);
-  }
-
-  const TALK_LINE_RULE = 'lines of 1 to ' + TALK_LINE_CHARS + ' characters with at most ' + TALK_LINE_NEWLINES +
-    ' line breaks, or lists of 1 to ' + TALK_PAGES_MAX + ' such pages';
-
-  function calendarIds(doc) {
-    const ids = new Set();
-    if (isObj(doc) && Array.isArray(doc.days)) doc.days.forEach(function (d) { if (isObj(d) && typeof d.id === 'string') ids.add(d.id); });
-    return ids;
+    return typeof v === 'string' && cpLen(v) >= 1 && cpLen(v) <= TALK_LINE_CHARS && v.split('\n').length - 1 <= TALK_LINE_NEWLINES;
   }
 
   function letterIds(doc) {
@@ -1569,6 +1549,7 @@
       if (dateOk && has(d, 'day')) dateOk = !has(d, 'week') && !has(d, 'weekday') && wholeIn(d.day, 1, DAYS[d.month - 1]);
       else if (dateOk) dateOk = (d.week === 'last' || wholeIn(d.week, 1, 4)) && wholeIn(d.weekday, 0, 6);
       if (!dateOk) errs.push(at + '"date" must be { "month", "day" } or { "month", "week" (1 to 4 or "last"), "weekday" (0 Sunday to 6) }');
+      if (!has(e, 'board') && !has(e, 'talk') && !has(e, 'letter')) errs.push(at + 'needs a "board" notice, "talk" lines or a "letter"');
       if (has(e, 'letter')) {
         if (typeof e.letter !== 'string' || !MSG_KEY_RE.test(e.letter)) errs.push(at + '"letter" must be the id of a letter in this mod\'s letters file');
         else if (letters !== undefined && !(letters && letters.has(e.letter))) errs.push(at + '"letter" ' + JSON.stringify(e.letter) + ' names no letter in this mod\'s letters file');
@@ -1577,11 +1558,14 @@
         if (!paperOk(e.board)) errs.push(at + '"board" must be 1 to ' + PAPER_BYTES + ' plain characters on at most ' + PAPER_LINES + ' lines' + paperCharNote(e.board));
         if (scope !== 'world') errs.push(at + '"board" changes the town, so "scope" must be "world"');
       }
+      if (has(e, 'talk') && (!Array.isArray(e.talk) || e.talk.length < 1 || e.talk.length > CALENDAR_TALK_MAX || !e.talk.every(talkLineOk))) {
+        errs.push(at + '"talk" must list 1 to ' + CALENDAR_TALK_MAX + ' lines of 1 to ' + TALK_LINE_CHARS + ' characters with at most ' + TALK_LINE_NEWLINES + ' line breaks');
+      }
     });
     return errs;
   }
 
-  function validateTalk(doc, days) {
+  function validateTalk(doc) {
     const errs = isObj(doc) ? unknownKeyErrs(doc, TALK_FILE_KEYS, 'talk: ') : [];
     if (!isObj(doc) || !Array.isArray(doc.pools) || doc.pools.length < 1 || doc.pools.length > POOLS_MAX) {
       return errs.concat(['talk: "pools" must be a list of 1 to ' + POOLS_MAX + ' pools']);
@@ -1590,19 +1574,6 @@
       const at = 'talk: pool ' + (k + 1) + ' ';
       if (!isObj(p)) { errs.push(at + 'is not an object'); return; }
       errs.push.apply(errs, unknownKeyErrs(p, TALK_POOL_KEYS, 'talk: pool ' + (k + 1) + ': '));
-      if (!has(p, 'place')) errs.push(at + '"place" is required: before, hello, topic, after or conversation');
-      else if (TALK_PLACES.indexOf(p.place) < 0) errs.push(at + '"place" must be before, hello, topic, after or conversation');
-      if (has(p, 'topics')) {
-        const t = p.topics;
-        const list = Array.isArray(t) && t.length >= 1 && t.length <= TALK_TOPICS.length &&
-          t.every(function (x, i) { return TALK_TOPICS.indexOf(x) >= 0 && t.indexOf(x) === i; });
-        if (p.place !== 'topic') errs.push(at + '"topics" goes only with "place": "topic"');
-        else if (t !== 'any' && !list) errs.push(at + '"topics" must be "any" or a list of small_talk, trade, letter, memory, hint and news');
-      }
-      if (has(p, 'day')) {
-        if (typeof p.day !== 'string' || !MSG_KEY_RE.test(p.day)) errs.push(at + '"day" must be the id of a day in this mod\'s calendar file');
-        else if (days !== undefined && !(days && days.has(p.day))) errs.push(at + '"day" ' + JSON.stringify(p.day) + ' names no day in this mod\'s calendar file');
-      }
       if (has(p, 'personality') && has(p, 'villager')) errs.push(at + 'names a "personality" or a "villager", not both');
       if (has(p, 'personality') && PERSONALITIES.indexOf(p.personality) < 0) {
         errs.push(at + '"personality" must be one of ' + PERSONALITIES.join(', '));
@@ -1616,7 +1587,7 @@
       });
       if (has(p, 'chance') && !wholeIn(p.chance, 1, 100)) errs.push(at + '"chance" must be a whole number from 1 to 100');
       if (!Array.isArray(p.lines) || p.lines.length < 1 || p.lines.length > POOL_LINES_MAX || !p.lines.every(talkLineOk)) {
-        errs.push(at + '"lines" must list 1 to ' + POOL_LINES_MAX + ' ' + TALK_LINE_RULE);
+        errs.push(at + '"lines" must list 1 to ' + POOL_LINES_MAX + ' lines of 1 to ' + TALK_LINE_CHARS + ' characters with at most ' + TALK_LINE_NEWLINES + ' line breaks');
       }
     });
     return errs;
@@ -4016,8 +3987,7 @@
 
   const api = {
     validateManifest: validateManifest, validateShops: validateShops, validateMessages: validateMessages,
-    validateLetters: validateLetters, validateCalendar: validateCalendar, validateTalk: validateTalk, letterIds: letterIds, calendarIds: calendarIds,
-    TALK_PLACES: TALK_PLACES, TALK_TOPICS: TALK_TOPICS,
+    validateLetters: validateLetters, validateCalendar: validateCalendar, validateTalk: validateTalk, letterIds: letterIds,
     validateItems: validateItems,
     normalizeEntries: normalizeEntries, parseJsonStrict: parseJsonStrict, readMod: readMod,
 

@@ -1,6 +1,6 @@
 ---
 name: playac-mod
-description: Make, test, fix and publish mods for Play AC Online (playaconline.com), the browser town life game. Covers texture mods (tex1_*.dds or .png), villager lines (messages/*.json, talk pools), shops (shops.json, the flower shop and Nook's), new furniture (items.json), letters and calendar days, Lua 5.4 scripts (main.lua with on("villager_talked"...)) and their commands (cmd.send_letter, cmd.give_item...), mod.json, settings, dependencies, the Mods tab, the playac-mod CLI, sharing a mod for review, and every error message with its fix. Use whenever the user wants to make or change a Play AC Online mod, pastes an error from the Mods tab or the mod list, asks what a mod can do, or edits mod.json, shops.json, a messages file or a mod script. Triggers on "Play AC mod", "playaconline mod", "make a mod", "mod.json", "shops.json", "tex1_", "Mods tab", "playac-mod", "moddev", "my mod won't load", "share my mod".
+description: Make, test, fix and publish mods for Play AC Online (playaconline.com), the browser town life game. Covers texture mods (tex1_*.dds or .png), villager lines (messages/*.json, talk pools), shops (shops.json, each shop by its id: Nook's, the flower shop, Crazy Redd and the rest), new furniture (items.json), letters and calendar days, Lua 5.4 scripts (main.lua with on("villager_talked"...)) and their commands (cmd.send_letter, cmd.give_item...), mod.json, settings, dependencies, the Mods tab, the playac-mod CLI, sharing a mod for review, and every error message with its fix. Use whenever the user wants to make or change a Play AC Online mod, pastes an error from the Mods tab or the mod list, asks what a mod can do, or edits mod.json, shops.json, a messages file or a mod script. Triggers on "Play AC mod", "playaconline mod", "make a mod", "mod.json", "shops.json", "tex1_", "Mods tab", "playac-mod", "moddev", "my mod won't load", "share my mod".
 ---
 
 # Making a Play AC Online mod
@@ -28,9 +28,9 @@ https://playaconline.com/modding/ (errors: https://playaconline.com/modding/erro
 - mod.json keys: `$schema`, `schema`, `api`, `id`, `name`, `version`, `authors`, `description`, `tags`, `scope`, `content`, `scripts`, `permissions`, `exports`, `assets_original`, `renames`, `depends`, `optional_depends`, `conflicts`, `data_version`, `settings`. Reserved and refused: `game`, `save`. Any other key is refused (`unknown-key`), in mod.json, at the top of each content file and in each entry; the message names the closest known key.
 - `content` keys: `textures`, `messages`, `shops`, `items`, `letters`, `calendar`, `talk`.
 
-Events (17; list each one a script uses in `scripts.events`; every handler gets ONE table `e`, and a field marked `?` may be nil):
+Events (16; list each one a script uses in `scripts.events`; every handler gets ONE table `e`, and a field marked `?` may be nil):
 
-- `villager_talked` e = { villager { id, name, species?, personality? } }, returns table|nil: The player starts an ordinary talk with a villager. Return where your words go in it: nil to stay quiet, a talk table { place, line, topics, ask }, or a list of talk tables, one a place. Every line names its place: a plain string is refused and logged, with nothing said. place is "before" (ahead of the hello), "hello" (instead of an everyday hello; a hello with news is kept), "topic" (instead of the topic the game picks when the player chats, if it is one of topics, small_talk when you name none, "any" for all), "after" (after the topic, before a chat ends) or "conversation" (the whole talk: no hello, no menu, no topic). line is a page of 1 to 400 bytes or a list of 1 to 8 pages. ask = { text, choices } (2 to 4 answers) goes only with "conversation": its last page asks the question, and the player's pick goes to villager_answered. Every mod's handler is called, in load order. The first line returned for a place takes it; a later one for that place is logged and not said. A conversation needs every place free and ends the event. Lines are said only when that part of the talk comes: topic and after only when the player chats. A table that is not right is logged and nothing of it is said. Special talks never reach mods. These are a first meeting, a villager moving out, one with an errand, delivery or contest going with you, a complaint, a pitfall or a bee chase, an islander, Kamakura and summer camp. No handler is called for a special talk. The villager's next ordinary talk calls it as usual, so a line a script is keeping for "the next talk" waits for that one.
+- `villager_talked` e = { villager { id, name, species?, personality? } }, returns string|nil: The player starts an ordinary talk with a villager. Return a line and the villager says it before their usual greeting. Return nil to stay quiet. The first mod in load order whose handler returns a line wins that talk, and later mods' villager_talked handlers are not called for it. An empty string, a line over 400 bytes or one holding a zero byte is not a line. It is logged and the next mod is asked. Special talks never reach mods. These are a first meeting, a villager moving out, one with an errand, delivery or contest going with you, a complaint, a pitfall or a bee chase, an islander, Kamakura and summer camp. No handler is called for a special talk. The villager's next ordinary talk calls it as usual, so a line a script is keeping for "the next talk" waits for that one.
 - `day_started` e = { year, month, day, weekday }: A new day begins in the game. It fires once per day, also when the game starts on a new day. It does not fire again when the game restarts later on a day the town already saw, because the save holds the day it last began. If the game was not saved since that day began, the save still holds the day before, so the next start fires it again. Count days by storing the last date you saw, not by counting calls. Its handler sees the whole day, the first day of a session included: game.calendar_today() lists today's calendar days, game.town() has the date, and game.player() and store.player have the player. A command queued here is applied once the player is free in the town.
 - `item_picked_up` e = { item, mod_item? }: The player got an item. They picked it up, outdoors or off a room's floor, caught it with the net or the rod, or dug it up with the shovel. It fires once the item is in their pockets, or in the wallet for Bells. It does not fire for anything bought. A fish or a bug that goes into the pockets fires this event and then fish_caught or bug_caught, so a script that counts both counts that catch twice. It does not fire when the pockets were full. Outdoors the game then offers to swap the item for one in the pockets, and no event is sent whatever the player chooses. Indoors a full pocket refuses the pickup.
 - `scene_entered` e = { scene, name? }: A scene starts, such as the town, a house or a shop. Not in the title demo, at player select or in the intro (the rule own_game_only).
@@ -46,7 +46,6 @@ Events (17; list each one a script uses in `scripts.events`; every handler gets 
 - `command_finished` e = { id, command, ok, via?, code?, message? }: A command this mod queued was applied or refused. When applied, ok is true and via says how (mailbox, post_office, pockets, mail, shown or taken). When refused, ok is false, with a code (command_codes) and a message. Sent only to that mod.
 - `question_answered` e = { id, choice?, text? }: The player answered this mod's ask, or closed it. choice counts from 1 and text is the answer picked. Both are nil when the window closed with no pick. Sent only to that mod.
 - `timer_fired` e = { id, name, data? }: A timer this mod set with timer.after is due. It fires once, at the end of a frame's update, in whatever scene the player is in, and the timer is gone before the handler runs. It is an event like any other. Its handlers share one instruction budget, it waits for a later frame when the frame's time is spent, and the commands it queues count against the per-event and per-day caps. At most one timer per mod fires in a frame. A timer that came due while the game was closed fires soon after the town loads. Sent only to that mod.
-- `villager_answered` e = { villager { id, name, species?, personality? }, choice, text }, returns string|table|nil: The player answered the question this mod's conversation asked (villager_talked returned place = "conversation" with an ask). Sent only to that mod, while the window waits. Return what the villager says next, in the same conversation: a line, or { line, ask } to ask again. Return nil and the talk ends. A reply that is not right is logged and the talk ends.
 
 Lua globals (anything else does not exist):
 
@@ -135,7 +134,7 @@ Install it with the line on https://playaconline.com/modding/cli/#install, which
 Can:
 - Replace any texture the game draws with your own art, as `.dds` or `.png`.
 - Add villager lines: a line goes in one of five places in a talk, the same in a talk pool's `"place"` and a script's talk table: `before` the hello, as the `hello` (an everyday hello only), as the `topic` after a chat answer (its `topics` name which: `small_talk` by default, `trade`, `letter`, `memory`, `hint`, `news` or `"any"`), `after` the topic, or the whole `conversation`. Every pool and every script line names its place: there is no default, and a pool or a plain string return without one is refused. With no code, talk pools (`content.talk`) keep a line to a personality or villager, a season, a time of day, the weather or a calendar `day`. A script's `villager_talked` returns a talk table `{ place, line, topics, ask }` or a list of them; a conversation's `ask` sends the pick to `villager_answered`. A line is a string or a list of up to 8 pages.
-- Change the flower shop and Nook's store with one entry shape: goods and prices, `mode` add or replace, and hours of your own (the flower shop also takes a name, a greeting and a stock line).
+- Change the game's shops, each by its id (`nook`, `flower`, `redd`, `saharah`, `fireworks`, `able`, `barber`, `dream`, `katrina`), with one block shape: goods and prices, `own_goods`, opening and shutting, service prices, a name and lines, each block kept to hours, a time of day, a season, the weather, weekdays, months or a setting with `when`.
 - Add new furniture on a game piece's model (`content.items`), sold in your shops or given by a script.
 - Letter templates (`content.letters`), calendar days with a bulletin board notice and a letter, and talk pools kept to a calendar `day` for the day's lines.
 - Scripts on every event listed above, reading the date, pockets, Bells, town, villagers; a per-town store and a per-player one (`store.player`: a town has up to 4 residents); settings the player sets; calls between mods (`remote`).
@@ -143,7 +142,7 @@ Can:
 
 Cannot (do not promise these):
 - Add villagers, buildings, acres, music, or new kinds of item other than house furniture on a game model.
-- Change shops other than the flower shop and Nook's, or set Bells.
+- Add a shop of its own, give a shop a field the shop table does not list for it, or set Bells.
 - Run code every frame, change the game's code or memory, read files, reach the internet, or run JavaScript. There is no `io`, `os`, `require`, `load` or `debug`.
 - Change anything in The City (every command is refused there) or a friend's town while visiting (letters, items and takes are refused).
 
@@ -234,21 +233,32 @@ Texture facts: names are `tex1_<w>x<h>_<texture hash>_<palette hash>_<format>.dd
 
 ```json
 {
-  "shops": [{
-    "target": "flower",
-    "mode": "replace",
-    "name": "Tea Stall",
-    "hours": { "open": "15:00", "close": "01:00" },
-    "greeting": "Welcome in!",
-    "stock_line": "Fresh fruit on every table.",
-    "stock": [{ "item": "0x2800", "price": 600 }]
-  }]
+  "shops": {
+    "flower": {
+      "when": { "hours": { "from": "15:00", "to": "01:00" } },
+      "open": true,
+      "own_goods": false,
+      "goods": [{ "item": "0x2800", "price": 600 }],
+      "name": "Tea Stall",
+      "lines": { "greeting": "Welcome to the tea stall!" }
+    },
+    "nook": {
+      "goods": [{ "item": "0x1110", "price": 1800 }, { "item": "0x2205", "price": 900 }]
+    }
+  }
 }
 ```
 
-- One entry shape for every shop; each field means the same everywhere. `target` is `"flower"` or `"nook"`, at most one entry for each. `mode` is REQUIRED: `"add"` (the goods in at most half the spots of their kind, the shop's own keep the rest) or `"replace"` (the goods are the whole stock, every other spot bare). `hours` (two-digit 24-hour times, open and close different, close may pass midnight) say when the entry applies: inside them the shop is the mod's and open, also at night; outside them it is the game's own. No hours: all day.
-- The flower shop: 1 to 6 goods (six bench spots, one kind, so `add` takes up to three), plus `name` (1 to 40 characters, the door sign while shut), `greeting` and `stock_line` (1 to 160 characters, at most 3 line breaks). Nook's: 1 to 16 goods, each in a spot of its kind; it has no `name`, `greeting` or `stock_line`, and one there is refused (`shop-field-unsupported`, the message names the shop and the field). A night shop of only your goods is `"mode": "replace"` with `hours` (the After Hours example).
-- `item` is a STRING `"0x"` + 4 hex digits, or one of the mod's own items by full id (`"yourname.my-mod:lamp"`). `price` optional, whole Bells 1 to 99999; below the good's floor it is raised to it (the floor is what Nook pays; a town fruit at the flower shop is 500).
+- Each key under `"shops"` is a shop id: `nook`, `flower`, `redd` (Crazy Redd), `saharah`, `fireworks`, `able` (Able Sisters), `barber`, `dream` (the Dream Suite), `katrina`. Any other key is refused (`shop-id`). A shop takes one block, or a list of 1 to 8 blocks (`shop-blocks`).
+- A block's keys, in this order: `when`, `open`, `own_goods`, `goods`, `price_percent`, `buy_back_percent`, `services`, `name`, `lines`. Each means the same on every shop. A block needs a key besides `when` (`shop-block-empty`).
+- Which fields each shop has is the shop table in `reference/api.md` (online https://playaconline.com/modding/guides/shops/#table). Nook's: `when`, `open`, `own_goods`, `goods` (1 to 16), `price_percent`, `buy_back_percent`. The flower shop: `when`, `open`, `own_goods`, `goods` (1 to 6, six bench spots of one kind), `price_percent`, `name`, `lines` (slots `greeting` and `stock`). Crazy Redd, Saharah, the fireworks stall: `when`, `own_goods`, `goods` (1 to 6), `price_percent`. Able Sisters (`design`), Katrina (`fortune`): `when`, `services`. The barber shop (`haircut`): `when`, `open`, `services`. The Dream Suite (`dream`): `when`, `services` (it keeps no hours). A piece of furniture the game has no model for (the kadomatsu 0x1220 and the like) is refused as a good everywhere (`shop-item-no-model`). A field a shop does not have is NOT refused: the game leaves it out, the rest of the block applies, and the mod's row on the Mods tab names the shop and the field (`shop-field-ignored`).
+- `when`: the block applies only while every key holds; leave it out for always. `hours` `{ "from": "HH:MM", "to": "HH:MM" }` (24-hour, from and to differ, to may pass midnight), `time` (morning, day, evening, night), `season` (spring, summer, fall, winter), `weather` (clear, rain, snow), `weekday` (a list, `"monday"` to `"sunday"`), `month` (a list, 1 to 12), `setting` (the name of one of the mod's own bool settings with scope world: the block applies while it is on). A good may carry a `when` of its own too.
+- `open`: `true` opens the shop while the block applies, also when its own hours have it shut; `false` shuts it. Leave it out for the shop's own hours.
+- `own_goods`: `true` (the default) puts the goods in at most half the spots of their kind, rounded up, and the shop's own keep the rest. `false` makes the goods of the applying blocks the whole stock, every other spot bare. A night shop of only your goods is `"when"` hours, `"open": true` and `"own_goods": false` (the After Hours example).
+- `price_percent` (1 to 1000): the percent of its own price the shop asks for every good with no price of its own. `buy_back_percent` (1 to 1000, Nook's): the percent of his usual pay for what the player sells, never more than he asks for it; not turnips. `services`: a service's price in Bells by name (`shop-service` for a name the shop does not have). `name` (1 to 40 characters, one line): the flower shop's door sign while shut. `lines`: a slot to a line or a list of 1 to 8 (the keeper picks one each time), each 1 to 160 characters with at most 3 line breaks (`shop-line-slot` for a slot the shop does not have).
+- Inside one mod every block whose `when` holds applies: their goods together, and for a single value (`open`, `own_goods`, a percent, a service, a line slot) the last of them that sets it. When two mods change the same shop, the one LAST in load order has that shop whole and the earlier mod's row says its change is not used (`shop-replaced`); two mods on different shops both apply.
+- A script with the permissions can add one block after the JSON ones for the rest of the game day: `cmd.set_shop_goods(shop, goods)` and `cmd.set_shop_open(shop, on)`, `nil` clears.
+- `item` is a STRING `"0x"` + 4 hex digits, or one of the mod's own items by full id (`"yourname.my-mod:lamp"`), at Nook's and the flower shop only. Each item once per block. `price` optional, whole Bells 1 to 99999; below the good's floor it is raised to it (the floor is what Nook pays; a town fruit at the flower shop is 500).
 - What each shop may stock is in `reference/items.md` (flower and Nook's columns). The flower shop needs a good with a shop table model: none of the game's own furniture has one, but the mod's OWN items always work there. Nook's sells the game's furniture, clothing, stationery, carpets, wallpaper, tools, umbrellas, paint, saplings, flower bags; not fruit. Money, tickets, grab bags, turnips and fossils never. A refused good is left out, with the reason on the Mods tab row after a restart; `playac-mod check` warns first.
 
 ## messages/en.json

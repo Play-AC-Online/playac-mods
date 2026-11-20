@@ -1182,11 +1182,11 @@
       ],
       "messages": {
         "page": [
-          "\"scripts.events\" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered"
+          "\"scripts.events\" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired"
         ],
         "registry": [
-          "scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered.",
-          "scripts.events lists \"every_frame\", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered.",
+          "scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.",
+          "scripts.events lists \"every_frame\", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.",
           "scripts.events lists \"day_started\" twice."
         ]
       },
@@ -1894,6 +1894,32 @@
       "fix": "Write { \"month\": 11, \"day\": 20 } or { \"month\": 11, \"week\": 4, \"weekday\": 4 }, not both forms."
     },
     {
+      "code": "calendar-empty",
+      "area": "calendar",
+      "title": "A calendar day with nothing in it",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "calendar: day 1 needs a \"board\" notice, \"talk\" lines or a \"letter\""
+        ],
+        "registry": [
+          "calendar.json: day \"fair\": needs a board notice, talk lines or a letter."
+        ],
+        "game": [
+          "calendar.json: day \"fair\": needs a board notice, talk lines or a letter",
+          "calendar: a day needs a \"board\" notice, \"talk\" lines or a \"letter\": fair"
+        ]
+      },
+      "api": [],
+      "meaning": "A calendar day must do something on its date. It can have a \"board\" notice, \"talk\" lines, a \"letter\", or any of them together.",
+      "fix": "Add a \"board\" notice, \"talk\" lines or a \"letter\"."
+    },
+    {
       "code": "calendar-letter",
       "area": "calendar",
       "title": "A calendar day's \"letter\" is not one of the mod's letters",
@@ -1953,7 +1979,7 @@
       },
       "api": [],
       "meaning": "A notice goes up on your town's bulletin board, which a visitor reads too. A mod with one must be a World mod.",
-      "fix": "Set \"scope\": \"world\", or keep only a \"letter\", which a Just you mod may have."
+      "fix": "Set \"scope\": \"world\", or keep only \"talk\" lines, which a Just you mod may have."
     },
     {
       "code": "calendar-board",
@@ -1983,6 +2009,32 @@
       "fix": "Shorten it and keep to plain characters."
     },
     {
+      "code": "calendar-talk",
+      "area": "calendar",
+      "title": "A calendar day's \"talk\" lines are not right",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "calendar: day 1 \"talk\" must list 1 to 16 lines of 1 to 160 characters with at most 3 line breaks"
+        ],
+        "registry": [
+          "calendar.json: day \"fair\"'s talk must list 1 to 16 lines of 1 to 160 characters on at most 4 lines each."
+        ],
+        "game": [
+          "calendar: \"talk\" must list 1 to 16 lines: fair",
+          "calendar: a talk line must be 1 to 160 characters, at most 3 newlines: fair"
+        ]
+      },
+      "api": [],
+      "meaning": "\"talk\" lists 1 to 16 lines villagers say that day, each 1 to 160 characters with at most 3 line breaks.",
+      "fix": "Shorten the lines or the list."
+    },
+    {
       "code": "talk-file",
       "area": "talk",
       "title": "talk.json needs a \"pools\" list",
@@ -2006,145 +2058,6 @@
       "api": [],
       "meaning": "talk.json is { \"pools\": [ ... ] } with 1 to 32 pools.",
       "fix": "Wrap the pools in a \"pools\" list."
-    },
-    {
-      "code": "talk-no-place",
-      "area": "talk",
-      "title": "A pool does not say its \"place\"",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "talk: pool 1 \"place\" is required: before, hello, topic, after or conversation"
-        ],
-        "registry": [
-          "talk.json: pool 1's place is required: before, hello, topic, after or conversation."
-        ],
-        "game": [
-          "talk: \"place\" is required: before, hello, topic, after or conversation: pool 1"
-        ]
-      },
-      "api": [],
-      "meaning": "Every pool says where its lines go in a villager's talk: \"before\" the hello, as the \"hello\", as the \"topic\" after a chat answer, \"after\" the topic, or the whole \"conversation\". There is no default.",
-      "fix": "Add \"place\" to the pool. For small talk, the most common, write \"place\": \"topic\".",
-      "bad": {
-        "file": "talk.json",
-        "text": "{ \"pools\": [{ \"lines\": [\"Nice day!\"] }] }"
-      },
-      "good": {
-        "file": "talk.json",
-        "text": "{ \"pools\": [{ \"place\": \"topic\", \"lines\": [\"Nice day!\"] }] }"
-      }
-    },
-    {
-      "code": "talk-place",
-      "area": "talk",
-      "title": "A pool's \"place\" is not a place in a talk",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "talk: pool 1 \"place\" must be before, hello, topic, after or conversation"
-        ],
-        "registry": [
-          "talk.json: pool 1's place must be before, hello, topic, after or conversation."
-        ],
-        "game": [
-          "talk: \"place\" must be before, hello, topic, after or conversation: pool 1"
-        ]
-      },
-      "api": [],
-      "meaning": "A pool's \"place\" is where its line goes in a villager's talk: \"before\" the hello, as the \"hello\", as the \"topic\" after a chat answer, \"after\" the topic, or the whole \"conversation\". It is one of those five words, in lowercase.",
-      "fix": "Write one of the five places.",
-      "bad": {
-        "file": "talk.json",
-        "text": "{ \"pools\": [{ \"place\": \"greeting\", \"lines\": [\"Hi!\"] }] }"
-      },
-      "good": {
-        "file": "talk.json",
-        "text": "{ \"pools\": [{ \"place\": \"hello\", \"lines\": [\"Hi!\"] }] }"
-      }
-    },
-    {
-      "code": "talk-topics",
-      "area": "talk",
-      "title": "A pool's \"topics\" are not topics the game picks",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "talk: pool 1 \"topics\" must be \"any\" or a list of small_talk, trade, letter, memory, hint and news",
-          "talk: pool 2 \"topics\" goes only with \"place\": \"topic\"",
-          "talk: pool 1 \"topics\" goes only with \"place\": \"topic\""
-        ],
-        "registry": [
-          "talk.json: pool 1's topics must be \"any\" or a list of small_talk, trade, letter, memory, hint and news.",
-          "talk.json: pool 2's topics go only with \"place\": \"topic\"."
-        ],
-        "game": [
-          "talk: \"topics\" must be \"any\" or a list of small_talk, trade, letter, memory, hint and news: pool 1",
-          "talk: \"topics\" goes only with \"place\": \"topic\": pool 2"
-        ]
-      },
-      "api": [],
-      "meaning": "A \"topic\" line stands in for the topic the game picks after a chat answer. \"topics\" names which kinds it may replace: small_talk (the default), trade, letter, memory, hint and news, each once, or \"any\" for all six. It belongs only on a pool whose place is \"topic\".",
-      "fix": "List kinds from the six, write \"any\", or take \"topics\" off a pool of another place.",
-      "bad": {
-        "file": "talk.json",
-        "text": "{ \"pools\": [{ \"place\": \"topic\", \"topics\": [\"gossip\"], \"lines\": [\"Did you hear?\"] }] }"
-      },
-      "good": {
-        "file": "talk.json",
-        "text": "{ \"pools\": [{ \"place\": \"topic\", \"topics\": [\"news\", \"small_talk\"], \"lines\": [\"Did you hear?\"] }] }"
-      }
-    },
-    {
-      "code": "talk-day",
-      "area": "talk",
-      "title": "A pool's \"day\" is not one of the mod's calendar days",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "talk: pool 1 \"day\" \"fair\" names no day in this mod's calendar file",
-          "talk: pool 1 \"day\" must be the id of a day in this mod's calendar file",
-          "talk: pool 1 \"day\" \"harvest\" names no day in this mod's calendar file"
-        ],
-        "registry": [
-          "talk.json: pool 1's day \"fair\" names no day in this mod's calendar file.",
-          "talk.json: pool 1's day must be the id of a day in this mod's calendar file."
-        ],
-        "game": [
-          "talk: \"day\" names no day in this mod's calendar file: pool 1"
-        ]
-      },
-      "api": [],
-      "meaning": "A pool's \"day\" keeps it to one day of the year: the \"id\" of a day in the same mod's calendar file. On other days the pool does not fit.",
-      "fix": "Add the day to your calendar file, or fix the id to match one there exactly.",
-      "bad": {
-        "file": "talk.json",
-        "text": "{ \"pools\": [{ \"place\": \"hello\", \"day\": \"fair\", \"lines\": [\"Fair day!\"] }] }"
-      },
-      "good": {
-        "file": "talk.json",
-        "text": "{ \"pools\": [{ \"place\": \"hello\", \"day\": \"harvest-fair\", \"lines\": [\"Fair day!\"] }] }"
-      }
     },
     {
       "code": "talk-who",
@@ -2276,7 +2189,7 @@
         ]
       },
       "api": [],
-      "meaning": "\"chance\" is how often, in 100 talks the pool fits, its line is said, as a whole number from 1 to 100. Leave it out for every one.",
+      "meaning": "\"chance\" is how often, in 100 small talks, the pool's line is said when the pool fits, as a whole number from 1 to 100. Leave it out for every one.",
       "fix": "Write a whole number from 1 to 100."
     },
     {
@@ -2291,18 +2204,18 @@
       ],
       "messages": {
         "page": [
-          "talk: pool 1 \"lines\" must list 1 to 32 lines of 1 to 160 characters with at most 3 line breaks, or lists of 1 to 8 such pages"
+          "talk: pool 1 \"lines\" must list 1 to 32 lines of 1 to 160 characters with at most 3 line breaks"
         ],
         "registry": [
-          "talk.json: pool 1's lines must list 1 to 32 lines of 1 to 160 characters on at most 4 lines each, or lists of 1 to 8 such pages."
+          "talk.json: pool 1's lines must list 1 to 32 lines of 1 to 160 characters on at most 4 lines each."
         ],
         "game": [
           "talk: \"lines\" must list 1 to 32 lines: pool 1",
-          "talk: a line must be 1 to 160 characters, at most 3 newlines, or a list of 1 to 8 such pages: pool 1"
+          "talk: a line must be 1 to 160 characters, at most 3 newlines: pool 1"
         ]
       },
       "api": [],
-      "meaning": "A pool has 1 to 32 lines. A line is one page of 1 to 160 characters with at most 3 line breaks, or a list of 1 to 8 such pages, each starting on a clean window.",
+      "meaning": "A pool has 1 to 32 lines, each 1 to 160 characters with at most 3 line breaks.",
       "fix": "Shorten the lines or the list."
     },
     {

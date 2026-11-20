@@ -39,11 +39,11 @@ it, or fork it to start from it.
 Every download is a file of a release of a public repository on GitHub. The
 site links them and serves none of them.
 
-- Starter kits, one ZIP each, ready to install: [playac-lines-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-404d1049a0ac/playac-lines-kit.zip), [playac-script-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-404d1049a0ac/playac-script-kit.zip), [playac-shop-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-404d1049a0ac/playac-shop-kit.zip), [playac-texture-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-404d1049a0ac/playac-texture-kit.zip). They are
+- Starter kits, one ZIP each, ready to install: [playac-lines-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-39f399d4f7e1/playac-lines-kit.zip), [playac-script-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-39f399d4f7e1/playac-script-kit.zip), [playac-shop-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-39f399d4f7e1/playac-shop-kit.zip), [playac-texture-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-39f399d4f7e1/playac-texture-kit.zip). They are
   the folders in [`templates/`](templates/), zipped.
-- The AI pack: [playac-mod-ai.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-404d1049a0ac/playac-mod-ai.zip), for
+- The AI pack: [playac-mod-ai.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-39f399d4f7e1/playac-mod-ai.zip), for
   [an AI assistant](setup/ai-assistant.md).
-- Both are in the release [downloads-404d1049a0ac](https://github.com/Play-AC-Online/playac-mods/releases/tag/downloads-404d1049a0ac).
+- Both are in the release [downloads-39f399d4f7e1](https://github.com/Play-AC-Online/playac-mods/releases/tag/downloads-39f399d4f7e1).
 - The `playac-mod` tool: release 1.0.0 is
   [playac-mod-1.0.0.tgz](https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v1.0.0/playac-mod-1.0.0.tgz), in the release
   [cli-v1.0.0](https://github.com/Play-AC-Online/playac-mods/releases/tag/cli-v1.0.0).
@@ -68,7 +68,7 @@ To start your own, copy an example repository or a starter kit in
 [`templates/`](templates/).
 
 That line installs release 1.0.0 from its GitHub release here. Its SHA-256 is
-`b1ba9a4405827c463fb0e5c0f97efcf536a3a5d470f1bcd6d7e95079d783a7d4`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
+`fa2db7441d17687dd44867693812db0887ebf72dcc1ca6f0cf99abfd35443aad`, and [the setup guide](setup/node-and-cli.md#4-install-playac-mod)
 shows how to check it. Install the tool only from that address. A package
 named `playac-mod` on the npm registry is not the game's.
 

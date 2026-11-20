@@ -295,8 +295,8 @@ test('check lists the manifest\'s problems AND every content file\'s, where read
     'shops.json': js({ shops: [{ target: 'flower', mode: 'replace', stock: [] }] }),
     'lines/en.json': js({ 'Bad Key': 'x' }),
     'letters.json': js({ letters: [] }),
-    'calendar.json': js({ days: [{ id: 'e', date: { month: 13, day: 1 } }] }),
-    'talk.json': js({ pools: [{ place: 'topic', personality: 'grumpy', lines: ['hi'] }] }),
+    'calendar.json': js({ days: [{ id: 'e', date: { month: 13, day: 1 }, talk: ['hi'] }] }),
+    'talk.json': js({ pools: [{ personality: 'grumpy', lines: ['hi'] }] }),
     'items.json': js({ items: [{ id: 'x', name: 'X', base: '0x1001' }] }),
   };
   let game = '';
