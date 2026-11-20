@@ -634,7 +634,9 @@ reinstalling restores the name.
 The word "event" means only a Lua event. The dated days file is the calendar;
 an entry is a "day". The game's own festivals are "the game's festivals".
 - `{ "days": [ ... ] }`, 1..16 days. Each: `id` (as letters, unique in the file),
-  `date`, and at least one of `board`, `talk` and `letter`.
+  `date`, and optionally `board` and `letter`. A day with neither is a date
+  that talk.json pools name (their `day`); a `talk` key is unknown
+  (`unknown-key`): a day's villager lines are pools.
 - `date`: `{ "month": 1..12, "day": 1..days in that month (Feb 29 allowed) }` or
   `{ "month", "week": 1..4 or "last", "weekday": 0 (Sunday)..6 }` (the Nth, or the
   last, weekday of the month). Not both forms.
@@ -643,10 +645,6 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   (a page already up today with the same words is not posted again), only in the
   player's OWN town, never as a visitor or in the City. Changes the town, so the mod
   needs `scope: "world"`; refused in a client mod by every layer.
-- `talk`: 1..16 lines, each a page of 1..160 characters with at most 3 newlines
-  (UTF-8 allowed, like a shop greeting) or a list of 1..8 such pages. They are
-  `topic` lines for small talk: on the day they are half of every villager's
-  small talk (see talk.json), ahead of any talk.json pool.
 - `letter`: the `id` of a letter in the SAME mod's letters.json (a key like
   any id; every layer refuses one the letters file does not hold, or a mod with no
   letters file). On the day the game mails it once per town: the first
@@ -716,9 +714,10 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   data files fill each place no script took, at the hello (`conversation`,
   `before`, `hello`) and when the topic is picked (`topic`, `after`). A
   `conversation` pool is rolled first and only when no script claimed
-  anything. For `topic` on small talk, today's calendar day lines first, on
-  half of the asks. Else the most specific pools of that place that FIT
-  decide: this villager's, else this personality's, else everyone's, where a
+  anything. The most specific pools of that place that FIT decide: those
+  naming today's calendar `day` first (their villager, personality or
+  everyone in that order), then this villager's, else this personality's,
+  else everyone's, where a
   pool fits when the season, time, weather and day it names are the ones now
   (and, for `topic`, the picked kind is in its `topics`). Each fitting pool
   rolls its `chance` on this talk; the lines of those that pass, from every
@@ -819,7 +818,7 @@ an entry is a "day". The game's own festivals are "the game's festivals".
 ## City
 - Only world-scope SHOPS (the flower shop and Nook's) and calendar BOARD notices switch
   off in The City (other players there don't have them; the City is not the player's
-  town). Textures, lines (talk pools and calendar day lines too) and scripts keep running
+  town). Textures, lines (talk pools) and scripts keep running
   there for the player who has them, with two limits: every mod command is refused
   (below), and mod items are neither named nor recorded (the flower shop is off and
   the engine holds the City lock, see "Mod items"). Docs must say exactly this.

@@ -38,7 +38,7 @@ my-mod.zip
 ├── messages/en.json    lines, by key
 ├── shops.json          the flower shop's or Nook's store (World mods)
 ├── letters.json        letter templates a script can mail
-├── calendar.json       calendar days: a board notice, the day's lines, a letter
+├── calendar.json       calendar days: a board notice, a letter, a date for talk pools
 ├── talk.json           villager line pools, no script needed
 └── main.lua            a script
 ```
@@ -155,7 +155,7 @@ Files for your editor and tools:
 **World**.
 
 - **A Just you mod** (`"scope": "client"`): only you see it. It can hold
-  textures, lines, talk pools, letters, calendar day lines and scripts.
+  textures, lines, talk pools, letters and scripts.
 - **A World mod** (`"scope": "world"`): it changes your town for anyone
   visiting. A shop needs it, and so does a calendar day with a `board` notice.
   A mod with `"scope": "client"` and either of those is refused.
@@ -197,8 +197,7 @@ The Mods tab lists mods in load order. The arrows change it.
   texture, whatever the order.
 - Talk lines: each place in a talk takes one line. Every mod's script is
   asked in order, and the first to return a line for a place takes it. The
-  places no script took get the calendar days' lines and every mod's fitting
-  talk pools, put together.
+  places no script took get every mod's fitting talk pools, put together.
 - A mod that needs another (`depends`, below) always loads after it, whatever
   the list says. So does a mod that uses another (`optional_depends`), when
   that other mod is installed and on.
@@ -581,7 +580,6 @@ A mod can add calendar days to the town. `mod.json` names the file:
     "id": "harvest-fair",
     "date": { "month": 9, "week": 3, "weekday": 3 },
     "board": "HARVEST FAIR TODAY!\nBring your best fruit.",
-    "talk": ["It's the Harvest Fair!", "Did you bring any fruit?"],
     "letter": "fair-thanks"
   }]
 }
@@ -595,15 +593,12 @@ A mod can add calendar days to the town. `mod.json` names the file:
   letter body. It goes up once on the day, in your own town only. It does not
   go up on a visit or in The City. It changes your town, so the mod needs
   `"scope": "world"`.
-- `talk`: 1 to 16 lines villagers say that day. Each is 1 to 160 characters
-  with at most 3 line breaks, or a list of 1 to 8 such pages. On the day they
-  are half of every villager's small talk, ahead of any talk pool (see Talk
-  pools). A talk pool with this day's `day` puts the day's words anywhere else
-  in the talk.
 - `letter`: the id of a letter in this mod's letters file. It is mailed once
   on the day, in your own town only. It needs no script and no permission. It
   counts against the mod's daily letter cap.
-- A day needs at least one of `board`, `talk` and `letter`.
+- Villager lines for the day are talk pools with this day's `id` as their
+  `day` (see Talk pools), in any place of the talk. A day with no `board` and
+  no `letter` is fine: it is a date for those pools.
 - A mod cannot add decorations. The game's festival decorations belong to its
   own festivals.
 
@@ -674,8 +669,9 @@ No script is needed:
   game's.
 - A script's `villager_talked` line for a place comes before any pool's. A
   `conversation` pool is used only when no script took any place.
-- A calendar day's `talk` lines are topic lines for small talk: on their day
-  they are half of every villager's small talk, ahead of the pools.
+- A pool with a `day` speaks only on that calendar day, and on the day it
+  comes ahead of every pool kept to no day. Give it a `chance` to leave room
+  for the rest.
 - Pools never speak on a first meeting, while a villager has an errand, a
   delivery or a contest going with you, when they are moving out, or on an
   island. A new player's first ten chats are tips, so a topic line waits for
