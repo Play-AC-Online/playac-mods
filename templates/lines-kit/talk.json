@@ -8,6 +8,18 @@
       ]
     },
     {
+      "weather": "rain",
+      "lines": [
+        "Rain, rain, rain! The puddles are perfect for stomping."
+      ]
+    },
+    {
+      "time": "evening",
+      "lines": [
+        "The sky goes all orange this time of day. I love it."
+      ]
+    },
+    {
       "personality": "peppy",
       "lines": [
         "Ooh, it's you! Today is going to be amazing, I can tell!",
@@ -28,8 +40,15 @@
       ]
     },
     {
+      "personality": "cranky",
+      "season": "winter",
+      "lines": [
+        "Cold enough to freeze a fish. Don't stand there, it's cold."
+      ]
+    },
+    {
       "villager": "Bob",
-      "chance": 50,
+      "chance": 80,
       "lines": [
         "Bob here! I've been thinking about lunch all day."
       ]

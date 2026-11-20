@@ -195,9 +195,9 @@ The Mods tab lists mods in load order. The arrows change it.
   earlier mod's row in the Mods tab says its shop is not used.
 - A texture file for one exact palette beats any mod's `$` file for the same
   texture, whatever the order.
-- Talk lines: the first mod whose script returns a line wins. When no script
-  returns a line, the data lines get their turn: calendar days first, then
-  talk pools.
+- Talk lines: before the hello, the first mod whose script returns a line
+  wins. After the hello, every mod's fitting talk pools are put together when
+  the game picks small talk, after the calendar days' lines.
 - A mod that needs another (`depends`, below) always loads after it, whatever
   the list says. So does a mod that uses another (`optional_depends`), when
   that other mod is installed and on.
@@ -595,7 +595,8 @@ A mod can add calendar days to the town. `mod.json` names the file:
   go up on a visit or in The City. It changes your town, so the mod needs
   `"scope": "world"`.
 - `talk`: 1 to 16 lines villagers say that day. Each is 1 to 160 characters
-  with at most 3 line breaks. They come before any talk pool.
+  with at most 3 line breaks. On the day they are half of every villager's
+  small talk, ahead of any talk pool (see Talk pools).
 - `letter`: the id of a letter in this mod's letters file. It is mailed once
   on the day, in your own town only. It needs no script and no permission. It
   counts against the mod's daily letter cap.
@@ -605,14 +606,18 @@ A mod can add calendar days to the town. `mod.json` names the file:
 
 ## Talk pools
 
-A talk pool holds lines villagers say, with no script:
+Talk to a villager and choose to chat (an answer such as "I'm bored!" in the
+menu after their hello). They pick a topic, fresh every time: a trade, a
+letter they got, a memory, a hint, news of an event, or small talk about the
+weather, the time of day or the month. When they pick small talk, a line from
+your talk pools can be what the villager says. No script is needed:
 
 ```json
 {
   "pools": [
-    { "personality": "cranky", "lines": ["Hmph.", "What now?"] },
-    { "villager": "Bob", "lines": ["Bob here!"] },
-    { "chance": 40, "lines": ["Nice day, isn't it?"] }
+    { "personality": "cranky", "lines": ["Hmph. Another day of\nyou walking around.", "What now? I was just\ngetting comfortable."] },
+    { "weather": "rain", "lines": ["Rain again. The flowers\nare loving it, at least."] },
+    { "season": "fall", "time": "evening", "chance": 30, "lines": ["The evenings come so\nearly now. I like it."] }
   ]
 }
 ```
@@ -621,14 +626,37 @@ A talk pool holds lines villagers say, with no script:
 - A pool names a `personality`, a `villager` by name, or neither. With neither
   it is for everyone. The personalities are `normal`, `peppy`, `lazy`, `jock`,
   `cranky` and `snooty`.
-- `lines`: 1 to 32, each 1 to 160 characters with at most 3 line breaks.
-- `chance`: optional, 1 to 100, default 100. It is how many days in 100 the
-  pool speaks.
-- A villager says a data line on the first ordinary talk of the day. The line
-  comes from the most specific pools that match: their own, else their
-  personality's, else everyone's. Then they say their usual hello.
-- A villager says one data line a day. The game remembers who had theirs, per
-  town, with its save. A restart that day does not make them say one again.
+- `lines`: 1 to 32, each 1 to 160 characters with at most 3 line breaks. The
+  game wraps a long line onto more pages.
+- A pool can be kept to a moment, with any of these:
+  - `season`: `spring` (March to May), `summer` (June to August), `fall`
+    (September to November) or `winter` (December to February).
+  - `time`: the game's own four, `morning` (5 to 12), `day` (12 to 17),
+    `evening` (17 to midnight) or `night` (midnight to 5).
+  - `weather`: `clear`, `rain` or `snow`. Cherry blossom and falling leaves
+    count as clear.
+- `chance`: optional, 1 to 100, default 100. When the pool fits, it is how many
+  small talks in 100 say its line instead of the game's own.
+- Your line comes after the villager's own hello, as the topic, whenever you
+  choose to chat and the game picks small talk, roughly one chat in four or
+  five (more often with a happy villager; trades, hints and events take the
+  rest). A villager can say several of
+  your lines in a day, and never the same one twice running when the pools
+  hold another.
+- Which line: the most specific pools that fit decide, the villager's own,
+  else their personality's, else everyone's. A pool fits when its `season`,
+  `time` and `weather` are the ones now. Each one rolls its `chance`, and one
+  line is picked from those that pass, from every mod. When none pass, the
+  villager makes the game's own small talk.
+- A calendar day's `talk` lines come first: on their day they are half of
+  every villager's small talk.
+- Pools never speak on a first meeting, while a villager has an errand, a
+  delivery or a contest going with you, when they are moving out, or on an
+  island, nor in a new player's first ten chats, whose topics are tips, and they never take the place of a trade, a letter, a memory, a hint
+  or an event.
+- To say something before the hello, or only when something in the game is
+  true (an item in your pockets, a day your script counts), use a script's
+  `villager_talked` handler.
 
 ## Scripts
 
@@ -1062,7 +1090,7 @@ every change.
 | the shop | name, sign, hours and greeting at once, goods the next time you go in |
 | the script | it starts again with the new code, and its `store` is kept |
 | textures | drawn again from the new files |
-| talk, letters, calendar | read again at once: a villager's first talk of the day, the next letter, the board |
+| talk, letters, calendar | read again at once: the next small talk, the next letter, the board |
 | items | read again at once (see below) |
 | mod.json (renames too) | restart the game |
 

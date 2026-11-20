@@ -1,29 +1,37 @@
 My Lines
 
-A starter kit for villager lines. There is no code to write. Once a day,
-each villager you talk to says one of your lines, then carries on with
-their usual hello.
+A starter kit for villager lines. There is no code to write. Talk to a
+villager and choose to chat (an answer such as "I'm bored!" after their
+hello). They pick a topic, the way they always do: a trade, a letter, a
+hint, or small talk about the weather and the day. When they pick small
+talk, one of your lines can be what they say.
 
 The lines are in talk.json, in pools. A pool is a list of lines, and it
-says who may say them:
+says who may say them, and when:
 
 - A pool with no "personality" and no "villager" is for everyone.
 - "personality" is one of normal, peppy, lazy, jock, cranky and snooty.
 - "villager" is one villager's name, such as "Bob". Any case works.
-- "chance" is how many days in 100 the pool speaks. Leave it out for
-  every day.
+- "season" is spring, summer, fall or winter.
+- "time" is morning (5 to 12), day (12 to 17), evening (17 to midnight)
+  or night (midnight to 5).
+- "weather" is clear, rain or snow.
+- "chance" is how many small talks in 100 say the pool's line. Leave it
+  out for every one.
 
 How the game uses the pools:
 
-- On a villager's first ordinary talk of the day, the game picks one line.
-  It uses the villager's own pools if there are any, else the pools for
-  their personality, else the pools for everyone.
+- Each time a villager picks small talk, the game looks at the villager's
+  own pools if there are any, else the pools for their personality, else
+  the pools for everyone. A pool counts only when its season, time and
+  weather are the ones now.
 - Only that one level counts. In this kit a peppy villager says a peppy
   line, and a jock says a line for everyone, because no pool names jocks.
-  Bob says his own line on about half the days and no line on the others.
-- The game saves who has said a line today with your town, so a restart
-  does not make a villager say a second one.
-- Other mods can have pools too. When several match, all their lines are
+  On a rainy day a jock may say the rain line too, and in the evening
+  the evening line.
+- A villager can say several of your lines in a day, and never the same
+  one twice running when there is another.
+- Other mods can have pools too. When several fit, all their lines are
   put together and one is picked.
 - Special talks, such as a first meeting or an errand, never use a pool.
 
@@ -38,9 +46,9 @@ How the game uses the pools:
    inside it works too.
    In the game, open Settings, Mods. Under Install from a file, choose
    Choose a file. Then choose Restart now.
-4. Talk to a villager.
+4. Talk to a villager and choose to chat, a few times.
 
-A line that depends on something, such as the time, the date or an item in
-your pockets, needs a Lua script. The Script kit shows one.
+A line that depends on something else, such as an item in your pockets,
+needs a Lua script. The Script kit shows one.
 
 Guide: https://playaconline.com/modding/guides/lines/
