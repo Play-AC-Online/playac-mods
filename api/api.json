@@ -715,18 +715,6 @@
       }
     },
     {
-      "name": "calendar.talk_lines",
-      "value": 16,
-      "unit": "lines",
-      "since": 1,
-      "description": "Talk lines in one calendar day.",
-      "sources": {
-        "js": "CALENDAR_TALK_MAX",
-        "go": "maxCalendarTalk",
-        "c": "PC_MOD_CALENDAR_TALK_MAX"
-      }
-    },
-    {
       "name": "talk.pools",
       "value": 32,
       "unit": "pools",
@@ -755,7 +743,7 @@
       "value": 160,
       "unit": "characters",
       "since": 1,
-      "description": "A villager line (pool or calendar day), in Unicode code points. It may have at most 3 line breaks.",
+      "description": "A page of a villager line (a pool's or a script's), in Unicode code points. It may have at most 3 line breaks. A line that is one string is one page, wrapped to as many windows as it needs.",
       "sources": {
         "go": "maxTalkRunes",
         "c": "PC_MOD_TALK_LINE_CHARS",
@@ -1019,11 +1007,23 @@
       "value": 3,
       "unit": "newlines",
       "since": 1,
-      "description": "The most line breaks in a villager line (pool or calendar day).",
+      "description": "The most line breaks in a page of a villager line (a pool's or a script's).",
       "sources": {
         "js": "TALK_LINE_NEWLINES",
         "go": "maxTalkNewlines",
         "c": "PC_MOD_TALK_LINE_NEWLINES"
+      }
+    },
+    {
+      "name": "talk.pages",
+      "value": 8,
+      "unit": "pages",
+      "since": 1,
+      "description": "Pages in one villager line, when the line is a list of pages (a pool line, or a line a script returns). Each page starts on a clean window.",
+      "sources": {
+        "js": "TALK_PAGES_MAX",
+        "go": "maxTalkPages",
+        "c": "PC_MOD_TALK_PAGES_MAX"
       }
     },
     {
@@ -1872,7 +1872,7 @@
     {
       "name": "frame_cap",
       "since": 1,
-      "description": "All mods share 4 ms of Lua time a frame. Past it, every game event without an answer (day_started, item_picked_up, scene_entered and the others) waits for the next frame. Events wait in order for each mod, at most 64 at a time, and one past that is dropped. villager_talked is skipped for the rest of that frame, so the villager says their own greeting. A mod with events still waiting is not asked for a villager_talked line until they have run. The next mod is asked instead. Each mod therefore sees its own events in the order they happened. A remote.call into a mod is not one of its events. It runs at once, inside the caller's event. command_finished and question_answered wait too, but are never dropped or skipped. A command queued by a command_finished handler is applied at the next frame boundary, not the one that delivered the result. data_migrated runs as a town loads, outside the limit."
+      "description": "All mods share 4 ms of Lua time a frame. Past it, every game event without an answer (day_started, item_picked_up, scene_entered and the others) waits for the next frame. Events wait in order for each mod, at most 64 at a time, and one past that is dropped. villager_talked is skipped for the rest of that frame, so the villager says their own greeting. A mod with events still waiting is not asked for a villager_talked line until they have run. The next mod is asked instead. Each mod therefore sees its own events in the order they happened. A remote.call into a mod is not one of its events. It runs at once, inside the caller's event. command_finished and question_answered wait too, but are never dropped or skipped. villager_answered runs at once: the player is waiting on it. A command queued by a command_finished handler is applied at the next frame boundary, not the one that delivered the result. data_migrated runs as a town loads, outside the limit."
     },
     {
       "name": "data_migrated_needs_data_version",
@@ -1933,7 +1933,7 @@
     {
       "name": "load_order_first_wins",
       "since": 1,
-      "description": "The villager_talked event goes to mods in load order. The first handler that returns a line wins that talk, and later mods' villager_talked handlers are not asked. This applies only to the event. The villager lines of talk files and calendar files are not first-wins. Every mod's matching pools are put together and one line is picked from all of them. The pick depends on the day and the villager, so it is the same line all day.",
+      "description": "A villager's talk has five places for a mod's words: before, hello, topic, after and conversation. Each takes one line per talk, and every line names its place. Every mod's villager_talked handler runs, in load order, and the first line a handler returns for a place takes it. A conversation takes the whole talk, so it needs every place free; once one is taken, the event stops. Lines a script did not take a place with come from talk files, which are not first-wins: every mod's fitting pools of that place are put together and one line is picked from all of them, fresh on every talk.",
       "values": [
         "villager_talked"
       ]
@@ -2435,7 +2435,7 @@
         "lua.handlers_per_event"
       ],
       "description": "Lua 5.4 source text, run once when the game starts. Bytecode is refused. The script registers handlers with on() and returns nothing. Each mod has its own Lua state, and mods cannot see each other's globals.",
-      "example": "on(\"villager_talked\", function(e) return \"Hi \" .. e.villager.name .. \"!\" end)"
+      "example": "on(\"villager_talked\", function(e) return { place = \"before\", line = \"Hi \" .. e.villager.name .. \"!\" } end)"
     },
     {
       "name": "items",
@@ -2676,15 +2676,13 @@
       ],
       "limits": [
         "calendar.per_file",
-        "calendar.talk_lines",
         "calendar.board_per_day",
         "letters.body_chars",
         "letters.body_lines",
-        "talk.line_chars",
         "commands.letters_per_day"
       ],
       "schema_file": "calendar.schema.json",
-      "description": "Calendar days: dated days with safe effects only, and no script. A day can have a notice on the town bulletin board. The notice is posted once on the day in the player's own town, never on a visit or in The City, and needs scope world. A day can have villager lines for the day: on that day they are half of every villager's small talk, ahead of talk pools. A day can have a letter from the same mod's letters file. The letter is mailed once on the day to the player's mailbox in their own town, never on a visit or in The City, and counts against the mod's daily letter limit. A day cannot add decorations, because the game has no data format for them.",
+      "description": "Calendar days: dated days with safe effects only, and no script. A day can have a notice on the town bulletin board. The notice is posted once on the day in the player's own town, never on a visit or in The City, and needs scope world. A day can have villager lines: talk.json pools that name the day's id as their \"day\", in any place of the talk. A day with no notice and no letter is a date for those pools. A day can have a letter from the same mod's letters file. The letter is mailed once on the day to the player's mailbox in their own town, never on a visit or in The City, and counts against the mod's daily letter limit. A day cannot add decorations, because the game has no data format for them.",
       "schema": {
         "type": "object",
         "required": [
@@ -2706,23 +2704,6 @@
                 "date"
               ],
               "additionalProperties": false,
-              "anyOf": [
-                {
-                  "required": [
-                    "board"
-                  ]
-                },
-                {
-                  "required": [
-                    "talk"
-                  ]
-                },
-                {
-                  "required": [
-                    "letter"
-                  ]
-                }
-              ],
               "properties": {
                 "id": {
                   "type": "string",
@@ -2778,18 +2759,6 @@
                   "maxLength": 192,
                   "description": "A bulletin board notice: 1 to 192 characters on at most 6 lines. Plain text: printable ASCII, no { or }. Needs scope world."
                 },
-                "talk": {
-                  "type": "array",
-                  "minItems": 1,
-                  "maxItems": 16,
-                  "items": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 160,
-                    "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
-                  },
-                  "description": "Lines villagers say on the day. They come ahead of every talk pool."
-                },
                 "letter": {
                   "type": "string",
                   "pattern": "^[a-z0-9_.-]{1,48}$",
@@ -2810,10 +2779,7 @@
               "week": 3,
               "weekday": 3
             },
-            "board": "HARVEST FAIR TODAY!\nBring your best fruit.",
-            "talk": [
-              "It's the Harvest Fair!"
-            ]
+            "board": "HARVEST FAIR TODAY!\nBring your best fruit."
           },
           {
             "id": "lantern-night",
@@ -2822,10 +2788,7 @@
               "week": 2,
               "weekday": 5
             },
-            "letter": "lanterns",
-            "talk": [
-              "The lanterns go up tonight!"
-            ]
+            "letter": "lanterns"
           }
         ]
       }
@@ -2850,10 +2813,11 @@
         "talk.lines_per_pool",
         "talk.line_chars",
         "talk.line_newlines",
+        "talk.pages",
         "talk.villager_chars"
       ],
       "schema_file": "talk.schema.json",
-      "description": "Villager lines that are part of the conversation. A villager's talk is their hello, which ends in a menu. When the player chooses to chat, the game picks a topic, fresh every time: a trade, a letter, a memory, a hint, an event, or small talk about the weather, the time of day or the month. When the game picks small talk, a line from a pool can be what the villager says instead, whenever the player chooses to chat and the game picks small talk. A special talk (a first meeting, an errand, a villager moving out, the first-job errands) never uses a pool, nor does a new player's first ten chats, whose topics are tips, and neither does a trade, letter, memory, hint or event topic. Today's calendar lines come first: on their day they are half of every villager's small talk. Otherwise the most specific pools that fit are used: this villager, else this personality, else everyone. A pool fits when its season, time and weather, if it names them, are the ones now. Each pool that fits rolls its chance; the lines of the pools that pass are put together, from every mod, and one is picked, never the one this villager said last when there is another. When the most specific pools all roll no, the villager makes the game's own small talk. Nothing is saved. Either scope. Pools run in The City too.",
+      "description": "Villager lines placed in a villager's talk. A talk is the hello, which ends in a menu (an errand, a chat, never mind); when the player chats, the game picks a topic, fresh every time: small talk (plain chat, the time of day, the weather, the month), a trade, a letter they got, a memory, a hint, or news of an event. Every pool's \"place\" says where its line goes; there is no default: \"before\" the hello (the hello and everything after it still play), as the \"hello\" (the menu and the topic still play; only an everyday greeting is replaced, never a hello with news such as a bee sting or a collection finished), as the \"topic\" (instead of the topic the game picked when it is one of the pool's \"topics\", small talk when it names none; the talk ends after it, as small talk does), \"after\" the topic (one more message before a chat ends), or the whole \"conversation\" (no hello, no menu, no topic: the pool's pages, then the talk ends). A line is one page or a list of pages. A special talk (a first meeting, an errand, a villager moving out, the first-job errands) never uses a pool, nor do a new player's first ten chats, whose topics are tips. For each place, the most specific pools that fit are used: this villager, else this personality, else everyone. A pool fits when its season, time, weather and calendar day, if it names them, are the ones now. Each pool that fits rolls its chance; the lines of the pools that pass are put together, from every mod, and one is picked, never the one this villager said last when there is another. When the most specific pools all roll no, that place stays the game's. A script's villager_talked line takes its place first. A pool kept to a calendar \"day\" speaks only on that day, in its place, like any other pool. A conversation pool is used only when no script took any place. Nothing is saved. Either scope. Pools run in The City too.",
       "schema": {
         "type": "object",
         "required": [
@@ -2871,10 +2835,45 @@
             "items": {
               "type": "object",
               "required": [
+                "place",
                 "lines"
               ],
               "additionalProperties": false,
               "properties": {
+                "place": {
+                  "enum": [
+                    "before",
+                    "hello",
+                    "topic",
+                    "after",
+                    "conversation"
+                  ],
+                  "description": "Required: where the line goes in the talk. before: ahead of the hello. hello: instead of an everyday hello. topic: instead of the topic the game picked after a chat answer. after: after the topic, before a chat ends. conversation: the whole talk."
+                },
+                "topics": {
+                  "anyOf": [
+                    {
+                      "const": "any"
+                    },
+                    {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 6,
+                      "uniqueItems": true,
+                      "items": {
+                        "enum": [
+                          "small_talk",
+                          "trade",
+                          "letter",
+                          "memory",
+                          "hint",
+                          "news"
+                        ]
+                      }
+                    }
+                  ],
+                  "description": "Only with \"place\": \"topic\": the topics the line may stand in for. Default small_talk. \"any\" is all six. A first-job tip, the birthday question and \"should I move?\" are never replaced."
+                },
                 "personality": {
                   "enum": [
                     "normal",
@@ -2918,33 +2917,56 @@
                   ],
                   "description": "Only in this weather. Cherry blossom and falling leaves count as clear."
                 },
+                "day": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9_.-]{1,48}$",
+                  "description": "Only on this day: the id of a day in the same mod's calendar file. This is how a calendar day gets villager lines, in any place."
+                },
                 "chance": {
                   "type": "integer",
                   "minimum": 1,
                   "maximum": 100,
-                  "description": "Small talk in 100 where this pool's line is said, when the pool fits. Default 100: every small talk it fits."
+                  "description": "Talks in 100 where this pool's line is said, when the pool fits. Default 100: every talk it fits."
                 },
                 "lines": {
                   "type": "array",
                   "minItems": 1,
                   "maxItems": 32,
                   "items": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 160,
-                    "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160,
+                        "description": "A page: 1 to 160 characters, at most 3 line breaks."
+                      },
+                      {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 8,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160,
+                          "description": "A page: 1 to 160 characters, at most 3 line breaks."
+                        },
+                        "description": "A line of 1 to 8 pages, each starting on a clean window."
+                      }
+                    ],
+                    "description": "A villager line: one page, or a list of 1 to 8 pages."
                   },
                   "description": "The pool's lines. The game picks one each time."
                 }
               }
             },
-            "description": "The pools. A pool speaks for everyone, for one personality or for one villager, and can be kept to a season, a time of day or the weather."
+            "description": "The pools. A pool has a place in the talk, speaks for everyone, for one personality or for one villager, and can be kept to a season, a time of day, the weather or a calendar day."
           }
         }
       },
       "example": {
         "pools": [
           {
+            "place": "topic",
             "personality": "cranky",
             "lines": [
               "Hmph. Another day of\nyou walking around.",
@@ -2952,17 +2974,32 @@
             ]
           },
           {
+            "place": "hello",
             "weather": "rain",
             "lines": [
-              "Rain again. The flowers\nare loving it, at least."
+              "Rain again! The flowers\nare loving it, at least."
             ]
           },
           {
-            "season": "fall",
-            "time": "evening",
+            "place": "topic",
+            "topics": [
+              "trade",
+              "news"
+            ],
             "chance": 30,
             "lines": [
-              "The evenings come so\nearly now. I like it."
+              "No deals today. I just\nwant to chat."
+            ]
+          },
+          {
+            "place": "after",
+            "season": "fall",
+            "time": "evening",
+            "lines": [
+              [
+                "The evenings come so\nearly now.",
+                "I like it, though."
+              ]
             ]
           }
         ]
@@ -3956,7 +3993,7 @@
     {
       "name": "villager_talked",
       "since": 1,
-      "description": "The player starts an ordinary talk with a villager. Return a line and the villager says it before their usual greeting. Return nil to stay quiet. The first mod in load order whose handler returns a line wins that talk, and later mods' villager_talked handlers are not called for it. An empty string, a line over 400 bytes or one holding a zero byte is not a line. It is logged and the next mod is asked. Special talks never reach mods. These are a first meeting, a villager moving out, one with an errand, delivery or contest going with you, a complaint, a pitfall or a bee chase, an islander, Kamakura and summer camp. No handler is called for a special talk. The villager's next ordinary talk calls it as usual, so a line a script is keeping for \"the next talk\" waits for that one.",
+      "description": "The player starts an ordinary talk with a villager. Return where your words go in it: nil to stay quiet, a talk table { place, line, topics, ask }, or a list of talk tables, one a place. Every line names its place: a plain string is refused and logged, with nothing said. place is \"before\" (ahead of the hello), \"hello\" (instead of an everyday hello; a hello with news is kept), \"topic\" (instead of the topic the game picks when the player chats, if it is one of topics, small_talk when you name none, \"any\" for all), \"after\" (after the topic, before a chat ends) or \"conversation\" (the whole talk: no hello, no menu, no topic). line is a page of 1 to 400 bytes or a list of 1 to 8 pages. ask = { text, choices } (2 to 4 answers) goes only with \"conversation\": its last page asks the question, and the player's pick goes to villager_answered. Every mod's handler is called, in load order. The first line returned for a place takes it; a later one for that place is logged and not said. A conversation needs every place free and ends the event. Lines are said only when that part of the talk comes: topic and after only when the player chats. A table that is not right is logged and nothing of it is said. Special talks never reach mods. These are a first meeting, a villager moving out, one with an errand, delivery or contest going with you, a complaint, a pitfall or a bee chase, an islander, Kamakura and summer camp. No handler is called for a special talk. The villager's next ordinary talk calls it as usual, so a line a script is keeping for \"the next talk\" waits for that one.",
       "params": [
         {
           "name": "e",
@@ -3993,8 +4030,8 @@
         }
       ],
       "returns": {
-        "type": "string|nil",
-        "description": "A line of 1 to 400 bytes, or nil."
+        "type": "table|nil",
+        "description": "nil, a talk table { place, line, topics, ask }, or a list of talk tables."
       }
     },
     {
@@ -4485,6 +4522,60 @@
       ],
       "returns": {
         "type": "nil"
+      }
+    },
+    {
+      "name": "villager_answered",
+      "since": 1,
+      "description": "The player answered the question this mod's conversation asked (villager_talked returned place = \"conversation\" with an ask). Sent only to that mod, while the window waits. Return what the villager says next, in the same conversation: a line, or { line, ask } to ask again. Return nil and the talk ends. A reply that is not right is logged and the talk ends.",
+      "params": [
+        {
+          "name": "e",
+          "type": "table",
+          "fields": [
+            {
+              "name": "villager",
+              "type": "table",
+              "description": "The villager. It is a copy, so changing it changes nothing.",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "integer",
+                  "description": "The villager's id (villagers.json)."
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "description": "The villager's name."
+                },
+                {
+                  "name": "species",
+                  "type": "string|nil",
+                  "description": "cat, dog and so on (villagers.json). nil when the game cannot tell."
+                },
+                {
+                  "name": "personality",
+                  "type": "string|nil",
+                  "description": "normal, peppy, lazy, jock, cranky or snooty. nil when the game cannot tell."
+                }
+              ]
+            },
+            {
+              "name": "choice",
+              "type": "integer",
+              "description": "Which answer, counting from 1."
+            },
+            {
+              "name": "text",
+              "type": "string",
+              "description": "The answer's text."
+            }
+          ]
+        }
+      ],
+      "returns": {
+        "type": "string|table|nil",
+        "description": "nil, a line, or a reply table { line, ask }."
       }
     }
   ],

@@ -22,6 +22,10 @@ First release.
 - `check` reads a talk file's pools by the game's rules, `season` (spring,
   summer, fall, winter), `time` (morning, day, evening, night) and `weather`
   (clear, rain, snow) included, and refuses any other value (`talk-when`).
+  It reads each pool's `place` (`talk-place`), `topics` (`talk-topics`) and
+  `day`, which must be a day of the mod's calendar file (`talk-day`), and a
+  line that is a list of up to 8 pages. A script may list
+  `villager_answered`.
 - `check` reads a texture name with or without a label in front, as in
   `bookshelf-top_tex1_32x32_626709d910129694_$_8.png`: 1 to 40 lowercase
   letters, digits and dashes, then one underscore. The game matches on the

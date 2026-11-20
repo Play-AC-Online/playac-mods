@@ -1081,12 +1081,12 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    "scripts.events" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired
+    "scripts.events" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered
 
 From the mod list (upload):
 
-    scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.
-    scripts.events lists "every_frame", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.
+    scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered.
+    scripts.events lists "every_frame", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered.
     scripts.events lists "day_started" twice.
 
 What it means: "events" lists every event your script listens to with on(), each once, in lowercase. A library mod that only offers functions to other mods still lists one event, and need not register a handler for it.
@@ -2248,29 +2248,6 @@ What it means: A date is a month from 1 to 12 with either a day of that month, o
 
 How to fix it: Write { "month": 11, "day": 20 } or { "month": 11, "week": 4, "weekday": 4 }, not both forms.
 
-### calendar-empty
-
-**A calendar day with nothing in it**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
-
-In the game page (install, check tool):
-
-    calendar: day 1 needs a "board" notice, "talk" lines or a "letter"
-
-From the mod list (upload):
-
-    calendar.json: day "fair": needs a board notice, talk lines or a letter.
-
-From the game (Mods tab row):
-
-    calendar.json: day "fair": needs a board notice, talk lines or a letter
-    calendar: a day needs a "board" notice, "talk" lines or a "letter": fair
-
-What it means: A calendar day must do something on its date. It can have a "board" notice, "talk" lines, a "letter", or any of them together.
-
-How to fix it: Add a "board" notice, "talk" lines or a "letter".
-
 ### calendar-letter
 
 **A calendar day's "letter" is not one of the mod's letters**
@@ -2329,7 +2306,7 @@ From the game (Mods tab row):
 
 What it means: A notice goes up on your town's bulletin board, which a visitor reads too. A mod with one must be a World mod.
 
-How to fix it: Set "scope": "world", or keep only "talk" lines, which a Just you mod may have.
+How to fix it: Set "scope": "world", or keep only a "letter", which a Just you mod may have.
 
 ### calendar-board
 
@@ -2355,29 +2332,6 @@ What it means: A notice is plain text like a letter body, 1 to 192 characters on
 
 How to fix it: Shorten it and keep to plain characters.
 
-### calendar-talk
-
-**A calendar day's "talk" lines are not right**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
-
-In the game page (install, check tool):
-
-    calendar: day 1 "talk" must list 1 to 16 lines of 1 to 160 characters with at most 3 line breaks
-
-From the mod list (upload):
-
-    calendar.json: day "fair"'s talk must list 1 to 16 lines of 1 to 160 characters on at most 4 lines each.
-
-From the game (Mods tab row):
-
-    calendar: "talk" must list 1 to 16 lines: fair
-    calendar: a talk line must be 1 to 160 characters, at most 3 newlines: fair
-
-What it means: "talk" lists 1 to 16 lines villagers say that day, each 1 to 160 characters with at most 3 line breaks.
-
-How to fix it: Shorten the lines or the list.
-
 ## talk.json
 
 ### talk-file
@@ -2401,6 +2355,149 @@ From the game (Mods tab row):
 What it means: talk.json is { "pools": [ ... ] } with 1 to 32 pools.
 
 How to fix it: Wrap the pools in a "pools" list.
+
+### talk-no-place
+
+**A pool does not say its "place"**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    talk: pool 1 "place" is required: before, hello, topic, after or conversation
+
+From the mod list (upload):
+
+    talk.json: pool 1's place is required: before, hello, topic, after or conversation.
+
+From the game (Mods tab row):
+
+    talk: "place" is required: before, hello, topic, after or conversation: pool 1
+
+What it means: Every pool says where its lines go in a villager's talk: "before" the hello, as the "hello", as the "topic" after a chat answer, "after" the topic, or the whole "conversation". There is no default.
+
+How to fix it: Add "place" to the pool. For small talk, the most common, write "place": "topic".
+
+Bad (talk.json):
+
+```
+{ "pools": [{ "lines": ["Nice day!"] }] }
+```
+
+Fixed (talk.json):
+
+```
+{ "pools": [{ "place": "topic", "lines": ["Nice day!"] }] }
+```
+
+### talk-place
+
+**A pool's "place" is not a place in a talk**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    talk: pool 1 "place" must be before, hello, topic, after or conversation
+
+From the mod list (upload):
+
+    talk.json: pool 1's place must be before, hello, topic, after or conversation.
+
+From the game (Mods tab row):
+
+    talk: "place" must be before, hello, topic, after or conversation: pool 1
+
+What it means: A pool's "place" is where its line goes in a villager's talk: "before" the hello, as the "hello", as the "topic" after a chat answer, "after" the topic, or the whole "conversation". It is one of those five words, in lowercase.
+
+How to fix it: Write one of the five places.
+
+Bad (talk.json):
+
+```
+{ "pools": [{ "place": "greeting", "lines": ["Hi!"] }] }
+```
+
+Fixed (talk.json):
+
+```
+{ "pools": [{ "place": "hello", "lines": ["Hi!"] }] }
+```
+
+### talk-topics
+
+**A pool's "topics" are not topics the game picks**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    talk: pool 1 "topics" must be "any" or a list of small_talk, trade, letter, memory, hint and news
+    talk: pool 2 "topics" goes only with "place": "topic"
+    talk: pool 1 "topics" goes only with "place": "topic"
+
+From the mod list (upload):
+
+    talk.json: pool 1's topics must be "any" or a list of small_talk, trade, letter, memory, hint and news.
+    talk.json: pool 2's topics go only with "place": "topic".
+
+From the game (Mods tab row):
+
+    talk: "topics" must be "any" or a list of small_talk, trade, letter, memory, hint and news: pool 1
+    talk: "topics" goes only with "place": "topic": pool 2
+
+What it means: A "topic" line stands in for the topic the game picks after a chat answer. "topics" names which kinds it may replace: small_talk (the default), trade, letter, memory, hint and news, each once, or "any" for all six. It belongs only on a pool whose place is "topic".
+
+How to fix it: List kinds from the six, write "any", or take "topics" off a pool of another place.
+
+Bad (talk.json):
+
+```
+{ "pools": [{ "place": "topic", "topics": ["gossip"], "lines": ["Did you hear?"] }] }
+```
+
+Fixed (talk.json):
+
+```
+{ "pools": [{ "place": "topic", "topics": ["news", "small_talk"], "lines": ["Did you hear?"] }] }
+```
+
+### talk-day
+
+**A pool's "day" is not one of the mod's calendar days**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    talk: pool 1 "day" "fair" names no day in this mod's calendar file
+    talk: pool 1 "day" must be the id of a day in this mod's calendar file
+    talk: pool 1 "day" "harvest" names no day in this mod's calendar file
+
+From the mod list (upload):
+
+    talk.json: pool 1's day "fair" names no day in this mod's calendar file.
+    talk.json: pool 1's day must be the id of a day in this mod's calendar file.
+
+From the game (Mods tab row):
+
+    talk: "day" names no day in this mod's calendar file: pool 1
+
+What it means: A pool's "day" keeps it to one day of the year: the "id" of a day in the same mod's calendar file. On other days the pool does not fit.
+
+How to fix it: Add the day to your calendar file, or fix the id to match one there exactly.
+
+Bad (talk.json):
+
+```
+{ "pools": [{ "place": "hello", "day": "fair", "lines": ["Fair day!"] }] }
+```
+
+Fixed (talk.json):
+
+```
+{ "pools": [{ "place": "hello", "day": "harvest-fair", "lines": ["Fair day!"] }] }
+```
 
 ### talk-who
 
@@ -2516,7 +2613,7 @@ From the game (Mods tab row):
 
     talk: "chance" must be a whole number 1 to 100: pool 1
 
-What it means: "chance" is how often, in 100 small talks, the pool's line is said when the pool fits, as a whole number from 1 to 100. Leave it out for every one.
+What it means: "chance" is how often, in 100 talks the pool fits, its line is said, as a whole number from 1 to 100. Leave it out for every one.
 
 How to fix it: Write a whole number from 1 to 100.
 
@@ -2528,18 +2625,18 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    talk: pool 1 "lines" must list 1 to 32 lines of 1 to 160 characters with at most 3 line breaks
+    talk: pool 1 "lines" must list 1 to 32 lines of 1 to 160 characters with at most 3 line breaks, or lists of 1 to 8 such pages
 
 From the mod list (upload):
 
-    talk.json: pool 1's lines must list 1 to 32 lines of 1 to 160 characters on at most 4 lines each.
+    talk.json: pool 1's lines must list 1 to 32 lines of 1 to 160 characters on at most 4 lines each, or lists of 1 to 8 such pages.
 
 From the game (Mods tab row):
 
     talk: "lines" must list 1 to 32 lines: pool 1
-    talk: a line must be 1 to 160 characters, at most 3 newlines: pool 1
+    talk: a line must be 1 to 160 characters, at most 3 newlines, or a list of 1 to 8 such pages: pool 1
 
-What it means: A pool has 1 to 32 lines, each 1 to 160 characters with at most 3 line breaks.
+What it means: A pool has 1 to 32 lines. A line is one page of 1 to 160 characters with at most 3 line breaks, or a list of 1 to 8 such pages, each starting on a clean window.
 
 How to fix it: Shorten the lines or the list.
 

@@ -3,7 +3,7 @@
 -- Reference: https://playaconline.com/modding/reference/  Put this file where your editor's Lua language server finds it
 -- (for example a "types" folder listed in .luarc.json "workspace.library").
 
----@alias PlayacEvent "villager_talked"|"day_started"|"item_picked_up"|"scene_entered"|"data_migrated"|"hour_changed"|"item_bought"|"item_sold"|"fish_caught"|"bug_caught"|"letter_read"|"villager_moved_in"|"visitor_arrived"|"command_finished"|"question_answered"|"timer_fired"
+---@alias PlayacEvent "villager_talked"|"day_started"|"item_picked_up"|"scene_entered"|"data_migrated"|"hour_changed"|"item_bought"|"item_sold"|"fish_caught"|"bug_caught"|"letter_read"|"villager_moved_in"|"visitor_arrived"|"command_finished"|"question_answered"|"timer_fired"|"villager_answered"
 
 ---The stable code of a refused command: what cmd.* returns third, and command_finished's e.code.
 --- - `command-permission` (retry: never): The command is not in mod.json permissions.
@@ -139,6 +139,12 @@
 ---@field name string The name given to timer.after.
 ---@field data (string|number|boolean)? The data given to timer.after. nil when none was given.
 
+---The one table a handler of villager_answered gets, as e.
+---@class PlayacVillagerAnsweredEvent
+---@field villager PlayacVillager The villager. It is a copy, so changing it changes nothing.
+---@field choice integer Which answer, counting from 1.
+---@field text string The answer's text.
+
 ---@class PlayacGameTimeResult
 ---@field year integer
 ---@field month integer 1 to 12.
@@ -168,7 +174,7 @@
 ---@field id integer Stays the same for that resident in that town. It holds the resident's save slot. A new resident who later takes a freed slot can get the same id, and never gets the old resident's store.player data: the game deletes that when a resident is deleted and again when a new one is made in the slot. On a visit it is the visitor's own number, never equal to a resident's.
 
 ---Registers a handler for an event. Call it while the mod's own script loads, not from inside a handler and not from a function another mod calls with remote.call. The event must be in mod.json's scripts.events. At most 16 handlers per event. A handler gets one table, e, holding the event's fields.
----@overload fun(event: "villager_talked", fn: fun(e: PlayacVillagerTalkedEvent): string?)
+---@overload fun(event: "villager_talked", fn: fun(e: PlayacVillagerTalkedEvent): table?)
 ---@overload fun(event: "day_started", fn: fun(e: PlayacDayStartedEvent))
 ---@overload fun(event: "item_picked_up", fn: fun(e: PlayacItemPickedUpEvent))
 ---@overload fun(event: "scene_entered", fn: fun(e: PlayacSceneEnteredEvent))
@@ -184,6 +190,7 @@
 ---@overload fun(event: "command_finished", fn: fun(e: PlayacCommandFinishedEvent))
 ---@overload fun(event: "question_answered", fn: fun(e: PlayacQuestionAnsweredEvent))
 ---@overload fun(event: "timer_fired", fn: fun(e: PlayacTimerFiredEvent))
+---@overload fun(event: "villager_answered", fn: fun(e: PlayacVillagerAnsweredEvent): (string|table)?)
 ---@param event PlayacEvent An event name.
 ---@param fn function Called with one table, e, holding the event's fields.
 function on(event, fn) end

@@ -43,7 +43,7 @@ Reserved keys, refused: `game`, `save`. Top-level keys reserved for planned feat
 - A key the game does not know is refused. This applies at the top of mod.json, at the top of the shops, items, letters, calendar and talk files, and in each of their entries (a shop, a stock entry, an item, a letter, a calendar day, a talk pool). The messages file is the exception, because its keys are the lines. The message is <file>: unknown key "<key>", followed by (did you mean "<known>"?) when a known key is close. $schema is known wherever a file may carry it. Keys are case-sensitive.
 - Duplicate keys and \u0000 are refused in every JSON file.
 - A mod may hold only these file types (case-insensitive).
-- All mods share 4 ms of Lua time a frame. Past it, every game event without an answer (day_started, item_picked_up, scene_entered and the others) waits for the next frame. Events wait in order for each mod, at most 64 at a time, and one past that is dropped. villager_talked is skipped for the rest of that frame, so the villager says their own greeting. A mod with events still waiting is not asked for a villager_talked line until they have run. The next mod is asked instead. Each mod therefore sees its own events in the order they happened. A remote.call into a mod is not one of its events. It runs at once, inside the caller's event. command_finished and question_answered wait too, but are never dropped or skipped. A command queued by a command_finished handler is applied at the next frame boundary, not the one that delivered the result. data_migrated runs as a town loads, outside the limit.
+- All mods share 4 ms of Lua time a frame. Past it, every game event without an answer (day_started, item_picked_up, scene_entered and the others) waits for the next frame. Events wait in order for each mod, at most 64 at a time, and one past that is dropped. villager_talked is skipped for the rest of that frame, so the villager says their own greeting. A mod with events still waiting is not asked for a villager_talked line until they have run. The next mod is asked instead. Each mod therefore sees its own events in the order they happened. A remote.call into a mod is not one of its events. It runs at once, inside the caller's event. command_finished and question_answered wait too, but are never dropped or skipped. villager_answered runs at once: the player is waiting on it. A command queued by a command_finished handler is applied at the next frame boundary, not the one that delivered the result. data_migrated runs as a town loads, outside the limit.
 - scripts.events may list data_migrated only with a data_version.
 - A mod id may be in only one of depends, optional_depends and conflicts. None of them may name the mod itself.
 - A World mod that declares world settings adds a hash of their values to its entry in the list of mods a friend visit compares. The entry gains +<sha256 of "name=value\n" per world setting, sorted>. The visit's list of mods carries that hash and the values too, so two towns on one mod with different settings are told "same mod, different settings". A setting whose scope is client is not in the hash, and its value is never in the list. A mod with only client settings adds no hash. A mod with no client setting hashes as it did before scopes existed.
@@ -51,7 +51,7 @@ Reserved keys, refused: `game`, `save`. Top-level keys reserved for planned feat
 - The content keys that make a World mod count for visits, whatever its permissions. They are what a visitor must draw or meet in the town.
 - What needs scope world, because it changes the town a visitor sees: a shops file (content.shops), and a calendar file with a board notice. Everything else may be client (only you see it) or world.
 - When two mods change the same thing, the last in load order wins it whole. For each shop target (the flower shop, Nook's store), nothing is merged. The later mod's shop is the shop. The earlier mod's row in the Mods tab says its shop is not used and names the mod that has it. Shops are not merged for three reasons. A good is known on the shelf by its game item alone, so two mods' items made on the same base piece could not be told apart at the till. A shop's name, hours and lines are written for its own goods. The shelves are few, so a merge would cut each mod's stock by what else is installed. For a texture, the kind of file comes first. A file for one exact palette (tex1_..._<tlut>_<fmt>) beats any mod's every-palette file (tex1_..._$_<fmt>) for the same texture, whatever the order. Between two files of the same kind, the later mod's is drawn. A mod's texture of either kind beats the HD pack's.
-- The villager_talked event goes to mods in load order. The first handler that returns a line wins that talk, and later mods' villager_talked handlers are not asked. This applies only to the event. The villager lines of talk files and calendar files are not first-wins. Every mod's matching pools are put together and one line is picked from all of them. The pick depends on the day and the villager, so it is the same line all day.
+- A villager's talk has five places for a mod's words: before, hello, topic, after and conversation. Each takes one line per talk, and every line names its place. Every mod's villager_talked handler runs, in load order, and the first line a handler returns for a place takes it. A conversation takes the whole talk, so it needs every place free; once one is taken, the event stops. Lines a script did not take a place with come from talk files, which are not first-wins: every mod's fitting pools of that place are put together and one line is picked from all of them, fresh on every talk.
 - Developer mode reloads these while you play, with no restart: the content files named here, any .lua script ("scripts") and the files under content.textures. Developer mode means a mod loaded from a folder or from playac-mod dev. Each value is a content key, or "scripts".
 - Developer mode loads a change to these only when the game restarts: mod.json and the content files named here. mod.json is read once at start, and so is a file added or removed. Each value is "mod.json" or a content key.
 - Visiting with the host's mods. When every World mod of the host that counts is a reviewed version from the mod list, a visitor can load them for that visit only, after agreeing. They run with the host's world settings. Each mod's world values travel with the visit, are checked against what its mod.json allows, and are never kept on the visitor's game. A text setting the host changed from its default must pass the site's word checks (no rude words, contact details or risky phrases). If it does not, the visit is refused instead of lent. A client setting is the visitor's own. It keeps the value the visitor set on their installed copy of the mod, and it is the default when the visitor does not have the mod. Nothing is installed. The game restarts with the lent mods, and their scripts start with an empty store that is never saved. A lent mod acts only in the host's town. At home, in the restart before the trip and the one after it, its shop, Nook goods, board notices, items, renames and commands do nothing. It therefore never changes the visitor's own town or save. A mod installed from a file cannot be lent. Nothing is lent while mods are switched off for everyone. A set that would not load whole on the visitor's game, in the host's order, with the visitor's own Just you mods and under the same limits, is refused before the restart.
@@ -374,7 +374,7 @@ Schema:
 
 ### calendar (`content.calendar`)
 
-Calendar days: dated days with safe effects only, and no script. A day can have a notice on the town bulletin board. The notice is posted once on the day in the player's own town, never on a visit or in The City, and needs scope world. A day can have villager lines for the day: on that day they are half of every villager's small talk, ahead of talk pools. A day can have a letter from the same mod's letters file. The letter is mailed once on the day to the player's mailbox in their own town, never on a visit or in The City, and counts against the mod's daily letter limit. A day cannot add decorations, because the game has no data format for them. (since api 1)
+Calendar days: dated days with safe effects only, and no script. A day can have a notice on the town bulletin board. The notice is posted once on the day in the player's own town, never on a visit or in The City, and needs scope world. A day can have villager lines: talk.json pools that name the day's id as their "day", in any place of the talk. A day with no notice and no letter is a date for those pools. A day can have a letter from the same mod's letters file. The letter is mailed once on the day to the player's mailbox in their own town, never on a visit or in The City, and counts against the mod's daily letter limit. A day cannot add decorations, because the game has no data format for them. (since api 1)
 
 Schema:
 
@@ -400,23 +400,6 @@ Schema:
           "date"
         ],
         "additionalProperties": false,
-        "anyOf": [
-          {
-            "required": [
-              "board"
-            ]
-          },
-          {
-            "required": [
-              "talk"
-            ]
-          },
-          {
-            "required": [
-              "letter"
-            ]
-          }
-        ],
         "properties": {
           "id": {
             "type": "string",
@@ -472,18 +455,6 @@ Schema:
             "maxLength": 192,
             "description": "A bulletin board notice: 1 to 192 characters on at most 6 lines. Plain text: printable ASCII, no { or }. Needs scope world."
           },
-          "talk": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 16,
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160,
-              "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
-            },
-            "description": "Lines villagers say on the day. They come ahead of every talk pool."
-          },
           "letter": {
             "type": "string",
             "pattern": "^[a-z0-9_.-]{1,48}$",
@@ -499,7 +470,7 @@ Schema:
 
 ### talk (`content.talk`)
 
-Villager lines that are part of the conversation. A villager's talk is their hello, which ends in a menu. When the player chooses to chat, the game picks a topic, fresh every time: a trade, a letter, a memory, a hint, an event, or small talk about the weather, the time of day or the month. When the game picks small talk, a line from a pool can be what the villager says instead, whenever the player chooses to chat and the game picks small talk. A special talk (a first meeting, an errand, a villager moving out, the first-job errands) never uses a pool, nor does a new player's first ten chats, whose topics are tips, and neither does a trade, letter, memory, hint or event topic. Today's calendar lines come first: on their day they are half of every villager's small talk. Otherwise the most specific pools that fit are used: this villager, else this personality, else everyone. A pool fits when its season, time and weather, if it names them, are the ones now. Each pool that fits rolls its chance; the lines of the pools that pass are put together, from every mod, and one is picked, never the one this villager said last when there is another. When the most specific pools all roll no, the villager makes the game's own small talk. Nothing is saved. Either scope. Pools run in The City too. (since api 1)
+Villager lines placed in a villager's talk. A talk is the hello, which ends in a menu (an errand, a chat, never mind); when the player chats, the game picks a topic, fresh every time: small talk (plain chat, the time of day, the weather, the month), a trade, a letter they got, a memory, a hint, or news of an event. Every pool's "place" says where its line goes; there is no default: "before" the hello (the hello and everything after it still play), as the "hello" (the menu and the topic still play; only an everyday greeting is replaced, never a hello with news such as a bee sting or a collection finished), as the "topic" (instead of the topic the game picked when it is one of the pool's "topics", small talk when it names none; the talk ends after it, as small talk does), "after" the topic (one more message before a chat ends), or the whole "conversation" (no hello, no menu, no topic: the pool's pages, then the talk ends). A line is one page or a list of pages. A special talk (a first meeting, an errand, a villager moving out, the first-job errands) never uses a pool, nor do a new player's first ten chats, whose topics are tips. For each place, the most specific pools that fit are used: this villager, else this personality, else everyone. A pool fits when its season, time, weather and calendar day, if it names them, are the ones now. Each pool that fits rolls its chance; the lines of the pools that pass are put together, from every mod, and one is picked, never the one this villager said last when there is another. When the most specific pools all roll no, that place stays the game's. A script's villager_talked line takes its place first. A pool kept to a calendar "day" speaks only on that day, in its place, like any other pool. A conversation pool is used only when no script took any place. Nothing is saved. Either scope. Pools run in The City too. (since api 1)
 
 Schema:
 
@@ -521,10 +492,45 @@ Schema:
       "items": {
         "type": "object",
         "required": [
+          "place",
           "lines"
         ],
         "additionalProperties": false,
         "properties": {
+          "place": {
+            "enum": [
+              "before",
+              "hello",
+              "topic",
+              "after",
+              "conversation"
+            ],
+            "description": "Required: where the line goes in the talk. before: ahead of the hello. hello: instead of an everyday hello. topic: instead of the topic the game picked after a chat answer. after: after the topic, before a chat ends. conversation: the whole talk."
+          },
+          "topics": {
+            "anyOf": [
+              {
+                "const": "any"
+              },
+              {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 6,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "small_talk",
+                    "trade",
+                    "letter",
+                    "memory",
+                    "hint",
+                    "news"
+                  ]
+                }
+              }
+            ],
+            "description": "Only with \"place\": \"topic\": the topics the line may stand in for. Default small_talk. \"any\" is all six. A first-job tip, the birthday question and \"should I move?\" are never replaced."
+          },
           "personality": {
             "enum": [
               "normal",
@@ -568,27 +574,49 @@ Schema:
             ],
             "description": "Only in this weather. Cherry blossom and falling leaves count as clear."
           },
+          "day": {
+            "type": "string",
+            "pattern": "^[a-z0-9_.-]{1,48}$",
+            "description": "Only on this day: the id of a day in the same mod's calendar file. This is how a calendar day gets villager lines, in any place."
+          },
           "chance": {
             "type": "integer",
             "minimum": 1,
             "maximum": 100,
-            "description": "Small talk in 100 where this pool's line is said, when the pool fits. Default 100: every small talk it fits."
+            "description": "Talks in 100 where this pool's line is said, when the pool fits. Default 100: every talk it fits."
           },
           "lines": {
             "type": "array",
             "minItems": 1,
             "maxItems": 32,
             "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160,
-              "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160,
+                  "description": "A page: 1 to 160 characters, at most 3 line breaks."
+                },
+                {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160,
+                    "description": "A page: 1 to 160 characters, at most 3 line breaks."
+                  },
+                  "description": "A line of 1 to 8 pages, each starting on a clean window."
+                }
+              ],
+              "description": "A villager line: one page, or a list of 1 to 8 pages."
             },
             "description": "The pool's lines. The game picks one each time."
           }
         }
       },
-      "description": "The pools. A pool speaks for everyone, for one personality or for one villager, and can be kept to a season, a time of day or the weather."
+      "description": "The pools. A pool has a place in the talk, speaks for everyone, for one personality or for one villager, and can be kept to a season, a time of day, the weather or a calendar day."
     }
   }
 }
@@ -641,7 +669,7 @@ List each event a script handles in mod.json `scripts.events`. Every handler get
 
 | event | e | return | when |
 |---|---|---|---|
-| `villager_talked` | { villager { id, name, species?, personality? } } | string\|nil | The player starts an ordinary talk with a villager. Return a line and the villager says it before their usual greeting. Return nil to stay quiet. The first mod in load order whose handler returns a line wins that talk, and later mods' villager_talked handlers are not called for it. An empty string, a line over 400 bytes or one holding a zero byte is not a line. It is logged and the next mod is asked. Special talks never reach mods. These are a first meeting, a villager moving out, one with an errand, delivery or contest going with you, a complaint, a pitfall or a bee chase, an islander, Kamakura and summer camp. No handler is called for a special talk. The villager's next ordinary talk calls it as usual, so a line a script is keeping for "the next talk" waits for that one. since api 1 |
+| `villager_talked` | { villager { id, name, species?, personality? } } | table\|nil | The player starts an ordinary talk with a villager. Return where your words go in it: nil to stay quiet, a talk table { place, line, topics, ask }, or a list of talk tables, one a place. Every line names its place: a plain string is refused and logged, with nothing said. place is "before" (ahead of the hello), "hello" (instead of an everyday hello; a hello with news is kept), "topic" (instead of the topic the game picks when the player chats, if it is one of topics, small_talk when you name none, "any" for all), "after" (after the topic, before a chat ends) or "conversation" (the whole talk: no hello, no menu, no topic). line is a page of 1 to 400 bytes or a list of 1 to 8 pages. ask = { text, choices } (2 to 4 answers) goes only with "conversation": its last page asks the question, and the player's pick goes to villager_answered. Every mod's handler is called, in load order. The first line returned for a place takes it; a later one for that place is logged and not said. A conversation needs every place free and ends the event. Lines are said only when that part of the talk comes: topic and after only when the player chats. A table that is not right is logged and nothing of it is said. Special talks never reach mods. These are a first meeting, a villager moving out, one with an errand, delivery or contest going with you, a complaint, a pitfall or a bee chase, an islander, Kamakura and summer camp. No handler is called for a special talk. The villager's next ordinary talk calls it as usual, so a line a script is keeping for "the next talk" waits for that one. since api 1 |
 | `day_started` | { year, month, day, weekday } | nil | A new day begins in the game. It fires once per day, also when the game starts on a new day. It does not fire again when the game restarts later on a day the town already saw, because the save holds the day it last began. If the game was not saved since that day began, the save still holds the day before, so the next start fires it again. Count days by storing the last date you saw, not by counting calls. Its handler sees the whole day, the first day of a session included: game.calendar_today() lists today's calendar days, game.town() has the date, and game.player() and store.player have the player. A command queued here is applied once the player is free in the town. since api 1 |
 | `item_picked_up` | { item, mod_item? } | nil | The player got an item. They picked it up, outdoors or off a room's floor, caught it with the net or the rod, or dug it up with the shovel. It fires once the item is in their pockets, or in the wallet for Bells. It does not fire for anything bought. A fish or a bug that goes into the pockets fires this event and then fish_caught or bug_caught, so a script that counts both counts that catch twice. It does not fire when the pockets were full. Outdoors the game then offers to swap the item for one in the pockets, and no event is sent whatever the player chooses. Indoors a full pocket refuses the pickup. since api 1 |
 | `scene_entered` | { scene, name? } | nil | A scene starts, such as the town, a house or a shop. Not in the title demo, at player select or in the intro (the rule own_game_only). since api 1 |
@@ -657,6 +685,7 @@ List each event a script handles in mod.json `scripts.events`. Every handler get
 | `command_finished` | { id, command, ok, via?, code?, message? } | nil | A command this mod queued was applied or refused. When applied, ok is true and via says how (mailbox, post_office, pockets, mail, shown or taken). When refused, ok is false, with a code (command_codes) and a message. Sent only to that mod. since api 1 |
 | `question_answered` | { id, choice?, text? } | nil | The player answered this mod's ask, or closed it. choice counts from 1 and text is the answer picked. Both are nil when the window closed with no pick. Sent only to that mod. since api 1 |
 | `timer_fired` | { id, name, data? } | nil | A timer this mod set with timer.after is due. It fires once, at the end of a frame's update, in whatever scene the player is in, and the timer is gone before the handler runs. It is an event like any other. Its handlers share one instruction budget, it waits for a later frame when the frame's time is spent, and the commands it queues count against the per-event and per-day caps. At most one timer per mod fires in a frame. A timer that came due while the game was closed fires soon after the town loads. Sent only to that mod. since api 1 |
+| `villager_answered` | { villager { id, name, species?, personality? }, choice, text } | string\|table\|nil | The player answered the question this mod's conversation asked (villager_talked returned place = "conversation" with an ask). Sent only to that mod, while the window waits. Return what the villager says next, in the same conversation: a line, or { line, ask } to ask again. Return nil and the talk ends. A reply that is not right is logged and the talk ends. since api 1 |
 
 ## Commands
 
@@ -849,10 +878,9 @@ Each mod runs in its own Lua 5.4 state with only these standard libraries. It ta
 | `letters.footer_chars` | 32 characters | A letter footer. |
 | `letters.sender_chars` | 8 characters | A letter's name in the mailbox list. It is the letter's optional sender. Without a sender, it is the footer's first 8 characters. |
 | `calendar.per_file` | 16 days | Days in one calendar file. |
-| `calendar.talk_lines` | 16 lines | Talk lines in one calendar day. |
 | `talk.pools` | 32 pools | Pools in one talk file. |
 | `talk.lines_per_pool` | 32 lines | Lines in one pool. |
-| `talk.line_chars` | 160 characters | A villager line (pool or calendar day), in Unicode code points. It may have at most 3 line breaks. |
+| `talk.line_chars` | 160 characters | A page of a villager line (a pool's or a script's), in Unicode code points. It may have at most 3 line breaks. A line that is one string is one page, wrapped to as many windows as it needs. |
 | `commands.per_event` | 4 commands | Commands one mod may queue in one event. |
 | `commands.waiting` | 32 commands | Commands waiting, all mods together. |
 | `commands.waiting_per_mod` | 8 commands | Commands one mod may have waiting. |
@@ -878,7 +906,8 @@ Each mod runs in its own Lua 5.4 state with only these standard libraries. It ta
 | `commands.papers` | 64 papers | Letter papers, numbered 0 to 63. |
 | `calendar.board_per_day` | 3 notices | Board notices that go up on one day across every mod. The first ones in load order go up. On a full board, a mod notice first takes the place of an earlier day's mod notice. It never pushes off a page dated today. |
 | `store.towns_bytes` | 1536 KB | What every town's mod data in one browser adds up to. Writing past it drops the least recently written other towns' files first. Mod data therefore never pushes a save over the cloud's 5 MB. |
-| `talk.line_newlines` | 3 newlines | The most line breaks in a villager line (pool or calendar day). |
+| `talk.line_newlines` | 3 newlines | The most line breaks in a page of a villager line (a pool's or a script's). |
+| `talk.pages` | 8 pages | Pages in one villager line, when the line is a list of pages (a pool line, or a line a script returns). Each page starts on a clean window. |
 | `talk.villager_chars` | 8 characters | A pool's "villager" name, as the game spells it. |
 | `items.price_max` | 99,999 Bells | The highest price an item in a mod's items file may have. |
 | `manifest.name_chars` | 60 characters | The longest mod "name", in Unicode code points, spaces at the ends not counted. |
