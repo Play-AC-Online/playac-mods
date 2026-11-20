@@ -27,7 +27,6 @@
   const AUTHOR_CHARS = 40;
   const AUTHORS_MAX = 8;
   const CALENDAR_MAX = 16;
-  const CALENDAR_TALK_MAX = 16;
   const DATA_VERSION_MAX = 1000000;
   const DESCRIPTION_CHARS = 500;
   const EXPORT_DESC_MAX = 120;
@@ -72,29 +71,45 @@
   const SETTING_LABEL_CHARS = 60;
   const SETTING_NUM_MAX = 1000000000;
   const SETTING_TEXT_MAX = 200;
+  const SHOP_BLOCKS_MAX = 8;
   const SHOP_LINE_CHARS = 160;
   const SHOP_LINE_NEWLINES = 3;
+  const SHOP_LINES_MAX = 8;
   const SHOP_NAME_CHARS = 40;
+  const SHOP_PERCENT_MAX = 1000;
   const SHOP_PRICE_MAX = 99999;
   const SHOP_STOCK_MAX = 6;
-  const SHOPS_MAX = 2;
   const TALK_LINE_CHARS = 160;
   const TALK_LINE_NEWLINES = 3;
+  const TALK_PAGES_MAX = 8;
   const TEXTURE_LABEL_CHARS = 40;
   const VILLAGER_CHARS = 8;
+  const VISITOR_STOCK_MAX = 6;
 
-  const SHOP_KEYS = ['target', 'name', 'hours', 'greeting', 'stock_line', 'stock', 'mode'];
-  const SHOP_TARGETS = ['flower', 'nook'];
-  const SHOP_TARGET_INFO = {
-    flower: { words: 'the flower shop', fields: ['target', 'name', 'hours', 'greeting', 'stock_line', 'stock', 'mode'], stock: SHOP_STOCK_MAX },
-    nook: { words: 'Nook\'s store', fields: ['target', 'hours', 'stock', 'mode'], stock: NOOK_STOCK_MAX }
+  const SHOP_KEYS = ['when', 'open', 'own_goods', 'goods', 'price_percent', 'buy_back_percent', 'services', 'name', 'lines'];
+  const WHEN_KEYS = ['hours', 'time', 'season', 'weather', 'weekday', 'month', 'setting'];
+  const SHOP_IDS = ['nook', 'flower', 'redd', 'saharah', 'fireworks', 'able', 'barber', 'dream', 'katrina'];
+
+  const FTR_NO_MODEL = [31, 32, 33, 35, 36, 37, 38, 39, 40, 44, 45, 48, 51, 52, 53, 126, 128, 129, 130, 136, 137, 144, 145, 146, 148, 188, 197, 209, 254, 255, 256, 262, 264, 268, 269, 270, 271, 275, 277, 278, 280, 281, 285, 292, 294, 296, 300, 301, 302, 303, 307, 328, 330, 331, 338, 339, 340, 345, 349, 357, 358, 925, 926, 928, 929, 951, 952, 1002, 1038, 1039, 1040, 1046, 1047, 1050, 1051, 1059, 1062, 1135, 1142, 1143, 1159, 1162, 1164, 1265];
+  const SHOP_INFO = {
+    nook: { words: 'Nook\'s store', fields: ['when', 'open', 'own_goods', 'goods', 'price_percent', 'buy_back_percent'], goods: NOOK_STOCK_MAX, services: [], lines: [] },
+    flower: { words: 'the flower shop', fields: ['when', 'open', 'own_goods', 'goods', 'price_percent', 'name', 'lines'], goods: SHOP_STOCK_MAX, services: [], lines: ['greeting', 'stock'] },
+    redd: { words: 'Crazy Redd\'s tent', fields: ['when', 'own_goods', 'goods', 'price_percent'], goods: VISITOR_STOCK_MAX, services: [], lines: [] },
+    saharah: { words: 'Saharah', fields: ['when', 'own_goods', 'goods', 'price_percent'], goods: VISITOR_STOCK_MAX, services: [], lines: [] },
+    fireworks: { words: 'the fireworks stall', fields: ['when', 'own_goods', 'goods', 'price_percent'], goods: VISITOR_STOCK_MAX, services: [], lines: [] },
+    able: { words: 'Able Sisters', fields: ['when', 'services'], goods: 0, services: ['design'], lines: [] },
+    barber: { words: 'the barber shop', fields: ['when', 'open', 'services'], goods: 0, services: ['haircut'], lines: [] },
+    dream: { words: 'the Dream Suite', fields: ['when', 'services'], goods: 0, services: ['dream'], lines: [] },
+    katrina: { words: 'Katrina\'s tent', fields: ['when', 'services'], goods: 0, services: ['fortune'], lines: [] }
   };
 
   const QUOTA_MARGIN = 16 * MIB;
 
-  const EVENTS = ['villager_talked', 'day_started', 'item_picked_up', 'scene_entered', 'data_migrated', 'hour_changed', 'item_bought', 'item_sold', 'fish_caught', 'bug_caught', 'letter_read', 'villager_moved_in', 'visitor_arrived', 'command_finished', 'question_answered', 'timer_fired'];
+  const EVENTS = ['villager_talked', 'day_started', 'item_picked_up', 'scene_entered', 'data_migrated', 'hour_changed', 'item_bought', 'item_sold', 'fish_caught', 'bug_caught', 'letter_read', 'villager_moved_in', 'visitor_arrived', 'command_finished', 'question_answered', 'timer_fired', 'villager_answered'];
 
-  const PERMISSIONS = ['send_letter', 'give_item', 'show_line', 'ask', 'take_item', 'take_bells'];
+  const PERMISSIONS = ['send_letter', 'give_item', 'show_line', 'ask', 'take_item', 'take_bells', 'set_shop_goods', 'set_shop_open'];
+
+  const WORLD_PERMISSIONS = ['set_shop_goods', 'set_shop_open'];
   const EXTS = ['.json', '.lua', '.dds', '.png', '.txt', '.md'];
 
   const CONTENT_KEYS = ['textures', 'messages', 'shops', 'items', 'letters', 'calendar', 'talk'];
@@ -112,15 +127,17 @@
   const MANIFEST_KEYS = ['$schema', 'schema', 'api', 'id', 'name', 'version', 'authors', 'description', 'tags', 'scope', 'content', 'scripts', 'permissions', 'exports', 'assets_original', 'renames', 'depends', 'optional_depends', 'conflicts', 'data_version', 'settings'];
 
   const SHOPS_FILE_KEYS = ['$schema', 'shops'];
-  const STOCK_KEYS = ['item', 'price'];
   const ITEMS_FILE_KEYS = ['$schema', 'items'];
   const LETTERS_FILE_KEYS = ['$schema', 'letters'];
   const LETTER_KEYS = ['id', 'header', 'body', 'footer', 'sender', 'item', 'paper'];
   const CALENDAR_FILE_KEYS = ['$schema', 'days'];
-  const CALENDAR_DAY_KEYS = ['id', 'date', 'board', 'talk', 'letter'];
+  const CALENDAR_DAY_KEYS = ['id', 'date', 'board', 'letter'];
   const CALENDAR_DATE_KEYS = ['month', 'day', 'week', 'weekday'];
   const TALK_FILE_KEYS = ['$schema', 'pools'];
-  const TALK_POOL_KEYS = ['personality', 'villager', 'season', 'time', 'weather', 'chance', 'lines'];
+  const TALK_POOL_KEYS = ['place', 'topics', 'personality', 'villager', 'season', 'time', 'weather', 'day', 'chance', 'lines'];
+
+  const TALK_PLACES = ['before', 'hello', 'topic', 'after', 'conversation'];
+  const TALK_TOPICS = ['small_talk', 'trade', 'letter', 'memory', 'hint', 'news'];
 
   const SETTING_SCOPES = ['world', 'client'];
   const SCRIPT_KEYS = ['main', 'events'];
@@ -185,7 +202,7 @@
     ["manifest-tags", [new RegExp("^\"tags\" must list"), new RegExp("^tags must list")]],
     ["manifest-scope", [new RegExp("^\"scope\" must be \"client\" or \"world\""), new RegExp("^The scope must be")]],
     ["manifest-assets-original", [new RegExp("\"assets_original\"")]],
-    ["shops-need-world", [new RegExp("changes what visitors see, so \"scope\" must be \"world\""), new RegExp("content\\.shops changes what visitors see"), new RegExp("^shops change what visitors see")]],
+    ["shops-need-world", [new RegExp("changes what visitors see, so \"scope\" must be \"world\""), new RegExp("content\\.shops changes what visitors see"), new RegExp("^shops change what visitors see"), new RegExp("^permissions lists \\w+, which changes what visitors see")]],
     ["content-not-object", [new RegExp("^\"content\" must be an object"), new RegExp("^content must be an object")]],
     ["content-unknown", [new RegExp("^\"content\\.[^\"]*\" is not something a mod can add yet"), new RegExp("^content\\.\\S+ is not something a mod can add yet")]],
     ["content-path", [new RegExp("^\"content\\.[^\"]*\" must be a path inside the mod"), new RegExp("^content\\.\\S+ must be a path inside the mod"), new RegExp("^(textures|messages|shops|items|letters|calendar|talk) path is not inside the mod"), new RegExp("^content: a value must be a path inside the mod")]],
@@ -199,16 +216,22 @@
     ["scripts-permissions-no-scripts", [new RegExp("permissions\"? is for a mod with \"?scripts")]],
     ["manifest-exports", [new RegExp("^\"exports\" must be an object"), new RegExp("^exports must be an object"), new RegExp("\"exports\" must be an object of at most")]],
     ["manifest-exports-no-scripts", [new RegExp("exports\"? is for a mod with \"?scripts")]],
-    ["shops-file", [new RegExp("^shops: \"shops\" must be a list"), new RegExp("must be a JSON object with a \"shops\" list"), new RegExp("needs a \"shops\" list of 1 to"), new RegExp("^shops file needs a \"shops\" list"), new RegExp("^shops: the \"shops\" list must hold")]],
-    ["shop-not-object", [new RegExp("^shops: shop \\d+ is not an object"), new RegExp(": shop \\d+ must be an object"), new RegExp("^shops: a shop must be an object")]],
-    ["shop-target", [new RegExp("\"target\" must be \"flower\""), new RegExp(": shop \\d+ has target"), new RegExp("^shops: only the flower shop can be changed"), new RegExp("^shops: the shops a mod can change are")]],
-    ["shop-target-twice", [new RegExp("one shop per target"), new RegExp(": two shops change the"), new RegExp("^shops: .* is listed twice, the second is left out")]],
-    ["shop-name", [new RegExp("^shops: shop \\d+ \"name\" must be"), new RegExp(": shop \\d+'s name must be"), new RegExp("^shops: \"name\" must be 1 to 40")]],
-    ["shop-hours-same", [new RegExp("\"hours\" open and close must differ"), new RegExp("'s hours open and close at the same time"), new RegExp("\"open\" and \"close\" are the same time")]],
-    ["shop-hours", [new RegExp("\"hours\" must be \\{"), new RegExp("'s hours need \"open\" and \"close\""), new RegExp("^shops: hours need")]],
-    ["shop-text", [new RegExp("\"(greeting|stock_line)\" must be 1 to 160"), new RegExp("'s \\S+ must be 1 to \\d+ characters on at most"), new RegExp("\"greeting\" and \"stock_line\" must be")]],
-    ["shop-field-unsupported", [new RegExp("is not a field of ")]],
-    ["shop-mode", [new RegExp("\"mode\" must be \"add\" or \"replace\""), new RegExp("'s mode must be \"add\" or \"replace\"")]],
+    ["shops-file", [new RegExp("\"shops\" must be an object of shop ids"), new RegExp("needs a \"shops\" object of shop ids")]],
+    ["shop-id", [new RegExp("there is no shop \"")]],
+    ["shop-blocks", [new RegExp("takes one block or a list of 1 to")]],
+    ["shop-not-object", [new RegExp("a block must be an object")]],
+    ["shop-block-empty", [new RegExp("a block needs a field besides \"when\"")]],
+    ["shop-name", [new RegExp("\"name\" must be 1 to \\d+ characters on one line")]],
+    ["shop-hours-same", [new RegExp("\"hours\" from and to must differ")]],
+    ["shop-hours", [new RegExp("\"hours\" must be \\{ \"from\"")]],
+    ["shop-when", [new RegExp("\"when\" must be an object with at least one of"), new RegExp("\"when\": \"[^\"]*\" must be"), new RegExp("\"when\": \"weekday\" must list"), new RegExp("\"when\": \"month\" must list")]],
+    ["shop-when-setting", [new RegExp("\"when\": \"setting\" must name a bool setting of this mod")]],
+    ["shop-flag", [new RegExp("(^|[^\"] |[^ ])\"[a-z_]+\" must be true or false\\.?$")]],
+    ["shop-percent", [new RegExp("\" must be a whole number from 1 to 1000\\.?$")]],
+    ["shop-service", [new RegExp("\"services\" must be an object of service to Bells"), new RegExp("\"services\" has no \""), new RegExp("\"services\" \".*\" must be a whole number of Bells")]],
+    ["shop-line-slot", [new RegExp("\"lines\" must be an object of slot to"), new RegExp("\"lines\" has no slot \"")]],
+    ["shop-text", [new RegExp("\"lines\" \".*\" must be a line or a list of 1 to")]],
+    ["shop-field-ignored", [new RegExp("has no \"[a-z_]+\", so it is left out")]],
     ["target-not-object", [new RegExp("^(letters: letter|calendar: day|talk: pool) \\d+ is not an object"), new RegExp(": (letter|day|pool) \\d+ must be an object"), new RegExp("(a letter|a day|a pool) must be an object")]],
     ["target-id", [new RegExp("\"id\" must be 1 to 48 of a-z"), new RegExp("'s id must be 1 to 48 of a-z"), new RegExp("is used twice"), new RegExp("an \"id\" must be 1 to 48"), new RegExp("an \"id\" is used twice")]],
     ["letters-file", [new RegExp("^letters: \"letters\" must be a list"), new RegExp("needs a \"letters\" list"), new RegExp("^letters file needs")]],
@@ -221,12 +244,14 @@
     ["letter-paper", [new RegExp("\"paper\" must be a whole number"), new RegExp("'s paper must be a whole number")]],
     ["calendar-file", [new RegExp("\"days\" must be a list"), new RegExp("needs a \"days\" list"), new RegExp("^calendar file needs")]],
     ["calendar-date", [new RegExp("\"date\" must be"), new RegExp("'s date must be")]],
-    ["calendar-empty", [new RegExp("needs a \"board\" notice, \"talk\" lines or a \"letter\""), new RegExp("needs a board notice, talk lines or a letter")]],
     ["calendar-letter", [new RegExp("\"letter\" must be the id of a letter"), new RegExp("'s letter must be the id of a letter"), new RegExp("names no letter in this mod's letters file")]],
     ["calendar-board-world", [new RegExp("\"board\" changes the town"), new RegExp("board notice changes the town"), new RegExp("a \"board\" notice changes the town")]],
     ["calendar-board", [new RegExp("\"board\" must be 1 to \\d+ plain"), new RegExp("'s board must be 1 to \\d+ plain")]],
-    ["calendar-talk", [new RegExp("\"talk\" must list 1 to \\d+"), new RegExp("'s talk must list 1 to"), new RegExp("a talk line must be 1 to")]],
     ["talk-file", [new RegExp("^talk: \"pools\" must be a list"), new RegExp("needs a \"pools\" list"), new RegExp("^talk file needs")]],
+    ["talk-no-place", [new RegExp("\"place\" is required"), new RegExp("'s place is required")]],
+    ["talk-place", [new RegExp("\"place\" must be before, hello"), new RegExp("'s place must be before, hello")]],
+    ["talk-topics", [new RegExp("\"topics\" must be \"any\""), new RegExp("'s topics must be \"any\""), new RegExp("\"topics\" goes only with"), new RegExp("'s topics go only with")]],
+    ["talk-day", [new RegExp("\"day\" must be the id of a day"), new RegExp("'s day must be the id of a day"), new RegExp("names no day in this mod's calendar file")]],
     ["talk-who", [new RegExp("\"personality\" or a \"villager\", not both"), new RegExp("a personality or a villager, not both")]],
     ["talk-personality", [new RegExp("\"personality\" must be"), new RegExp("'s personality must be")]],
     ["talk-villager", [new RegExp("\"villager\" must be a name"), new RegExp("'s villager must be a name")]],
@@ -234,8 +259,8 @@
     ["talk-chance", [new RegExp("\"chance\" must be a whole number"), new RegExp("'s chance must be a whole number")]],
     ["talk-lines", [new RegExp("\"lines\" must list 1 to 32"), new RegExp("'s lines must list 1 to"), new RegExp("^talk: a line must be")]],
     ["targets-out-of-memory", [new RegExp("^(letters|calendar|talk): out of memory")]],
-    ["shop-replaced", [new RegExp("^shops: a later mod changes .* too, so this mod's entry for it is not used")]],
-    ["shop-stock", [new RegExp("\"stock\" must list 1 to \\d+"), new RegExp("'s stock must list 1 to")]],
+    ["shop-replaced", [new RegExp("^shops: a later mod changes .* too, so this mod's change to it is not used")]],
+    ["shop-stock", [new RegExp("\"goods\" must list 1 to \\d+")]],
     ["items-list", [new RegExp("^items: \"items\" must be a list of 1 to"), new RegExp("needs an \"items\" list of 1 to"), new RegExp("must be a JSON object with an \"items\" list")]],
     ["item-not-object", [new RegExp("^items: item \\d+ is not an object"), new RegExp(": item \\d+ must be an object")]],
     ["item-setting", [new RegExp("is not an item setting")]],
@@ -253,11 +278,12 @@
     ["items-too-many-total", [new RegExp("^items: the game holds \\d+ mod items at most")]],
     ["shop-mod-item-unknown", [new RegExp("is not an item in this mod's items file"), new RegExp("names an item that is not one of this mod's")]],
     ["shop-furniture-shared", [new RegExp("shares its furniture")]],
+    ["shop-item-no-model", [new RegExp("has no model in the game: it would stand as a placeholder sign")]],
     ["item-renames", [new RegExp("^\"renames\""), new RegExp("^renames")]],
-    ["shop-item-twice", [new RegExp("is a duplicate item"), new RegExp("'s stock lists item .* twice"), new RegExp("^shops: a stock item is listed twice")]],
-    ["shop-item-refused", [new RegExp("^shops: a stock item cannot be sold"), new RegExp("so the game leaves it out of ")]],
-    ["shop-item", [new RegExp("\"item\" must be \"0x\" and 4 hex"), new RegExp("'s stock entries must be objects with an item"), new RegExp("'s stock item .* must be a string like"), new RegExp("^shops: a stock item must be")]],
-    ["shop-price", [new RegExp("\"price\" must be a whole number"), new RegExp("'s price for .* must be a whole number"), new RegExp("^shops: a price must be")]],
+    ["shop-item-twice", [new RegExp("is a duplicate item")]],
+    ["shop-item-refused", [new RegExp("^shops: a good cannot be sold at"), new RegExp("so the game leaves it out of ")]],
+    ["shop-item", [new RegExp("\"item\" must be \"0x\" and 4 hex")]],
+    ["shop-price", [new RegExp("\"price\" must be a whole number")]],
     ["shop-price-floor", [new RegExp("is under the floor for")]],
     ["manifest-depends", [new RegExp(" must be an object of mod id to version range"), new RegExp(" may name at most \\d+ mods"), new RegExp("\" is not a mod id"), new RegExp(" names the mod itself$"), new RegExp(" names the mod itself\\."), new RegExp("^\"?(depends|optional_depends|conflicts)\"? must be an object of mod id"), new RegExp("^\"?(depends|optional_depends|conflicts)\"? may name at most"), new RegExp("^\"?(depends|optional_depends|conflicts)\"?: \".*\" is not a mod id"), new RegExp("^\"?(depends|optional_depends|conflicts)\"? names the mod itself"), new RegExp("\" is in both \"?[a-z_]+\"? and \"?[a-z_]+\"?\\.?$")]],
     ["manifest-depends-range", [new RegExp("the range for .* must be \"\\*\" or up to 4")]],
@@ -334,9 +360,10 @@
     ["command-queue-full", [new RegExp("commands waiting"), new RegExp("command queue is full")]],
     ["command-day-cap", [new RegExp("a day for each mod")]],
     ["command-item", [new RegExp("^(?:\\w+: cmd\\.\\w+ refused: )?(give_item|send_letter|take_item): item 0x"), new RegExp("can only (give|take) its own new items"), new RegExp("no item by that id in this mod's items file"), new RegExp("can only send its own letters\\.json letters"), new RegExp("no letter by that id in this mod's letters file"), new RegExp("the item is not this town's to give"), new RegExp("the letter is gone")]],
-    ["command-args", [new RegExp("^(?:\\w+: cmd\\.\\w+ refused: )?(send_letter|give_item|show_line|ask|take_item|take_bells): (takes a table|text must|from must|paper must|choices must|each choice must|the text does not fit|template must|template takes no|item must be an item number|count must|amount must)"), new RegExp("item: that item id is too long")]],
-    ["command-city", [new RegExp("commands are switched off in The City")]],
+    ["command-args", [new RegExp("^(?:\\w+: cmd\\.\\w+ refused: )?(send_letter|give_item|show_line|ask|take_item|take_bells|set_shop_goods|set_shop_open): (takes a table|text must|from must|paper must|choices must|each choice must|the text does not fit|template must|template takes no|item must be an item number|count must|amount must|shop must|goods must|each good must|price must|open must|no town is loaded yet)"), new RegExp("item: that item id is too long")]],
+    ["command-city", [new RegExp("commands are switched off in The City"), new RegExp("^(?:\\w+: cmd\\.\\w+ refused: )?set_shop_(goods|open): shops are off in The City")]],
     ["command-client-setting", [new RegExp("this event read the client setting")]],
+    ["command-shop", [new RegExp("^(?:\\w+: cmd\\.\\w+ refused: )?(set_shop_goods|set_shop_open): (there is no such shop|.+ has no (goods|open)$|a later mod changes |a shop changes what visitors see)")]],
     ["dependency-absent", [new RegExp("^[a-z0-9.-]+ is not loaded$"), new RegExp("^[a-z0-9.-]+ is loaded, but it has no running script$")]],
     ["dependency-version", [new RegExp("is loaded, but its version is outside the range this mod names$")]],
     ["dependency-undeclared", [new RegExp("is not in this mod's \"depends\" or \"optional_depends\"$")]],
@@ -702,6 +729,10 @@
       errs.push('"permissions" must list one or more commands, each once, from: ' + PERMISSIONS.join(', '));
     } else if (!has(m, 'scripts')) {
       errs.push('"permissions" is for a mod with "scripts": only a script can use a command');
+    } else if (m.scope !== 'world') {
+      for (const x of p) {
+        if (WORLD_PERMISSIONS.indexOf(x) >= 0) errs.push('"permissions" lists "' + x + '", which changes what visitors see, so "scope" must be "world"');
+      }
     }
   }
 
@@ -1329,12 +1360,13 @@
         }
       }
     }
-    if (c.shops) { const d = doc(c.shops); if (d !== undefined) add(c.shops, validateShops(d, ctx)); }
+    if (c.shops) { const d = doc(c.shops); if (d !== undefined) add(c.shops, validateShops(d, Object.assign({ modId: m.id, items: null }, ctx || {}, { settings: m.settings }))); }
 
     let letters = null;
     if (c.letters) { const d = doc(c.letters); if (d !== undefined) { add(c.letters, validateLetters(d)); letters = letterIds(d); } else letters = undefined; }
-    if (c.calendar) { const d = doc(c.calendar); if (d !== undefined) add(c.calendar, validateCalendar(d, m.scope, letters)); }
-    if (c.talk) { const d = doc(c.talk); if (d !== undefined) add(c.talk, validateTalk(d)); }
+    let days = null;
+    if (c.calendar) { const d = doc(c.calendar); if (d !== undefined) { add(c.calendar, validateCalendar(d, m.scope, letters)); days = calendarIds(d); } else days = undefined; }
+    if (c.talk) { const d = doc(c.talk); if (d !== undefined) add(c.talk, validateTalk(d, days)); }
     if (c.messages) { const d = doc(c.messages); if (d !== undefined) add(c.messages, validateMessages(d)); }
 
     if (typeof c.textures === 'string' && c.textures.length && !pathProblem(c.textures.replace(/\/+$/, ''))) {
@@ -1343,91 +1375,179 @@
     return out;
   }
 
+  const WEEKDAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  const GOOD_KEYS = ['item', 'price', 'when'];
+  const HOURS_KEYS = ['from', 'to'];
   function validateShops(doc, ctx) {
     const errs = isObj(doc) ? unknownKeyErrs(doc, SHOPS_FILE_KEYS, 'shops: ') : [];
-    if (!isObj(doc) || !Array.isArray(doc.shops) || doc.shops.length < 1 || doc.shops.length > SHOPS_MAX) {
-      return errs.concat(['shops: "shops" must be a list of 1 to ' + SHOPS_MAX + ' shops']);
+    if (!isObj(doc) || !isObj(doc.shops) || Object.keys(doc.shops).length < 1) {
+      return errs.concat(['shops: "shops" must be an object of shop ids, like { "nook": { ... } }']);
     }
-    const targets = new Set();
-    doc.shops.forEach(function (s, idx) {
-      const at = 'shops: shop ' + (idx + 1) + ' ';
-      if (!isObj(s)) { errs.push(at + 'is not an object'); return; }
-      errs.push.apply(errs, unknownKeyErrs(s, SHOP_KEYS, 'shops: shop ' + (idx + 1) + ': '));
-      const info = typeof s.target === 'string' && SHOP_TARGETS.indexOf(s.target) >= 0 ? SHOP_TARGET_INFO[s.target] : null;
-      if (!info) errs.push(at + '"target" must be ' + SHOP_TARGETS.map(function (t) { return '"' + t + '"'; }).join(' or '));
-      else if (targets.has(s.target)) errs.push(at + 'is a second shop for "' + s.target + '": one shop per target');
-      else targets.add(s.target);
-
-      if (info) {
-        for (const k of SHOP_KEYS) {
-          if (has(s, k) && info.fields.indexOf(k) < 0) {
-            errs.push(at + '"' + k + '" is not a field of ' + info.words + ': it takes ' + info.fields.map(function (f) { return '"' + f + '"'; }).join(', '));
-          }
-        }
+    for (const id of Object.keys(doc.shops)) {
+      const info = SHOP_INFO[id];
+      if (SHOP_IDS.indexOf(id) < 0 || !info) {
+        const c = closestKey(id, SHOP_IDS);
+        errs.push('shops: there is no shop ' + JSON.stringify(id) + (c ? ' (did you mean "' + c + '"?)' : '') + ': the shops are ' + SHOP_IDS.join(', '));
+        continue;
       }
-
-      if (has(s, 'name') && (typeof s.name !== 'string' || cpLen(s.name) < 1 || cpLen(s.name) > SHOP_NAME_CHARS || s.name.indexOf('\n') >= 0)) {
-        errs.push(at + '"name" must be 1 to ' + SHOP_NAME_CHARS + ' characters on one line');
+      const v = doc.shops[id];
+      const list = Array.isArray(v);
+      if (list && (v.length < 1 || v.length > SHOP_BLOCKS_MAX)) {
+        errs.push('shops: ' + info.words + ' takes one block or a list of 1 to ' + SHOP_BLOCKS_MAX + ' blocks');
+        continue;
       }
-      if (has(s, 'hours')) errs.push.apply(errs, hoursErrs(s.hours, at));
-      for (const k of ['greeting', 'stock_line']) {
-        if (!has(s, k)) continue;
-        const v = s[k];
-        if (typeof v !== 'string' || cpLen(v) < 1 || cpLen(v) > SHOP_LINE_CHARS || v.split('\n').length - 1 > SHOP_LINE_NEWLINES) {
-          errs.push(at + '"' + k + '" must be 1 to ' + SHOP_LINE_CHARS + ' characters with at most ' + SHOP_LINE_NEWLINES + ' line breaks');
-        }
-      }
-
-      if (s.mode !== 'add' && s.mode !== 'replace') errs.push(at + '"mode" must be "add" or "replace"');
-      const max = info ? info.stock : SHOP_STOCK_MAX;
-      if (!Array.isArray(s.stock) || s.stock.length < 1 || s.stock.length > max) {
-        errs.push(at + '"stock" must list 1 to ' + max + ' items' + (info ? ' for ' + info.words : ''));
-      } else errs.push.apply(errs, stockErrs(s.stock, at, ctx));
-    });
+      (list ? v : [v]).forEach(function (b, k) {
+        const at = 'shops: ' + info.words + (list ? ' block ' + (k + 1) : '') + ': ';
+        const path = 'shops: ' + id + (list ? ' block ' + (k + 1) : '') + ': ';
+        errs.push.apply(errs, blockErrs(b, info, at, path, ctx));
+      });
+    }
     return errs;
   }
 
-  function stockErrs(stock, at, ctx) {
+  function blockErrs(b, info, at, path, ctx) {
+    if (!isObj(b)) return [at + 'a block must be an object'];
+    const errs = unknownKeyErrs(b, SHOP_KEYS, path);
+    if (errs.length) return errs;
+    if (Object.keys(b).filter(function (k) { return k !== 'when'; }).length === 0) return [at + 'a block needs a field besides "when"'];
+    if (has(b, 'when')) errs.push.apply(errs, whenErrs(b.when, at, path, '', ctx));
+    for (const k of ['open', 'own_goods']) {
+      if (has(b, k) && typeof b[k] !== 'boolean') errs.push(at + '"' + k + '" must be true or false');
+    }
+    for (const k of ['price_percent', 'buy_back_percent']) {
+      if (has(b, k) && (typeof b[k] !== 'number' || !Number.isInteger(b[k]) || b[k] < 1 || b[k] > SHOP_PERCENT_MAX)) {
+        errs.push(at + '"' + k + '" must be a whole number from 1 to ' + SHOP_PERCENT_MAX);
+      }
+    }
+
+    if (has(b, 'goods') && info.fields.indexOf('goods') >= 0) errs.push.apply(errs, goodsErrs(b.goods, info, at, path, ctx));
+    if (has(b, 'services')) {
+      const s = b.services;
+      if (!isObj(s) || Object.keys(s).length < 1) errs.push(at + '"services" must be an object of service to Bells');
+      else if (info.fields.indexOf('services') >= 0) {
+        for (const name of Object.keys(s)) {
+          if (info.services.indexOf(name) < 0) errs.push(at + '"services" has no ' + JSON.stringify(name) + ': ' + info.words + ' has ' + info.services.join(' '));
+          else if (typeof s[name] !== 'number' || !Number.isInteger(s[name]) || s[name] < 1 || s[name] > SHOP_PRICE_MAX) {
+            errs.push(at + '"services" ' + JSON.stringify(name) + ' must be a whole number of Bells from 1 to ' + SHOP_PRICE_MAX);
+          }
+        }
+      }
+    }
+
+    if (has(b, 'name') && (typeof b.name !== 'string' || cpLen(b.name) < 1 || cpLen(b.name) > SHOP_NAME_CHARS || b.name.indexOf('\n') >= 0)) {
+      errs.push(at + '"name" must be 1 to ' + SHOP_NAME_CHARS + ' characters on one line');
+    }
+    if (has(b, 'lines')) {
+      const l = b.lines;
+      if (!isObj(l) || Object.keys(l).length < 1) errs.push(at + '"lines" must be an object of slot to a line or a list of lines');
+      else if (info.fields.indexOf('lines') >= 0) {
+        for (const slot of Object.keys(l)) {
+          if (info.lines.indexOf(slot) < 0) { errs.push(at + '"lines" has no slot ' + JSON.stringify(slot) + ': the slots are ' + info.lines.join(' ')); continue; }
+          const v = l[slot];
+          const all = typeof v === 'string' ? [v] : Array.isArray(v) && v.length >= 1 && v.length <= SHOP_LINES_MAX ? v : null;
+          const ok = all && all.every(function (t) {
+            return typeof t === 'string' && cpLen(t) >= 1 && cpLen(t) <= SHOP_LINE_CHARS && t.split('\n').length - 1 <= SHOP_LINE_NEWLINES;
+          });
+          if (!ok) {
+            errs.push(at + '"lines" ' + JSON.stringify(slot) + ' must be a line or a list of 1 to ' + SHOP_LINES_MAX + ' lines, each 1 to ' +
+              SHOP_LINE_CHARS + ' characters with at most ' + SHOP_LINE_NEWLINES + ' line breaks');
+          }
+        }
+      }
+    }
+    return errs;
+  }
+
+  function whenErrs(w, at, path, whose, ctx) {
+    const sub = whose ? whose + ' ' : '';
+    if (!isObj(w) || Object.keys(w).length < 1) {
+      return [at + sub + '"when" must be an object with at least one of ' + WHEN_KEYS.join(', ')];
+    }
+    const errs = unknownKeyErrs(w, WHEN_KEYS, path + (whose ? whose + ': ' : '') + 'when: ');
+    if (errs.length) return errs;
+    if (has(w, 'hours')) {
+      const h = w.hours;
+      if (isObj(h)) {
+        const u = unknownKeyErrs(h, HOURS_KEYS, path + (whose ? whose + ': ' : '') + 'when: ');
+        if (u.length) return u;
+      }
+      if (!isObj(h) || typeof h.from !== 'string' || typeof h.to !== 'string' || !HHMM_RE.test(h.from) || !HHMM_RE.test(h.to)) {
+        errs.push(at + sub + '"hours" must be { "from": "HH:MM", "to": "HH:MM" }, 00:00 to 23:59');
+      } else if (h.from === h.to) errs.push(at + sub + '"hours" from and to must differ');
+    }
+    const one = function (k, list, words) {
+      if (has(w, k) && list.indexOf(w[k]) < 0) errs.push(at + sub + '"when": "' + k + '" must be ' + words);
+    };
+    one('time', ['morning', 'day', 'evening', 'night'], 'morning, day, evening or night');
+    one('season', ['spring', 'summer', 'fall', 'winter'], 'spring, summer, fall or winter');
+    one('weather', ['clear', 'rain', 'snow'], 'clear, rain or snow');
+    const distinct = function (v, ok, max) {
+      return Array.isArray(v) && v.length >= 1 && v.length <= max && v.every(ok) && new Set(v).size === v.length;
+    };
+    if (has(w, 'weekday') && !distinct(w.weekday, function (d) { return WEEKDAYS.indexOf(d) >= 0; }, 7)) {
+      errs.push(at + sub + '"when": "weekday" must list 1 to 7 different days, monday to sunday');
+    }
+    if (has(w, 'month') && !distinct(w.month, function (m) { return Number.isInteger(m) && m >= 1 && m <= 12; }, 12)) {
+      errs.push(at + sub + '"when": "month" must list 1 to 12 different months, 1 to 12');
+    }
+    if (has(w, 'setting')) {
+      const list = ctx && Array.isArray(ctx.settings) ? ctx.settings : [];
+      const s = typeof w.setting === 'string' ? list.find(function (x) { return isObj(x) && x.name === w.setting; }) : null;
+      if (!s || s.type !== 'bool' || s.scope === 'client') {
+        errs.push(at + sub + '"when": "setting" must name a bool setting of this mod with scope world' + (typeof w.setting === 'string' ? ': ' + w.setting : ''));
+      }
+    }
+    return errs;
+  }
+
+  function goodsErrs(goods, info, at, path, ctx) {
+    const max = info.goods || NOOK_STOCK_MAX;
+    if (!Array.isArray(goods) || goods.length < 1 || goods.length > max) {
+      return [at + '"goods" must list 1 to ' + max + ' goods'];
+    }
     const errs = [];
     const seen = new Set();
     const bases = new Set();
-    stock.forEach(function (it, k) {
-          const sat = at + 'stock ' + (k + 1) + ' ';
-          if (isObj(it)) errs.push.apply(errs, unknownKeyErrs(it, STOCK_KEYS, at.replace(/ $/, ': ') + 'stock ' + (k + 1) + ': '));
+    goods.forEach(function (it, k) {
+      const no = 'goods ' + (k + 1);
+      if (isObj(it)) {
+        const u = unknownKeyErrs(it, GOOD_KEYS, path + no + ': ');
+        if (u.length) { errs.push.apply(errs, u); return; }
+      }
 
-          const own = isObj(it) && typeof it.item === 'string' && ctx && ctx.items ? MOD_ITEM_FULL_RE.exec(it.item) : null;
-          if (own) {
-            if (own[1] !== ctx.modId || !ctx.items.has(own[2])) {
-              errs.push(sat + '"item" ' + it.item + ' is not an item in this mod\'s items file');
-              return;
-            }
-          } else if (!isObj(it) || typeof it.item !== 'string' || !ITEM_RE.test(it.item)) {
-            errs.push(sat + '"item" must be "0x" and 4 hex digits, like "0x2800"' + (ctx && ctx.items ? ', or an item of this mod like ' + ctx.modId + ':thing' : ''));
-            return;
-          }
+      const own = isObj(it) && typeof it.item === 'string' && ctx && ctx.items ? MOD_ITEM_FULL_RE.exec(it.item) : null;
+      if (own) {
+        if (own[1] !== ctx.modId || !ctx.items.has(own[2])) {
+          errs.push(at + no + ' "item" is not an item in this mod\'s items file: ' + it.item);
+          return;
+        }
+      } else if (!isObj(it) || typeof it.item !== 'string' || !ITEM_RE.test(it.item)) {
+        errs.push(at + no + ' "item" must be "0x" and 4 hex digits, or an item of this mod' + (isObj(it) && typeof it.item === 'string' ? ': ' + it.item : ''));
+        return;
+      }
 
-          const key = own ? it.item : parseInt(it.item.slice(2), 16);
-          const base = own ? ctx.items.get(own[2]).base : key;
-          if (seen.has(key)) errs.push(sat + 'is a duplicate item ' + it.item);
-          else if (base >= 0 && bases.has(base)) errs.push(sat + 'shares its furniture ' + hex4(base) + ' with another good of this shop');
-          seen.add(key);
-          if (base >= 0) bases.add(base);
-          if (has(it, 'price') && (typeof it.price !== 'number' || !Number.isInteger(it.price) || it.price < 1 || it.price > SHOP_PRICE_MAX)) {
-            errs.push(sat + '"price" must be a whole number from 1 to ' + SHOP_PRICE_MAX);
-          }
+      const key = own ? it.item : parseInt(it.item.slice(2), 16);
+      const base = own ? ctx.items.get(own[2]).base : key;
+      if (seen.has(key)) errs.push(at + no + ' is a duplicate item: ' + it.item);
+      else if (base >= 0 && bases.has(base)) errs.push(at + no + ' shares its furniture with another good: ' + it.item);
+      seen.add(key);
+      if (base >= 0) bases.add(base);
+
+      if (!own && FTR_NO_MODEL.indexOf(ftrIndex(key)) >= 0) {
+        errs.push(at + no + ' "item" ' + it.item + ' has no model in the game: it would stand as a placeholder sign');
+      }
+      if (has(it, 'price') && (typeof it.price !== 'number' || !Number.isInteger(it.price) || it.price < 1 || it.price > SHOP_PRICE_MAX)) {
+        errs.push(at + no + ' "price" must be a whole number from 1 to ' + SHOP_PRICE_MAX);
+      }
+      if (has(it, 'when')) errs.push.apply(errs, whenErrs(it.when, at, path, no, ctx));
     });
     return errs;
   }
 
-  function hoursErrs(h, at) {
-    if (!isObj(h) || typeof h.open !== 'string' || typeof h.close !== 'string' ||
-        !HHMM_RE.test(h.open) || !HHMM_RE.test(h.close)) {
-      return [at + '"hours" must be { "open": "HH:MM", "close": "HH:MM" }'];
-    }
-    return h.open === h.close ? [at + '"hours" open and close must differ'] : [];
+  function ftrIndex(n) {
+    const t = n >> 12;
+    return t === 1 ? (n - 0x1000) >> 2 : t === 3 ? 0x400 + ((n - 0x3000) >> 2) : -1;
   }
-
-  function hex4(v) { return '0x' + v.toString(16).padStart(4, '0'); }
 
   function validateMessages(doc) {
     if (!isObj(doc)) return ['messages: the file is not a JSON object of key to text'];
@@ -1522,8 +1642,22 @@
     return errs;
   }
 
-  function talkLineOk(v) {
+  function talkPageOk(v) {
     return typeof v === 'string' && cpLen(v) >= 1 && cpLen(v) <= TALK_LINE_CHARS && v.split('\n').length - 1 <= TALK_LINE_NEWLINES;
+  }
+
+  function talkLineOk(v) {
+    if (Array.isArray(v)) return v.length >= 1 && v.length <= TALK_PAGES_MAX && v.every(talkPageOk);
+    return talkPageOk(v);
+  }
+
+  const TALK_LINE_RULE = 'lines of 1 to ' + TALK_LINE_CHARS + ' characters with at most ' + TALK_LINE_NEWLINES +
+    ' line breaks, or lists of 1 to ' + TALK_PAGES_MAX + ' such pages';
+
+  function calendarIds(doc) {
+    const ids = new Set();
+    if (isObj(doc) && Array.isArray(doc.days)) doc.days.forEach(function (d) { if (isObj(d) && typeof d.id === 'string') ids.add(d.id); });
+    return ids;
   }
 
   function letterIds(doc) {
@@ -1549,7 +1683,6 @@
       if (dateOk && has(d, 'day')) dateOk = !has(d, 'week') && !has(d, 'weekday') && wholeIn(d.day, 1, DAYS[d.month - 1]);
       else if (dateOk) dateOk = (d.week === 'last' || wholeIn(d.week, 1, 4)) && wholeIn(d.weekday, 0, 6);
       if (!dateOk) errs.push(at + '"date" must be { "month", "day" } or { "month", "week" (1 to 4 or "last"), "weekday" (0 Sunday to 6) }');
-      if (!has(e, 'board') && !has(e, 'talk') && !has(e, 'letter')) errs.push(at + 'needs a "board" notice, "talk" lines or a "letter"');
       if (has(e, 'letter')) {
         if (typeof e.letter !== 'string' || !MSG_KEY_RE.test(e.letter)) errs.push(at + '"letter" must be the id of a letter in this mod\'s letters file');
         else if (letters !== undefined && !(letters && letters.has(e.letter))) errs.push(at + '"letter" ' + JSON.stringify(e.letter) + ' names no letter in this mod\'s letters file');
@@ -1558,14 +1691,11 @@
         if (!paperOk(e.board)) errs.push(at + '"board" must be 1 to ' + PAPER_BYTES + ' plain characters on at most ' + PAPER_LINES + ' lines' + paperCharNote(e.board));
         if (scope !== 'world') errs.push(at + '"board" changes the town, so "scope" must be "world"');
       }
-      if (has(e, 'talk') && (!Array.isArray(e.talk) || e.talk.length < 1 || e.talk.length > CALENDAR_TALK_MAX || !e.talk.every(talkLineOk))) {
-        errs.push(at + '"talk" must list 1 to ' + CALENDAR_TALK_MAX + ' lines of 1 to ' + TALK_LINE_CHARS + ' characters with at most ' + TALK_LINE_NEWLINES + ' line breaks');
-      }
     });
     return errs;
   }
 
-  function validateTalk(doc) {
+  function validateTalk(doc, days) {
     const errs = isObj(doc) ? unknownKeyErrs(doc, TALK_FILE_KEYS, 'talk: ') : [];
     if (!isObj(doc) || !Array.isArray(doc.pools) || doc.pools.length < 1 || doc.pools.length > POOLS_MAX) {
       return errs.concat(['talk: "pools" must be a list of 1 to ' + POOLS_MAX + ' pools']);
@@ -1574,6 +1704,19 @@
       const at = 'talk: pool ' + (k + 1) + ' ';
       if (!isObj(p)) { errs.push(at + 'is not an object'); return; }
       errs.push.apply(errs, unknownKeyErrs(p, TALK_POOL_KEYS, 'talk: pool ' + (k + 1) + ': '));
+      if (!has(p, 'place')) errs.push(at + '"place" is required: before, hello, topic, after or conversation');
+      else if (TALK_PLACES.indexOf(p.place) < 0) errs.push(at + '"place" must be before, hello, topic, after or conversation');
+      if (has(p, 'topics')) {
+        const t = p.topics;
+        const list = Array.isArray(t) && t.length >= 1 && t.length <= TALK_TOPICS.length &&
+          t.every(function (x, i) { return TALK_TOPICS.indexOf(x) >= 0 && t.indexOf(x) === i; });
+        if (p.place !== 'topic') errs.push(at + '"topics" goes only with "place": "topic"');
+        else if (t !== 'any' && !list) errs.push(at + '"topics" must be "any" or a list of small_talk, trade, letter, memory, hint and news');
+      }
+      if (has(p, 'day')) {
+        if (typeof p.day !== 'string' || !MSG_KEY_RE.test(p.day)) errs.push(at + '"day" must be the id of a day in this mod\'s calendar file');
+        else if (days !== undefined && !(days && days.has(p.day))) errs.push(at + '"day" ' + JSON.stringify(p.day) + ' names no day in this mod\'s calendar file');
+      }
       if (has(p, 'personality') && has(p, 'villager')) errs.push(at + 'names a "personality" or a "villager", not both');
       if (has(p, 'personality') && PERSONALITIES.indexOf(p.personality) < 0) {
         errs.push(at + '"personality" must be one of ' + PERSONALITIES.join(', '));
@@ -1587,7 +1730,7 @@
       });
       if (has(p, 'chance') && !wholeIn(p.chance, 1, 100)) errs.push(at + '"chance" must be a whole number from 1 to 100');
       if (!Array.isArray(p.lines) || p.lines.length < 1 || p.lines.length > POOL_LINES_MAX || !p.lines.every(talkLineOk)) {
-        errs.push(at + '"lines" must list 1 to ' + POOL_LINES_MAX + ' lines of 1 to ' + TALK_LINE_CHARS + ' characters with at most ' + TALK_LINE_NEWLINES + ' line breaks');
+        errs.push(at + '"lines" must list 1 to ' + POOL_LINES_MAX + ' ' + TALK_LINE_RULE);
       }
     });
     return errs;
@@ -3987,7 +4130,8 @@
 
   const api = {
     validateManifest: validateManifest, validateShops: validateShops, validateMessages: validateMessages,
-    validateLetters: validateLetters, validateCalendar: validateCalendar, validateTalk: validateTalk, letterIds: letterIds,
+    validateLetters: validateLetters, validateCalendar: validateCalendar, validateTalk: validateTalk, letterIds: letterIds, calendarIds: calendarIds,
+    TALK_PLACES: TALK_PLACES, TALK_TOPICS: TALK_TOPICS,
     validateItems: validateItems,
     normalizeEntries: normalizeEntries, parseJsonStrict: parseJsonStrict, readMod: readMod,
 
@@ -3995,10 +4139,10 @@
     contentSha: contentSha, modsetHash: modsetHash, modsetList: modsetList, countsForVisits: countsForVisits,
     VANILLA_OUTPUT_COMMANDS: VANILLA_OUTPUT_COMMANDS, planLoad: planLoad,
     list: list, install: install, remove: remove, setEnabled: setEnabled, move: move, setOrder: setOrder,
-    skipNextBoot: skipNextBoot, bootLoad: bootLoad, EVENTS: EVENTS, PERMISSIONS: PERMISSIONS, LIMITS: LIMITS,
+    skipNextBoot: skipNextBoot, bootLoad: bootLoad, EVENTS: EVENTS, PERMISSIONS: PERMISSIONS, WORLD_PERMISSIONS: WORLD_PERMISSIONS, LIMITS: LIMITS,
     API_MIN: API_MIN, API_MAX: API_MAX, UNBUILT_KEYS: UNBUILT_KEYS, MANIFEST_KEYS: MANIFEST_KEYS, CONTENT_KEYS: CONTENT_KEYS,
     FILE_KEYS: {
-      shops: SHOPS_FILE_KEYS, shop: SHOP_KEYS, stock: STOCK_KEYS, items: ITEMS_FILE_KEYS, letters: LETTERS_FILE_KEYS, letter: LETTER_KEYS,
+      shops: SHOPS_FILE_KEYS, shop: SHOP_KEYS, good: GOOD_KEYS, when: WHEN_KEYS, items: ITEMS_FILE_KEYS, letters: LETTERS_FILE_KEYS, letter: LETTER_KEYS,
       calendar: CALENDAR_FILE_KEYS, day: CALENDAR_DAY_KEYS, talk: TALK_FILE_KEYS, pool: TALK_POOL_KEYS
     },
     closestKey: closestKey, apiStatus: apiStatus, TAGS: TAGS,

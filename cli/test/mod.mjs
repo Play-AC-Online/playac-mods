@@ -49,7 +49,7 @@ export function modFiles(id, kind) {
   }
   if (kind === 'shop') {
     manifest.content.shops = 'shops.json';
-    files['shops.json'] = json({ shops: [{ target: 'flower', mode: 'replace', name: 'Test Shop', stock: [{ item: '0x2800', price: 600 }] }] });
+    files['shops.json'] = json({ shops: { flower: { own_goods: false, name: 'Test Shop', goods: [{ item: '0x2800', price: 600 }] } } });
   }
   if (kind === 'script') {
     manifest.scripts = { main: 'main.lua', events: ['day_started'] };

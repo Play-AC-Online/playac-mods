@@ -22,11 +22,21 @@ First release.
 - `check` reads a talk file's pools by the game's rules, `season` (spring,
   summer, fall, winter), `time` (morning, day, evening, night) and `weather`
   (clear, rain, snow) included, and refuses any other value (`talk-when`).
+  It reads each pool's `place` (`talk-place`), `topics` (`talk-topics`) and
+  `day`, which must be a day of the mod's calendar file (`talk-day`), and a
+  line that is a list of up to 8 pages. A script may list
+  `villager_answered`.
 - `check` reads a texture name with or without a label in front, as in
   `bookshelf-top_tex1_32x32_626709d910129694_$_8.png`: 1 to 40 lowercase
   letters, digits and dashes, then one underscore. The game matches on the
   `tex1_` part only. `check` refuses a label that breaks that rule, and a
   labelled file that is the same texture as another file in the same folder.
+- `check` reads `shops.json` by shop id: each shop in the shop table takes one
+  block or a list of blocks, with `when`, `open`, `own_goods`, `goods`,
+  `price_percent`, `buy_back_percent`, `services`, `name` and `lines`. It warns
+  about a good a shop's spots cannot hold and a price the game raises to its
+  floor, refuses furniture the game has no model for (`shop-item-no-model`),
+  and knows the permissions `set_shop_goods` and `set_shop_open`.
 - `check` refuses what the game and the site refuse: a JSON file that is not
   UTF-8, a `.lua` or `.json` file with a carriage return no line feed follows
   (`file-lone-cr`), an unknown key in a calendar date, a setting label or

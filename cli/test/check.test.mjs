@@ -206,7 +206,7 @@ test('the script scan: on() against scripts.events and the events, cmd.* against
    * problem; math.random raises where it is called, which stops it too */
   assert.deepEqual(w.map((x) => !!x.error), [true, true, false, false, true, true]);
   assert.equal(w[2].message, 'line 5: cmd.ask: "ask" is not in "permissions" in mod.json, so the game refuses every call. Each call returns nil, the reason and the code command-permission. It logs: cmd.ask refused: ask is not in this mod\'s "permissions" in mod.json');
-  assert.match(w[3].message, /^line 7: cmd\.teleport is not a command, so calling it raises an error and the script stops for the session\. The commands are send_letter, give_item, show_line, ask, take_item, take_bells\.$/);
+  assert.match(w[3].message, /^line 7: cmd\.teleport is not a command, so calling it raises an error and the script stops for the session\. The commands are send_letter, give_item, show_line, ask, take_item, take_bells, set_shop_goods, set_shop_open\.$/);
   assert.equal(w[4].message, 'line 12: math.random is not available: use rng() (seeded, so a reload cannot reroll). The game stops your script where it calls math.random.');
   assert.match(w[5].message, /^line 13: math\.randomseed is not available: use rng\(\)/);
   /* timer.after with no timer_fired in scripts.events is refused by the game every time */
@@ -292,11 +292,11 @@ test('check lists the manifest\'s problems AND every content file\'s, where read
   };
   const entries = {
     'mod.json': js(man),
-    'shops.json': js({ shops: [{ target: 'flower', mode: 'replace', stock: [] }] }),
+    'shops.json': js({ shops: { flower: { own_goods: false, goods: [] } } }),
     'lines/en.json': js({ 'Bad Key': 'x' }),
     'letters.json': js({ letters: [] }),
-    'calendar.json': js({ days: [{ id: 'e', date: { month: 13, day: 1 }, talk: ['hi'] }] }),
-    'talk.json': js({ pools: [{ personality: 'grumpy', lines: ['hi'] }] }),
+    'calendar.json': js({ days: [{ id: 'e', date: { month: 13, day: 1 } }] }),
+    'talk.json': js({ pools: [{ place: 'topic', personality: 'grumpy', lines: ['hi'] }] }),
     'items.json': js({ items: [{ id: 'x', name: 'X', base: '0x1001' }] }),
   };
   let game = '';
@@ -305,7 +305,7 @@ test('check lists the manifest\'s problems AND every content file\'s, where read
   assert.doesNotMatch(game, /shops:|letters:|calendar:|talk:|items:|messages/, 'readMod stops at the manifest');
   const r = await check(entries);
   assert.ok(said(r, 'mod.json', /"version"/));
-  assert.ok(said(r, 'shops.json', /"stock" must list 1 to 6/), JSON.stringify(r.problems, null, 1));
+  assert.ok(said(r, 'shops.json', /^shops: the flower shop: "goods" must list 1 to 6/), JSON.stringify(r.problems, null, 1));
   assert.ok(said(r, 'lines/en.json', /^messages: key "Bad Key"/));
   assert.ok(said(r, 'letters.json', /^letters: "letters" must be a list/));
   assert.ok(said(r, 'calendar.json', /^calendar: day 1 "date"/));
@@ -325,10 +325,10 @@ test('a messages folder and the unknown-key rule, as readMod has them', async ()
   const tr = await check({ 'mod.json': js({ ...base, content: { translations: 'translations/' } }), 'translations/de.json': js({ 'mod/name': 'Testmod' }) });
   assert.deepEqual(tr.problems.map((p) => [p.file, mods.errorCode(p.message)]), [['mod.json', 'content-unknown']]);
   /* an unknown key, in mod.json and in a content file's entry, with the key it is close to and the catalogue's code */
-  const typo = await check({ 'mod.json': js({ ...base, scope: 'world', permisions: ['ask'], content: { shops: 'shops.json' } }), 'shops.json': js({ shops: [{ target: 'nook', mode: 'add', stock: [{ item: '0x1000' }], mod: 'add' }] }) }, { items: null });
+  const typo = await check({ 'mod.json': js({ ...base, scope: 'world', permisions: ['ask'], content: { shops: 'shops.json' } }), 'shops.json': js({ shops: { nook: { goods: [{ item: '0x1000' }], own_good: false } } }) }, { items: null });
   assert.deepEqual(typo.problems.map((p) => [p.file, p.message, mods.errorCode(p.message)]), [
     ['mod.json', 'mod.json: unknown key "permisions" (did you mean "permissions"?)', 'unknown-key'],
-    ['shops.json', 'shops: shop 1: unknown key "mod" (did you mean "mode"?)', 'unknown-key'],
+    ['shops.json', 'shops: nook: unknown key "own_good" (did you mean "own_goods"?)', 'unknown-key'],
   ]);
   /* one api level: a mod.json without "api", or with the next level, is refused */
   const { api: _none, ...noApi } = base;
@@ -365,26 +365,35 @@ const OLD = itemTable({ items: [
 ] });
 
 test('shop goods: unknown ids, goods a shop cannot stock, prices under the floor (both items.json shapes)', () => {
-  const shops = { shops: [
-    { target: 'flower', mode: 'replace', stock: [{ item: '0x2800', price: 300 }, { item: '0x1002' }, { item: '0x7777' }, { item: 'test.mod:own' }, { item: '0x2900', price: 20 }] },
-    { target: 'nook', mode: 'add', stock: [{ item: '0x2800', price: 300 }, { item: '0x1003', price: 999 }, { item: '0x2900' }] },
-  ] };
+  const shops = { shops: {
+    flower: { own_goods: false, goods: [{ item: '0x2800', price: 300 }, { item: '0x1002' }, { item: '0x7777' }, { item: 'test.mod:own' }, { item: '0x2900', price: 20 }] },
+    nook: [
+      { open: true },
+      { goods: [{ item: '0x2800', price: 300 }, { item: '0x1003', price: 999 }, { item: '0x2900' }] },
+    ],
+    /* a shop items.json has no answer for is not judged here */
+    redd: { goods: [{ item: '0x7777' }] },
+  } };
   assert.deepEqual(shopItemWarnings(shops, NEW), [
-    'shops: shop 1 stock 1 "price" 300 is under the floor for 0x2800 (apple) at the flower shop. The game sells it for 500.',
-    'shops: shop 1 stock 2 "item" 0x1002 (wardrobe) has no shop shelf model, so the game leaves it out of the flower shop',
-    'shops: shop 1 stock 3 "item" 0x7777 is not an item or furniture the game has, so the game leaves it out of the flower shop',
-    'shops: shop 2 stock 2 "price" 999 is under the floor for 0x1003 (wardrobe) at Nook\'s store. The game sells it for 1000.',
-    'shops: shop 2 stock 3 "item" 0x2900 (sapling) cannot be sold at Nook\'s store, so the game leaves it out of Nook\'s store',
+    'shops: the flower shop: goods 1 "price" 300 is under the floor for 0x2800 (apple) at the flower shop. The game sells it for 500.',
+    'shops: the flower shop: goods 2 "item" 0x1002 (wardrobe) has no shop shelf model, so the game leaves it out of the flower shop',
+    'shops: the flower shop: goods 3 "item" 0x7777 is not an item or furniture the game has, so the game leaves it out of the flower shop',
+    'shops: Nook\'s store block 2: goods 2 "price" 999 is under the floor for 0x1003 (wardrobe) at Nook\'s store. The game sells it for 1000.',
+    'shops: Nook\'s store block 2: goods 3 "item" 0x2900 (sapling) cannot be sold at Nook\'s store, so the game leaves it out of Nook\'s store',
   ]);
-  assert.deepEqual(shopItemWarnings({ shops: [{ target: 'flower', mode: 'replace', stock: [{ item: '0x2800', price: 50 }, { item: '0x1000' }] }] }, OLD), [
-    'shops: shop 1 stock 1 "price" 50 is under the floor for 0x2800 (food apple) at the flower shop. The game sells it for 100.',
-    'shops: shop 1 stock 2 "item" 0x1000 (spooky wardrobe) has no shop shelf model, so the game leaves it out of the flower shop',
+  assert.deepEqual(shopItemWarnings({ shops: { flower: { goods: [{ item: '0x2800', price: 50 }, { item: '0x1000' }] } } }, OLD), [
+    'shops: the flower shop: goods 1 "price" 50 is under the floor for 0x2800 (food apple) at the flower shop. The game sells it for 100.',
+    'shops: the flower shop: goods 2 "item" 0x1000 (spooky wardrobe) has no shop shelf model, so the game leaves it out of the flower shop',
   ]);
   assert.deepEqual(shopItemWarnings(shops, null), [], 'no items.json: the check is skipped');
+  assert.deepEqual(shopItemWarnings({ shops: [{ goods: [{ item: '0x7777' }] }] }, NEW), [], 'a file that is not keyed by shop id: its refusal is mods.js\'s');
+  /* the words are mods.js's own for the same good */
+  assert.ok(mods.validateShops({ shops: { flower: { goods: [{ item: 7 }] } } }).some((e) => e.startsWith('shops: the flower shop: goods 1 "item"')));
+  assert.ok(mods.validateShops({ shops: { nook: [{ open: true }, { goods: [{ item: 7 }] }] } }).some((e) => e.startsWith('shops: Nook\'s store block 2: goods 1 "item"')));
 });
 
 test('check warns on shop goods and passes the mod; without items.json it says nothing', async () => {
-  const entries = { 'mod.json': js({ ...base, scope: 'world', content: { shops: 'shops.json' } }), 'shops.json': js({ shops: [{ target: 'flower', mode: 'replace', stock: [{ item: '0x2800', price: 300 }, { item: '0x7777' }] }] }) };
+  const entries = { 'mod.json': js({ ...base, scope: 'world', content: { shops: 'shops.json' } }), 'shops.json': js({ shops: { flower: { own_goods: false, goods: [{ item: '0x2800', price: 300 }, { item: '0x7777' }] } } }) };
   const r = await check(entries, { items: NEW });
   assert.equal(r.ok, true);
   assert.equal(r.warnings.filter((w) => w.file === 'shops.json').length, 2, JSON.stringify(r.warnings));

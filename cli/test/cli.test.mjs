@@ -70,7 +70,7 @@ test('check agrees with readMod on every case in the contract\'s cases.json', SO
 test('check lists every problem against its file, past readMod\'s four', async () => {
   const entries = {
     'mod.json': enc(JSON.stringify({ ...base, scope: 'client', content: { shops: 'shops.json', messages: 'messages/en.json' }, game: 'GAFE' })),
-    'shops.json': enc(JSON.stringify({ shops: [{ target: 'nook', mode: 'add', stock: [{ item: 2048 }] }] })),
+    'shops.json': enc(JSON.stringify({ shops: { nook: { goods: [{ item: 2048 }] } } })),
     'messages/en.json': enc(JSON.stringify({ 'Bad Key': 'x', ok: '' })),
     'notes.json': enc('{"a":1,"a":2}'),
     'tool.exe': enc('MZ'),
@@ -87,7 +87,7 @@ test('check lists every problem against its file, past readMod\'s four', async (
 test('check reads an items file and a shop that stocks its items', async () => {
   const man = { ...base, scope: 'world', content: { items: 'items.json', shops: 'shops.json' }, renames: { 'test.mod:x': 'test.mod:toy-chest' } };
   const items = { items: [{ id: 'toy-chest', name: 'Toy Chest', base: '0x1008', price: 1800 }] };
-  const shops = (item) => ({ shops: [{ target: 'flower', mode: 'replace', stock: [{ item }, { item: '0x2800' }] }] });
+  const shops = (item) => ({ shops: { flower: { own_goods: false, goods: [{ item }, { item: '0x2800' }] } } });
   const good = await checkEntries({ 'mod.json': enc(JSON.stringify(man)), 'items.json': enc(JSON.stringify(items)), 'shops.json': enc(JSON.stringify(shops('test.mod:toy-chest'))) }, { lua: false });
   assert.deepEqual(good.problems, []);
   const bad = await checkEntries({
@@ -266,7 +266,7 @@ test('a Lua syntax error is a problem, with or without a luac installed', async 
 test('check links each problem to its errors catalogue entry', async () => {
   const dir = tmp();
   fs.writeFileSync(path.join(dir, 'mod.json'), JSON.stringify({ ...base, scope: 'client', content: { shops: 'shops.json' } }));
-  fs.writeFileSync(path.join(dir, 'shops.json'), JSON.stringify({ shops: [{ target: 'flower', mode: 'replace', stock: [{ item: '0x2800' }] }] }));
+  fs.writeFileSync(path.join(dir, 'shops.json'), JSON.stringify({ shops: { flower: { own_goods: false, goods: [{ item: '0x2800' }] } } }));
   const { code, out } = await quiet(() => main(['check', dir]));
   assert.equal(code, 1);
   assert.match(out, /see https:\/\/playaconline\.com\/modding\/errors\/#shops-need-world/);

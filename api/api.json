@@ -15,7 +15,7 @@
       {
         "level": 1,
         "date": "2026-11-16",
-        "summary": "The first level. Content is textures (a file may carry a readable label before its name), lines (a messages file), shops (the flower shop and Nook's store, one entry shape for both, each at hours of its own), new furniture on a vanilla base with pictures of its own (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Six commands (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are declared in permissions and applied at the end of a frame's update. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Mods can name optional_depends, and a setting can be world or client."
+        "summary": "The first level. Content is textures (a file may carry a readable label before its name), lines (a messages file), shops (each by its id in the shop table, from Nook's store and the flower shop to Katrina's tent, one block shape for every shop, each block applying while its when holds), new furniture on a vanilla base with pictures of its own (an items file, renames), letter templates, calendar days and villager line pools. Scripts get sixteen events, each handed one table. They also get log, message, the game queries, a store per town with a part per player and one per browser, settings, remote calls between mods, a seeded rng and timers on the game clock. Eight commands are declared in permissions: six (cmd.send_letter, give_item, show_line, ask, take_item, take_bells) are applied at the end of a frame's update, and two (cmd.set_shop_goods, set_shop_open) are set at the call. Mods also have depends and conflicts with version ranges, and data_version with the data_migrated event. Mods can name optional_depends, and a setting can be world or client."
       }
     ]
   },
@@ -180,27 +180,51 @@
       }
     },
     {
-      "name": "shops.per_file",
-      "value": 2,
-      "unit": "shops",
-      "since": 1,
-      "description": "The most shops in one shops.json. That is one per target (flower, nook).",
-      "sources": {
-        "go": "maxShops",
-        "c": "PC_MOD_SHOP_FILE_MAX",
-        "js": "SHOPS_MAX"
-      }
-    },
-    {
       "name": "shops.stock",
       "value": 6,
       "unit": "goods",
       "since": 1,
-      "description": "The most goods in the flower shop's stock: one per bench spot.",
+      "description": "The most goods in one block for the flower shop: one per bench spot.",
       "sources": {
         "go": "maxStock",
         "c": "PC_MOD_SHOP_STOCK_MAX",
         "js": "SHOP_STOCK_MAX"
+      }
+    },
+    {
+      "name": "shops.blocks",
+      "value": 8,
+      "unit": "blocks",
+      "since": 1,
+      "description": "The most blocks in the list one shop takes in shops.json.",
+      "sources": {
+        "c": "PC_MOD_SHOP_BLOCKS_MAX",
+        "js": "SHOP_BLOCKS_MAX",
+        "go": "maxShopBlocks"
+      }
+    },
+    {
+      "name": "shops.lines",
+      "value": 8,
+      "unit": "lines",
+      "since": 1,
+      "description": "The most lines in one slot of a block's \"lines\". The keeper says one of them each time.",
+      "sources": {
+        "c": "PC_MOD_SHOP_LINES_MAX",
+        "js": "SHOP_LINES_MAX",
+        "go": "maxShopLines"
+      }
+    },
+    {
+      "name": "shops.percent_max",
+      "value": 1000,
+      "unit": "percent",
+      "since": 1,
+      "description": "The highest price_percent or buy_back_percent.",
+      "sources": {
+        "c": "PC_MOD_SHOP_PERCENT_MAX",
+        "js": "SHOP_PERCENT_MAX",
+        "go": "maxShopPercent"
       }
     },
     {
@@ -220,7 +244,7 @@
       "value": 160,
       "unit": "characters",
       "since": 1,
-      "description": "The longest greeting or stock_line, in Unicode code points.",
+      "description": "The longest shop line (a slot of \"lines\"), in Unicode code points.",
       "sources": {
         "go": "maxShopTextRunes",
         "c": "PC_MOD_SHOP_LINE_CHARS",
@@ -232,7 +256,7 @@
       "value": 3,
       "unit": "newlines",
       "since": 1,
-      "description": "The most line breaks in a greeting or stock_line.",
+      "description": "The most line breaks in one shop line.",
       "sources": {
         "go": "maxShopTextNewline",
         "c": "PC_MOD_SHOP_LINE_NEWLINES",
@@ -623,11 +647,23 @@
       "value": 16,
       "unit": "goods",
       "since": 1,
-      "description": "The most goods in Nook's stock.",
+      "description": "The most goods in one block for Nook's store.",
       "sources": {
         "js": "NOOK_STOCK_MAX",
         "go": "maxNookStock",
         "c": "PC_MOD_NOOK_STOCK_MAX"
+      }
+    },
+    {
+      "name": "visitors.stock",
+      "value": 6,
+      "unit": "goods",
+      "since": 1,
+      "description": "The most goods in one block for a visiting seller (Crazy Redd, Saharah, the fireworks stall).",
+      "sources": {
+        "c": "PC_MOD_VISITOR_STOCK_MAX",
+        "js": "VISITOR_STOCK_MAX",
+        "go": "maxVisitorStock"
       }
     },
     {
@@ -715,18 +751,6 @@
       }
     },
     {
-      "name": "calendar.talk_lines",
-      "value": 16,
-      "unit": "lines",
-      "since": 1,
-      "description": "Talk lines in one calendar day.",
-      "sources": {
-        "js": "CALENDAR_TALK_MAX",
-        "go": "maxCalendarTalk",
-        "c": "PC_MOD_CALENDAR_TALK_MAX"
-      }
-    },
-    {
       "name": "talk.pools",
       "value": 32,
       "unit": "pools",
@@ -755,7 +779,7 @@
       "value": 160,
       "unit": "characters",
       "since": 1,
-      "description": "A villager line (pool or calendar day), in Unicode code points. It may have at most 3 line breaks.",
+      "description": "A page of a villager line (a pool's or a script's), in Unicode code points. It may have at most 3 line breaks. A line that is one string is one page, wrapped to as many windows as it needs.",
       "sources": {
         "go": "maxTalkRunes",
         "c": "PC_MOD_TALK_LINE_CHARS",
@@ -1019,11 +1043,23 @@
       "value": 3,
       "unit": "newlines",
       "since": 1,
-      "description": "The most line breaks in a villager line (pool or calendar day).",
+      "description": "The most line breaks in a page of a villager line (a pool's or a script's).",
       "sources": {
         "js": "TALK_LINE_NEWLINES",
         "go": "maxTalkNewlines",
         "c": "PC_MOD_TALK_LINE_NEWLINES"
+      }
+    },
+    {
+      "name": "talk.pages",
+      "value": 8,
+      "unit": "pages",
+      "since": 1,
+      "description": "Pages in one villager line, when the line is a list of pages (a pool line, or a line a script returns). Each page starts on a clean window.",
+      "sources": {
+        "js": "TALK_PAGES_MAX",
+        "go": "maxTalkPages",
+        "c": "PC_MOD_TALK_PAGES_MAX"
       }
     },
     {
@@ -1456,7 +1492,7 @@
       "name": "permissions",
       "since": 1,
       "required": false,
-      "description": "The commands the mod's script may queue, each once. The game refuses any command the list leaves out. The Mods tab and the moderators' review show what the list lets the mod do. take_item and take_bells let the mod ask the player for items or Bells. The game itself shows the question with the true item and amount, and nothing is taken unless the player says yes. Needs scripts.",
+      "description": "The commands the mod's script may queue, each once. The game refuses any command the list leaves out. The Mods tab and the moderators' review show what the list lets the mod do. take_item and take_bells let the mod ask the player for items or Bells. The game itself shows the question with the true item and amount, and nothing is taken unless the player says yes. set_shop_goods and set_shop_open change a shop for the day and need scope world. Needs scripts.",
       "example": [
         "send_letter"
       ],
@@ -1471,7 +1507,9 @@
             "show_line",
             "ask",
             "take_item",
-            "take_bells"
+            "take_bells",
+            "set_shop_goods",
+            "set_shop_open"
           ]
         }
       },
@@ -1481,7 +1519,9 @@
         "show_line",
         "ask",
         "take_item",
-        "take_bells"
+        "take_bells",
+        "set_shop_goods",
+        "set_shop_open"
       ]
     },
     {
@@ -1844,12 +1884,12 @@
     {
       "name": "shop_fields",
       "since": 1,
-      "description": "Every shop target takes the same entry, and each field means the same on every shop. A field a shop does not have (files.shops.targets lists each shop's fields) is refused with one rule, code shop-field-unsupported, whose message names the shop and the field. Nook's store has no name, greeting or stock_line: Nook keeps his own name and words."
+      "description": "Every shop takes the same block, and each field means the same on every shop. The shop table (files.shops.shop_table) lists the fields each shop has, and it is read from the game itself. A field a shop does not have is left out, not refused: the rest of the block applies and the mod's row in the Mods tab names the shop and the field (code shop-field-ignored). Nook's store and Able Sisters have no lines, because their keepers speak only the disc's own words."
     },
     {
       "name": "unknown_keys",
       "since": 1,
-      "description": "A key the game does not know is refused. This applies at the top of mod.json, at the top of the shops, items, letters, calendar and talk files, and in each of their entries (a shop, a stock entry, an item, a letter, a calendar day, a talk pool). The messages file is the exception, because its keys are the lines. The message is <file>: unknown key \"<key>\", followed by (did you mean \"<known>\"?) when a known key is close. $schema is known wherever a file may carry it. Keys are case-sensitive."
+      "description": "A key the game does not know is refused. This applies at the top of mod.json, at the top of the shops, items, letters, calendar and talk files, and in each of their entries (a shop block, a good, a \"when\" and its hours, an item, a letter, a calendar day, a talk pool). The messages file is the exception, because its keys are the lines. The message is <file>: unknown key \"<key>\", followed by (did you mean \"<known>\"?) when a known key is close. $schema is known wherever a file may carry it. Keys are case-sensitive."
     },
     {
       "name": "json_strict",
@@ -1872,7 +1912,7 @@
     {
       "name": "frame_cap",
       "since": 1,
-      "description": "All mods share 4 ms of Lua time a frame. Past it, every game event without an answer (day_started, item_picked_up, scene_entered and the others) waits for the next frame. Events wait in order for each mod, at most 64 at a time, and one past that is dropped. villager_talked is skipped for the rest of that frame, so the villager says their own greeting. A mod with events still waiting is not asked for a villager_talked line until they have run. The next mod is asked instead. Each mod therefore sees its own events in the order they happened. A remote.call into a mod is not one of its events. It runs at once, inside the caller's event. command_finished and question_answered wait too, but are never dropped or skipped. A command queued by a command_finished handler is applied at the next frame boundary, not the one that delivered the result. data_migrated runs as a town loads, outside the limit."
+      "description": "All mods share 4 ms of Lua time a frame. Past it, every game event without an answer (day_started, item_picked_up, scene_entered and the others) waits for the next frame. Events wait in order for each mod, at most 64 at a time, and one past that is dropped. villager_talked is skipped for the rest of that frame, so the villager says their own greeting. A mod with events still waiting is not asked for a villager_talked line until they have run. The next mod is asked instead. Each mod therefore sees its own events in the order they happened. A remote.call into a mod is not one of its events. It runs at once, inside the caller's event. command_finished and question_answered wait too, but are never dropped or skipped. villager_answered runs at once: the player is waiting on it. A command queued by a command_finished handler is applied at the next frame boundary, not the one that delivered the result. data_migrated runs as a town loads, outside the limit."
     },
     {
       "name": "data_migrated_needs_data_version",
@@ -1892,7 +1932,7 @@
     {
       "name": "visit_scope",
       "since": 1,
-      "description": "Which mods a friend visit compares. A Just you mod never counts. A World mod counts if its content has textures, shops or items (visit_scope_content), or if its permissions are not a list of strings. Every other World mod does not count. That covers a mod with only lines, letters, calendar days or talk pools. No command makes a mod count. send_letter, give_item, take_item and take_bells are refused on a visit, and show_line and ask show only to their own player. Only mods that count must match between the two towns. An optional dependency is a mod like any other here. When it is a World mod that counts, it is in the list, and installing it changes what a visit compares.",
+      "description": "Which mods a friend visit compares. A Just you mod never counts. A World mod counts if its content has textures, shops or items (visit_scope_content), if its permissions name set_shop_goods or set_shop_open (they change a shop), or if its permissions are not a list of strings. Every other World mod does not count. That covers a mod with only lines, letters, calendar days or talk pools. No command makes a mod count. send_letter, give_item, take_item and take_bells are refused on a visit, and show_line and ask show only to their own player. Only mods that count must match between the two towns. An optional dependency is a mod like any other here. When it is a World mod that counts, it is in the list, and installing it changes what a visit compares.",
       "values": [
         "send_letter",
         "give_item",
@@ -1915,16 +1955,18 @@
     {
       "name": "world_scope",
       "since": 1,
-      "description": "What needs scope world, because it changes the town a visitor sees: a shops file (content.shops), and a calendar file with a board notice. Everything else may be client (only you see it) or world.",
+      "description": "What needs scope world, because it changes the town a visitor sees: a shops file (content.shops), a calendar file with a board notice, and the permissions set_shop_goods and set_shop_open. Everything else may be client (only you see it) or world.",
       "values": [
         "shops",
-        "board"
+        "board",
+        "set_shop_goods",
+        "set_shop_open"
       ]
     },
     {
       "name": "load_order_last_wins",
       "since": 1,
-      "description": "When two mods change the same thing, the last in load order wins it whole. For each shop target (the flower shop, Nook's store), nothing is merged. The later mod's shop is the shop. The earlier mod's row in the Mods tab says its shop is not used and names the mod that has it. Shops are not merged for three reasons. A good is known on the shelf by its game item alone, so two mods' items made on the same base piece could not be told apart at the till. A shop's name, hours and lines are written for its own goods. The shelves are few, so a merge would cut each mod's stock by what else is installed. For a texture, the kind of file comes first. A file for one exact palette (tex1_..._<tlut>_<fmt>) beats any mod's every-palette file (tex1_..._$_<fmt>) for the same texture, whatever the order. Between two files of the same kind, the later mod's is drawn. A mod's texture of either kind beats the HD pack's.",
+      "description": "When two mods change the same thing, the last in load order wins it whole. For a shop that is per shop id: the later mod's blocks are that shop, and the earlier mod's change to it is not used. Two mods that change different shops both apply. The earlier mod's row in the Mods tab names the shop and the mod that has it. Inside the mod that has a shop, all its blocks for it apply. For a texture, the kind of file comes first. A file for one exact palette (tex1_..._<tlut>_<fmt>) beats any mod's every-palette file (tex1_..._$_<fmt>) for the same texture, whatever the order. Between two files of the same kind, the later mod's is drawn. A mod's texture of either kind beats the HD pack's.",
       "values": [
         "textures",
         "shops"
@@ -1933,7 +1975,7 @@
     {
       "name": "load_order_first_wins",
       "since": 1,
-      "description": "The villager_talked event goes to mods in load order. The first handler that returns a line wins that talk, and later mods' villager_talked handlers are not asked. This applies only to the event. The villager lines of talk files and calendar files are not first-wins. Every mod's matching pools are put together and one line is picked from all of them. The pick depends on the day and the villager, so it is the same line all day.",
+      "description": "A villager's talk has five places for a mod's words: before, hello, topic, after and conversation. Each takes one line per talk, and every line names its place. Every mod's villager_talked handler runs, in load order, and the first line a handler returns for a place takes it. A conversation takes the whole talk, so it needs every place free; once one is taken, the event stops. Lines a script did not take a place with come from talk files, which are not first-wins: every mod's fitting pools of that place are put together and one line is picked from all of them, fresh on every talk.",
       "values": [
         "villager_talked"
       ]
@@ -2127,198 +2169,421 @@
       "title": "shops.json",
       "guides": [
         {
-          "path": "/modding/guides/shops/#entry",
-          "title": "One shop entry"
+          "path": "/modding/guides/shops/#file",
+          "title": "One file, every shop"
         },
         {
-          "path": "/modding/guides/shops/#flower",
-          "title": "The flower shop"
+          "path": "/modding/guides/shops/#when",
+          "title": "When a block applies"
         },
         {
-          "path": "/modding/guides/shops/#nook",
-          "title": "Nook's store"
+          "path": "/modding/guides/shops/#table",
+          "title": "What each shop has"
         }
       ],
       "error_areas": [
         "shops"
       ],
       "limits": [
-        "shops.per_file",
+        "shops.blocks",
         "shops.stock",
         "nook.stock",
+        "visitors.stock",
+        "shops.lines",
         "shops.name_chars",
         "shops.line_chars",
         "shops.line_newlines",
-        "shops.price_max"
+        "shops.price_max",
+        "shops.percent_max"
       ],
       "schema_file": "shops.schema.json",
-      "description": "Restocks and rewords a shop. Every shop takes the same entry: a target, the goods (stock), how they join the shop's own (mode), and optionally hours. Each field means one thing on every shop; a field a shop does not have is refused (rule shop_fields, the table in targets). mode \"add\" puts the goods in at most half of the spots of their kind, rounded up, and the shop's own goods keep the rest. mode \"replace\" makes them the shop's whole stock: each spot of a kind it lists takes one of its goods, and every other spot is bare. hours say when the entry applies. Inside them the shop is the mod's and is open, also when the game has it shut for the night. Outside them the shop is its own. With no hours the entry applies all day, in the shop's own hours. At Nook's the goods stand in spots of their own kind, in every store size, from the next restock, and a new set is picked each day when there are more goods than spots. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. Shops are off in The City. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so.",
+      "description": "Changes shops, each by its id: \"nook\", \"flower\", \"redd\" and the rest of the shop table. A shop takes one block, or a list of blocks. A block says what changes (goods, open, own_goods, prices, services, name, lines) and, with \"when\", when. Every field means the same on every shop. The shop table says which fields each shop has; a field a shop does not have is left out and the mod's row says so (rule shop_fields). While a block applies its goods join the shop's own, in at most half the spots of their kind (rounded up), or with \"own_goods\": false they are the whole stock. When several blocks apply at once their goods are sold together, and for a single value the last of them counts. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids, and raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id, at Nook's and the flower shop. Without a price a good takes the shop's own price. Shops are off in The City. When two switched-on mods change the same shop, the one later in the load order has that shop whole and the other's change to it is not used (rule load_order_last_wins). The earlier mod's row says so.",
       "schema": {
         "type": "object",
         "required": [
           "shops"
         ],
         "additionalProperties": false,
+        "$defs": {
+          "block": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "not": {
+              "required": [
+                "when"
+              ],
+              "maxProperties": 1,
+              "description": "A block needs at least one field besides \"when\"."
+            },
+            "description": "One change to a shop. It needs at least one field besides \"when\".",
+            "properties": {
+              "when": {
+                "$ref": "#/$defs/when"
+              },
+              "open": {
+                "type": "boolean",
+                "description": "true: the shop is open while the block applies, also when its own hours have it shut. false: it is shut while the block applies. Leave it out for the shop's own hours."
+              },
+              "own_goods": {
+                "type": "boolean",
+                "description": "false: while the block applies the shop sells only the goods of the blocks that apply, and every spot of a kind they do not list is bare. true (the default): the goods join the shop's own, in at most half the spots of their kind, rounded up."
+              },
+              "goods": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 16,
+                "description": "The goods. Each stands in a spot of its own kind. The shop table gives each shop's most goods in a block.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "item"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "item": {
+                      "type": "string",
+                      "description": "The item id as a string, \"0x\" and 4 hex digits, or the full id of an item in this mod's items file (author.mod:thing), at Nook's and the flower shop. Each item is listed at most once in a block. Two mod items may not share a base.",
+                      "anyOf": [
+                        {
+                          "pattern": "^0x[0-9a-fA-F]{4}$"
+                        },
+                        {
+                          "pattern": "^([a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}):([a-z0-9][a-z0-9-]{0,31})$"
+                        }
+                      ]
+                    },
+                    "price": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 99999,
+                      "description": "The price in Bells. Leave it out for the shop's own price."
+                    },
+                    "when": {
+                      "$ref": "#/$defs/when"
+                    }
+                  }
+                }
+              },
+              "price_percent": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000,
+                "description": "While the block applies the shop asks this percent of its own price for every good with no price of its own. 100 is the game's price. Never below the buy-back."
+              },
+              "buy_back_percent": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000,
+                "description": "While the block applies the shop pays this percent of what it would pay for what the player sells, never more than it asks for the item. Not turnips."
+              },
+              "services": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 99999,
+                  "description": "The service's price in Bells, 1 to 99999."
+                },
+                "description": "A service's price in Bells, by the service's name in the shop table (a haircut, a design, a dream, a fortune)."
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40,
+                "pattern": "^[^\\n]*$",
+                "description": "The shop's name where the game shows it: the flower shop's door sign while the shop is shut. One line."
+              },
+              "lines": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160,
+                      "description": "1 to 160 characters, at most 3 line breaks."
+                    },
+                    {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 8,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160,
+                        "description": "1 to 160 characters, at most 3 line breaks."
+                      }
+                    }
+                  ],
+                  "description": "One line, or a list of 1 to 8 lines the keeper picks from."
+                },
+                "description": "What the keeper says, by slot (the shop table lists each shop's). A slot is one line, or a list of 1 to 8 the keeper picks from each time."
+              }
+            }
+          },
+          "when": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "description": "When the block or the good applies: while every key here holds. Leave it out for always.",
+            "properties": {
+              "hours": {
+                "type": "object",
+                "required": [
+                  "from",
+                  "to"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+                    "description": "From this time, on a 24-hour clock."
+                  },
+                  "to": {
+                    "type": "string",
+                    "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+                    "description": "Up to this time, on a 24-hour clock. It may be past midnight."
+                  }
+                },
+                "description": "HH:MM to HH:MM. From and to must differ."
+              },
+              "time": {
+                "enum": [
+                  "morning",
+                  "day",
+                  "evening",
+                  "night"
+                ],
+                "description": "The game's four times of day: morning 5 to 12, day 12 to 17, evening 17 to midnight, night midnight to 5."
+              },
+              "season": {
+                "enum": [
+                  "spring",
+                  "summer",
+                  "fall",
+                  "winter"
+                ],
+                "description": "Spring is March to May, summer June to August, fall September to November, winter December to February."
+              },
+              "weather": {
+                "enum": [
+                  "clear",
+                  "rain",
+                  "snow"
+                ],
+                "description": "Cherry blossom and falling leaves count as clear."
+              },
+              "weekday": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 7,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday",
+                    "sunday"
+                  ],
+                  "description": "A day of the week, monday to sunday, in lowercase."
+                },
+                "description": "Only on these days of the week."
+              },
+              "month": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 12,
+                "uniqueItems": true,
+                "items": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 12,
+                  "description": "A month, 1 (January) to 12."
+                },
+                "description": "Only in these months, 1 (January) to 12."
+              },
+              "setting": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,31}$",
+                "description": "The name of one of this mod's settings of type bool with scope world. Holds while it is on."
+              }
+            }
+          }
+        },
         "properties": {
           "$schema": {
             "type": "string"
           },
           "shops": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 2,
-            "items": {
-              "type": "object",
-              "required": [
-                "target",
-                "stock",
-                "mode"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "target": {
-                  "enum": [
-                    "flower",
-                    "nook"
-                  ],
-                  "description": "Which shop: \"flower\" or \"nook\". One entry per target. Every target takes the same fields; the targets table says which fields a shop has."
-                },
-                "name": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 40,
-                  "description": "The flower shop's. The shop's name on its door sign while the shop is shut, followed by the hours the mod's shop is on. One line, no line break.",
-                  "pattern": "^[^\\n]*$"
-                },
-                "hours": {
-                  "type": "object",
-                  "required": [
-                    "open",
-                    "close"
-                  ],
-                  "properties": {
-                    "open": {
-                      "type": "string",
-                      "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
-                      "description": "When the entry starts, on a 24-hour clock."
-                    },
-                    "close": {
-                      "type": "string",
-                      "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
-                      "description": "When the entry ends, on a 24-hour clock."
-                    }
-                  },
-                  "description": "HH:MM. Open and close must differ. Close may be past midnight. The entry applies only inside the hours: its goods (by mode) and its lines. Inside them the shop is open, also when the game has it shut for the night. Outside them the shop is its own. Leave hours out for all day, in the shop's own hours."
-                },
-                "greeting": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 160,
-                  "description": "The flower shop's. What the keeper says first while the entry applies. At most 3 line breaks."
-                },
-                "stock_line": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 160,
-                  "description": "The flower shop's. What the keeper says about the stock while the entry applies. At most 3 line breaks."
-                },
-                "stock": {
-                  "type": "array",
-                  "minItems": 1,
-                  "maxItems": 16,
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "item"
-                    ],
-                    "additionalProperties": false,
-                    "properties": {
-                      "item": {
-                        "type": "string",
-                        "description": "The item id as a string, \"0x\" and 4 hex digits, or the full id of an item in this mod's items file (author.mod:thing). Each item is listed at most once. Two mod items may not share a base.",
-                        "anyOf": [
-                          {
-                            "pattern": "^0x[0-9a-fA-F]{4}$"
-                          },
-                          {
-                            "pattern": "^([a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}):([a-z0-9][a-z0-9-]{0,31})$"
-                          }
-                        ]
-                      },
-                      "price": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 99999,
-                        "description": "The price in Bells. Leave it out for the game's own price."
-                      }
-                    }
-                  },
-                  "description": "The goods. The flower shop takes 1 to 6, Nook's 1 to 16 (the targets table). Each stands in a spot of its own kind."
-                },
-                "mode": {
-                  "enum": [
-                    "add",
-                    "replace"
-                  ],
-                  "description": "How the goods join the shop's own, the same on every shop. \"add\": in at most half of the spots of their kind, rounded up; the shop's own goods keep the rest. \"replace\": the goods are the shop's whole stock; each spot of a kind they list takes one, and every other spot is bare."
-                }
-              }
-            },
-            "description": "The shops this file changes, at most one for each target."
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": false,
+            "properties": {},
+            "description": "The shops this file changes, by id. Each takes one block or a list of blocks."
           }
         }
       },
       "example": {
-        "shops": [
-          {
-            "target": "flower",
-            "mode": "replace",
-            "name": "Tea Stall",
-            "hours": {
-              "open": "15:00",
-              "close": "01:00"
+        "shops": {
+          "flower": {
+            "when": {
+              "hours": {
+                "from": "15:00",
+                "to": "01:00"
+              }
             },
-            "greeting": "Welcome to the tea stall!",
-            "stock": [
+            "open": true,
+            "own_goods": false,
+            "name": "Tea Stall",
+            "lines": {
+              "greeting": "Welcome to the tea stall!"
+            },
+            "goods": [
               {
                 "item": "0x2800",
                 "price": 400
               }
             ]
           }
-        ]
+        }
       },
-      "targets": [
+      "shop_table": [
         {
-          "name": "flower",
-          "words": "the flower shop",
-          "title": "The flower shop",
-          "stock_limit": "shops.stock",
-          "fields": [
-            "target",
-            "name",
-            "hours",
-            "greeting",
-            "stock_line",
-            "stock",
-            "mode"
-          ],
-          "spots": "Six spots on the benches, one kind.",
-          "opens": "Inside its hours it opens when the clock has it shut (2 AM to 7 AM), but not while its keeper is out on her Sunday round."
-        },
-        {
-          "name": "nook",
+          "id": "nook",
           "words": "Nook's store",
           "title": "Nook's store",
-          "stock_limit": "nook.stock",
+          "goods_limit": "nook.stock",
           "fields": [
-            "target",
-            "hours",
-            "stock",
-            "mode"
+            "when",
+            "open",
+            "own_goods",
+            "goods",
+            "price_percent",
+            "buy_back_percent"
           ],
-          "spots": "Spots by kind (furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings, flower bags), more in a bigger store.",
-          "opens": "Inside its hours it opens when it is shut for the night, but not before its morning opening, on a renovation day or in a sale's hours."
+          "spots": "Spots by kind (furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings, flower bags), more in a bigger store. A new set of goods is picked each day when a block lists more than the spots.",
+          "opens": "open: true opens it when it is shut for the night, but not before its morning opening, on a renovation day or in a sale's hours. open: false shuts it."
+        },
+        {
+          "id": "flower",
+          "words": "the flower shop",
+          "title": "The flower shop",
+          "goods_limit": "shops.stock",
+          "fields": [
+            "when",
+            "open",
+            "own_goods",
+            "goods",
+            "price_percent",
+            "name",
+            "lines"
+          ],
+          "lines": [
+            "greeting",
+            "stock"
+          ],
+          "spots": "Six spots on the benches, one kind.",
+          "opens": "open: true opens it when the clock has it shut (2 AM to 7 AM), but not while its keeper is out on her Sunday round. open: false shuts it, with its name on the door sign."
+        },
+        {
+          "id": "redd",
+          "words": "Crazy Redd's tent",
+          "title": "Crazy Redd",
+          "goods_limit": "visitors.stock",
+          "fields": [
+            "when",
+            "own_goods",
+            "goods",
+            "price_percent"
+          ],
+          "spots": "Three furniture spots, set out each time the tent is entered while he is in town."
+        },
+        {
+          "id": "saharah",
+          "words": "Saharah",
+          "title": "Saharah",
+          "goods_limit": "visitors.stock",
+          "fields": [
+            "when",
+            "own_goods",
+            "goods",
+            "price_percent"
+          ],
+          "spots": "One carpet, the one she offers for yours when the player talks to her. price_percent is her fee."
+        },
+        {
+          "id": "fireworks",
+          "words": "the fireworks stall",
+          "title": "The fireworks stall",
+          "goods_limit": "visitors.stock",
+          "fields": [
+            "when",
+            "own_goods",
+            "goods",
+            "price_percent"
+          ],
+          "spots": "Its goods for the night: fans, pinwheels and balloons, set out when the stall is set up."
+        },
+        {
+          "id": "able",
+          "words": "Able Sisters",
+          "title": "Able Sisters",
+          "fields": [
+            "when",
+            "services"
+          ],
+          "services": [
+            "design"
+          ],
+          "spots": "No goods. Mabel sells one service, a design."
+        },
+        {
+          "id": "barber",
+          "words": "the barber shop",
+          "title": "The barber shop",
+          "fields": [
+            "when",
+            "open",
+            "services"
+          ],
+          "services": [
+            "haircut"
+          ],
+          "spots": "No goods. Tybalt sells one service, a haircut.",
+          "opens": "open: true opens it when the clock has it shut (2 AM to 7 AM). open: false shuts it."
+        },
+        {
+          "id": "dream",
+          "words": "the Dream Suite",
+          "title": "The Dream Suite",
+          "fields": [
+            "when",
+            "services"
+          ],
+          "services": [
+            "dream"
+          ],
+          "spots": "No goods. Katrina sells one service, a dream visit. The suite keeps no hours, so it has no open."
+        },
+        {
+          "id": "katrina",
+          "words": "Katrina's tent",
+          "title": "Katrina",
+          "fields": [
+            "when",
+            "services"
+          ],
+          "services": [
+            "fortune"
+          ],
+          "spots": "No goods. Katrina sells one service, a fortune, on the nights she visits."
         }
       ]
     },
@@ -2435,7 +2700,7 @@
         "lua.handlers_per_event"
       ],
       "description": "Lua 5.4 source text, run once when the game starts. Bytecode is refused. The script registers handlers with on() and returns nothing. Each mod has its own Lua state, and mods cannot see each other's globals.",
-      "example": "on(\"villager_talked\", function(e) return \"Hi \" .. e.villager.name .. \"!\" end)"
+      "example": "on(\"villager_talked\", function(e) return { place = \"before\", line = \"Hi \" .. e.villager.name .. \"!\" } end)"
     },
     {
       "name": "items",
@@ -2676,15 +2941,13 @@
       ],
       "limits": [
         "calendar.per_file",
-        "calendar.talk_lines",
         "calendar.board_per_day",
         "letters.body_chars",
         "letters.body_lines",
-        "talk.line_chars",
         "commands.letters_per_day"
       ],
       "schema_file": "calendar.schema.json",
-      "description": "Calendar days: dated days with safe effects only, and no script. A day can have a notice on the town bulletin board. The notice is posted once on the day in the player's own town, never on a visit or in The City, and needs scope world. A day can have villager lines for the day: on that day they are half of every villager's small talk, ahead of talk pools. A day can have a letter from the same mod's letters file. The letter is mailed once on the day to the player's mailbox in their own town, never on a visit or in The City, and counts against the mod's daily letter limit. A day cannot add decorations, because the game has no data format for them.",
+      "description": "Calendar days: dated days with safe effects only, and no script. A day can have a notice on the town bulletin board. The notice is posted once on the day in the player's own town, never on a visit or in The City, and needs scope world. A day can have villager lines: talk.json pools that name the day's id as their \"day\", in any place of the talk. A day with no notice and no letter is a date for those pools. A day can have a letter from the same mod's letters file. The letter is mailed once on the day to the player's mailbox in their own town, never on a visit or in The City, and counts against the mod's daily letter limit. A day cannot add decorations, because the game has no data format for them.",
       "schema": {
         "type": "object",
         "required": [
@@ -2706,23 +2969,6 @@
                 "date"
               ],
               "additionalProperties": false,
-              "anyOf": [
-                {
-                  "required": [
-                    "board"
-                  ]
-                },
-                {
-                  "required": [
-                    "talk"
-                  ]
-                },
-                {
-                  "required": [
-                    "letter"
-                  ]
-                }
-              ],
               "properties": {
                 "id": {
                   "type": "string",
@@ -2778,18 +3024,6 @@
                   "maxLength": 192,
                   "description": "A bulletin board notice: 1 to 192 characters on at most 6 lines. Plain text: printable ASCII, no { or }. Needs scope world."
                 },
-                "talk": {
-                  "type": "array",
-                  "minItems": 1,
-                  "maxItems": 16,
-                  "items": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 160,
-                    "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
-                  },
-                  "description": "Lines villagers say on the day. They come ahead of every talk pool."
-                },
                 "letter": {
                   "type": "string",
                   "pattern": "^[a-z0-9_.-]{1,48}$",
@@ -2810,10 +3044,7 @@
               "week": 3,
               "weekday": 3
             },
-            "board": "HARVEST FAIR TODAY!\nBring your best fruit.",
-            "talk": [
-              "It's the Harvest Fair!"
-            ]
+            "board": "HARVEST FAIR TODAY!\nBring your best fruit."
           },
           {
             "id": "lantern-night",
@@ -2822,10 +3053,7 @@
               "week": 2,
               "weekday": 5
             },
-            "letter": "lanterns",
-            "talk": [
-              "The lanterns go up tonight!"
-            ]
+            "letter": "lanterns"
           }
         ]
       }
@@ -2850,10 +3078,11 @@
         "talk.lines_per_pool",
         "talk.line_chars",
         "talk.line_newlines",
+        "talk.pages",
         "talk.villager_chars"
       ],
       "schema_file": "talk.schema.json",
-      "description": "Villager lines that are part of the conversation. A villager's talk is their hello, which ends in a menu. When the player chooses to chat, the game picks a topic, fresh every time: a trade, a letter, a memory, a hint, an event, or small talk about the weather, the time of day or the month. When the game picks small talk, a line from a pool can be what the villager says instead, whenever the player chooses to chat and the game picks small talk. A special talk (a first meeting, an errand, a villager moving out, the first-job errands) never uses a pool, nor does a new player's first ten chats, whose topics are tips, and neither does a trade, letter, memory, hint or event topic. Today's calendar lines come first: on their day they are half of every villager's small talk. Otherwise the most specific pools that fit are used: this villager, else this personality, else everyone. A pool fits when its season, time and weather, if it names them, are the ones now. Each pool that fits rolls its chance; the lines of the pools that pass are put together, from every mod, and one is picked, never the one this villager said last when there is another. When the most specific pools all roll no, the villager makes the game's own small talk. Nothing is saved. Either scope. Pools run in The City too.",
+      "description": "Villager lines placed in a villager's talk. A talk is the hello, which ends in a menu (an errand, a chat, never mind); when the player chats, the game picks a topic, fresh every time: small talk (plain chat, the time of day, the weather, the month), a trade, a letter they got, a memory, a hint, or news of an event. Every pool's \"place\" says where its line goes; there is no default: \"before\" the hello (the hello and everything after it still play), as the \"hello\" (the menu and the topic still play; only an everyday greeting is replaced, never a hello with news such as a bee sting or a collection finished), as the \"topic\" (instead of the topic the game picked when it is one of the pool's \"topics\", small talk when it names none; the talk ends after it, as small talk does), \"after\" the topic (one more message before a chat ends), or the whole \"conversation\" (no hello, no menu, no topic: the pool's pages, then the talk ends). A line is one page or a list of pages. A special talk (a first meeting, an errand, a villager moving out, the first-job errands) never uses a pool, nor do a new player's first ten chats, whose topics are tips. For each place, the most specific pools that fit are used: this villager, else this personality, else everyone. A pool fits when its season, time, weather and calendar day, if it names them, are the ones now. Each pool that fits rolls its chance; the lines of the pools that pass are put together, from every mod, and one is picked, never the one this villager said last when there is another. When the most specific pools all roll no, that place stays the game's. A script's villager_talked line takes its place first. A pool kept to a calendar \"day\" speaks only on that day, in its place, like any other pool. A conversation pool is used only when no script took any place. Nothing is saved. Either scope. Pools run in The City too.",
       "schema": {
         "type": "object",
         "required": [
@@ -2871,10 +3100,45 @@
             "items": {
               "type": "object",
               "required": [
+                "place",
                 "lines"
               ],
               "additionalProperties": false,
               "properties": {
+                "place": {
+                  "enum": [
+                    "before",
+                    "hello",
+                    "topic",
+                    "after",
+                    "conversation"
+                  ],
+                  "description": "Required: where the line goes in the talk. before: ahead of the hello. hello: instead of an everyday hello. topic: instead of the topic the game picked after a chat answer. after: after the topic, before a chat ends. conversation: the whole talk."
+                },
+                "topics": {
+                  "anyOf": [
+                    {
+                      "const": "any"
+                    },
+                    {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 6,
+                      "uniqueItems": true,
+                      "items": {
+                        "enum": [
+                          "small_talk",
+                          "trade",
+                          "letter",
+                          "memory",
+                          "hint",
+                          "news"
+                        ]
+                      }
+                    }
+                  ],
+                  "description": "Only with \"place\": \"topic\": the topics the line may stand in for. Default small_talk. \"any\" is all six. A first-job tip, the birthday question and \"should I move?\" are never replaced."
+                },
                 "personality": {
                   "enum": [
                     "normal",
@@ -2918,33 +3182,56 @@
                   ],
                   "description": "Only in this weather. Cherry blossom and falling leaves count as clear."
                 },
+                "day": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9_.-]{1,48}$",
+                  "description": "Only on this day: the id of a day in the same mod's calendar file. This is how a calendar day gets villager lines, in any place."
+                },
                 "chance": {
                   "type": "integer",
                   "minimum": 1,
                   "maximum": 100,
-                  "description": "Small talk in 100 where this pool's line is said, when the pool fits. Default 100: every small talk it fits."
+                  "description": "Talks in 100 where this pool's line is said, when the pool fits. Default 100: every talk it fits."
                 },
                 "lines": {
                   "type": "array",
                   "minItems": 1,
                   "maxItems": 32,
                   "items": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 160,
-                    "description": "A villager line: 1 to 160 characters, at most 3 line breaks."
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160,
+                        "description": "A page: 1 to 160 characters, at most 3 line breaks."
+                      },
+                      {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 8,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160,
+                          "description": "A page: 1 to 160 characters, at most 3 line breaks."
+                        },
+                        "description": "A line of 1 to 8 pages, each starting on a clean window."
+                      }
+                    ],
+                    "description": "A villager line: one page, or a list of 1 to 8 pages."
                   },
                   "description": "The pool's lines. The game picks one each time."
                 }
               }
             },
-            "description": "The pools. A pool speaks for everyone, for one personality or for one villager, and can be kept to a season, a time of day or the weather."
+            "description": "The pools. A pool has a place in the talk, speaks for everyone, for one personality or for one villager, and can be kept to a season, a time of day, the weather or a calendar day."
           }
         }
       },
       "example": {
         "pools": [
           {
+            "place": "topic",
             "personality": "cranky",
             "lines": [
               "Hmph. Another day of\nyou walking around.",
@@ -2952,17 +3239,32 @@
             ]
           },
           {
+            "place": "hello",
             "weather": "rain",
             "lines": [
-              "Rain again. The flowers\nare loving it, at least."
+              "Rain again! The flowers\nare loving it, at least."
             ]
           },
           {
-            "season": "fall",
-            "time": "evening",
+            "place": "topic",
+            "topics": [
+              "trade",
+              "news"
+            ],
             "chance": 30,
             "lines": [
-              "The evenings come so\nearly now. I like it."
+              "No deals today. I just\nwant to chat."
+            ]
+          },
+          {
+            "place": "after",
+            "season": "fall",
+            "time": "evening",
+            "lines": [
+              [
+                "The evenings come so\nearly now.",
+                "I like it, though."
+              ]
             ]
           }
         ]
@@ -3678,6 +3980,76 @@
               }
             ]
           }
+        },
+        {
+          "name": "set_shop_goods",
+          "kind": "function",
+          "since": 1,
+          "description": "Sets a shop's goods for the rest of the game day, as one more block after the mod's shops.json blocks for that shop. It is set at the call, with no queue, no daily cap and no command_finished, and applies from the next frame, also when the shop is shut, and is gone when the day changes or the game restarts, so set it again in day_started. nil clears it. Only for a shop with goods in the shop table, and refused when a mod later in the load order changes that shop. Needs scope world.",
+          "params": [
+            {
+              "name": "shop",
+              "type": "string",
+              "description": "A shop id from the shop table, like \"nook\" or \"redd\"."
+            },
+            {
+              "name": "goods",
+              "type": "table|nil",
+              "description": "A list of { item, price? } (item: an item number, \"0x\" and four hex digits, or this mod's \"author.mod:thing\"), as many as the shop takes in a block. Or { goods = <that list>, own_goods = false } to make them the whole stock. nil clears."
+            }
+          ],
+          "returns": {
+            "type": "boolean|nil",
+            "name": "ok",
+            "description": "true when it is set. When it is refused: nil, then a message and a code.",
+            "more": [
+              {
+                "name": "message",
+                "type": "string|nil",
+                "description": "Why it was refused, in words."
+              },
+              {
+                "name": "code",
+                "type": "CommandCode|nil",
+                "description": "The refusal's stable code (command_codes)."
+              }
+            ]
+          }
+        },
+        {
+          "name": "set_shop_open",
+          "kind": "function",
+          "since": 1,
+          "description": "Opens or shuts a shop for the rest of the game day, as one more block after the mod's shops.json blocks for that shop. true opens it, false shuts it, nil clears it. It is set at the call, with no queue, no daily cap and no command_finished, and applies from the next frame and is gone when the day changes or the game restarts. Only for a shop with open in the shop table, and refused when a mod later in the load order changes that shop. Needs scope world.",
+          "params": [
+            {
+              "name": "shop",
+              "type": "string",
+              "description": "A shop id from the shop table, like \"flower\" or \"barber\"."
+            },
+            {
+              "name": "open",
+              "type": "boolean|nil",
+              "description": "true opens it, false shuts it, nil clears."
+            }
+          ],
+          "returns": {
+            "type": "boolean|nil",
+            "name": "ok",
+            "description": "true when it is set. When it is refused: nil, then a message and a code.",
+            "more": [
+              {
+                "name": "message",
+                "type": "string|nil",
+                "description": "Why it was refused, in words."
+              },
+              {
+                "name": "code",
+                "type": "CommandCode|nil",
+                "description": "The refusal's stable code (command_codes)."
+              }
+            ]
+          }
         }
       ]
     },
@@ -3956,7 +4328,7 @@
     {
       "name": "villager_talked",
       "since": 1,
-      "description": "The player starts an ordinary talk with a villager. Return a line and the villager says it before their usual greeting. Return nil to stay quiet. The first mod in load order whose handler returns a line wins that talk, and later mods' villager_talked handlers are not called for it. An empty string, a line over 400 bytes or one holding a zero byte is not a line. It is logged and the next mod is asked. Special talks never reach mods. These are a first meeting, a villager moving out, one with an errand, delivery or contest going with you, a complaint, a pitfall or a bee chase, an islander, Kamakura and summer camp. No handler is called for a special talk. The villager's next ordinary talk calls it as usual, so a line a script is keeping for \"the next talk\" waits for that one.",
+      "description": "The player starts an ordinary talk with a villager. Return where your words go in it: nil to stay quiet, a talk table { place, line, topics, ask }, or a list of talk tables, one a place. Every line names its place: a plain string is refused and logged, with nothing said. place is \"before\" (ahead of the hello), \"hello\" (instead of an everyday hello; a hello with news is kept), \"topic\" (instead of the topic the game picks when the player chats, if it is one of topics, small_talk when you name none, \"any\" for all), \"after\" (after the topic, before a chat ends) or \"conversation\" (the whole talk: no hello, no menu, no topic). line is a page of 1 to 400 bytes or a list of 1 to 8 pages. ask = { text, choices } (2 to 4 answers) goes only with \"conversation\": its last page asks the question, and the player's pick goes to villager_answered. Every mod's handler is called, in load order. The first line returned for a place takes it; a later one for that place is logged and not said. A conversation needs every place free and ends the event. Lines are said only when that part of the talk comes: topic and after only when the player chats. A table that is not right is logged and nothing of it is said. Special talks never reach mods. These are a first meeting, a villager moving out, one with an errand, delivery or contest going with you, a complaint, a pitfall or a bee chase, an islander, Kamakura and summer camp. No handler is called for a special talk. The villager's next ordinary talk calls it as usual, so a line a script is keeping for \"the next talk\" waits for that one.",
       "params": [
         {
           "name": "e",
@@ -3993,8 +4365,8 @@
         }
       ],
       "returns": {
-        "type": "string|nil",
-        "description": "A line of 1 to 400 bytes, or nil."
+        "type": "table|nil",
+        "description": "nil, a talk table { place, line, topics, ask }, or a list of talk tables."
       }
     },
     {
@@ -4486,6 +4858,60 @@
       "returns": {
         "type": "nil"
       }
+    },
+    {
+      "name": "villager_answered",
+      "since": 1,
+      "description": "The player answered the question this mod's conversation asked (villager_talked returned place = \"conversation\" with an ask). Sent only to that mod, while the window waits. Return what the villager says next, in the same conversation: a line, or { line, ask } to ask again. Return nil and the talk ends. A reply that is not right is logged and the talk ends.",
+      "params": [
+        {
+          "name": "e",
+          "type": "table",
+          "fields": [
+            {
+              "name": "villager",
+              "type": "table",
+              "description": "The villager. It is a copy, so changing it changes nothing.",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "integer",
+                  "description": "The villager's id (villagers.json)."
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "description": "The villager's name."
+                },
+                {
+                  "name": "species",
+                  "type": "string|nil",
+                  "description": "cat, dog and so on (villagers.json). nil when the game cannot tell."
+                },
+                {
+                  "name": "personality",
+                  "type": "string|nil",
+                  "description": "normal, peppy, lazy, jock, cranky or snooty. nil when the game cannot tell."
+                }
+              ]
+            },
+            {
+              "name": "choice",
+              "type": "integer",
+              "description": "Which answer, counting from 1."
+            },
+            {
+              "name": "text",
+              "type": "string",
+              "description": "The answer's text."
+            }
+          ]
+        }
+      ],
+      "returns": {
+        "type": "string|table|nil",
+        "description": "nil, a line, or a reply table { line, ask }."
+      }
     }
   ],
   "commands": [
@@ -4668,9 +5094,86 @@
         ]
       },
       "permission": "take_bells"
+    },
+    {
+      "name": "set_shop_goods",
+      "kind": "function",
+      "since": 1,
+      "description": "Sets a shop's goods for the rest of the game day, as one more block after the mod's shops.json blocks for that shop. It is set at the call, with no queue, no daily cap and no command_finished, and applies from the next frame, also when the shop is shut, and is gone when the day changes or the game restarts, so set it again in day_started. nil clears it. Only for a shop with goods in the shop table, and refused when a mod later in the load order changes that shop. Needs scope world.",
+      "params": [
+        {
+          "name": "shop",
+          "type": "string",
+          "description": "A shop id from the shop table, like \"nook\" or \"redd\"."
+        },
+        {
+          "name": "goods",
+          "type": "table|nil",
+          "description": "A list of { item, price? } (item: an item number, \"0x\" and four hex digits, or this mod's \"author.mod:thing\"), as many as the shop takes in a block. Or { goods = <that list>, own_goods = false } to make them the whole stock. nil clears."
+        }
+      ],
+      "returns": {
+        "type": "boolean|nil",
+        "name": "ok",
+        "description": "true when it is set. When it is refused: nil, then a message and a code.",
+        "more": [
+          {
+            "name": "message",
+            "type": "string|nil",
+            "description": "Why it was refused, in words."
+          },
+          {
+            "name": "code",
+            "type": "CommandCode|nil",
+            "description": "The refusal's stable code (command_codes)."
+          }
+        ]
+      },
+      "permission": "set_shop_goods"
+    },
+    {
+      "name": "set_shop_open",
+      "kind": "function",
+      "since": 1,
+      "description": "Opens or shuts a shop for the rest of the game day, as one more block after the mod's shops.json blocks for that shop. true opens it, false shuts it, nil clears it. It is set at the call, with no queue, no daily cap and no command_finished, and applies from the next frame and is gone when the day changes or the game restarts. Only for a shop with open in the shop table, and refused when a mod later in the load order changes that shop. Needs scope world.",
+      "params": [
+        {
+          "name": "shop",
+          "type": "string",
+          "description": "A shop id from the shop table, like \"flower\" or \"barber\"."
+        },
+        {
+          "name": "open",
+          "type": "boolean|nil",
+          "description": "true opens it, false shuts it, nil clears."
+        }
+      ],
+      "returns": {
+        "type": "boolean|nil",
+        "name": "ok",
+        "description": "true when it is set. When it is refused: nil, then a message and a code.",
+        "more": [
+          {
+            "name": "message",
+            "type": "string|nil",
+            "description": "Why it was refused, in words."
+          },
+          {
+            "name": "code",
+            "type": "CommandCode|nil",
+            "description": "The refusal's stable code (command_codes)."
+          }
+        ]
+      },
+      "permission": "set_shop_open"
     }
   ],
   "command_codes": [
+    {
+      "code": "command-shop",
+      "retry": "never",
+      "description": "A shop command the shop cannot take: the shop is not in the shop table, it has no goods or no open, or a mod later in the load order changes that shop."
+    },
     {
       "code": "command-permission",
       "retry": "never",

@@ -6,7 +6,7 @@
  * is generated from those same rules; `playac-mod check` reads it to say so
  * before the game does, as warnings. Without items.json this check is skipped.
  *
- * Two shapes are read: the current one, per shop target,
+ * Two shapes are read: the current one, per shop id,
  *   { id, kind, name, price, buyback, floor: {flower, nook},
  *     stockable: {flower, nook}, refusal?: {flower?, nook?} }
  * and the first one (stockable: bool, refusal: string, the floor = buyback).
@@ -17,7 +17,7 @@ import path from 'node:path';
 import { CHECKOUT } from './checkout.mjs';
 import { VENDOR } from './contract.mjs';
 
-const TARGETS = ['flower', 'nook'];
+const JUDGED = ['flower', 'nook']; /* the shop ids items.json has an answer for */
 const WHERE = { flower: 'the flower shop', nook: 'Nook\'s store' };
 const ITEM_RE = /^0x[0-9a-fA-F]{4}$/;
 
@@ -74,34 +74,42 @@ export function lookup(table, id) {
   return south && south.kind === 'furniture' ? south : null;
 }
 
-/* doc: a parsed shops.json. Returns warnings in mods.js's "shops: shop N
- * stock K" form. A mod's own items (author.mod:thing) are not looked up. */
+/* doc: a parsed shops.json ({ "shops": { "<shop id>": block or
+ * [blocks] } }). Returns warnings in mods.js's "shops: <shop>[ block N]: goods
+ * K" form, for the shops items.json judges (Nook's store and the flower shop).
+ * A mod's own items (author.mod:thing) are not looked up. */
 export function shopItemWarnings(doc, table) {
   const out = [];
-  if (!table || !doc || !Array.isArray(doc.shops)) return out;
-  doc.shops.forEach((s, i) => {
-    if (!s || typeof s !== 'object' || !TARGETS.includes(s.target) || !Array.isArray(s.stock)) return;
-    const where = WHERE[s.target];
-    s.stock.forEach((g, k) => {
-      if (!g || typeof g.item !== 'string' || !ITEM_RE.test(g.item)) return;
-      const at = `shops: shop ${i + 1} stock ${k + 1}`;
-      const id = parseInt(g.item.slice(2), 16);
-      const it = lookup(table, id);
-      if (!it) {
-        out.push(`${at} "item" ${g.item} is not an item or furniture the game has, so the game leaves it out of ${where}`);
-        return;
-      }
-      const named = `${g.item}${it.name ? ` (${it.name})` : ''}`;
-      if (!it.stockable[s.target]) {
-        const why = it.refusal[s.target] || `cannot be sold at ${where}`;
-        out.push(`${at} "item" ${named} ${why}, so the game leaves it out of ${where}`);
-        return;
-      }
-      const floor = it.floor[s.target];
-      if (typeof g.price === 'number' && typeof floor === 'number' && g.price < floor) {
-        out.push(`${at} "price" ${g.price} is under the floor for ${named} at ${where}. The game sells it for ${floor}.`);
-      }
+  const shops = doc && doc.shops;
+  if (!table || !shops || typeof shops !== 'object' || Array.isArray(shops)) return out;
+  for (const shop of Object.keys(shops)) {
+    if (!JUDGED.includes(shop)) continue;
+    const where = WHERE[shop];
+    const list = Array.isArray(shops[shop]);
+    (list ? shops[shop] : [shops[shop]]).forEach((b, n) => {
+      if (!b || typeof b !== 'object' || !Array.isArray(b.goods)) return;
+      const block = `shops: ${where}${list ? ` block ${n + 1}` : ''}:`;
+      b.goods.forEach((g, k) => {
+        if (!g || typeof g.item !== 'string' || !ITEM_RE.test(g.item)) return;
+        const at = `${block} goods ${k + 1}`;
+        const id = parseInt(g.item.slice(2), 16);
+        const it = lookup(table, id);
+        if (!it) {
+          out.push(`${at} "item" ${g.item} is not an item or furniture the game has, so the game leaves it out of ${where}`);
+          return;
+        }
+        const named = `${g.item}${it.name ? ` (${it.name})` : ''}`;
+        if (!it.stockable[shop]) {
+          const why = it.refusal[shop] || `cannot be sold at ${where}`;
+          out.push(`${at} "item" ${named} ${why}, so the game leaves it out of ${where}`);
+          return;
+        }
+        const floor = it.floor[shop];
+        if (typeof g.price === 'number' && typeof floor === 'number' && g.price < floor) {
+          out.push(`${at} "price" ${g.price} is under the floor for ${named} at ${where}. The game sells it for ${floor}.`);
+        }
+      });
     });
-  });
+  }
   return out;
 }

@@ -208,7 +208,7 @@
       ]
     },
     "permissions": {
-      "description": "The commands the mod's script may queue, each once. The game refuses any command the list leaves out. The Mods tab and the moderators' review show what the list lets the mod do. take_item and take_bells let the mod ask the player for items or Bells. The game itself shows the question with the true item and amount, and nothing is taken unless the player says yes. Needs scripts.",
+      "description": "The commands the mod's script may queue, each once. The game refuses any command the list leaves out. The Mods tab and the moderators' review show what the list lets the mod do. take_item and take_bells let the mod ask the player for items or Bells. The game itself shows the question with the true item and amount, and nothing is taken unless the player says yes. set_shop_goods and set_shop_open change a shop for the day and need scope world. Needs scripts.",
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
@@ -219,7 +219,9 @@
           "show_line",
           "ask",
           "take_item",
-          "take_bells"
+          "take_bells",
+          "set_shop_goods",
+          "set_shop_open"
         ]
       },
       "examples": [
@@ -665,7 +667,8 @@
         "visitor_arrived",
         "command_finished",
         "question_answered",
-        "timer_fired"
+        "timer_fired",
+        "villager_answered"
       ]
     }
   }

@@ -918,8 +918,8 @@
         ]
       },
       "api": [],
-      "meaning": "\"scope\": \"client\" makes a Just you mod, which only you see. \"scope\": \"world\" makes a World mod, which changes your town for visitors too. Only a World mod may hold a shop or a bulletin board notice (a calendar file with \"board\").",
-      "fix": "Use \"world\" if the mod has a shop or a bulletin board notice (a calendar file with \"board\"). Otherwise use \"client\"."
+      "meaning": "\"scope\": \"client\" makes a Just you mod, which only you see. \"scope\": \"world\" makes a World mod, which changes your town for visitors too. Only a World mod may hold a shop, a bulletin board notice (a calendar file with \"board\"), the permission set_shop_goods or the permission set_shop_open.",
+      "fix": "Use \"world\" if the mod has a shop, a bulletin board notice (a calendar file with \"board\"), the permission set_shop_goods or the permission set_shop_open. Otherwise use \"client\"."
     },
     {
       "code": "manifest-assets-original",
@@ -954,17 +954,19 @@
       ],
       "messages": {
         "page": [
-          "\"content.shops\" changes what visitors see, so \"scope\" must be \"world\""
+          "\"content.shops\" changes what visitors see, so \"scope\" must be \"world\"",
+          "\"permissions\" lists \"set_shop_goods\", which changes what visitors see, so \"scope\" must be \"world\""
         ],
         "registry": [
-          "content.shops changes what visitors see, so mod.json needs \"scope\": \"world\"."
+          "content.shops changes what visitors see, so mod.json needs \"scope\": \"world\".",
+          "permissions lists set_shop_open, which changes what visitors see, so mod.json needs \"scope\": \"world\"."
         ],
         "game": [
           "shops change what visitors see, so the mod needs \"scope\": \"world\""
         ]
       },
       "api": [],
-      "meaning": "A shop changes your town for visitors, so a mod with \"shops\" must be a World mod. Friends may need the same mods to visit.",
+      "meaning": "A shop changes your town for visitors, so a mod with \"shops\", or a script with the permission set_shop_goods or set_shop_open, must be a World mod. Friends may need the same mods to visit.",
       "fix": "Set \"scope\": \"world\" in mod.json.",
       "bad": {
         "file": "mod.json",
@@ -1182,11 +1184,11 @@
       ],
       "messages": {
         "page": [
-          "\"scripts.events\" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired"
+          "\"scripts.events\" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered"
         ],
         "registry": [
-          "scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.",
-          "scripts.events lists \"every_frame\", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.",
+          "scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered.",
+          "scripts.events lists \"every_frame\", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered.",
           "scripts.events lists \"day_started\" twice."
         ]
       },
@@ -1213,16 +1215,16 @@
       ],
       "messages": {
         "page": [
-          "\"permissions\" must list one or more commands, each once, from: send_letter, give_item, show_line, ask, take_item, take_bells"
+          "\"permissions\" must list one or more commands, each once, from: send_letter, give_item, show_line, ask, take_item, take_bells, set_shop_goods, set_shop_open"
         ],
         "registry": [
-          "permissions must list at least one of send_letter, give_item, show_line, ask, take_item, take_bells.",
-          "permissions lists \"teleport\", which is not a command. Use send_letter, give_item, show_line, ask, take_item, take_bells.",
+          "permissions must list at least one of send_letter, give_item, show_line, ask, take_item, take_bells, set_shop_goods, set_shop_open.",
+          "permissions lists \"teleport\", which is not a command. Use send_letter, give_item, show_line, ask, take_item, take_bells, set_shop_goods, set_shop_open.",
           "permissions lists \"ask\" twice."
         ]
       },
       "api": [],
-      "meaning": "\"permissions\" lists the commands your script may use, each once, from send_letter, give_item, show_line, ask, take_item and take_bells. Players see the list on the Mods tab.",
+      "meaning": "\"permissions\" lists the commands your script may use, each once, from send_letter, give_item, show_line, ask, take_item, take_bells, set_shop_goods and set_shop_open. Players see the list on the Mods tab.",
       "fix": "List only the commands your script calls, for example \"permissions\": [\"send_letter\"].",
       "bad": {
         "file": "mod.json",
@@ -1311,7 +1313,7 @@
     {
       "code": "shops-file",
       "area": "shops",
-      "title": "shops.json needs a \"shops\" list",
+      "title": "shops.json needs a \"shops\" object of shop ids",
       "where": [
         "Mods tab, when you install a ZIP",
         "the check tool (playac-mod check)",
@@ -1320,57 +1322,87 @@
       ],
       "messages": {
         "page": [
-          "shops: \"shops\" must be a list of 1 to 2 shops"
+          "shops: \"shops\" must be an object of shop ids, like { \"nook\": { ... } }"
         ],
         "registry": [
-          "shops.json must be a JSON object with a \"shops\" list.",
-          "shops.json needs a \"shops\" list of 1 to 2 shops."
+          "shops.json: \"shops\" must be an object of shop ids, like { \"nook\": { ... } }."
         ],
         "game": [
-          "shops file needs a \"shops\" list",
-          "shops: the \"shops\" list must hold 1 to 2 shops"
+          "shops file needs a \"shops\" object of shop ids"
         ]
       },
       "api": [],
-      "meaning": "shops.json is an object with a \"shops\" list of 1 to 2 shops, even when there is only one.",
-      "fix": "Wrap the shop in { \"shops\": [ ... ] }.",
+      "meaning": "shops.json is an object with a \"shops\" object. Each key is a shop id (\"nook\", \"flower\", \"redd\", \"saharah\", \"fireworks\", \"able\", \"barber\", \"dream\" and \"katrina\"), and each value is the shop's block, or a list of blocks.",
+      "fix": "Write the file as { \"shops\": { \"nook\": { ... } } }.",
       "bad": {
         "file": "shops.json",
-        "text": "{ \"target\": \"flower\", \"stock\": [{ \"item\": \"0x2800\" }] }"
+        "text": "{ \"shops\": [{ \"goods\": [{ \"item\": \"0x2800\" }] }] }"
       },
       "good": {
         "file": "shops.json",
-        "text": "{ \"shops\": [{ \"target\": \"flower\", \"stock\": [{ \"item\": \"0x2800\" }] }] }"
+        "text": "{ \"shops\": { \"flower\": { \"goods\": [{ \"item\": \"0x2800\" }] } } }"
       }
+    },
+    {
+      "code": "shop-id",
+      "area": "shops",
+      "title": "There is no shop with that id",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "shops: there is no shop \"nok\" (did you mean \"nook\"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina",
+          "shops: there is no shop \"\": the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina",
+          "shops: there is no shop \"Flower\" (did you mean \"flower\"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina",
+          "shops: there is no shop \"Nook\" (did you mean \"nook\"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina",
+          "shops: there is no shop \"baker\" (did you mean \"barber\"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina",
+          "shops: there is no shop \"barbers\" (did you mean \"barber\"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina"
+        ],
+        "registry": [
+          "shops.json: there is no shop \"nok\" (did you mean \"nook\"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina."
+        ],
+        "game": [
+          "shops: there is no shop \"nok\" (did you mean \"nook\"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina"
+        ]
+      },
+      "api": [],
+      "meaning": "A key of \"shops\" names the shop it changes. The shops are \"nook\", \"flower\", \"redd\", \"saharah\", \"fireworks\", \"able\", \"barber\", \"dream\" and \"katrina\", in lowercase. The message offers the id it thinks you meant.",
+      "fix": "Use one of the shop ids. The table in the Shops guide lists them."
+    },
+    {
+      "code": "shop-blocks",
+      "area": "shops",
+      "title": "A shop takes one block or 1 to 8",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "shops: Nook's store takes one block or a list of 1 to 8 blocks",
+          "shops: the flower shop takes one block or a list of 1 to 8 blocks"
+        ],
+        "registry": [
+          "shops.json: Nook's store takes one block or a list of 1 to 8 blocks."
+        ],
+        "game": [
+          "shops: Nook's store takes one block or a list of 1 to 8 blocks"
+        ]
+      },
+      "api": [],
+      "meaning": "A shop takes one block (an object), or a list of 1 to 8 blocks. An empty list changes nothing, so it is refused.",
+      "fix": "Give the shop one block, or a list with at least one."
     },
     {
       "code": "shop-not-object",
       "area": "shops",
-      "title": "A shop is not an object",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload"
-      ],
-      "messages": {
-        "page": [
-          "shops: shop 1 is not an object"
-        ],
-        "registry": [
-          "shops.json: shop 1 must be an object."
-        ],
-        "game": [
-          "shops: a shop must be an object"
-        ]
-      },
-      "api": [],
-      "meaning": "Each entry of \"shops\" is an object in curly braces.",
-      "fix": "Write each shop as { \"target\": \"flower\", ... }."
-    },
-    {
-      "code": "shop-target",
-      "area": "shops",
-      "title": "Only the flower shop and Nook's can be changed",
+      "title": "A block is not an object",
       "where": [
         "Mods tab, when you install a ZIP",
         "the check tool (playac-mod check)",
@@ -1379,23 +1411,25 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 \"target\" must be \"flower\" or \"nook\""
+          "shops: Nook's store block 2: a block must be an object",
+          "shops: Nook's store block 1: a block must be an object",
+          "shops: the flower shop block 1: a block must be an object"
         ],
         "registry": [
-          "shops.json: shop 1 has target \"barber\". A mod can change \"flower\" and \"nook\"."
+          "shops.json: Nook's store block 2: a block must be an object."
         ],
         "game": [
-          "shops: the shops a mod can change are \"flower\" and \"nook\": barber"
+          "shops: Nook's store block 2: a block must be an object"
         ]
       },
       "api": [],
-      "meaning": "A mod can change two shops. The flower shop is \"target\": \"flower\" and Nook's is \"target\": \"nook\", both in lowercase.",
-      "fix": "Set \"target\": \"flower\" or \"target\": \"nook\"."
+      "meaning": "Each block of a shop is an object in curly braces.",
+      "fix": "Write each block as { \"goods\": [ ... ] }, or { \"when\": { ... }, \"open\": true }."
     },
     {
-      "code": "shop-target-twice",
+      "code": "shop-block-empty",
       "area": "shops",
-      "title": "Two shops for the same target",
+      "title": "A block changes nothing",
       "where": [
         "Mods tab, when you install a ZIP",
         "the check tool (playac-mod check)",
@@ -1404,19 +1438,18 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 2 is a second shop for \"flower\": one shop per target",
-          "shops: shop 2 is a second shop for \"nook\": one shop per target"
+          "shops: the flower shop: a block needs a field besides \"when\""
         ],
         "registry": [
-          "shops.json: two shops change the \"flower\" target."
+          "shops.json: the flower shop: a block needs a field besides \"when\"."
         ],
         "game": [
-          "shops: the flower shop is listed twice, the second is left out"
+          "shops: the flower shop: a block needs a field besides \"when\""
         ]
       },
       "api": [],
-      "meaning": "One mod can describe each shop once.",
-      "fix": "Merge the two entries into one."
+      "meaning": "A block says what changes: goods, open, own_goods, a percent, services, a name or lines. \"when\" alone only says when, so the block would change nothing.",
+      "fix": "Add what the block changes, or take the block out."
     },
     {
       "code": "shop-name",
@@ -1430,23 +1463,23 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 \"name\" must be 1 to 40 characters on one line"
+          "shops: the flower shop: \"name\" must be 1 to 40 characters on one line"
         ],
         "registry": [
-          "shops.json: shop 1's name must be 1 to 40 characters on one line."
+          "shops.json: the flower shop: \"name\" must be 1 to 40 characters on one line."
         ],
         "game": [
-          "shops: \"name\" must be 1 to 40 characters on one line"
+          "shops: the flower shop: \"name\" must be 1 to 40 characters on one line"
         ]
       },
       "api": [],
-      "meaning": "The flower shop's name is shown on its door sign while the shop is shut. It is optional, 1 to 40 characters on one line, and a line break in it is refused.",
+      "meaning": "The flower shop's name is shown on its door sign while the shop is shut. It is 1 to 40 characters on one line, and a line break in it is refused.",
       "fix": "Shorten it and take out any line break, or leave it out."
     },
     {
       "code": "shop-hours-same",
       "area": "shops",
-      "title": "Shop opens and closes at the same time",
+      "title": "Hours that start and end at the same time",
       "where": [
         "Mods tab, when you install a ZIP",
         "the check tool (playac-mod check)",
@@ -1455,23 +1488,24 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 \"hours\" open and close must differ"
+          "shops: the flower shop: \"hours\" from and to must differ",
+          "shops: Nook's store: \"hours\" from and to must differ"
         ],
         "registry": [
-          "shops.json: shop 1's hours open and close at the same time."
+          "shops.json: the flower shop: \"hours\" from and to must differ."
         ],
         "game": [
-          "shops: \"open\" and \"close\" are the same time"
+          "shops: the flower shop: \"hours\" from and to must differ"
         ]
       },
       "api": [],
-      "meaning": "The shop's \"hours\" give the same time twice. A shop that is open around the clock leaves \"hours\" out.",
+      "meaning": "\"when.hours\" gives the same time twice. A block that applies around the clock leaves \"hours\" out.",
       "fix": "Leave \"hours\" out, or give two different times."
     },
     {
       "code": "shop-hours",
       "area": "shops",
-      "title": "Shop \"hours\" are not \"HH:MM\"",
+      "title": "\"hours\" are not \"HH:MM\"",
       "where": [
         "Mods tab, when you install a ZIP",
         "the check tool (playac-mod check)",
@@ -1480,31 +1514,195 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 \"hours\" must be { \"open\": \"HH:MM\", \"close\": \"HH:MM\" }"
+          "shops: Nook's store: \"hours\" must be { \"from\": \"HH:MM\", \"to\": \"HH:MM\" }, 00:00 to 23:59",
+          "shops: the flower shop: \"hours\" must be { \"from\": \"HH:MM\", \"to\": \"HH:MM\" }, 00:00 to 23:59"
         ],
         "registry": [
-          "shops.json: shop 1's hours need \"open\" and \"close\" as HH:MM, like 09:00."
+          "shops.json: Nook's store: \"hours\" must be { \"from\": \"HH:MM\", \"to\": \"HH:MM\" }, 00:00 to 23:59."
         ],
         "game": [
-          "shops: hours need \"open\" and \"close\" as \"HH:MM\", 00:00 to 23:59"
+          "shops: Nook's store: \"hours\" must be { \"from\": \"HH:MM\", \"to\": \"HH:MM\" }, 00:00 to 23:59"
         ]
       },
       "api": [],
-      "meaning": "\"hours\" is { \"open\": \"HH:MM\", \"close\": \"HH:MM\" } in 24-hour time with two digits each, so \"09:00\", not \"9:00\" or \"9am\". Close can be after midnight. The hours say when your entry applies, the same on every shop.",
+      "meaning": "\"when.hours\" is { \"from\": \"HH:MM\", \"to\": \"HH:MM\" } in 24-hour time with two digits each, so \"09:00\", not \"9:00\" or \"9am\". \"to\" can be past midnight.",
       "fix": "Write both times with two-digit hours and minutes.",
       "bad": {
         "file": "shops.json",
-        "text": "\"hours\": { \"open\": \"9am\", \"close\": \"6pm\" }"
+        "text": "\"when\": { \"hours\": { \"from\": \"9am\", \"to\": \"6pm\" } }"
       },
       "good": {
         "file": "shops.json",
-        "text": "\"hours\": { \"open\": \"09:00\", \"close\": \"18:00\" }"
+        "text": "\"when\": { \"hours\": { \"from\": \"09:00\", \"to\": \"18:00\" } }"
       }
+    },
+    {
+      "code": "shop-when",
+      "area": "shops",
+      "title": "A \"when\" is not right",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "shops: Nook's store: \"when\": \"season\" must be spring, summer, fall or winter",
+          "shops: Nook's store block 2: goods 1 \"when\": \"weekday\" must list 1 to 7 different days, monday to sunday",
+          "shops: the flower shop: \"when\" must be an object with at least one of hours, time, season, weather, weekday, month, setting",
+          "shops: the flower shop: \"when\": \"month\" must list 1 to 12 different months, 1 to 12",
+          "shops: the flower shop: \"when\": \"season\" must be spring, summer, fall or winter",
+          "shops: the flower shop: \"when\": \"time\" must be morning, day, evening or night"
+        ],
+        "registry": [
+          "shops.json: Nook's store: \"when\": \"season\" must be spring, summer, fall or winter."
+        ],
+        "game": [
+          "shops: Nook's store: \"when\": \"season\" must be spring, summer, fall or winter",
+          "shops: Nook's store: \"when\": \"month\" must list 1 to 12 different months, 1 to 12: goods 1"
+        ]
+      },
+      "api": [],
+      "meaning": "\"when\" holds at least one of hours, time (morning, day, evening, night), season (spring, summer, fall, winter), weather (clear, rain, snow), weekday (a list of monday to sunday), month (a list of 1 to 12) and setting. The block or good applies while every key holds.",
+      "fix": "Spell the value in lowercase as listed, and write weekday and month as lists, like [\"saturday\", \"sunday\"] or [10, 11]."
+    },
+    {
+      "code": "shop-when-setting",
+      "area": "shops",
+      "title": "\"when.setting\" names no bool world setting",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "shops: Nook's store: \"when\": \"setting\" must name a bool setting of this mod with scope world: night_shop",
+          "shops: the flower shop: \"when\": \"setting\" must name a bool setting of this mod with scope world: market",
+          "shops: the flower shop: \"when\": \"setting\" must name a bool setting of this mod with scope world: stalls"
+        ],
+        "registry": [
+          "shops.json: Nook's store: \"when\": \"setting\" must name a bool setting of this mod with scope world: night_shop."
+        ],
+        "game": [
+          "shops: Nook's store: \"when\": \"setting\" must name a bool setting of this mod with scope world: night_shop"
+        ]
+      },
+      "api": [],
+      "meaning": "\"when.setting\" names one of this mod's own settings in mod.json. It must be of type bool, so it is on or off, and of scope world, so a visitor sees the same shop as the host.",
+      "fix": "Declare the setting in mod.json \"settings\" with \"type\": \"bool\", and leave its scope out or make it \"world\"."
+    },
+    {
+      "code": "shop-flag",
+      "area": "shops",
+      "title": "\"open\" or \"own_goods\" is not true or false",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "shops: Nook's store: \"open\" must be true or false",
+          "shops: Nook's store: \"own_goods\" must be true or false"
+        ],
+        "registry": [
+          "shops.json: Nook's store: \"open\" must be true or false."
+        ],
+        "game": [
+          "shops: Nook's store: \"own_goods\" must be true or false"
+        ]
+      },
+      "api": [],
+      "meaning": "\"open\" and \"own_goods\" are true or false, without quotes.",
+      "fix": "Write true or false, not \"yes\" or \"true\"."
+    },
+    {
+      "code": "shop-percent",
+      "area": "shops",
+      "title": "A percent is not 1 to 1000",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "shops: Crazy Redd's tent: \"price_percent\" must be a whole number from 1 to 1000",
+          "shops: Nook's store: \"buy_back_percent\" must be a whole number from 1 to 1000"
+        ],
+        "registry": [
+          "shops.json: Crazy Redd's tent: \"price_percent\" must be a whole number from 1 to 1000."
+        ],
+        "game": [
+          "shops: Crazy Redd's tent: \"price_percent\" must be a whole number from 1 to 1000"
+        ]
+      },
+      "api": [],
+      "meaning": "\"price_percent\" and \"buy_back_percent\" are whole numbers from 1 to 1000. 100 is the game's own price, 50 is half and 200 is double. A price is never under what Nook pays for the item.",
+      "fix": "Write a whole number like 80 or 150, without a % sign."
+    },
+    {
+      "code": "shop-service",
+      "area": "shops",
+      "title": "A service the shop does not have, or a bad price",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "shops: the barber shop: \"services\" has no \"shave\": the barber shop has haircut",
+          "shops: Able Sisters: \"services\" \"design\" must be a whole number of Bells from 1 to 99999",
+          "shops: Able Sisters: \"services\" must be an object of service to Bells"
+        ],
+        "registry": [
+          "shops.json: the barber shop: \"services\" has no \"shave\": the barber shop has haircut."
+        ],
+        "game": [
+          "shops: the barber shop: \"services\" has no \"shave\": the barber shop has haircut"
+        ]
+      },
+      "api": [],
+      "meaning": "\"services\" sets the price of what a shop sells that is not a good, by the service's name: Able Sisters has \"design\", the barber shop has \"haircut\", the Dream Suite has \"dream\" and Katrina's tent has \"fortune\". Each price is a whole number of Bells from 1 to 99999.",
+      "fix": "Use the service name the shop table lists, and a whole number of Bells."
+    },
+    {
+      "code": "shop-line-slot",
+      "area": "shops",
+      "title": "A line slot the shop does not have",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "shops: the flower shop: \"lines\" has no slot \"hello\": the slots are greeting stock",
+          "shops: the flower shop: \"lines\" must be an object of slot to a line or a list of lines"
+        ],
+        "registry": [
+          "shops.json: the flower shop: \"lines\" has no slot \"hello\": the slots are greeting stock."
+        ],
+        "game": [
+          "shops: the flower shop: \"lines\" has no slot \"hello\": the slots are greeting stock"
+        ]
+      },
+      "api": [],
+      "meaning": "\"lines\" sets what the keeper says, by slot. The flower shop has \"greeting\" (her hello) and \"stock\" (her answer about the stock).",
+      "fix": "Use a slot the shop table lists."
     },
     {
       "code": "shop-text",
       "area": "shops",
-      "title": "Greeting or stock line too long",
+      "title": "A shop line is too long",
       "where": [
         "Mods tab, when you install a ZIP",
         "the check tool (playac-mod check)",
@@ -1513,71 +1711,37 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 \"greeting\" must be 1 to 160 characters with at most 3 line breaks",
-          "shops: shop 1 \"stock_line\" must be 1 to 160 characters with at most 3 line breaks"
+          "shops: the flower shop: \"lines\" \"greeting\" must be a line or a list of 1 to 8 lines, each 1 to 160 characters with at most 3 line breaks",
+          "shops: the flower shop: \"lines\" \"stock\" must be a line or a list of 1 to 8 lines, each 1 to 160 characters with at most 3 line breaks"
         ],
         "registry": [
-          "shops.json: shop 1's greeting must be 1 to 160 characters on at most 4 lines."
+          "shops.json: the flower shop: \"lines\" \"greeting\" must be a line or a list of 1 to 8 lines, each 1 to 160 characters with at most 3 line breaks."
         ],
         "game": [
-          "shops: \"greeting\" and \"stock_line\" must be 1 to 160 characters, at most 3 newlines"
+          "shops: the flower shop: \"lines\" \"greeting\" must be a line or a list of 1 to 8 lines, each 1 to 160 characters with at most 3 line breaks"
         ]
       },
       "api": [],
-      "meaning": "\"greeting\" and \"stock_line\" are optional, each 1 to 160 characters with at most 3 line breaks. They share one message box with the keeper's own words.",
-      "fix": "Keep the line to 160 characters and at most 3 line breaks."
+      "meaning": "A slot of \"lines\" is one line, or a list of 1 to 8 lines the keeper picks from each time. Each line is 1 to 160 characters with at most 3 line breaks, and shares one message box with the keeper's own words.",
+      "fix": "Keep each line to 160 characters and at most 3 line breaks."
     },
     {
-      "code": "shop-field-unsupported",
+      "code": "shop-field-ignored",
       "area": "shops",
       "title": "A field this shop does not have",
       "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
+        "Mods tab, on the mod's row after a restart",
+        "the check tool (playac-mod check)"
       ],
       "messages": {
-        "page": [
-          "shops: shop 1 \"name\" is not a field of Nook's store: it takes \"target\", \"hours\", \"stock\", \"mode\"",
-          "shops: shop 1 \"greeting\" is not a field of Nook's store: it takes \"target\", \"hours\", \"stock\", \"mode\"",
-          "shops: shop 1 \"stock_line\" is not a field of Nook's store: it takes \"target\", \"hours\", \"stock\", \"mode\""
-        ],
-        "registry": [
-          "shops.json: shop 1's name is not a field of Nook's store. It takes target, hours, stock, mode."
-        ],
         "game": [
-          "shops: \"name\" is not a field of Nook's store, so the shop is left out"
+          "shops: Nook's store has no \"lines\", so it is left out",
+          "shops: Able Sisters has no \"goods\", so it is left out"
         ]
       },
       "api": [],
-      "meaning": "Every shop takes the same entry, and each field means the same on every shop. A shop that cannot use a field does not have it: Nook's store has no \"name\", \"greeting\", \"stock_line\". The message names the shop and the field.",
-      "fix": "Take the field out of that shop's entry. The table in the Shops guide shows the fields each shop has."
-    },
-    {
-      "code": "shop-mode",
-      "area": "shops",
-      "title": "A shop's \"mode\" is not \"add\" or \"replace\"",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "shops: shop 1 \"mode\" must be \"add\" or \"replace\""
-        ],
-        "registry": [
-          "shops.json: shop 1's mode must be \"add\" or \"replace\"."
-        ],
-        "game": [
-          "shops: \"mode\" must be \"add\" or \"replace\""
-        ]
-      },
-      "api": [],
-      "meaning": "Every shop entry says how its goods join the shop's own, the same way on every shop. \"add\" puts them in at most half of the spots of their kind, rounded up, and the shop's own goods keep the rest. \"replace\" makes them the whole stock: each spot of a kind you list takes one of your goods, and every other spot is bare.",
-      "fix": "Write \"mode\": \"add\" or \"mode\": \"replace\" in each shop entry."
+      "meaning": "This is a note, and the rest of the block applies. Every field means the same on every shop, but a shop has only the fields the game can honour for it: Nook's store has no \"services\", \"name\", \"lines\"; the flower shop has no \"buy_back_percent\", \"services\"; Crazy Redd's tent has no \"open\", \"buy_back_percent\", \"services\", \"name\", \"lines\"; Saharah has no \"open\", \"buy_back_percent\", \"services\", \"name\", \"lines\"; the fireworks stall has no \"open\", \"buy_back_percent\", \"services\", \"name\", \"lines\"; Able Sisters has no \"open\", \"own_goods\", \"goods\", \"price_percent\", \"buy_back_percent\", \"name\", \"lines\"; the barber shop has no \"own_goods\", \"goods\", \"price_percent\", \"buy_back_percent\", \"name\", \"lines\"; the Dream Suite has no \"open\", \"own_goods\", \"goods\", \"price_percent\", \"buy_back_percent\", \"name\", \"lines\"; Katrina's tent has no \"open\", \"own_goods\", \"goods\", \"price_percent\", \"buy_back_percent\", \"name\", \"lines\". The game leaves such a field out and says so once per shop.",
+      "fix": "Take the field out of that shop's blocks, or keep it if you do not mind. The table in the Shops guide shows the fields each shop has."
     },
     {
       "code": "target-not-object",
@@ -1894,32 +2058,6 @@
       "fix": "Write { \"month\": 11, \"day\": 20 } or { \"month\": 11, \"week\": 4, \"weekday\": 4 }, not both forms."
     },
     {
-      "code": "calendar-empty",
-      "area": "calendar",
-      "title": "A calendar day with nothing in it",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "calendar: day 1 needs a \"board\" notice, \"talk\" lines or a \"letter\""
-        ],
-        "registry": [
-          "calendar.json: day \"fair\": needs a board notice, talk lines or a letter."
-        ],
-        "game": [
-          "calendar.json: day \"fair\": needs a board notice, talk lines or a letter",
-          "calendar: a day needs a \"board\" notice, \"talk\" lines or a \"letter\": fair"
-        ]
-      },
-      "api": [],
-      "meaning": "A calendar day must do something on its date. It can have a \"board\" notice, \"talk\" lines, a \"letter\", or any of them together.",
-      "fix": "Add a \"board\" notice, \"talk\" lines or a \"letter\"."
-    },
-    {
       "code": "calendar-letter",
       "area": "calendar",
       "title": "A calendar day's \"letter\" is not one of the mod's letters",
@@ -1979,7 +2117,7 @@
       },
       "api": [],
       "meaning": "A notice goes up on your town's bulletin board, which a visitor reads too. A mod with one must be a World mod.",
-      "fix": "Set \"scope\": \"world\", or keep only \"talk\" lines, which a Just you mod may have."
+      "fix": "Set \"scope\": \"world\", or keep only a \"letter\", which a Just you mod may have."
     },
     {
       "code": "calendar-board",
@@ -2009,32 +2147,6 @@
       "fix": "Shorten it and keep to plain characters."
     },
     {
-      "code": "calendar-talk",
-      "area": "calendar",
-      "title": "A calendar day's \"talk\" lines are not right",
-      "where": [
-        "Mods tab, when you install a ZIP",
-        "the check tool (playac-mod check)",
-        "Share a mod, when you upload",
-        "Mods tab, on the mod's row after a restart"
-      ],
-      "messages": {
-        "page": [
-          "calendar: day 1 \"talk\" must list 1 to 16 lines of 1 to 160 characters with at most 3 line breaks"
-        ],
-        "registry": [
-          "calendar.json: day \"fair\"'s talk must list 1 to 16 lines of 1 to 160 characters on at most 4 lines each."
-        ],
-        "game": [
-          "calendar: \"talk\" must list 1 to 16 lines: fair",
-          "calendar: a talk line must be 1 to 160 characters, at most 3 newlines: fair"
-        ]
-      },
-      "api": [],
-      "meaning": "\"talk\" lists 1 to 16 lines villagers say that day, each 1 to 160 characters with at most 3 line breaks.",
-      "fix": "Shorten the lines or the list."
-    },
-    {
       "code": "talk-file",
       "area": "talk",
       "title": "talk.json needs a \"pools\" list",
@@ -2058,6 +2170,145 @@
       "api": [],
       "meaning": "talk.json is { \"pools\": [ ... ] } with 1 to 32 pools.",
       "fix": "Wrap the pools in a \"pools\" list."
+    },
+    {
+      "code": "talk-no-place",
+      "area": "talk",
+      "title": "A pool does not say its \"place\"",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "talk: pool 1 \"place\" is required: before, hello, topic, after or conversation"
+        ],
+        "registry": [
+          "talk.json: pool 1's place is required: before, hello, topic, after or conversation."
+        ],
+        "game": [
+          "talk: \"place\" is required: before, hello, topic, after or conversation: pool 1"
+        ]
+      },
+      "api": [],
+      "meaning": "Every pool says where its lines go in a villager's talk: \"before\" the hello, as the \"hello\", as the \"topic\" after a chat answer, \"after\" the topic, or the whole \"conversation\". There is no default.",
+      "fix": "Add \"place\" to the pool. For small talk, the most common, write \"place\": \"topic\".",
+      "bad": {
+        "file": "talk.json",
+        "text": "{ \"pools\": [{ \"lines\": [\"Nice day!\"] }] }"
+      },
+      "good": {
+        "file": "talk.json",
+        "text": "{ \"pools\": [{ \"place\": \"topic\", \"lines\": [\"Nice day!\"] }] }"
+      }
+    },
+    {
+      "code": "talk-place",
+      "area": "talk",
+      "title": "A pool's \"place\" is not a place in a talk",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "talk: pool 1 \"place\" must be before, hello, topic, after or conversation"
+        ],
+        "registry": [
+          "talk.json: pool 1's place must be before, hello, topic, after or conversation."
+        ],
+        "game": [
+          "talk: \"place\" must be before, hello, topic, after or conversation: pool 1"
+        ]
+      },
+      "api": [],
+      "meaning": "A pool's \"place\" is where its line goes in a villager's talk: \"before\" the hello, as the \"hello\", as the \"topic\" after a chat answer, \"after\" the topic, or the whole \"conversation\". It is one of those five words, in lowercase.",
+      "fix": "Write one of the five places.",
+      "bad": {
+        "file": "talk.json",
+        "text": "{ \"pools\": [{ \"place\": \"greeting\", \"lines\": [\"Hi!\"] }] }"
+      },
+      "good": {
+        "file": "talk.json",
+        "text": "{ \"pools\": [{ \"place\": \"hello\", \"lines\": [\"Hi!\"] }] }"
+      }
+    },
+    {
+      "code": "talk-topics",
+      "area": "talk",
+      "title": "A pool's \"topics\" are not topics the game picks",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "talk: pool 1 \"topics\" must be \"any\" or a list of small_talk, trade, letter, memory, hint and news",
+          "talk: pool 2 \"topics\" goes only with \"place\": \"topic\"",
+          "talk: pool 1 \"topics\" goes only with \"place\": \"topic\""
+        ],
+        "registry": [
+          "talk.json: pool 1's topics must be \"any\" or a list of small_talk, trade, letter, memory, hint and news.",
+          "talk.json: pool 2's topics go only with \"place\": \"topic\"."
+        ],
+        "game": [
+          "talk: \"topics\" must be \"any\" or a list of small_talk, trade, letter, memory, hint and news: pool 1",
+          "talk: \"topics\" goes only with \"place\": \"topic\": pool 2"
+        ]
+      },
+      "api": [],
+      "meaning": "A \"topic\" line stands in for the topic the game picks after a chat answer. \"topics\" names which kinds it may replace: small_talk (the default), trade, letter, memory, hint and news, each once, or \"any\" for all six. It belongs only on a pool whose place is \"topic\".",
+      "fix": "List kinds from the six, write \"any\", or take \"topics\" off a pool of another place.",
+      "bad": {
+        "file": "talk.json",
+        "text": "{ \"pools\": [{ \"place\": \"topic\", \"topics\": [\"gossip\"], \"lines\": [\"Did you hear?\"] }] }"
+      },
+      "good": {
+        "file": "talk.json",
+        "text": "{ \"pools\": [{ \"place\": \"topic\", \"topics\": [\"news\", \"small_talk\"], \"lines\": [\"Did you hear?\"] }] }"
+      }
+    },
+    {
+      "code": "talk-day",
+      "area": "talk",
+      "title": "A pool's \"day\" is not one of the mod's calendar days",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "talk: pool 1 \"day\" \"fair\" names no day in this mod's calendar file",
+          "talk: pool 1 \"day\" must be the id of a day in this mod's calendar file",
+          "talk: pool 1 \"day\" \"harvest\" names no day in this mod's calendar file"
+        ],
+        "registry": [
+          "talk.json: pool 1's day \"fair\" names no day in this mod's calendar file.",
+          "talk.json: pool 1's day must be the id of a day in this mod's calendar file."
+        ],
+        "game": [
+          "talk: \"day\" names no day in this mod's calendar file: pool 1"
+        ]
+      },
+      "api": [],
+      "meaning": "A pool's \"day\" keeps it to one day of the year: the \"id\" of a day in the same mod's calendar file. On other days the pool does not fit.",
+      "fix": "Add the day to your calendar file, or fix the id to match one there exactly.",
+      "bad": {
+        "file": "talk.json",
+        "text": "{ \"pools\": [{ \"place\": \"hello\", \"day\": \"fair\", \"lines\": [\"Fair day!\"] }] }"
+      },
+      "good": {
+        "file": "talk.json",
+        "text": "{ \"pools\": [{ \"place\": \"hello\", \"day\": \"harvest-fair\", \"lines\": [\"Fair day!\"] }] }"
+      }
     },
     {
       "code": "talk-who",
@@ -2189,7 +2440,7 @@
         ]
       },
       "api": [],
-      "meaning": "\"chance\" is how often, in 100 small talks, the pool's line is said when the pool fits, as a whole number from 1 to 100. Leave it out for every one.",
+      "meaning": "\"chance\" is how often, in 100 talks the pool fits, its line is said, as a whole number from 1 to 100. Leave it out for every one.",
       "fix": "Write a whole number from 1 to 100."
     },
     {
@@ -2204,18 +2455,18 @@
       ],
       "messages": {
         "page": [
-          "talk: pool 1 \"lines\" must list 1 to 32 lines of 1 to 160 characters with at most 3 line breaks"
+          "talk: pool 1 \"lines\" must list 1 to 32 lines of 1 to 160 characters with at most 3 line breaks, or lists of 1 to 8 such pages"
         ],
         "registry": [
-          "talk.json: pool 1's lines must list 1 to 32 lines of 1 to 160 characters on at most 4 lines each."
+          "talk.json: pool 1's lines must list 1 to 32 lines of 1 to 160 characters on at most 4 lines each, or lists of 1 to 8 such pages."
         ],
         "game": [
           "talk: \"lines\" must list 1 to 32 lines: pool 1",
-          "talk: a line must be 1 to 160 characters, at most 3 newlines: pool 1"
+          "talk: a line must be 1 to 160 characters, at most 3 newlines, or a list of 1 to 8 such pages: pool 1"
         ]
       },
       "api": [],
-      "meaning": "A pool has 1 to 32 lines, each 1 to 160 characters with at most 3 line breaks.",
+      "meaning": "A pool has 1 to 32 lines. A line is one page of 1 to 160 characters with at most 3 line breaks, or a list of 1 to 8 such pages, each starting on a clean window.",
       "fix": "Shorten the lines or the list."
     },
     {
@@ -2244,18 +2495,18 @@
       ],
       "messages": {
         "game": [
-          "shops: a later mod changes the flower shop too, so this mod's entry for it is not used: bean.tea-stall",
-          "shops: a later mod changes Nook's store too, so this mod's entry for it is not used: bean.night-shop"
+          "shops: a later mod changes the flower shop too, so this mod's change to it is not used: bean.tea-stall",
+          "shops: a later mod changes Nook's store too, so this mod's change to it is not used: bean.night-shop"
         ]
       },
       "api": [],
-      "meaning": "This is not an error in the mod. Two switched-on mods change the same shop, and the mod lower in the list has the whole shop. The message names that mod, and the rest of this mod loads as usual.",
+      "meaning": "This is not an error in the mod. Two switched-on mods change the same shop, and the mod lower in the list has that shop whole. The message names the shop and that mod. This mod's changes to other shops, and the rest of the mod, load as usual.",
       "fix": "Move this mod below the other one in the Mods tab, or switch the other one off, then restart. If you made the mod, say in its description which shop it changes, because a mod cannot change the order itself."
     },
     {
       "code": "shop-stock",
       "area": "shops",
-      "title": "\"stock\" must list 1 to the goods the shop takes",
+      "title": "\"goods\" must list 1 to the goods the shop takes",
       "where": [
         "Mods tab, when you install a ZIP",
         "the check tool (playac-mod check)",
@@ -2264,20 +2515,20 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 \"stock\" must list 1 to 6 items for the flower shop",
-          "shops: shop 1 \"stock\" must list 1 to 16 items for Nook's store"
+          "shops: the flower shop: \"goods\" must list 1 to 6 goods",
+          "shops: Nook's store block 1: \"goods\" must list 1 to 16 goods",
+          "shops: Crazy Redd's tent: \"goods\" must list 1 to 6 goods",
+          "shops: Nook's store: \"goods\" must list 1 to 16 goods"
         ],
         "registry": [
-          "shops.json: shop 1's stock must list 1 to 6 items for the flower shop.",
-          "shops.json: shop 1's stock must list 1 to 16 items for Nook's store."
+          "shops.json: the flower shop: \"goods\" must list 1 to 6 goods."
         ],
         "game": [
-          "shops: \"stock\" must list 1 to 6 goods for the flower shop",
-          "shops: \"stock\" must list 1 to 16 goods for Nook's store"
+          "shops: the flower shop: \"goods\" must list 1 to 6 goods"
         ]
       },
       "api": [],
-      "meaning": "Every shop entry lists its goods in \"stock\", at least one. The flower shop takes 1 to 6, Nook's store takes 1 to 16. How many show on a day depends on the shop's spots of each kind.",
+      "meaning": "A block's \"goods\" lists at least one good. Nook's store takes 1 to 16, the flower shop takes 1 to 6, Crazy Redd's tent takes 1 to 6, Saharah takes 1 to 6, the fireworks stall takes 1 to 6. How many show at a time depends on the shop's spots of each kind.",
       "fix": "Keep the list to what the shop takes."
     },
     {
@@ -2610,9 +2861,11 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 stock 1 \"item\" other.mod:ghost-lantern is not an item in this mod's items file",
-          "shops: shop 1 stock 1 \"item\" other.mod:lamp is not an item in this mod's items file",
-          "shops: shop 1 stock 1 \"item\" test.mod:nope is not an item in this mod's items file"
+          "shops: Nook's store: goods 1 \"item\" is not an item in this mod's items file: other.mod:ghost-lantern",
+          "shops: Nook's store: goods 1 \"item\" is not an item in this mod's items file: other.mod:lamp",
+          "shops: Nook's store: goods 1 \"item\" is not an item in this mod's items file: test.mod:nope",
+          "shops: the flower shop: goods 1 \"item\" is not an item in this mod's items file: other.mod:lamp",
+          "shops: the flower shop: goods 1 \"item\" is not an item in this mod's items file: test.mod:nope"
         ]
       },
       "api": [],
@@ -2630,13 +2883,40 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 stock 2 shares its furniture 0x1000 with another good of this shop",
-          "shops: shop 1 stock 2 shares its furniture 0x1008 with another good of this shop"
+          "shops: Nook's store: goods 2 shares its furniture with another good: test.mod:chest",
+          "shops: Nook's store: goods 2 shares its furniture with another good: 0x1008",
+          "shops: the flower shop: goods 2 shares its furniture with another good: 0x1000"
         ]
       },
       "api": [],
       "meaning": "In a save, a mod item is its base furniture. So one shop cannot sell both the base and the mod item, or two mod items on one base.",
-      "fix": "Give one of them another base, or remove one from the stock."
+      "fix": "Give one of them another base, or remove one from the goods."
+    },
+    {
+      "code": "shop-item-no-model",
+      "area": "shops",
+      "title": "A good the game has no model for",
+      "where": [
+        "Mods tab, when you install a ZIP",
+        "the check tool (playac-mod check)",
+        "Share a mod, when you upload",
+        "Mods tab, on the mod's row after a restart"
+      ],
+      "messages": {
+        "page": [
+          "shops: Nook's store: goods 2 \"item\" 0x1220 has no model in the game: it would stand as a placeholder sign",
+          "shops: Crazy Redd's tent: goods 1 \"item\" 0x107C has no model in the game: it would stand as a placeholder sign"
+        ],
+        "registry": [
+          "shops.json: Nook's store: goods 2 \"item\" 0x1220 has no model in the game: it would stand as a placeholder sign."
+        ],
+        "game": [
+          "shops: Nook's store: goods 2 \"item\" 0x1220 has no model in the game: it would stand as a placeholder sign"
+        ]
+      },
+      "api": [],
+      "meaning": "The game has a placeholder in place of a model for some furniture, such as the kadomatsu (0x1220): in a shop it would stand as a sign that says \"dummy\". A shop cannot sell one. The items list in the reference has no Model link for these pieces.",
+      "fix": "Pick a piece of furniture the game draws. The items list in the reference shows which ones have a model."
     },
     {
       "code": "item-renames",
@@ -2673,22 +2953,22 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 stock 2 is a duplicate item 0x2800",
-          "shops: shop 1 stock 2 is a duplicate item 0x1000",
-          "shops: shop 1 stock 2 is a duplicate item 0x10AA",
-          "shops: shop 1 stock 2 is a duplicate item 0x28AA",
-          "shops: shop 1 stock 2 is a duplicate item 0x28AB",
-          "shops: shop 1 stock 2 is a duplicate item test.mod:lamp"
+          "shops: the flower shop: goods 2 is a duplicate item: 0x2800",
+          "shops: Nook's store: goods 2 is a duplicate item: 0x1000",
+          "shops: Nook's store: goods 2 is a duplicate item: 0x10AA",
+          "shops: the flower shop: goods 2 is a duplicate item: 0x28AA",
+          "shops: the flower shop: goods 2 is a duplicate item: 0x28AB",
+          "shops: the flower shop: goods 2 is a duplicate item: test.mod:lamp"
         ],
         "registry": [
-          "shops.json: shop 1's stock lists item 0x2800 twice."
+          "shops.json: the flower shop: goods 2 is a duplicate item: 0x2800."
         ],
         "game": [
-          "shops: a stock item is listed twice: 0x2800"
+          "shops: the flower shop: goods 2 is a duplicate item: 0x2800"
         ]
       },
       "api": [],
-      "meaning": "Each item can be in a shop's stock once. \"0x28aa\" and \"0x28AA\" are the same item.",
+      "meaning": "Each item can be in a block's goods once. \"0x28aa\" and \"0x28AA\" are the same item.",
       "fix": "Remove the second one."
     },
     {
@@ -2705,14 +2985,15 @@
           "shops: shop 1 stock 2 \"item\" 0x2800 (apple) cannot be sold at Nook's store, so the game leaves it out of Nook's store"
         ],
         "game": [
-          "shops: a stock item cannot be sold at the flower shop, left out: 0x2B00 is money",
-          "shops: a stock item cannot be sold at the flower shop, left out: 0x1234 has no shop shelf model",
-          "shops: a stock item cannot be sold at Nook's store, left out: 0x2800 has no spot of its kind on the shelves"
+          "shops: a good cannot be sold at the flower shop, left out: 0x2B00 is money",
+          "shops: a good cannot be sold at the flower shop, left out: 0x1234 has no shop shelf model",
+          "shops: a good cannot be sold at Nook's store, left out: 0x2800 has no spot of its kind on the shelves",
+          "shops: a good cannot be sold at Crazy Redd's tent, left out: 0x2800 is not furniture, which his tent sells"
         ]
       },
       "api": [],
-      "meaning": "A shop cannot sell this good, so the game left it out. The rest of the shop works. No shop sells money, tickets, grab bags, turnips, fossils or a good with no shelf model. At the flower shop that includes the game's own furniture. At Nook's a good needs a spot of its kind: furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings or flower bags, so fruit and the signboard are refused there.",
-      "fix": "Pick another item from the item list in the reference. Its Flower shop and Nook's columns show what each shop can sell. To sell furniture at the flower shop, make it a mod item of your own, or sell the game's furniture at Nook's store (target nook). `playac-mod check` warns about these goods before you install."
+      "meaning": "A shop cannot sell this good, so the game left it out. The rest of the shop works. No shop sells money, tickets, grab bags, turnips or fossils. The flower shop needs a good with a shelf model, which leaves out the game's own furniture. At Nook's a good needs a spot of its kind: furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings or flower bags, so fruit and the signboard are refused there. Crazy Redd sells furniture, Saharah carpets, and the fireworks stall fans, pinwheels and balloons. Only Nook's and the flower shop sell a mod item.",
+      "fix": "Pick another item from the item list in the reference. Its Flower shop and Nook's columns show what those shops can sell. To sell furniture at the flower shop, make it a mod item of your own, or sell the game's furniture at Nook's (\"nook\"). `playac-mod check` warns about these goods before you install."
     },
     {
       "code": "shop-item",
@@ -2726,13 +3007,18 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 stock 1 \"item\" must be \"0x\" and 4 hex digits, like \"0x2800\""
+          "shops: the flower shop: goods 1 \"item\" must be \"0x\" and 4 hex digits, or an item of this mod",
+          "shops: Nook's store: goods 1 \"item\" must be \"0x\" and 4 hex digits, or an item of this mod",
+          "shops: Nook's store: goods 1 \"item\" must be \"0x\" and 4 hex digits, or an item of this mod: test.mod:lamp",
+          "shops: the flower shop: goods 1 \"item\" must be \"0x\" and 4 hex digits, or an item of this mod:  0x2800",
+          "shops: the flower shop: goods 1 \"item\" must be \"0x\" and 4 hex digits, or an item of this mod: 0X2800",
+          "shops: the flower shop: goods 1 \"item\" must be \"0x\" and 4 hex digits, or an item of this mod: 0x280"
         ],
         "registry": [
-          "shops.json: shop 1's stock item 10240 must be a string like \"0x2800\"."
+          "shops.json: the flower shop: goods 1 \"item\" must be \"0x\" and 4 hex digits, or an item of this mod."
         ],
         "game": [
-          "shops: a stock item must be {\"item\": \"0x\" and four hex digits}: 2800"
+          "shops: the flower shop: goods 1 \"item\" must be \"0x\" and 4 hex digits, or an item of this mod: 2800"
         ]
       },
       "api": [],
@@ -2740,11 +3026,11 @@
       "fix": "Put the item number in quotes with 0x in front.",
       "bad": {
         "file": "shops.json",
-        "text": "\"stock\": [{ \"item\": 0x2800, \"price\": 600 }]"
+        "text": "\"goods\": [{ \"item\": 0x2800, \"price\": 600 }]"
       },
       "good": {
         "file": "shops.json",
-        "text": "\"stock\": [{ \"item\": \"0x2800\", \"price\": 600 }]"
+        "text": "\"goods\": [{ \"item\": \"0x2800\", \"price\": 600 }]"
       }
     },
     {
@@ -2759,13 +3045,14 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 stock 1 \"price\" must be a whole number from 1 to 99999"
+          "shops: the flower shop: goods 1 \"price\" must be a whole number from 1 to 99999",
+          "shops: Nook's store: goods 1 \"price\" must be a whole number from 1 to 99999"
         ],
         "registry": [
-          "shops.json: shop 1's price for 0x2800 must be a whole number from 1 to 99999."
+          "shops.json: the flower shop: goods 1 \"price\" must be a whole number from 1 to 99999."
         ],
         "game": [
-          "shops: a price must be a whole number of Bells, 1 to 99999: 0x2800"
+          "shops: the flower shop: goods 1 \"price\" must be a whole number from 1 to 99999: 0x2800"
         ]
       },
       "api": [],
@@ -2781,7 +3068,7 @@
       ],
       "messages": {
         "page": [
-          "shops: shop 1 stock 1 \"price\" 50 is under the floor for 0x2800 (apple) at the flower shop: the game sells it for 500"
+          "shops: the flower shop: goods 1 \"price\" 50 is under the floor for 0x2800 (apple) at the flower shop: the game sells it for 500"
         ]
       },
       "api": [],
@@ -4309,7 +4596,9 @@
           "take_bells: amount must be a whole number 1 to 99999",
           "take_bells: takes a table: { amount = ... }",
           "give_item: item must be an item number, \"0x\" and four hex digits, or this mod's \"author.mod:thing\"",
-          "send_letter: item must be an item number or \"0x\" and four hex digits"
+          "send_letter: item must be an item number or \"0x\" and four hex digits",
+          "set_shop_goods: goods must list 1 to the goods the shop takes",
+          "set_shop_open: open must be true, false or nil"
         ]
       },
       "api": [],
@@ -4326,7 +4615,8 @@
       "messages": {
         "game": [
           "commands are switched off in The City",
-          "send_letter: commands are switched off in The City"
+          "send_letter: commands are switched off in The City",
+          "set_shop_open: shops are off in The City"
         ]
       },
       "api": [],
@@ -4355,6 +4645,30 @@
       "good": {
         "file": "mod.json",
         "text": "\"settings\": [{ \"name\": \"gift\", \"type\": \"choice\", \"label\": \"Gift\", \"choices\": [\"apple\", \"pear\"], \"default\": \"apple\" }]"
+      }
+    },
+    {
+      "code": "command-shop",
+      "area": "command",
+      "title": "A shop command the shop cannot take",
+      "where": [
+        "what cmd.<name> returns when a command is refused, the command_finished event and the Mod log"
+      ],
+      "messages": {
+        "game": [
+          "set_shop_goods: there is no such shop",
+          "set_shop_open: Crazy Redd's tent has no open",
+          "set_shop_goods: Able Sisters has no goods",
+          "set_shop_goods: a later mod changes Nook's store: bean.night-shop",
+          "set_shop_open: a shop changes what visitors see, so the mod needs \"scope\": \"world\""
+        ]
+      },
+      "api": [],
+      "meaning": "cmd.set_shop_goods and cmd.set_shop_open change one shop, by its id in the shop table, for the rest of the game day. They are refused when the id is not in the table, when the shop has no goods (set_shop_goods) or no open (set_shop_open) in the table, when a mod later in the load order changes that shop (it has the shop whole), and in a mod without \"scope\": \"world\". The refusal comes at the call: the command returns nil, this message and this code.",
+      "fix": "Use a shop id from the shop table (/modding/guides/shops/#table) that has the field. If a later mod has the shop, the player decides the order in the Mods tab. Trying again does not help.",
+      "good": {
+        "file": "main.lua",
+        "text": "cmd.set_shop_open(\"flower\", true)"
       }
     },
     {

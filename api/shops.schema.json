@@ -2,179 +2,490 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://playaconline.com/schemas/shops.schema.json",
   "title": "Play AC Online shops.json",
-  "description": "Restocks and rewords a shop. Every shop takes the same entry: a target, the goods (stock), how they join the shop's own (mode), and optionally hours. Each field means one thing on every shop; a field a shop does not have is refused (rule shop_fields, the table in targets). mode \"add\" puts the goods in at most half of the spots of their kind, rounded up, and the shop's own goods keep the rest. mode \"replace\" makes them the shop's whole stock: each spot of a kind it lists takes one of its goods, and every other spot is bare. hours say when the entry applies. Inside them the shop is the mod's and is open, also when the game has it shut for the night. Outside them the shop is its own. With no hours the entry applies all day, in the shop's own hours. At Nook's the goods stand in spots of their own kind, in every store size, from the next restock, and a new set is picked each day when there are more goods than spots. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids. It raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id. Without a price it takes the item's price. Shops are off in The City. When two switched-on mods change the same shop, the one later in the load order has it whole and the other's is not used (rule load_order_last_wins). The earlier mod's row says so. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/#shops",
+  "description": "Changes shops, each by its id: \"nook\", \"flower\", \"redd\" and the rest of the shop table. A shop takes one block, or a list of blocks. A block says what changes (goods, open, own_goods, prices, services, name, lines) and, with \"when\", when. Every field means the same on every shop. The shop table says which fields each shop has; a field a shop does not have is left out and the mod's row says so (rule shop_fields). While a block applies its goods join the shop's own, in at most half the spots of their kind (rounded up), or with \"own_goods\": false they are the whole stock. When several blocks apply at once their goods are sold together, and for a single value the last of them counts. The game itself, not the page or the mod list, refuses goods with no shelf model, money, turnips, tickets, grab bags, fossils and reserve ids, and raises a price below the item's buy-back to the buy-back. items.json lists what may be stocked. A good may be an item of the same mod, by its full id, at Nook's and the flower shop. Without a price a good takes the shop's own price. Shops are off in The City. When two switched-on mods change the same shop, the one later in the load order has that shop whole and the other's change to it is not used (rule load_order_last_wins). The earlier mod's row says so. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/files/#shops",
   "type": "object",
   "required": [
     "shops"
   ],
   "additionalProperties": false,
+  "$defs": {
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "not": {
+        "required": [
+          "when"
+        ],
+        "maxProperties": 1,
+        "description": "A block needs at least one field besides \"when\"."
+      },
+      "description": "One change to a shop. It needs at least one field besides \"when\".",
+      "properties": {
+        "when": {
+          "$ref": "#/$defs/when"
+        },
+        "open": {
+          "type": "boolean",
+          "description": "true: the shop is open while the block applies, also when its own hours have it shut. false: it is shut while the block applies. Leave it out for the shop's own hours."
+        },
+        "own_goods": {
+          "type": "boolean",
+          "description": "false: while the block applies the shop sells only the goods of the blocks that apply, and every spot of a kind they do not list is bare. true (the default): the goods join the shop's own, in at most half the spots of their kind, rounded up."
+        },
+        "goods": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "description": "The goods. Each stands in a spot of its own kind. The shop table gives each shop's most goods in a block.",
+          "items": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "item": {
+                "type": "string",
+                "description": "The item id as a string, \"0x\" and 4 hex digits, or the full id of an item in this mod's items file (author.mod:thing), at Nook's and the flower shop. Each item is listed at most once in a block. Two mod items may not share a base.",
+                "anyOf": [
+                  {
+                    "pattern": "^0x[0-9a-fA-F]{4}$"
+                  },
+                  {
+                    "pattern": "^([a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}):([a-z0-9][a-z0-9-]{0,31})$"
+                  }
+                ]
+              },
+              "price": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 99999,
+                "description": "The price in Bells. Leave it out for the shop's own price."
+              },
+              "when": {
+                "$ref": "#/$defs/when"
+              }
+            }
+          }
+        },
+        "price_percent": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "While the block applies the shop asks this percent of its own price for every good with no price of its own. 100 is the game's price. Never below the buy-back."
+        },
+        "buy_back_percent": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "While the block applies the shop pays this percent of what it would pay for what the player sells, never more than it asks for the item. Not turnips."
+        },
+        "services": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99999,
+            "description": "The service's price in Bells, 1 to 99999."
+          },
+          "description": "A service's price in Bells, by the service's name in the shop table (a haircut, a design, a dream, a fortune)."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^[^\\n]*$",
+          "description": "The shop's name where the game shows it: the flower shop's door sign while the shop is shut. One line."
+        },
+        "lines": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "description": "1 to 160 characters, at most 3 line breaks."
+              },
+              {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 8,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160,
+                  "description": "1 to 160 characters, at most 3 line breaks."
+                }
+              }
+            ],
+            "description": "One line, or a list of 1 to 8 lines the keeper picks from."
+          },
+          "description": "What the keeper says, by slot (the shop table lists each shop's). A slot is one line, or a list of 1 to 8 the keeper picks from each time."
+        }
+      }
+    },
+    "when": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "description": "When the block or the good applies: while every key here holds. Leave it out for always.",
+      "properties": {
+        "hours": {
+          "type": "object",
+          "required": [
+            "from",
+            "to"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "from": {
+              "type": "string",
+              "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+              "description": "From this time, on a 24-hour clock."
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+              "description": "Up to this time, on a 24-hour clock. It may be past midnight."
+            }
+          },
+          "description": "HH:MM to HH:MM. From and to must differ."
+        },
+        "time": {
+          "enum": [
+            "morning",
+            "day",
+            "evening",
+            "night"
+          ],
+          "description": "The game's four times of day: morning 5 to 12, day 12 to 17, evening 17 to midnight, night midnight to 5."
+        },
+        "season": {
+          "enum": [
+            "spring",
+            "summer",
+            "fall",
+            "winter"
+          ],
+          "description": "Spring is March to May, summer June to August, fall September to November, winter December to February."
+        },
+        "weather": {
+          "enum": [
+            "clear",
+            "rain",
+            "snow"
+          ],
+          "description": "Cherry blossom and falling leaves count as clear."
+        },
+        "weekday": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "monday",
+              "tuesday",
+              "wednesday",
+              "thursday",
+              "friday",
+              "saturday",
+              "sunday"
+            ],
+            "description": "A day of the week, monday to sunday, in lowercase."
+          },
+          "description": "Only on these days of the week."
+        },
+        "month": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12,
+            "description": "A month, 1 (January) to 12."
+          },
+          "description": "Only in these months, 1 (January) to 12."
+        },
+        "setting": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,31}$",
+          "description": "The name of one of this mod's settings of type bool with scope world. Holds while it is on."
+        }
+      }
+    }
+  },
   "properties": {
     "$schema": {
       "type": "string"
     },
     "shops": {
-      "type": "array",
-      "minItems": 1,
-      "maxItems": 2,
-      "items": {
-        "type": "object",
-        "required": [
-          "target",
-          "stock",
-          "mode"
-        ],
-        "additionalProperties": false,
-        "properties": {
-          "target": {
-            "enum": [
-              "flower",
-              "nook"
-            ],
-            "description": "Which shop: \"flower\" or \"nook\". One entry per target. Every target takes the same fields; the targets table says which fields a shop has."
-          },
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 40,
-            "description": "The flower shop's. The shop's name on its door sign while the shop is shut, followed by the hours the mod's shop is on. One line, no line break.",
-            "pattern": "^[^\\n]*$"
-          },
-          "hours": {
-            "type": "object",
-            "required": [
-              "open",
-              "close"
-            ],
-            "properties": {
-              "open": {
-                "type": "string",
-                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
-                "description": "When the entry starts, on a 24-hour clock."
-              },
-              "close": {
-                "type": "string",
-                "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
-                "description": "When the entry ends, on a 24-hour clock."
-              }
-            },
-            "description": "HH:MM. Open and close must differ. Close may be past midnight. The entry applies only inside the hours: its goods (by mode) and its lines. Inside them the shop is open, also when the game has it shut for the night. Outside them the shop is its own. Leave hours out for all day, in the shop's own hours."
-          },
-          "greeting": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 160,
-            "description": "The flower shop's. What the keeper says first while the entry applies. At most 3 line breaks."
-          },
-          "stock_line": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 160,
-            "description": "The flower shop's. What the keeper says about the stock while the entry applies. At most 3 line breaks."
-          },
-          "stock": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 16,
-            "items": {
-              "type": "object",
-              "required": [
-                "item"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "item": {
-                  "type": "string",
-                  "description": "The item id as a string, \"0x\" and 4 hex digits, or the full id of an item in this mod's items file (author.mod:thing). Each item is listed at most once. Two mod items may not share a base.",
-                  "anyOf": [
-                    {
-                      "pattern": "^0x[0-9a-fA-F]{4}$"
-                    },
-                    {
-                      "pattern": "^([a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}):([a-z0-9][a-z0-9-]{0,31})$"
-                    }
-                  ]
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "nook": {
+          "description": "Nook's store: open, own_goods, goods, price_percent, buy_back_percent, at most 16 goods in a block.",
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/block"
                 },
-                "price": {
-                  "type": "integer",
-                  "minimum": 1,
-                  "maximum": 99999,
-                  "description": "The price in Bells. Leave it out for the game's own price."
+                {
+                  "properties": {
+                    "goods": {
+                      "maxItems": 16
+                    }
+                  }
                 }
-              }
+              ]
             },
-            "description": "The goods. The flower shop takes 1 to 6, Nook's 1 to 16 (the targets table). Each stands in a spot of its own kind."
-          },
-          "mode": {
-            "enum": [
-              "add",
-              "replace"
-            ],
-            "description": "How the goods join the shop's own, the same on every shop. \"add\": in at most half of the spots of their kind, rounded up; the shop's own goods keep the rest. \"replace\": the goods are the shop's whole stock; each spot of a kind they list takes one, and every other spot is bare."
-          }
-        },
-        "allOf": [
-          {
-            "description": "The flower shop sells at most 6 goods.",
-            "if": {
-              "required": [
-                "target"
-              ],
-              "properties": {
-                "target": {
-                  "const": "flower"
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "stock": {
-                  "maxItems": 6
-                }
-              }
-            }
-          },
-          {
-            "description": "Nook's store sells at most 16 goods and has no name, greeting, stock_line (rule shop_fields).",
-            "if": {
-              "required": [
-                "target"
-              ],
-              "properties": {
-                "target": {
-                  "const": "nook"
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "stock": {
-                  "maxItems": 16
-                }
-              },
-              "not": {
-                "anyOf": [
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": {
+                "allOf": [
                   {
-                    "required": [
-                      "name"
-                    ]
+                    "$ref": "#/$defs/block"
                   },
                   {
-                    "required": [
-                      "greeting"
-                    ]
-                  },
-                  {
-                    "required": [
-                      "stock_line"
-                    ]
+                    "properties": {
+                      "goods": {
+                        "maxItems": 16
+                      }
+                    }
                   }
                 ]
               }
             }
-          }
-        ]
+          ]
+        },
+        "flower": {
+          "description": "The flower shop: open, own_goods, goods, price_percent, name, lines, at most 6 goods in a block. Line slots: greeting, stock.",
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/block"
+                },
+                {
+                  "properties": {
+                    "goods": {
+                      "maxItems": 6
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/block"
+                  },
+                  {
+                    "properties": {
+                      "goods": {
+                        "maxItems": 6
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "redd": {
+          "description": "Crazy Redd: own_goods, goods, price_percent, at most 6 goods in a block.",
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/block"
+                },
+                {
+                  "properties": {
+                    "goods": {
+                      "maxItems": 6
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/block"
+                  },
+                  {
+                    "properties": {
+                      "goods": {
+                        "maxItems": 6
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "saharah": {
+          "description": "Saharah: own_goods, goods, price_percent, at most 6 goods in a block.",
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/block"
+                },
+                {
+                  "properties": {
+                    "goods": {
+                      "maxItems": 6
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/block"
+                  },
+                  {
+                    "properties": {
+                      "goods": {
+                        "maxItems": 6
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "fireworks": {
+          "description": "The fireworks stall: own_goods, goods, price_percent, at most 6 goods in a block.",
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/block"
+                },
+                {
+                  "properties": {
+                    "goods": {
+                      "maxItems": 6
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/block"
+                  },
+                  {
+                    "properties": {
+                      "goods": {
+                        "maxItems": 6
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "able": {
+          "description": "Able Sisters: services. Services: design.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/block"
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": {
+                "$ref": "#/$defs/block"
+              }
+            }
+          ]
+        },
+        "barber": {
+          "description": "The barber shop: open, services. Services: haircut.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/block"
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": {
+                "$ref": "#/$defs/block"
+              }
+            }
+          ]
+        },
+        "dream": {
+          "description": "The Dream Suite: services. Services: dream.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/block"
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": {
+                "$ref": "#/$defs/block"
+              }
+            }
+          ]
+        },
+        "katrina": {
+          "description": "Katrina: services. Services: fortune.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/block"
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": {
+                "$ref": "#/$defs/block"
+              }
+            }
+          ]
+        }
       },
-      "description": "The shops this file changes, at most one for each target."
+      "description": "The shops this file changes, by id. Each takes one block or a list of blocks."
     }
   }
 }

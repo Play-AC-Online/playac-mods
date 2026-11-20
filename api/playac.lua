@@ -3,9 +3,10 @@
 -- Reference: https://playaconline.com/modding/reference/  Put this file where your editor's Lua language server finds it
 -- (for example a "types" folder listed in .luarc.json "workspace.library").
 
----@alias PlayacEvent "villager_talked"|"day_started"|"item_picked_up"|"scene_entered"|"data_migrated"|"hour_changed"|"item_bought"|"item_sold"|"fish_caught"|"bug_caught"|"letter_read"|"villager_moved_in"|"visitor_arrived"|"command_finished"|"question_answered"|"timer_fired"
+---@alias PlayacEvent "villager_talked"|"day_started"|"item_picked_up"|"scene_entered"|"data_migrated"|"hour_changed"|"item_bought"|"item_sold"|"fish_caught"|"bug_caught"|"letter_read"|"villager_moved_in"|"visitor_arrived"|"command_finished"|"question_answered"|"timer_fired"|"villager_answered"
 
 ---The stable code of a refused command: what cmd.* returns third, and command_finished's e.code.
+--- - `command-shop` (retry: never): A shop command the shop cannot take: the shop is not in the shop table, it has no goods or no open, or a mod later in the load order changes that shop.
 --- - `command-permission` (retry: never): The command is not in mod.json permissions.
 --- - `command-args` (retry: never): Wrong arguments, such as their shape, a length, the paper or the choices.
 --- - `command-item` (retry: never): An item the command cannot hand out, or an unknown item or letter id of the mod's own. Also sent in command_finished when the mod's item or letter was gone by the time the game applied the command.
@@ -20,7 +21,7 @@
 --- - `command-not-held` (retry: later): A take the player cannot meet. The pockets do not hold that many of the item in plain slots, or the wallet holds fewer Bells.
 --- - `command-declined` (retry: later): The player said no to a take's question, or closed it with no pick. Nothing was taken.
 --- - `command-client-setting` (retry: never): The event read a client setting, and a client setting cannot decide what the town gets or gives up. Make the setting world, or do not read it in an event that sends a letter, gives an item, or takes an item or Bells.
----@alias playac.CommandCode "command-permission"|"command-args"|"command-item"|"command-event-cap"|"command-queue-full"|"command-day-cap"|"command-city"|"command-visiting"|"command-lent-home"|"command-no-room"|"command-not-shown"|"command-not-held"|"command-declined"|"command-client-setting"
+---@alias playac.CommandCode "command-shop"|"command-permission"|"command-args"|"command-item"|"command-event-cap"|"command-queue-full"|"command-day-cap"|"command-city"|"command-visiting"|"command-lent-home"|"command-no-room"|"command-not-shown"|"command-not-held"|"command-declined"|"command-client-setting"
 
 ---The stable code of a refused timer: what timer.after returns third.
 --- - `timer-args` (retry: never): Wrong arguments, such as the minutes, the name or the data. Also when the script has no timer_fired handler.
@@ -139,6 +140,12 @@
 ---@field name string The name given to timer.after.
 ---@field data (string|number|boolean)? The data given to timer.after. nil when none was given.
 
+---The one table a handler of villager_answered gets, as e.
+---@class PlayacVillagerAnsweredEvent
+---@field villager PlayacVillager The villager. It is a copy, so changing it changes nothing.
+---@field choice integer Which answer, counting from 1.
+---@field text string The answer's text.
+
 ---@class PlayacGameTimeResult
 ---@field year integer
 ---@field month integer 1 to 12.
@@ -168,7 +175,7 @@
 ---@field id integer Stays the same for that resident in that town. It holds the resident's save slot. A new resident who later takes a freed slot can get the same id, and never gets the old resident's store.player data: the game deletes that when a resident is deleted and again when a new one is made in the slot. On a visit it is the visitor's own number, never equal to a resident's.
 
 ---Registers a handler for an event. Call it while the mod's own script loads, not from inside a handler and not from a function another mod calls with remote.call. The event must be in mod.json's scripts.events. At most 16 handlers per event. A handler gets one table, e, holding the event's fields.
----@overload fun(event: "villager_talked", fn: fun(e: PlayacVillagerTalkedEvent): string?)
+---@overload fun(event: "villager_talked", fn: fun(e: PlayacVillagerTalkedEvent): table?)
 ---@overload fun(event: "day_started", fn: fun(e: PlayacDayStartedEvent))
 ---@overload fun(event: "item_picked_up", fn: fun(e: PlayacItemPickedUpEvent))
 ---@overload fun(event: "scene_entered", fn: fun(e: PlayacSceneEnteredEvent))
@@ -184,6 +191,7 @@
 ---@overload fun(event: "command_finished", fn: fun(e: PlayacCommandFinishedEvent))
 ---@overload fun(event: "question_answered", fn: fun(e: PlayacQuestionAnsweredEvent))
 ---@overload fun(event: "timer_fired", fn: fun(e: PlayacTimerFiredEvent))
+---@overload fun(event: "villager_answered", fn: fun(e: PlayacVillagerAnsweredEvent): (string|table)?)
 ---@param event PlayacEvent An event name.
 ---@param fn function Called with one table, e, holding the event's fields.
 function on(event, fn) end
@@ -362,6 +370,22 @@ function cmd.take_item(t) end
 ---@return string? message Why it was refused, in words.
 ---@return playac.CommandCode? code The refusal's stable code (command_codes).
 function cmd.take_bells(t) end
+
+---Sets a shop's goods for the rest of the game day, as one more block after the mod's shops.json blocks for that shop. It is set at the call, with no queue, no daily cap and no command_finished, and applies from the next frame, also when the shop is shut, and is gone when the day changes or the game restarts, so set it again in day_started. nil clears it. Only for a shop with goods in the shop table, and refused when a mod later in the load order changes that shop. Needs scope world.
+---@param shop string A shop id from the shop table, like "nook" or "redd".
+---@param goods table? A list of { item, price? } (item: an item number, "0x" and four hex digits, or this mod's "author.mod:thing"), as many as the shop takes in a block. Or { goods = <that list>, own_goods = false } to make them the whole stock. nil clears.
+---@return boolean? ok true when it is set. When it is refused: nil, then a message and a code.
+---@return string? message Why it was refused, in words.
+---@return playac.CommandCode? code The refusal's stable code (command_codes).
+function cmd.set_shop_goods(shop, goods) end
+
+---Opens or shuts a shop for the rest of the game day, as one more block after the mod's shops.json blocks for that shop. true opens it, false shuts it, nil clears it. It is set at the call, with no queue, no daily cap and no command_finished, and applies from the next frame and is gone when the day changes or the game restarts. Only for a shop with open in the shop table, and refused when a mod later in the load order changes that shop. Needs scope world.
+---@param shop string A shop id from the shop table, like "flower" or "barber".
+---@param open boolean? true opens it, false shuts it, nil clears.
+---@return boolean? ok true when it is set. When it is refused: nil, then a message and a code.
+---@return string? message Why it was refused, in words.
+---@return playac.CommandCode? code The refusal's stable code (command_codes).
+function cmd.set_shop_open(shop, open) end
 
 ---Seeded random numbers. rng() gives a number in [0,1), rng(n) a whole number 1..n and rng(m, n) a whole number m..n. The seed is the mod, the town, the game day and how many numbers this mod has drawn in this town on this game day. Each call in a day therefore gives another number, and a reload cannot reroll. The count is saved with the town store at the end of a run that drew numbers, and a reload carries on from it. If the tab closes before that write, the same numbers come again, never new ones. A new game day starts the count at 0, and changing the game's clock gives other numbers. The count is kept in memory only away from home, for a lent mod and before a town loads. Inside a remote.call, the called mod draws from its own counter. math.random and math.randomseed are not available. Use rng().
 ---@param m integer?

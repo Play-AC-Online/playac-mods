@@ -2,12 +2,12 @@
 
 Generated from https://playaconline.com/schemas/items.json. Do not edit by hand.
 
-831 goods can be stocked at the flower shop (shops.json "target": "flower") and 1996 at Nook's (target "nook"), out of 2333 items and pieces of furniture. Use the id as a string in shops.json: `{ "item": "0x2800", "price": 600 }`. "price" is the usual shop price (leave "price" out to use it); a lower price is raised to the floor for that shop.
+831 goods can be stocked at the flower shop (shops.json "flower") and 1996 at Nook's (shops.json "nook"), out of 2333 items and pieces of furniture. Use the id as a string in a block's "goods": `{ "item": "0x2800", "price": 600 }`. "price" is the usual shop price (leave "price" out to use it); a lower price is raised to the floor for that shop.
 
 - price: Bells at the shop for the town's own fruit; a foreign fruit sells for 2000. The grab bag costs the current year and is shown as 0.
 - buyback: what Nook pays (price / 4).
 - floor: the lowest price each shop sells it at. A shops.json price below it is raised to it. It is the buyback, except a town fruit (apple, cherry, pear, peach, orange) at the flower shop, which is 500: what any Nook pays for a fruit from another town.
-- stockable: whether a shops.json good of this id stays on the shelf, per target. refusal says why not; the game leaves such a good out and says so on the mod's row in the Mods tab.
+- stockable: whether a shops.json good of this id stays on the shelf, per shop id. refusal says why not; the game leaves such a good out and says so on the mod's row in the Mods tab.
 - The flower shop puts goods on a shelf, so it needs a good with a shop shelf model: fruit, saplings, seed bags, tools and the like. No vanilla furniture has one. A mod's OWN items (content.items, furniture on a vanilla base) are always stockable there: they stand on the bench as furniture.
 - Nook's shop sells vanilla furniture, umbrellas, paint and diaries without a shelf model; every other good needs one, and a good needs a spot on Nook's shelves.
 - name: furniture names are the game's English names. A shirt, fish, bug, umbrella or tool takes the English name of its furniture form. Other items have only a number in the game's tables and are named by kind and number (stationery 7, carpet 12, wallpaper 3, music 5); a few keep a short internal label.

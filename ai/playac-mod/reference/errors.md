@@ -813,9 +813,9 @@ From the mod list (upload):
 
     The scope must be "client" or "world".
 
-What it means: "scope": "client" makes a Just you mod, which only you see. "scope": "world" makes a World mod, which changes your town for visitors too. Only a World mod may hold a shop or a bulletin board notice (a calendar file with "board").
+What it means: "scope": "client" makes a Just you mod, which only you see. "scope": "world" makes a World mod, which changes your town for visitors too. Only a World mod may hold a shop, a bulletin board notice (a calendar file with "board"), the permission set_shop_goods or the permission set_shop_open.
 
-How to fix it: Use "world" if the mod has a shop or a bulletin board notice (a calendar file with "board"). Otherwise use "client".
+How to fix it: Use "world" if the mod has a shop, a bulletin board notice (a calendar file with "board"), the permission set_shop_goods or the permission set_shop_open. Otherwise use "client".
 
 ### manifest-assets-original
 
@@ -846,16 +846,18 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 In the game page (install, check tool):
 
     "content.shops" changes what visitors see, so "scope" must be "world"
+    "permissions" lists "set_shop_goods", which changes what visitors see, so "scope" must be "world"
 
 From the mod list (upload):
 
     content.shops changes what visitors see, so mod.json needs "scope": "world".
+    permissions lists set_shop_open, which changes what visitors see, so mod.json needs "scope": "world".
 
 From the game (Mods tab row):
 
     shops change what visitors see, so the mod needs "scope": "world"
 
-What it means: A shop changes your town for visitors, so a mod with "shops" must be a World mod. Friends may need the same mods to visit.
+What it means: A shop changes your town for visitors, so a mod with "shops", or a script with the permission set_shop_goods or set_shop_open, must be a World mod. Friends may need the same mods to visit.
 
 How to fix it: Set "scope": "world" in mod.json.
 
@@ -1081,12 +1083,12 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    "scripts.events" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired
+    "scripts.events" must list one or more events, each once, from: villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered
 
 From the mod list (upload):
 
-    scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.
-    scripts.events lists "every_frame", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired.
+    scripts.events must list at least one of villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered.
+    scripts.events lists "every_frame", which is not an event. Use villager_talked, day_started, item_picked_up, scene_entered, data_migrated, hour_changed, item_bought, item_sold, fish_caught, bug_caught, letter_read, villager_moved_in, visitor_arrived, command_finished, question_answered, timer_fired, villager_answered.
     scripts.events lists "day_started" twice.
 
 What it means: "events" lists every event your script listens to with on(), each once, in lowercase. A library mod that only offers functions to other mods still lists one event, and need not register a handler for it.
@@ -1113,15 +1115,15 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    "permissions" must list one or more commands, each once, from: send_letter, give_item, show_line, ask, take_item, take_bells
+    "permissions" must list one or more commands, each once, from: send_letter, give_item, show_line, ask, take_item, take_bells, set_shop_goods, set_shop_open
 
 From the mod list (upload):
 
-    permissions must list at least one of send_letter, give_item, show_line, ask, take_item, take_bells.
-    permissions lists "teleport", which is not a command. Use send_letter, give_item, show_line, ask, take_item, take_bells.
+    permissions must list at least one of send_letter, give_item, show_line, ask, take_item, take_bells, set_shop_goods, set_shop_open.
+    permissions lists "teleport", which is not a command. Use send_letter, give_item, show_line, ask, take_item, take_bells, set_shop_goods, set_shop_open.
     permissions lists "ask" twice.
 
-What it means: "permissions" lists the commands your script may use, each once, from send_letter, give_item, show_line, ask, take_item and take_bells. Players see the list on the Mods tab.
+What it means: "permissions" lists the commands your script may use, each once, from send_letter, give_item, show_line, ask, take_item, take_bells, set_shop_goods and set_shop_open. Players see the list on the Mods tab.
 
 How to fix it: List only the commands your script calls, for example "permissions": ["send_letter"].
 
@@ -1211,106 +1213,133 @@ How to fix it: Add "scripts", or remove "exports".
 
 ### shops-file
 
-**shops.json needs a "shops" list**
+**shops.json needs a "shops" object of shop ids**
 
 Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    shops: "shops" must be a list of 1 to 2 shops
+    shops: "shops" must be an object of shop ids, like { "nook": { ... } }
 
 From the mod list (upload):
 
-    shops.json must be a JSON object with a "shops" list.
-    shops.json needs a "shops" list of 1 to 2 shops.
+    shops.json: "shops" must be an object of shop ids, like { "nook": { ... } }.
 
 From the game (Mods tab row):
 
-    shops file needs a "shops" list
-    shops: the "shops" list must hold 1 to 2 shops
+    shops file needs a "shops" object of shop ids
 
-What it means: shops.json is an object with a "shops" list of 1 to 2 shops, even when there is only one.
+What it means: shops.json is an object with a "shops" object. Each key is a shop id ("nook", "flower", "redd", "saharah", "fireworks", "able", "barber", "dream" and "katrina"), and each value is the shop's block, or a list of blocks.
 
-How to fix it: Wrap the shop in { "shops": [ ... ] }.
+How to fix it: Write the file as { "shops": { "nook": { ... } } }.
 
 Bad (shops.json):
 
 ```
-{ "target": "flower", "stock": [{ "item": "0x2800" }] }
+{ "shops": [{ "goods": [{ "item": "0x2800" }] }] }
 ```
 
 Fixed (shops.json):
 
 ```
-{ "shops": [{ "target": "flower", "stock": [{ "item": "0x2800" }] }] }
+{ "shops": { "flower": { "goods": [{ "item": "0x2800" }] } } }
 ```
+
+### shop-id
+
+**There is no shop with that id**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: there is no shop "nok" (did you mean "nook"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina
+    shops: there is no shop "": the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina
+    shops: there is no shop "Flower" (did you mean "flower"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina
+    shops: there is no shop "Nook" (did you mean "nook"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina
+    shops: there is no shop "baker" (did you mean "barber"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina
+    shops: there is no shop "barbers" (did you mean "barber"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina
+
+From the mod list (upload):
+
+    shops.json: there is no shop "nok" (did you mean "nook"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina.
+
+From the game (Mods tab row):
+
+    shops: there is no shop "nok" (did you mean "nook"?): the shops are nook, flower, redd, saharah, fireworks, able, barber, dream, katrina
+
+What it means: A key of "shops" names the shop it changes. The shops are "nook", "flower", "redd", "saharah", "fireworks", "able", "barber", "dream" and "katrina", in lowercase. The message offers the id it thinks you meant.
+
+How to fix it: Use one of the shop ids. The table in the Shops guide lists them.
+
+### shop-blocks
+
+**A shop takes one block or 1 to 8**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: Nook's store takes one block or a list of 1 to 8 blocks
+    shops: the flower shop takes one block or a list of 1 to 8 blocks
+
+From the mod list (upload):
+
+    shops.json: Nook's store takes one block or a list of 1 to 8 blocks.
+
+From the game (Mods tab row):
+
+    shops: Nook's store takes one block or a list of 1 to 8 blocks
+
+What it means: A shop takes one block (an object), or a list of 1 to 8 blocks. An empty list changes nothing, so it is refused.
+
+How to fix it: Give the shop one block, or a list with at least one.
 
 ### shop-not-object
 
-**A shop is not an object**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload.
-
-In the game page (install, check tool):
-
-    shops: shop 1 is not an object
-
-From the mod list (upload):
-
-    shops.json: shop 1 must be an object.
-
-From the game (Mods tab row):
-
-    shops: a shop must be an object
-
-What it means: Each entry of "shops" is an object in curly braces.
-
-How to fix it: Write each shop as { "target": "flower", ... }.
-
-### shop-target
-
-**Only the flower shop and Nook's can be changed**
+**A block is not an object**
 
 Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    shops: shop 1 "target" must be "flower" or "nook"
+    shops: Nook's store block 2: a block must be an object
+    shops: Nook's store block 1: a block must be an object
+    shops: the flower shop block 1: a block must be an object
 
 From the mod list (upload):
 
-    shops.json: shop 1 has target "barber". A mod can change "flower" and "nook".
+    shops.json: Nook's store block 2: a block must be an object.
 
 From the game (Mods tab row):
 
-    shops: the shops a mod can change are "flower" and "nook": barber
+    shops: Nook's store block 2: a block must be an object
 
-What it means: A mod can change two shops. The flower shop is "target": "flower" and Nook's is "target": "nook", both in lowercase.
+What it means: Each block of a shop is an object in curly braces.
 
-How to fix it: Set "target": "flower" or "target": "nook".
+How to fix it: Write each block as { "goods": [ ... ] }, or { "when": { ... }, "open": true }.
 
-### shop-target-twice
+### shop-block-empty
 
-**Two shops for the same target**
+**A block changes nothing**
 
 Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    shops: shop 2 is a second shop for "flower": one shop per target
-    shops: shop 2 is a second shop for "nook": one shop per target
+    shops: the flower shop: a block needs a field besides "when"
 
 From the mod list (upload):
 
-    shops.json: two shops change the "flower" target.
+    shops.json: the flower shop: a block needs a field besides "when".
 
 From the game (Mods tab row):
 
-    shops: the flower shop is listed twice, the second is left out
+    shops: the flower shop: a block needs a field besides "when"
 
-What it means: One mod can describe each shop once.
+What it means: A block says what changes: goods, open, own_goods, a percent, services, a name or lines. "when" alone only says when, so the block would change nothing.
 
-How to fix it: Merge the two entries into one.
+How to fix it: Add what the block changes, or take the block out.
 
 ### shop-name
 
@@ -1320,144 +1349,260 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    shops: shop 1 "name" must be 1 to 40 characters on one line
+    shops: the flower shop: "name" must be 1 to 40 characters on one line
 
 From the mod list (upload):
 
-    shops.json: shop 1's name must be 1 to 40 characters on one line.
+    shops.json: the flower shop: "name" must be 1 to 40 characters on one line.
 
 From the game (Mods tab row):
 
-    shops: "name" must be 1 to 40 characters on one line
+    shops: the flower shop: "name" must be 1 to 40 characters on one line
 
-What it means: The flower shop's name is shown on its door sign while the shop is shut. It is optional, 1 to 40 characters on one line, and a line break in it is refused.
+What it means: The flower shop's name is shown on its door sign while the shop is shut. It is 1 to 40 characters on one line, and a line break in it is refused.
 
 How to fix it: Shorten it and take out any line break, or leave it out.
 
 ### shop-hours-same
 
-**Shop opens and closes at the same time**
+**Hours that start and end at the same time**
 
 Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    shops: shop 1 "hours" open and close must differ
+    shops: the flower shop: "hours" from and to must differ
+    shops: Nook's store: "hours" from and to must differ
 
 From the mod list (upload):
 
-    shops.json: shop 1's hours open and close at the same time.
+    shops.json: the flower shop: "hours" from and to must differ.
 
 From the game (Mods tab row):
 
-    shops: "open" and "close" are the same time
+    shops: the flower shop: "hours" from and to must differ
 
-What it means: The shop's "hours" give the same time twice. A shop that is open around the clock leaves "hours" out.
+What it means: "when.hours" gives the same time twice. A block that applies around the clock leaves "hours" out.
 
 How to fix it: Leave "hours" out, or give two different times.
 
 ### shop-hours
 
-**Shop "hours" are not "HH:MM"**
+**"hours" are not "HH:MM"**
 
 Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    shops: shop 1 "hours" must be { "open": "HH:MM", "close": "HH:MM" }
+    shops: Nook's store: "hours" must be { "from": "HH:MM", "to": "HH:MM" }, 00:00 to 23:59
+    shops: the flower shop: "hours" must be { "from": "HH:MM", "to": "HH:MM" }, 00:00 to 23:59
 
 From the mod list (upload):
 
-    shops.json: shop 1's hours need "open" and "close" as HH:MM, like 09:00.
+    shops.json: Nook's store: "hours" must be { "from": "HH:MM", "to": "HH:MM" }, 00:00 to 23:59.
 
 From the game (Mods tab row):
 
-    shops: hours need "open" and "close" as "HH:MM", 00:00 to 23:59
+    shops: Nook's store: "hours" must be { "from": "HH:MM", "to": "HH:MM" }, 00:00 to 23:59
 
-What it means: "hours" is { "open": "HH:MM", "close": "HH:MM" } in 24-hour time with two digits each, so "09:00", not "9:00" or "9am". Close can be after midnight. The hours say when your entry applies, the same on every shop.
+What it means: "when.hours" is { "from": "HH:MM", "to": "HH:MM" } in 24-hour time with two digits each, so "09:00", not "9:00" or "9am". "to" can be past midnight.
 
 How to fix it: Write both times with two-digit hours and minutes.
 
 Bad (shops.json):
 
 ```
-"hours": { "open": "9am", "close": "6pm" }
+"when": { "hours": { "from": "9am", "to": "6pm" } }
 ```
 
 Fixed (shops.json):
 
 ```
-"hours": { "open": "09:00", "close": "18:00" }
+"when": { "hours": { "from": "09:00", "to": "18:00" } }
 ```
+
+### shop-when
+
+**A "when" is not right**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: Nook's store: "when": "season" must be spring, summer, fall or winter
+    shops: Nook's store block 2: goods 1 "when": "weekday" must list 1 to 7 different days, monday to sunday
+    shops: the flower shop: "when" must be an object with at least one of hours, time, season, weather, weekday, month, setting
+    shops: the flower shop: "when": "month" must list 1 to 12 different months, 1 to 12
+    shops: the flower shop: "when": "season" must be spring, summer, fall or winter
+    shops: the flower shop: "when": "time" must be morning, day, evening or night
+
+From the mod list (upload):
+
+    shops.json: Nook's store: "when": "season" must be spring, summer, fall or winter.
+
+From the game (Mods tab row):
+
+    shops: Nook's store: "when": "season" must be spring, summer, fall or winter
+    shops: Nook's store: "when": "month" must list 1 to 12 different months, 1 to 12: goods 1
+
+What it means: "when" holds at least one of hours, time (morning, day, evening, night), season (spring, summer, fall, winter), weather (clear, rain, snow), weekday (a list of monday to sunday), month (a list of 1 to 12) and setting. The block or good applies while every key holds.
+
+How to fix it: Spell the value in lowercase as listed, and write weekday and month as lists, like ["saturday", "sunday"] or [10, 11].
+
+### shop-when-setting
+
+**"when.setting" names no bool world setting**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: Nook's store: "when": "setting" must name a bool setting of this mod with scope world: night_shop
+    shops: the flower shop: "when": "setting" must name a bool setting of this mod with scope world: market
+    shops: the flower shop: "when": "setting" must name a bool setting of this mod with scope world: stalls
+
+From the mod list (upload):
+
+    shops.json: Nook's store: "when": "setting" must name a bool setting of this mod with scope world: night_shop.
+
+From the game (Mods tab row):
+
+    shops: Nook's store: "when": "setting" must name a bool setting of this mod with scope world: night_shop
+
+What it means: "when.setting" names one of this mod's own settings in mod.json. It must be of type bool, so it is on or off, and of scope world, so a visitor sees the same shop as the host.
+
+How to fix it: Declare the setting in mod.json "settings" with "type": "bool", and leave its scope out or make it "world".
+
+### shop-flag
+
+**"open" or "own_goods" is not true or false**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: Nook's store: "open" must be true or false
+    shops: Nook's store: "own_goods" must be true or false
+
+From the mod list (upload):
+
+    shops.json: Nook's store: "open" must be true or false.
+
+From the game (Mods tab row):
+
+    shops: Nook's store: "own_goods" must be true or false
+
+What it means: "open" and "own_goods" are true or false, without quotes.
+
+How to fix it: Write true or false, not "yes" or "true".
+
+### shop-percent
+
+**A percent is not 1 to 1000**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: Crazy Redd's tent: "price_percent" must be a whole number from 1 to 1000
+    shops: Nook's store: "buy_back_percent" must be a whole number from 1 to 1000
+
+From the mod list (upload):
+
+    shops.json: Crazy Redd's tent: "price_percent" must be a whole number from 1 to 1000.
+
+From the game (Mods tab row):
+
+    shops: Crazy Redd's tent: "price_percent" must be a whole number from 1 to 1000
+
+What it means: "price_percent" and "buy_back_percent" are whole numbers from 1 to 1000. 100 is the game's own price, 50 is half and 200 is double. A price is never under what Nook pays for the item.
+
+How to fix it: Write a whole number like 80 or 150, without a % sign.
+
+### shop-service
+
+**A service the shop does not have, or a bad price**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: the barber shop: "services" has no "shave": the barber shop has haircut
+    shops: Able Sisters: "services" "design" must be a whole number of Bells from 1 to 99999
+    shops: Able Sisters: "services" must be an object of service to Bells
+
+From the mod list (upload):
+
+    shops.json: the barber shop: "services" has no "shave": the barber shop has haircut.
+
+From the game (Mods tab row):
+
+    shops: the barber shop: "services" has no "shave": the barber shop has haircut
+
+What it means: "services" sets the price of what a shop sells that is not a good, by the service's name: Able Sisters has "design", the barber shop has "haircut", the Dream Suite has "dream" and Katrina's tent has "fortune". Each price is a whole number of Bells from 1 to 99999.
+
+How to fix it: Use the service name the shop table lists, and a whole number of Bells.
+
+### shop-line-slot
+
+**A line slot the shop does not have**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: the flower shop: "lines" has no slot "hello": the slots are greeting stock
+    shops: the flower shop: "lines" must be an object of slot to a line or a list of lines
+
+From the mod list (upload):
+
+    shops.json: the flower shop: "lines" has no slot "hello": the slots are greeting stock.
+
+From the game (Mods tab row):
+
+    shops: the flower shop: "lines" has no slot "hello": the slots are greeting stock
+
+What it means: "lines" sets what the keeper says, by slot. The flower shop has "greeting" (her hello) and "stock" (her answer about the stock).
+
+How to fix it: Use a slot the shop table lists.
 
 ### shop-text
 
-**Greeting or stock line too long**
+**A shop line is too long**
 
 Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    shops: shop 1 "greeting" must be 1 to 160 characters with at most 3 line breaks
-    shops: shop 1 "stock_line" must be 1 to 160 characters with at most 3 line breaks
+    shops: the flower shop: "lines" "greeting" must be a line or a list of 1 to 8 lines, each 1 to 160 characters with at most 3 line breaks
+    shops: the flower shop: "lines" "stock" must be a line or a list of 1 to 8 lines, each 1 to 160 characters with at most 3 line breaks
 
 From the mod list (upload):
 
-    shops.json: shop 1's greeting must be 1 to 160 characters on at most 4 lines.
+    shops.json: the flower shop: "lines" "greeting" must be a line or a list of 1 to 8 lines, each 1 to 160 characters with at most 3 line breaks.
 
 From the game (Mods tab row):
 
-    shops: "greeting" and "stock_line" must be 1 to 160 characters, at most 3 newlines
+    shops: the flower shop: "lines" "greeting" must be a line or a list of 1 to 8 lines, each 1 to 160 characters with at most 3 line breaks
 
-What it means: "greeting" and "stock_line" are optional, each 1 to 160 characters with at most 3 line breaks. They share one message box with the keeper's own words.
+What it means: A slot of "lines" is one line, or a list of 1 to 8 lines the keeper picks from each time. Each line is 1 to 160 characters with at most 3 line breaks, and shares one message box with the keeper's own words.
 
-How to fix it: Keep the line to 160 characters and at most 3 line breaks.
+How to fix it: Keep each line to 160 characters and at most 3 line breaks.
 
-### shop-field-unsupported
+### shop-field-ignored
 
 **A field this shop does not have**
 
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
-
-In the game page (install, check tool):
-
-    shops: shop 1 "name" is not a field of Nook's store: it takes "target", "hours", "stock", "mode"
-    shops: shop 1 "greeting" is not a field of Nook's store: it takes "target", "hours", "stock", "mode"
-    shops: shop 1 "stock_line" is not a field of Nook's store: it takes "target", "hours", "stock", "mode"
-
-From the mod list (upload):
-
-    shops.json: shop 1's name is not a field of Nook's store. It takes target, hours, stock, mode.
+Seen in: Mods tab, on the mod's row after a restart; the check tool (playac-mod check).
 
 From the game (Mods tab row):
 
-    shops: "name" is not a field of Nook's store, so the shop is left out
+    shops: Nook's store has no "lines", so it is left out
+    shops: Able Sisters has no "goods", so it is left out
 
-What it means: Every shop takes the same entry, and each field means the same on every shop. A shop that cannot use a field does not have it: Nook's store has no "name", "greeting", "stock_line". The message names the shop and the field.
+What it means: This is a note, and the rest of the block applies. Every field means the same on every shop, but a shop has only the fields the game can honour for it: Nook's store has no "services", "name", "lines"; the flower shop has no "buy_back_percent", "services"; Crazy Redd's tent has no "open", "buy_back_percent", "services", "name", "lines"; Saharah has no "open", "buy_back_percent", "services", "name", "lines"; the fireworks stall has no "open", "buy_back_percent", "services", "name", "lines"; Able Sisters has no "open", "own_goods", "goods", "price_percent", "buy_back_percent", "name", "lines"; the barber shop has no "own_goods", "goods", "price_percent", "buy_back_percent", "name", "lines"; the Dream Suite has no "open", "own_goods", "goods", "price_percent", "buy_back_percent", "name", "lines"; Katrina's tent has no "open", "own_goods", "goods", "price_percent", "buy_back_percent", "name", "lines". The game leaves such a field out and says so once per shop.
 
-How to fix it: Take the field out of that shop's entry. The table in the Shops guide shows the fields each shop has.
-
-### shop-mode
-
-**A shop's "mode" is not "add" or "replace"**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
-
-In the game page (install, check tool):
-
-    shops: shop 1 "mode" must be "add" or "replace"
-
-From the mod list (upload):
-
-    shops.json: shop 1's mode must be "add" or "replace".
-
-From the game (Mods tab row):
-
-    shops: "mode" must be "add" or "replace"
-
-What it means: Every shop entry says how its goods join the shop's own, the same way on every shop. "add" puts them in at most half of the spots of their kind, rounded up, and the shop's own goods keep the rest. "replace" makes them the whole stock: each spot of a kind you list takes one of your goods, and every other spot is bare.
-
-How to fix it: Write "mode": "add" or "mode": "replace" in each shop entry.
+How to fix it: Take the field out of that shop's blocks, or keep it if you do not mind. The table in the Shops guide shows the fields each shop has.
 
 ### shop-replaced
 
@@ -1467,37 +1612,60 @@ Seen in: Mods tab, on the mod's row after a restart; the Mod log in Settings, Mo
 
 From the game (Mods tab row):
 
-    shops: a later mod changes the flower shop too, so this mod's entry for it is not used: bean.tea-stall
-    shops: a later mod changes Nook's store too, so this mod's entry for it is not used: bean.night-shop
+    shops: a later mod changes the flower shop too, so this mod's change to it is not used: bean.tea-stall
+    shops: a later mod changes Nook's store too, so this mod's change to it is not used: bean.night-shop
 
-What it means: This is not an error in the mod. Two switched-on mods change the same shop, and the mod lower in the list has the whole shop. The message names that mod, and the rest of this mod loads as usual.
+What it means: This is not an error in the mod. Two switched-on mods change the same shop, and the mod lower in the list has that shop whole. The message names the shop and that mod. This mod's changes to other shops, and the rest of the mod, load as usual.
 
 How to fix it: Move this mod below the other one in the Mods tab, or switch the other one off, then restart. If you made the mod, say in its description which shop it changes, because a mod cannot change the order itself.
 
 ### shop-stock
 
-**"stock" must list 1 to the goods the shop takes**
+**"goods" must list 1 to the goods the shop takes**
 
 Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
 
 In the game page (install, check tool):
 
-    shops: shop 1 "stock" must list 1 to 6 items for the flower shop
-    shops: shop 1 "stock" must list 1 to 16 items for Nook's store
+    shops: the flower shop: "goods" must list 1 to 6 goods
+    shops: Nook's store block 1: "goods" must list 1 to 16 goods
+    shops: Crazy Redd's tent: "goods" must list 1 to 6 goods
+    shops: Nook's store: "goods" must list 1 to 16 goods
 
 From the mod list (upload):
 
-    shops.json: shop 1's stock must list 1 to 6 items for the flower shop.
-    shops.json: shop 1's stock must list 1 to 16 items for Nook's store.
+    shops.json: the flower shop: "goods" must list 1 to 6 goods.
 
 From the game (Mods tab row):
 
-    shops: "stock" must list 1 to 6 goods for the flower shop
-    shops: "stock" must list 1 to 16 goods for Nook's store
+    shops: the flower shop: "goods" must list 1 to 6 goods
 
-What it means: Every shop entry lists its goods in "stock", at least one. The flower shop takes 1 to 6, Nook's store takes 1 to 16. How many show on a day depends on the shop's spots of each kind.
+What it means: A block's "goods" lists at least one good. Nook's store takes 1 to 16, the flower shop takes 1 to 6, Crazy Redd's tent takes 1 to 6, Saharah takes 1 to 6, the fireworks stall takes 1 to 6. How many show at a time depends on the shop's spots of each kind.
 
 How to fix it: Keep the list to what the shop takes.
+
+### shop-item-no-model
+
+**A good the game has no model for**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    shops: Nook's store: goods 2 "item" 0x1220 has no model in the game: it would stand as a placeholder sign
+    shops: Crazy Redd's tent: goods 1 "item" 0x107C has no model in the game: it would stand as a placeholder sign
+
+From the mod list (upload):
+
+    shops.json: Nook's store: goods 2 "item" 0x1220 has no model in the game: it would stand as a placeholder sign.
+
+From the game (Mods tab row):
+
+    shops: Nook's store: goods 2 "item" 0x1220 has no model in the game: it would stand as a placeholder sign
+
+What it means: The game has a placeholder in place of a model for some furniture, such as the kadomatsu (0x1220): in a shop it would stand as a sign that says "dummy". A shop cannot sell one. The items list in the reference has no Model link for these pieces.
+
+How to fix it: Pick a piece of furniture the game draws. The items list in the reference shows which ones have a model.
 
 ### shop-item-twice
 
@@ -1507,22 +1675,22 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    shops: shop 1 stock 2 is a duplicate item 0x2800
-    shops: shop 1 stock 2 is a duplicate item 0x1000
-    shops: shop 1 stock 2 is a duplicate item 0x10AA
-    shops: shop 1 stock 2 is a duplicate item 0x28AA
-    shops: shop 1 stock 2 is a duplicate item 0x28AB
-    shops: shop 1 stock 2 is a duplicate item test.mod:lamp
+    shops: the flower shop: goods 2 is a duplicate item: 0x2800
+    shops: Nook's store: goods 2 is a duplicate item: 0x1000
+    shops: Nook's store: goods 2 is a duplicate item: 0x10AA
+    shops: the flower shop: goods 2 is a duplicate item: 0x28AA
+    shops: the flower shop: goods 2 is a duplicate item: 0x28AB
+    shops: the flower shop: goods 2 is a duplicate item: test.mod:lamp
 
 From the mod list (upload):
 
-    shops.json: shop 1's stock lists item 0x2800 twice.
+    shops.json: the flower shop: goods 2 is a duplicate item: 0x2800.
 
 From the game (Mods tab row):
 
-    shops: a stock item is listed twice: 0x2800
+    shops: the flower shop: goods 2 is a duplicate item: 0x2800
 
-What it means: Each item can be in a shop's stock once. "0x28aa" and "0x28AA" are the same item.
+What it means: Each item can be in a block's goods once. "0x28aa" and "0x28AA" are the same item.
 
 How to fix it: Remove the second one.
 
@@ -1539,13 +1707,14 @@ In the game page (install, check tool):
 
 From the game (Mods tab row):
 
-    shops: a stock item cannot be sold at the flower shop, left out: 0x2B00 is money
-    shops: a stock item cannot be sold at the flower shop, left out: 0x1234 has no shop shelf model
-    shops: a stock item cannot be sold at Nook's store, left out: 0x2800 has no spot of its kind on the shelves
+    shops: a good cannot be sold at the flower shop, left out: 0x2B00 is money
+    shops: a good cannot be sold at the flower shop, left out: 0x1234 has no shop shelf model
+    shops: a good cannot be sold at Nook's store, left out: 0x2800 has no spot of its kind on the shelves
+    shops: a good cannot be sold at Crazy Redd's tent, left out: 0x2800 is not furniture, which his tent sells
 
-What it means: A shop cannot sell this good, so the game left it out. The rest of the shop works. No shop sells money, tickets, grab bags, turnips, fossils or a good with no shelf model. At the flower shop that includes the game's own furniture. At Nook's a good needs a spot of its kind: furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings or flower bags, so fruit and the signboard are refused there.
+What it means: A shop cannot sell this good, so the game left it out. The rest of the shop works. No shop sells money, tickets, grab bags, turnips or fossils. The flower shop needs a good with a shelf model, which leaves out the game's own furniture. At Nook's a good needs a spot of its kind: furniture, stationery, clothing, carpets, wallpaper, tools, umbrellas, paint, saplings or flower bags, so fruit and the signboard are refused there. Crazy Redd sells furniture, Saharah carpets, and the fireworks stall fans, pinwheels and balloons. Only Nook's and the flower shop sell a mod item.
 
-How to fix it: Pick another item from the item list in the reference. Its Flower shop and Nook's columns show what each shop can sell. To sell furniture at the flower shop, make it a mod item of your own, or sell the game's furniture at Nook's store (target nook). `playac-mod check` warns about these goods before you install.
+How to fix it: Pick another item from the item list in the reference. Its Flower shop and Nook's columns show what those shops can sell. To sell furniture at the flower shop, make it a mod item of your own, or sell the game's furniture at Nook's ("nook"). `playac-mod check` warns about these goods before you install.
 
 ### shop-item
 
@@ -1555,15 +1724,20 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    shops: shop 1 stock 1 "item" must be "0x" and 4 hex digits, like "0x2800"
+    shops: the flower shop: goods 1 "item" must be "0x" and 4 hex digits, or an item of this mod
+    shops: Nook's store: goods 1 "item" must be "0x" and 4 hex digits, or an item of this mod
+    shops: Nook's store: goods 1 "item" must be "0x" and 4 hex digits, or an item of this mod: test.mod:lamp
+    shops: the flower shop: goods 1 "item" must be "0x" and 4 hex digits, or an item of this mod:  0x2800
+    shops: the flower shop: goods 1 "item" must be "0x" and 4 hex digits, or an item of this mod: 0X2800
+    shops: the flower shop: goods 1 "item" must be "0x" and 4 hex digits, or an item of this mod: 0x280
 
 From the mod list (upload):
 
-    shops.json: shop 1's stock item 10240 must be a string like "0x2800".
+    shops.json: the flower shop: goods 1 "item" must be "0x" and 4 hex digits, or an item of this mod.
 
 From the game (Mods tab row):
 
-    shops: a stock item must be {"item": "0x" and four hex digits}: 2800
+    shops: the flower shop: goods 1 "item" must be "0x" and 4 hex digits, or an item of this mod: 2800
 
 What it means: An item number is a string of "0x" and exactly 4 hex digits, like "0x2800". A plain number such as 10240 is refused.
 
@@ -1572,13 +1746,13 @@ How to fix it: Put the item number in quotes with 0x in front.
 Bad (shops.json):
 
 ```
-"stock": [{ "item": 0x2800, "price": 600 }]
+"goods": [{ "item": 0x2800, "price": 600 }]
 ```
 
 Fixed (shops.json):
 
 ```
-"stock": [{ "item": "0x2800", "price": 600 }]
+"goods": [{ "item": "0x2800", "price": 600 }]
 ```
 
 ### shop-price
@@ -1589,15 +1763,16 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    shops: shop 1 stock 1 "price" must be a whole number from 1 to 99999
+    shops: the flower shop: goods 1 "price" must be a whole number from 1 to 99999
+    shops: Nook's store: goods 1 "price" must be a whole number from 1 to 99999
 
 From the mod list (upload):
 
-    shops.json: shop 1's price for 0x2800 must be a whole number from 1 to 99999.
+    shops.json: the flower shop: goods 1 "price" must be a whole number from 1 to 99999.
 
 From the game (Mods tab row):
 
-    shops: a price must be a whole number of Bells, 1 to 99999: 0x2800
+    shops: the flower shop: goods 1 "price" must be a whole number from 1 to 99999: 0x2800
 
 What it means: "price" is an optional whole number of Bells from 1 to 99999, not in quotes. The game raises a price below what Nook pays for the item, so a shop cannot be used to make Bells.
 
@@ -1611,7 +1786,7 @@ Seen in: the check tool (playac-mod check).
 
 In the game page (install, check tool):
 
-    shops: shop 1 stock 1 "price" 50 is under the floor for 0x2800 (apple) at the flower shop: the game sells it for 500
+    shops: the flower shop: goods 1 "price" 50 is under the floor for 0x2800 (apple) at the flower shop: the game sells it for 500
 
 What it means: This is a warning, and the mod still installs. A shop never sells a good for less than Nook pays for it, so the game raises a lower price to that floor.
 
@@ -1905,9 +2080,11 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    shops: shop 1 stock 1 "item" other.mod:ghost-lantern is not an item in this mod's items file
-    shops: shop 1 stock 1 "item" other.mod:lamp is not an item in this mod's items file
-    shops: shop 1 stock 1 "item" test.mod:nope is not an item in this mod's items file
+    shops: Nook's store: goods 1 "item" is not an item in this mod's items file: other.mod:ghost-lantern
+    shops: Nook's store: goods 1 "item" is not an item in this mod's items file: other.mod:lamp
+    shops: Nook's store: goods 1 "item" is not an item in this mod's items file: test.mod:nope
+    shops: the flower shop: goods 1 "item" is not an item in this mod's items file: other.mod:lamp
+    shops: the flower shop: goods 1 "item" is not an item in this mod's items file: test.mod:nope
 
 What it means: A shop can stock this mod's own items by full id. Another mod's items cannot be stocked.
 
@@ -1921,12 +2098,13 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    shops: shop 1 stock 2 shares its furniture 0x1000 with another good of this shop
-    shops: shop 1 stock 2 shares its furniture 0x1008 with another good of this shop
+    shops: Nook's store: goods 2 shares its furniture with another good: test.mod:chest
+    shops: Nook's store: goods 2 shares its furniture with another good: 0x1008
+    shops: the flower shop: goods 2 shares its furniture with another good: 0x1000
 
 What it means: In a save, a mod item is its base furniture. So one shop cannot sell both the base and the mod item, or two mod items on one base.
 
-How to fix it: Give one of them another base, or remove one from the stock.
+How to fix it: Give one of them another base, or remove one from the goods.
 
 ### item-renames
 
@@ -2248,29 +2426,6 @@ What it means: A date is a month from 1 to 12 with either a day of that month, o
 
 How to fix it: Write { "month": 11, "day": 20 } or { "month": 11, "week": 4, "weekday": 4 }, not both forms.
 
-### calendar-empty
-
-**A calendar day with nothing in it**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
-
-In the game page (install, check tool):
-
-    calendar: day 1 needs a "board" notice, "talk" lines or a "letter"
-
-From the mod list (upload):
-
-    calendar.json: day "fair": needs a board notice, talk lines or a letter.
-
-From the game (Mods tab row):
-
-    calendar.json: day "fair": needs a board notice, talk lines or a letter
-    calendar: a day needs a "board" notice, "talk" lines or a "letter": fair
-
-What it means: A calendar day must do something on its date. It can have a "board" notice, "talk" lines, a "letter", or any of them together.
-
-How to fix it: Add a "board" notice, "talk" lines or a "letter".
-
 ### calendar-letter
 
 **A calendar day's "letter" is not one of the mod's letters**
@@ -2329,7 +2484,7 @@ From the game (Mods tab row):
 
 What it means: A notice goes up on your town's bulletin board, which a visitor reads too. A mod with one must be a World mod.
 
-How to fix it: Set "scope": "world", or keep only "talk" lines, which a Just you mod may have.
+How to fix it: Set "scope": "world", or keep only a "letter", which a Just you mod may have.
 
 ### calendar-board
 
@@ -2355,29 +2510,6 @@ What it means: A notice is plain text like a letter body, 1 to 192 characters on
 
 How to fix it: Shorten it and keep to plain characters.
 
-### calendar-talk
-
-**A calendar day's "talk" lines are not right**
-
-Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
-
-In the game page (install, check tool):
-
-    calendar: day 1 "talk" must list 1 to 16 lines of 1 to 160 characters with at most 3 line breaks
-
-From the mod list (upload):
-
-    calendar.json: day "fair"'s talk must list 1 to 16 lines of 1 to 160 characters on at most 4 lines each.
-
-From the game (Mods tab row):
-
-    calendar: "talk" must list 1 to 16 lines: fair
-    calendar: a talk line must be 1 to 160 characters, at most 3 newlines: fair
-
-What it means: "talk" lists 1 to 16 lines villagers say that day, each 1 to 160 characters with at most 3 line breaks.
-
-How to fix it: Shorten the lines or the list.
-
 ## talk.json
 
 ### talk-file
@@ -2401,6 +2533,149 @@ From the game (Mods tab row):
 What it means: talk.json is { "pools": [ ... ] } with 1 to 32 pools.
 
 How to fix it: Wrap the pools in a "pools" list.
+
+### talk-no-place
+
+**A pool does not say its "place"**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    talk: pool 1 "place" is required: before, hello, topic, after or conversation
+
+From the mod list (upload):
+
+    talk.json: pool 1's place is required: before, hello, topic, after or conversation.
+
+From the game (Mods tab row):
+
+    talk: "place" is required: before, hello, topic, after or conversation: pool 1
+
+What it means: Every pool says where its lines go in a villager's talk: "before" the hello, as the "hello", as the "topic" after a chat answer, "after" the topic, or the whole "conversation". There is no default.
+
+How to fix it: Add "place" to the pool. For small talk, the most common, write "place": "topic".
+
+Bad (talk.json):
+
+```
+{ "pools": [{ "lines": ["Nice day!"] }] }
+```
+
+Fixed (talk.json):
+
+```
+{ "pools": [{ "place": "topic", "lines": ["Nice day!"] }] }
+```
+
+### talk-place
+
+**A pool's "place" is not a place in a talk**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    talk: pool 1 "place" must be before, hello, topic, after or conversation
+
+From the mod list (upload):
+
+    talk.json: pool 1's place must be before, hello, topic, after or conversation.
+
+From the game (Mods tab row):
+
+    talk: "place" must be before, hello, topic, after or conversation: pool 1
+
+What it means: A pool's "place" is where its line goes in a villager's talk: "before" the hello, as the "hello", as the "topic" after a chat answer, "after" the topic, or the whole "conversation". It is one of those five words, in lowercase.
+
+How to fix it: Write one of the five places.
+
+Bad (talk.json):
+
+```
+{ "pools": [{ "place": "greeting", "lines": ["Hi!"] }] }
+```
+
+Fixed (talk.json):
+
+```
+{ "pools": [{ "place": "hello", "lines": ["Hi!"] }] }
+```
+
+### talk-topics
+
+**A pool's "topics" are not topics the game picks**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    talk: pool 1 "topics" must be "any" or a list of small_talk, trade, letter, memory, hint and news
+    talk: pool 2 "topics" goes only with "place": "topic"
+    talk: pool 1 "topics" goes only with "place": "topic"
+
+From the mod list (upload):
+
+    talk.json: pool 1's topics must be "any" or a list of small_talk, trade, letter, memory, hint and news.
+    talk.json: pool 2's topics go only with "place": "topic".
+
+From the game (Mods tab row):
+
+    talk: "topics" must be "any" or a list of small_talk, trade, letter, memory, hint and news: pool 1
+    talk: "topics" goes only with "place": "topic": pool 2
+
+What it means: A "topic" line stands in for the topic the game picks after a chat answer. "topics" names which kinds it may replace: small_talk (the default), trade, letter, memory, hint and news, each once, or "any" for all six. It belongs only on a pool whose place is "topic".
+
+How to fix it: List kinds from the six, write "any", or take "topics" off a pool of another place.
+
+Bad (talk.json):
+
+```
+{ "pools": [{ "place": "topic", "topics": ["gossip"], "lines": ["Did you hear?"] }] }
+```
+
+Fixed (talk.json):
+
+```
+{ "pools": [{ "place": "topic", "topics": ["news", "small_talk"], "lines": ["Did you hear?"] }] }
+```
+
+### talk-day
+
+**A pool's "day" is not one of the mod's calendar days**
+
+Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Share a mod, when you upload; Mods tab, on the mod's row after a restart.
+
+In the game page (install, check tool):
+
+    talk: pool 1 "day" "fair" names no day in this mod's calendar file
+    talk: pool 1 "day" must be the id of a day in this mod's calendar file
+    talk: pool 1 "day" "harvest" names no day in this mod's calendar file
+
+From the mod list (upload):
+
+    talk.json: pool 1's day "fair" names no day in this mod's calendar file.
+    talk.json: pool 1's day must be the id of a day in this mod's calendar file.
+
+From the game (Mods tab row):
+
+    talk: "day" names no day in this mod's calendar file: pool 1
+
+What it means: A pool's "day" keeps it to one day of the year: the "id" of a day in the same mod's calendar file. On other days the pool does not fit.
+
+How to fix it: Add the day to your calendar file, or fix the id to match one there exactly.
+
+Bad (talk.json):
+
+```
+{ "pools": [{ "place": "hello", "day": "fair", "lines": ["Fair day!"] }] }
+```
+
+Fixed (talk.json):
+
+```
+{ "pools": [{ "place": "hello", "day": "harvest-fair", "lines": ["Fair day!"] }] }
+```
 
 ### talk-who
 
@@ -2516,7 +2791,7 @@ From the game (Mods tab row):
 
     talk: "chance" must be a whole number 1 to 100: pool 1
 
-What it means: "chance" is how often, in 100 small talks, the pool's line is said when the pool fits, as a whole number from 1 to 100. Leave it out for every one.
+What it means: "chance" is how often, in 100 talks the pool fits, its line is said, as a whole number from 1 to 100. Leave it out for every one.
 
 How to fix it: Write a whole number from 1 to 100.
 
@@ -2528,18 +2803,18 @@ Seen in: Mods tab, when you install a ZIP; the check tool (playac-mod check); Sh
 
 In the game page (install, check tool):
 
-    talk: pool 1 "lines" must list 1 to 32 lines of 1 to 160 characters with at most 3 line breaks
+    talk: pool 1 "lines" must list 1 to 32 lines of 1 to 160 characters with at most 3 line breaks, or lists of 1 to 8 such pages
 
 From the mod list (upload):
 
-    talk.json: pool 1's lines must list 1 to 32 lines of 1 to 160 characters on at most 4 lines each.
+    talk.json: pool 1's lines must list 1 to 32 lines of 1 to 160 characters on at most 4 lines each, or lists of 1 to 8 such pages.
 
 From the game (Mods tab row):
 
     talk: "lines" must list 1 to 32 lines: pool 1
-    talk: a line must be 1 to 160 characters, at most 3 newlines: pool 1
+    talk: a line must be 1 to 160 characters, at most 3 newlines, or a list of 1 to 8 such pages: pool 1
 
-What it means: A pool has 1 to 32 lines, each 1 to 160 characters with at most 3 line breaks.
+What it means: A pool has 1 to 32 lines. A line is one page of 1 to 160 characters with at most 3 line breaks, or a list of 1 to 8 such pages, each starting on a clean window.
 
 How to fix it: Shorten the lines or the list.
 
@@ -3876,6 +4151,8 @@ From the game (Mods tab row):
     take_bells: takes a table: { amount = ... }
     give_item: item must be an item number, "0x" and four hex digits, or this mod's "author.mod:thing"
     send_letter: item must be an item number or "0x" and four hex digits
+    set_shop_goods: goods must list 1 to the goods the shop takes
+    set_shop_open: open must be true, false or nil
 
 What it means: The command was called with a value it cannot use.
 
@@ -3891,6 +4168,7 @@ From the game (Mods tab row):
 
     commands are switched off in The City
     send_letter: commands are switched off in The City
+    set_shop_open: shops are off in The City
 
 What it means: In The City every command is refused, because other players there do not have your mod. A refused command does not count against the daily caps.
 
@@ -3920,6 +4198,30 @@ Fixed (mod.json):
 
 ```
 "settings": [{ "name": "gift", "type": "choice", "label": "Gift", "choices": ["apple", "pear"], "default": "apple" }]
+```
+
+### command-shop
+
+**A shop command the shop cannot take**
+
+Seen in: what cmd.<name> returns when a command is refused, the command_finished event and the Mod log.
+
+From the game (Mods tab row):
+
+    set_shop_goods: there is no such shop
+    set_shop_open: Crazy Redd's tent has no open
+    set_shop_goods: Able Sisters has no goods
+    set_shop_goods: a later mod changes Nook's store: bean.night-shop
+    set_shop_open: a shop changes what visitors see, so the mod needs "scope": "world"
+
+What it means: cmd.set_shop_goods and cmd.set_shop_open change one shop, by its id in the shop table, for the rest of the game day. They are refused when the id is not in the table, when the shop has no goods (set_shop_goods) or no open (set_shop_open) in the table, when a mod later in the load order changes that shop (it has the shop whole), and in a mod without "scope": "world". The refusal comes at the call: the command returns nil, this message and this code.
+
+How to fix it: Use a shop id from the shop table (/modding/guides/shops/#table) that has the field. If a later mod has the shop, the player decides the order in the Mods tab. Trying again does not help.
+
+Fixed (main.lua):
+
+```
+cmd.set_shop_open("flower", true)
 ```
 
 ### command-visiting

@@ -17,7 +17,7 @@ A Just you mod (`"scope": "client"`) in two halves, with no script:
   green ground with clover leaves and small white flowers.
 - **The talk** (`talk.json`): new small talk in each villager's own
   personality's voice, some of it for the season, the time of day or the
-  weather.
+  weather, and an evening goodbye after the topic.
 
 Both are data. Neither changes what a visitor sees, so the mod is Just you.
 
@@ -98,8 +98,16 @@ pools that count the game picks one line. A villager can say several of the
 mod's lines in a day, and never the same one twice running.
 
 A pool can instead name one villager (`"villager": "Bob"`), or nobody, which
-means every villager, and can be said in fewer small talks (`"chance": 30`;
-every small talk when left out). The most specific pools that fit a villager decide.
+means every villager, and can be said less often (`"chance": 30`; every time
+it fits when left out). The most specific pools that fit a villager decide.
+
+Every pool names its place in the talk. The small talk pools say
+`"place": "topic"`: their lines stand in for the topic the villager picks
+when you chat. The last pool says `"place": "after"`: on an evening chat,
+half the time, any villager adds a line after their topic, as the talk's
+last message. Its line is a list of two pages, each on a clean window. A
+pool's place can also be `"before"` the hello, the `"hello"` itself or the
+whole `"conversation"`.
 
 No script is needed.
 
@@ -166,6 +174,7 @@ MIT, see [LICENSE](LICENSE).
 {
   "pools": [
     {
+      "place": "topic",
       "personality": "normal",
       "lines": [
         "I baked something this morning. The whole house smells like cinnamon now.",
@@ -174,6 +183,7 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "peppy",
       "lines": [
         "Guess what? Nothing happened today, and I'm SO excited about it!",
@@ -182,6 +192,7 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "lazy",
       "lines": [
         "I was going to nap, but then I thought about snacks. Now I'm too busy.",
@@ -190,6 +201,7 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "jock",
       "lines": [
         "I ran around the whole town twice before breakfast. Feel the burn!",
@@ -198,6 +210,7 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "cranky",
       "lines": [
         "Hmph. Kids these days don't even know how to sit on a bench properly.",
@@ -206,6 +219,7 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "snooty",
       "lines": [
         "Darling, your outfit is almost fashionable. Almost.",
@@ -214,6 +228,7 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "normal",
       "season": "spring",
       "lines": [
@@ -221,6 +236,7 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "peppy",
       "weather": "rain",
       "lines": [
@@ -228,6 +244,7 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "lazy",
       "time": "evening",
       "lines": [
@@ -235,6 +252,7 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "jock",
       "season": "winter",
       "lines": [
@@ -242,6 +260,7 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "cranky",
       "weather": "snow",
       "lines": [
@@ -249,11 +268,23 @@ MIT, see [LICENSE](LICENSE).
       ]
     },
     {
+      "place": "topic",
       "personality": "snooty",
       "season": "spring",
       "time": "morning",
       "lines": [
         "A spring morning, darling. Even the air is wearing perfume."
+      ]
+    },
+    {
+      "place": "after",
+      "time": "evening",
+      "chance": 50,
+      "lines": [
+        [
+          "The sky is going all pink.",
+          "Get home before the stars come out!"
+        ]
       ]
     }
   ]
@@ -306,15 +337,17 @@ The film (click the picture): Inside the shop at 1:20 AM with the mod: empty she
 
 ## The shop
 
-`shops.json` has one entry for the town shop, `"target": "nook"`, with
-`"mode": "replace"`, `hours` and a `stock` of sixteen goods: fifteen gyroids and
+`shops.json` changes one shop, Nook's store, by its id `"nook"`. Its block says
+when it applies, what it does then, and its sixteen goods: fifteen gyroids and
 the Ghost Lantern.
 
-- `hours` is 01:00 to 03:00. The entry applies only inside them, and the shop
-  opens for these hours even though it is shut at night.
-- `"mode": "replace"` makes the mod's goods the shop's whole stock: each
-  furniture spot holds one of them and every other spot is bare. `"add"` would
-  put them among the day's own goods instead.
+- `"when": { "hours": { "from": "01:00", "to": "03:00" } }`: the block applies
+  only inside these hours.
+- `"open": true`: while it applies the shop is open, even though it is shut at
+  night.
+- `"own_goods": false`: while it applies the mod's goods are the shop's whole
+  stock. Each furniture spot holds one of them and every other spot is bare.
+  Without it the goods would join the day's own instead.
 - Outside the hours nothing changes. The shop keeps its own hours and its own
   goods, and the day's stock is still there when it opens in the morning.
 - The shop has fewer furniture spots than sixteen goods, so it shows a few of
@@ -323,8 +356,8 @@ the Ghost Lantern.
 - A good may be an item of the same mod, named by its full id,
   `example.after-hours:ghost-lantern`. Without a `price` it takes the item's
   own price from `items.json`. The gyroids sell at the game's own price.
-- The same entry works on the flower shop: every shop takes `mode`, `hours`
-  and `stock` with the same meaning.
+- Every shop takes the same fields with the same meaning. The same block works
+  on the flower shop as `"flower"`.
 
 ## The lantern
 
@@ -417,15 +450,12 @@ MIT, see [LICENSE](LICENSE).
 
 ```json
 {
-  "shops": [
-    {
-      "target": "nook",
-      "mode": "replace",
-      "hours": {
-        "open": "01:00",
-        "close": "03:00"
-      },
-      "stock": [
+  "shops": {
+    "nook": {
+      "when": { "hours": { "from": "01:00", "to": "03:00" } },
+      "open": true,
+      "own_goods": false,
+      "goods": [
         { "item": "example.after-hours:ghost-lantern" },
         { "item": "0x1768" },
         { "item": "0x1738" },
@@ -444,7 +474,7 @@ MIT, see [LICENSE](LICENSE).
         { "item": "0x1798" }
       ]
     }
-  ]
+  }
 }
 ```
 
@@ -461,7 +491,7 @@ Repository: https://github.com/Play-AC-Online/playac-example-harvest-post (tag v
 
 A World mod (`"scope": "world"`) in two halves:
 
-- **The calendar** (`calendar.json`, `letters.json`): two days of our own.
+- **The calendar** (`calendar.json`, `letters.json`, `talk.json`): two days of our own.
   The Harvest Fair is the third Wednesday of September and Apple Day is
   October 21. A notice goes up on the bulletin board and villagers talk about
   it all day.
@@ -484,7 +514,7 @@ On the third Wednesday of September the town bulletin board carries the mod's no
 
 ![fair line](media/fair-line.webp)
 
-All day, villagers open with a line about the fair from the mod's calendar.json, then carry on in their own words.
+All day, villagers open with a line about the fair from the mod's talk.json, then carry on in their own words.
 
 ![at the mailbox](media/at-the-mailbox.webp)
 
@@ -503,8 +533,11 @@ The film (click the picture): The Harvest Fair notice on the bulletin board and 
 - It adds two calendar days. The Harvest Fair is the third Wednesday of
   September (`week` 3, `weekday` 3). Apple Day is October 21 (`day`).
 - On each day a notice goes up on the town bulletin board. It is posted once,
-  in the player's own town only. Villagers say one of the day's lines before
-  their hello.
+  in the player's own town only.
+- `talk.json` has a pool for each day: `"day"` names the calendar day by its
+  `id`, and `"place": "before"` puts the line before the villager's hello.
+  Every pool names its place; the others are the hello itself, the topic
+  after a chat answer, a line after the topic, and the whole conversation.
 - `letters.json` holds two letter templates. The player's name goes where
   `{player}` is, and an apple comes with each.
 - `fair-thanks` is mailed by the script, with
@@ -675,22 +708,13 @@ MIT, see [LICENSE](LICENSE).
     {
       "id": "harvest-fair",
       "date": { "month": 9, "week": 3, "weekday": 3 },
-      "board": "HARVEST FAIR TODAY!\nBring your best fruit and\nshow it to your neighbours.\nThe biggest apple wins\nbragging rights for a year.",
-      "talk": [
-        "It's the Harvest Fair! I've been polishing my pears since sunrise.",
-        "Harvest Fair day! Did you bring any fruit? Mine is the shiniest, I checked.",
-        "The fair smells like apples and wood smoke. Best day of the season!"
-      ]
+      "board": "HARVEST FAIR TODAY!\nBring your best fruit and\nshow it to your neighbours.\nThe biggest apple wins\nbragging rights for a year."
     },
     {
       "id": "apple-day",
       "date": { "month": 10, "day": 21 },
       "board": "APPLE DAY\nShare an apple with a friend\ntoday. Any apple will do,\nbut a red one says it best.",
-      "letter": "apple-day",
-      "talk": [
-        "Happy Apple Day! Have you shared an apple with anyone yet?",
-        "An apple a day, they say. Today it's an apple for everyone!"
-      ]
+      "letter": "apple-day"
     }
   ]
 }
@@ -995,7 +1019,8 @@ end)
   "content": {
     "calendar": "calendar.json",
     "letters": "letters.json",
-    "messages": "messages/en.json"
+    "messages": "messages/en.json",
+    "talk": "talk.json"
   },
   "scripts": {
     "main": "main.lua",
@@ -1029,5 +1054,31 @@ end)
     }
   ],
   "assets_original": true
+}
+```
+
+### example.harvest-post/talk.json
+
+```json
+{
+  "pools": [
+    {
+      "place": "before",
+      "day": "harvest-fair",
+      "lines": [
+        "It's the Harvest Fair! I've been polishing my pears since sunrise.",
+        "Harvest Fair day! Did you bring any fruit? Mine is the shiniest, I checked.",
+        "The fair smells like apples and wood smoke. Best day of the season!"
+      ]
+    },
+    {
+      "place": "before",
+      "day": "apple-day",
+      "lines": [
+        "Happy Apple Day! Have you shared an apple with anyone yet?",
+        "An apple a day, they say. Today it's an apple for everyone!"
+      ]
+    }
+  ]
 }
 ```
