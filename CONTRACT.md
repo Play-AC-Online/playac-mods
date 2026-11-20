@@ -215,7 +215,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
 - `assets_original`: must be `true`.
 - Unknown keys are REFUSED, in mod.json's top level and in each content
   file's top level (shops, items, letters, calendar, talk; NOT messages, whose
-  keys are the lines), and in each shop, stock entry, letter, calendar day and
+  keys are the lines), and in each shop block, good, `when`, letter, calendar day and
   talk pool, and in a calendar day's `date` (`month`, `day`, `week`,
   `weekday`; said as `calendar: day 1: date: unknown key "yaer"`. mods.js and Go
   refuse it. The engine reads the date keys it knows and does not look for
@@ -223,7 +223,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   `<file>: unknown key "<key>"` plus ` (did you mean "<known>"?)` when one is
   close, e.g. `mod.json: unknown key "permisions" (did you mean "permissions"?)`,
   `shops.json: unknown key "shop" (did you mean "shops"?)`,
-  `shops.json: shop 1: unknown key "chanse"`. `<file>` is the path as the layer
+  `shops.json: flower: unknown key "chanse"`. `<file>` is the path as the layer
   names files in its other errors. Code `unknown-key`. The closest key is the
   smallest Levenshtein distance over the known keys in spec order (the first
   wins a tie), suggested only at distance <= 2, or <= 3 for a key of 8 or more
@@ -436,62 +436,118 @@ Removing a mod with "delete its data" lists it in index.json `wipe`: the engine
 deletes its client store and its part of every town file before any script runs.
 
 ## shops.json
-One entry shape for every shop: each field means the same on every target, and a
-field a shop does not have is refused by one rule.
-- `{ "shops": [ ... ] }`, 1..2 entries (shops.per_file), at most one per `target`.
-- `target`: `"flower"` (the flower shop) or `"nook"` (Nook's store). Which fields each
-  has and how many goods (api.json `files.shops.targets`, the one table; the schema's
-  per-target rules and every layer's checks are generated from it):
+Every shop by its id, with one block shape: each field means the same on every
+shop, and a field a shop does not have is left out by one rule.
+- `{ "shops": { "<shop id>": BLOCK or [BLOCK, ...] } }`. `shops` is an object of
+  1 or more keys (`shops-file`: `"shops" must be an object of shop ids`). A mod
+  changes a shop with one key, so a shop cannot be listed twice.
+- A key is a shop id from the shop table (api.json `files.shops.shop_table`, the
+  one table; the schema and every layer's checks are generated from it). Any other
+  key is refused (`shop-id`), with "did you mean" when one is close: page
+  `shops: there is no shop "flowr" (did you mean "flower"?): the shops are nook,
+  flower, redd, saharah, fireworks, able, barber, dream, katrina`.
 
-  | target | fields | stock |
-  |---|---|---|
-  | `flower` | `target`, `name`, `hours`, `greeting`, `stock_line`, `stock`, `mode` | 1..6 (shops.stock) |
-  | `nook` | `target`, `hours`, `stock`, `mode` | 1..16 (nook.stock) |
+  | id | words | fields | goods |
+  |---|---|---|---|
+  | `nook` | Nook's store | `when`, `open`, `own_goods`, `goods`, `price_percent`, `buy_back_percent` | 1..16 (nook.stock) |
+  | `flower` | the flower shop | `when`, `open`, `own_goods`, `goods`, `price_percent`, `name`, `lines` (`greeting`, `stock`) | 1..6 (shops.stock) |
+  | `redd` | Crazy Redd's tent | `when`, `own_goods`, `goods`, `price_percent` | 1..6 (visitors.stock) |
+  | `saharah` | Saharah | `when`, `own_goods`, `goods`, `price_percent` | 1..6 (visitors.stock) |
+  | `fireworks` | the fireworks stall | `when`, `own_goods`, `goods`, `price_percent` | 1..6 (visitors.stock) |
+  | `able` | Able Sisters | `when`, `services` (`design`) | |
+  | `barber` | the barber shop | `when`, `open`, `services` (`haircut`) | |
+  | `dream` | the Dream Suite | `when`, `open`, `services` (`dream`) | |
+  | `katrina` | Katrina's tent | `when`, `services` (`fortune`) | |
 
-- A field the target does not have is refused, the whole entry, in every layer
-  (rule `shop_fields`, code `shop-field-unsupported`); the message names the shop
-  and the field: page `shops: shop 1 "name" is not a field of Nook's store: it takes
-  "target", "hours", "stock", "mode"`, game `shops: "name" is not a field of Nook's
-  store, so the shop is left out`. Nook keeps his own name and words. Unknown other
-  keys are refused as everywhere (`unknown_keys`).
-- `mode`: REQUIRED on every entry, `"add"` or `"replace"` (`shop-mode`), the same
-  on every shop. `add`: per kind the mod lists, its goods in at most half (rounded
-  up) of the spots of that kind; the shop's own goods keep the rest, and a good the
-  shop keeps in another spot is not doubled. `replace`: the goods are the shop's
-  WHOLE stock: each spot of a kind the mod lists holds one of its goods, every other
-  spot is bare (at Nook's the rare spot and the plant spots too). A kind the shop has
-  no spot for that day is left alone. More goods of a kind than spots: the date and
-  the town pick which, a new set each day. The flower shop's six bench spots are one
-  kind, so `add` takes at most three.
-- `hours`: optional `{ "open": "HH:MM", "close": "HH:MM" }`, strict two-digit
-  00..23 / 00..59, nothing trailing. open == close refused. Close may be past
-  midnight (open 15:00, close 01:00). The same on every shop: the entry applies only
-  inside them (its goods by `mode`, its lines, its prices), and outside them the shop
-  is its own. Inside them the shop is open, also when the game has it shut for the
-  night: the flower shop through its 02:00-07:00 shut, except while its keeper is out
-  on her Sunday turnip round; Nook's when shut for the night (after closing, before
-  6:00), as when he is knocked awake, but not in the hour before its morning
-  opening, on a renovation day or in a sale's hours. With no hours the entry applies
-  all day, in the shop's own hours.
-- `name` (flower): optional string, 1..40 code points on ONE line (no `\n`: the
-  engine drops the whole shop over a line break, so every layer refuses it). It is
-  the door sign while the shop is shut, followed by the hours the mod's shop is on:
-  the entry's `hours`, or the shop's own 7:00 AM to 2:00 AM.
-- `greeting`, `stock_line` (flower): optional strings, 1..160 characters, at most 3
-  newlines. The keeper's hello and her stock answer while the entry applies.
-- `stock`: required, an array of entries `{ "item": "0x" + exactly 4 hex digits
-  (string), "price": optional integer 1..99999 }`, as many as the target takes. No
-  item twice (compared as numbers, so `"0x10aa"` = `"0x10AA"`). (The engine took a
-  shop with no `stock` as "keep the game's" until the contract cases ran there.)
+  Every field in a row is backed by one or more `PC_MOD_SHOP_SEAM("<id>",
+  "<field>")` markers in the engine (`src/` and `pc/src/`). api-drift fails when
+  the markers and the table differ in either direction.
+- A value is one BLOCK (an object, `shop-not-object`) or a list of 1..8 BLOCKs
+  (shops.blocks, `shop-blocks`).
+- BLOCK keys, in this order: `when`, `open`, `own_goods`, `goods`,
+  `price_percent`, `buy_back_percent`, `services`, `name`, `lines`. Unknown keys are
+  refused as everywhere (`unknown_keys`). A block needs at least one key besides
+  `when` (`shop-block-empty`).
+- A known key the shop does not have (not in its row's fields) is NOT refused
+  (rule `shop_fields`): the page and the registry accept it, the engine leaves
+  that key out, the rest of the block applies, and the mod's row says so
+  (`shop-field-ignored`): game `shops: Nook's store has no "name", so it is left
+  out`. Nook's store and Able Sisters have no lines: their keepers speak only the
+  disc's own words.
+- `when` (optional object, 1 or more keys): the block applies only while ALL of
+  its keys hold. Absent: always. Unknown keys refused (`unknown_keys`); any bad
+  value `shop-when`, a bad hours shape `shop-hours`.
+  - `hours`: `{ "from": "HH:MM", "to": "HH:MM" }`, strict two-digit 00..23 /
+    00..59, nothing trailing. from == to refused (`shop-hours-same`). `to` may be
+    past midnight (from 15:00, to 01:00). Holds while from <= now < to, wrapping.
+  - `time`: `"morning"` (5-12), `"day"` (12-17), `"evening"` (17-24), `"night"`
+    (0-5), as talk pools.
+  - `season`: `"spring"`, `"summer"`, `"fall"`, `"winter"`, as talk pools.
+  - `weather`: `"clear"`, `"rain"`, `"snow"`, as talk pools (blossom and leaves
+    are clear).
+  - `weekday`: a list of 1..7 distinct of `"monday"` .. `"sunday"`.
+  - `month`: a list of 1..12 distinct whole numbers 1..12.
+  - `setting`: the name of one of this mod's own settings of type bool with scope
+    world (the default scope). Holds while it is on. Anything else is refused
+    (`shop-when-setting`).
+- `open` (boolean, `shop-flag`): `true`, the shop is open while the block
+  applies, also when its own hours have it shut; `false`, it is shut while the
+  block applies. Absent: the shop's own hours. Where `true` cannot open a shop is
+  the row's `opens`: the flower shop opens through its 02:00-07:00 shut, except
+  while its keeper is out on her Sunday turnip round; Nook's when shut for the
+  night (after closing, before 6:00), as when he is knocked awake, but not in the
+  hour before its morning opening, on a renovation day or in a sale's hours.
+- `own_goods` (boolean, default true, `shop-flag`): `true`, per kind the applying
+  blocks list, their goods in at most half (rounded up) of the spots of that
+  kind; the shop's own goods keep the rest, and a good the shop keeps in another
+  spot is not doubled. `false`: the goods of the applying blocks are the shop's
+  WHOLE stock: each spot of a kind they list holds one of their goods, every other
+  spot is bare (at Nook's the rare spot and the plant spots too). A kind the shop
+  has no spot for that day is left alone. More goods of a kind than spots: the
+  date, the town and the shop pick which, a new set each day. The flower shop's
+  six bench spots are one kind, so `true` takes at most three.
+- `goods`: an array of 1 to the row's goods limit (`shop-stock`), entries
+  `{ "item": "0x" + exactly 4 hex digits (string), "price": optional integer
+  1..99999 (shops.price_max), "when": optional }`. No item twice in a block
+  (`shop-item-twice`, compared as numbers, so `"0x10aa"` = `"0x10AA"`). A good's
+  `when` adds to its block's.
+- `price_percent` (1..1000, shops.percent_max, `shop-percent`): while the block
+  applies the shop asks this percent of its own price for every good with no
+  price of its own. 100 is the game's. Never below the buy-back.
+- `buy_back_percent` (1..1000, `shop-percent`): Nook pays this percent of what he
+  would pay, never more than he would charge for the item at that moment. Not
+  turnips.
+- `services` (object, 1 or more keys): a service name from the row to Bells,
+  1..99999. A name the shop does not have is refused (`shop-service`), listing
+  the shop's own.
+- `name` (string, 1..40 code points, shops.name_chars) on ONE line (no `\n`: the
+  engine would drop the whole shop over a line break, so every layer refuses it,
+  `shop-name`). The shop's name where the game shows it: the flower shop's door
+  sign while shut, followed by the hours of the first block with `"open": true`
+  and `when.hours`, or the shop's own 7:00 AM to 2:00 AM.
+- `lines` (object, 1 or more keys): a slot from the row to one line or a list of
+  1..8 lines (shops.lines); each 1..160 characters (shops.line_chars), at most 3
+  newlines (shops.line_newlines, `shop-text`). A slot the shop does not have is
+  refused (`shop-line-slot`), listing its slots. One line of a list is picked
+  each time the keeper says it. The flower shop: `greeting`, the keeper's hello
+  before her menu; `stock`, her answer to "What's in stock?".
 - Only C knows the item tables: C refuses items with no shelf model, money bags,
   turnips, tickets, fossils, reserve/dummy ids (0xF000-0xFFFF band), and any
   non ITEM1/FTR name type, reporting the error on the Mods tab (`shop-item-refused`,
   naming the shop). At Nook's a good also needs a spot of its kind: furniture,
-  stationery and diaries, clothing, carpets, wallpaper, tools, umbrellas, paint,
-  saplings, flower bags (fruit and the signboard have none); a good of a kind the
-  shop goods table draws (all but furniture, umbrellas, paint and diaries) needs a
-  shelf model there too. C clamps a mod price up to at least the game's own buy-back
-  (sell-to-Nook) price for that item.
+  stationery and diaries, clothing, carpets, wallpaper, tools, umbrellas,
+  paint, saplings, flower bags (fruit and the signboard have none); a good of a
+  kind the shop goods table draws (all but furniture, umbrellas, paint and
+  diaries) needs a shelf model there too. C clamps a mod price up to at least the
+  game's own buy-back (sell-to-Nook) price for that item.
+- Lua: `set_shop_goods(shop, goods)` (goods: a list of `{ item = <int | "0x...." |
+  "author.mod:thing">, price = <int?> }`, 1 to the shop's goods limit, or
+  `{ goods = <list>, own_goods = false }`, or nil to clear) and
+  `set_shop_open(shop, on)` (true, false, or nil to clear). Permissions
+  `set_shop_goods`, `set_shop_open`; scope world. Each adds one block after the
+  mod's JSON blocks for that shop, from the next frame until the game day changes
+  (or a restart). Refused (`nil, message, code`) when the shop is not in the
+  table, does not have the field, or a mod later in load order has the shop.
 
 ## Mod items
 New furniture a mod names, piloted on house furniture. In the save a mod item is
@@ -521,7 +577,7 @@ reinstalling restores the name.
   gyroid, clothing, a mannequin or umbrella for a design, and a piece that turns
   into a pocket item (every umbrella, fish, bug, tool, balloon, fan, pinwheel and
   diary). The site's item list filters the pieces that can be a base.
-- `price`: optional whole number 1..99999, what a shop asks when its stock entry
+- `price`: optional whole number 1..99999, what a shop asks when the good
   sets no price.
 - `textures`: optional, a folder inside the mod (a trailing `/` is allowed)
   holding the item's own pictures: 1..16 files counting subfolders (api limit
@@ -558,9 +614,12 @@ reinstalling restores the name.
   `content.items`; a key is in this mod's own namespace too (`<this mod's id>:<old name>`)
   and may not equal its value. Each rename runs once per save
   (the sidecar records it).
-- shops.json: a stock `item` may also be a full id of an item in the SAME
-  mod's items.json. Two goods of one shop may not share a base (a vanilla good's
-  id is its base). A good with no price takes the item's price.
+- shops.json: a good's `item` may also be a full id of an item in the SAME
+  mod's items.json (`shop-mod-item-unknown` otherwise), at `nook` and `flower`
+  only: at any other shop the engine refuses it (`shop-item-refused`, "is a mod
+  item, which only Nook's and the flower shop sell"). Two goods of one block may
+  not share a base (`shop-furniture-shared`; a vanilla good's id is its base). A
+  good with no price takes the item's price.
 - The City never has mod items: the flower shop is off there and the engine
   neither names nor records mod items while the City lock is on.
 - Where a mod item stays itself: a house room, the pockets (moved slot to slot
@@ -578,36 +637,46 @@ reinstalling restores the name.
   closed tab whose record does not match the pockets that came home), the
   player's carried mod items become their plain bases, never another mod item.
 ## shops.json: how each shop applies it
-- The flower shop: when its room is set out, while the entry applies, its six bench
-  spots take the entry's goods by `mode` (`replace`: the goods in order, spare spots
-  bare; `add`: up to three of them, the day's own goods in the rest).
-- Nook's, no hours: when Nook's restocks for a new day the entry is applied to the
-  day's roll by `mode`, every store size alike (`replace` leaves the kinds it does
-  not list bare). Changes show from the next restock (the next day), not the day a
-  mod is installed.
-- Nook's with hours: the goods never enter the day's roll. While the game clock is
-  inside the hours the shop's list is built from the day's goods by `mode` into
-  memory of its own (a spot already sold that day counts as its kind's) and never
-  written to the save, so the day's stock is back as it was when the hours end. With
-  `add`, a good of the day's own bought inside the hours is sold in the day's list
-  too. A mod's good bought inside the hours stays sold out until the game restarts; a
-  restart sets the goods out again. No grab bags and no raffle inside the hours, and a
-  sale's goods beat the mod's.
-- Price: the mod's price for a good it lists, raised to at least what any Nook pays
-  back for it; no price is retail. At Nook's only for goods bought off the floor (a
-  catalog order pays retail). With hours, only inside them: the same good from the
-  shop's own stock sells at its own price.
+- Which blocks apply: inside the mod that has a shop, every block whose `when`
+  holds at that moment (the game's own date, time of day and weather). Their
+  goods apply together (a good in two blocks: the later block's price). For a
+  single value (`open`, `own_goods`, a percent, a service, a line slot) the LAST
+  applying block that sets it counts. `name`: the last applying block's, else the
+  last block's with a name. A Lua block comes after the JSON ones.
+- The flower shop: when its room is set out, its six bench spots take the
+  applying blocks' goods by `own_goods` (`false`: the goods in order, spare spots
+  bare; `true`: up to three of them, the day's own goods in the rest).
+- Nook's, a block with no `when` on it or on any of its goods: when Nook's
+  restocks for a new day (the first play on a day at or after 6:00 AM) the block
+  is applied to the day's roll by `own_goods`, every store size alike (`false`
+  leaves the kinds it does not list bare). Changes show from the next restock
+  (the next day), not the day a mod is installed.
+- Nook's, a block with a `when` (on it or on a good): the goods never enter the
+  day's roll. While it holds the shop's list is built from the day's goods by
+  `own_goods` into memory of its own (a spot already sold that day counts as its
+  kind's) and never written to the save, so the day's stock is back as it was
+  when it stops holding. With `own_goods` true, a good of the day's own bought
+  inside it is sold in the day's list too. A mod's good bought inside it stays
+  sold out until the game restarts; a restart sets the goods out again. No grab
+  bags and no raffle inside it, and a sale's goods beat the mod's.
+- Price: the mod's price for a good it lists, raised to at least what any Nook
+  pays back for it; no price is the shop's own, times `price_percent` when one
+  applies. At Nook's only for goods bought off the floor (a catalog order pays
+  retail). Inside a `when` only: the same good from the shop's own stock sells at
+  its own price outside it.
 - World content: off in the City (the game's own goods and prices there).
-- Two mods, one shop (decided): for each target the LAST mod in load order has the
-  shop whole. Nothing is merged, not even two "add" entries, because (1) a good is
-  known on the shelf by its game item id alone, so two mods' items on the same base
-  furniture could not be told apart at the sale (whose item, whose price); (2) a
-  shop's name, hours and lines are written for its own goods, and "replace" means
-  every spot; (3) the shelves are few, so a merge would cut each mod's stock by what
-  else is installed, which its author cannot test. The engine says so on the EARLIER
-  mod's row, once, naming the later mod: `shops: a later mod changes the flower shop
-  too, so this mod's entry for it is not used: <id>` (and the same for `Nook's
-  store`). mods.js and Go judge one mod at a time and cannot see it.
+- Two mods, one shop (decided): for each shop id the LAST mod in load order with
+  that key has the shop whole, all its blocks. Nothing is merged between mods,
+  because (1) a good is known on the shelf by its game item id alone, so two
+  mods' items on the same base furniture could not be told apart at the sale
+  (whose item, whose price); (2) a shop's name, opening and lines are written for
+  its own goods, and `"own_goods": false` means every spot; (3) the shelves are
+  few, so a merge would cut each mod's goods by what else is installed, which its
+  author cannot test. Two mods on different shops both apply. The engine says so
+  on the EARLIER mod's row, once, naming the later mod (`shop-replaced`):
+  `shops: a later mod changes the flower shop too, so this mod's change to it is
+  not used: <id>` (with the row's words for every shop). mods.js and Go judge one
+  mod at a time and cannot see it.
 
 ## letters.json
 - `{ "letters": [ ... ] }`, 1..32 letters. Each: `id` `^[a-z0-9_.-]{1,48}$`, not used
@@ -816,7 +885,7 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   it, Go (`visit.ModsetHashOf`, `NormalizeModsetList`) hashes it to the case's hash.
 
 ## City
-- Only world-scope SHOPS (the flower shop and Nook's) and calendar BOARD notices switch
+- Only world-scope SHOPS (every shop id of shops.json) and calendar BOARD notices switch
   off in The City (other players there don't have them; the City is not the player's
   town). Textures, lines (talk pools) and scripts keep running
   there for the player who has them, with two limits: every mod command is refused

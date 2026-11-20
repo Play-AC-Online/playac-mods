@@ -9,7 +9,7 @@ The step-by-step guide is at https://playaconline.com/modding/.
 
 - Three working example mods each live in a public repository of their own,
   and each puts two kinds of mod together: Springtime Town (textures and
-  villager lines, no code), After Hours (Nook's with its own hours and stock,
+  villager lines, no code), After Hours (Nook's open at night with goods of its own,
   and a new item with its own pictures) and Harvest Post (calendar days and
   letters, and a script with commands, a question, a setting, a timer and a
   function other mods call). The cookbook links every repository, shows each
@@ -36,7 +36,7 @@ my-mod.zip
 ├── mod.json            required, at the top (or inside one top folder)
 ├── textures/           .png or .dds pictures, named for the textures they replace
 ├── messages/en.json    lines, by key
-├── shops.json          the flower shop's or Nook's store (World mods)
+├── shops.json          the game's shops, each by its id (World mods)
 ├── letters.json        letter templates a script can mail
 ├── calendar.json       calendar days: a board notice, a letter, a date for talk pools
 ├── talk.json           villager line pools, no script needed
@@ -122,8 +122,8 @@ A mod that changes the flower shop is a World mod:
   `villager_moved_in`, `visitor_arrived`, `command_finished`,
   `question_answered`, `timer_fired` and `villager_answered`, each once.
 - `permissions` (optional): the commands your script may use, each once, from
-  `send_letter`, `give_item`, `show_line`, `ask`, `take_item` and
-  `take_bells`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
+  `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
+  `take_bells`, `set_shop_goods` and `set_shop_open`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -191,8 +191,9 @@ A visitor can borrow the host's mods for one visit:
 The Mods tab lists mods in load order. The arrows change it.
 
 - Textures and shops: when two mods change the same one, the later mod wins.
-- A shop goes to the later mod whole. The two stocks are never mixed. The
-  earlier mod's row in the Mods tab says its shop is not used.
+- A shop goes to the later mod whole, with all of its blocks. Nothing of the
+  earlier mod's change to that shop is used, and its row in the Mods tab says
+  so. Two mods that change different shops both apply.
 - A texture file for one exact palette beats any mod's `$` file for the same
   texture, whatever the order.
 - Talk lines: each place in a talk takes one line. Every mod's script is
@@ -357,83 +358,153 @@ after the base's textures. `CONTRACT.md` has the rules.
 
 ## Shops
 
-A World mod can change the flower shop, Nook's store, or both. Every shop
-takes the same entry, and each field means the same on every shop:
+A World mod can change the game's shops. `shops.json` names each shop it
+changes by its id, and each shop takes a block. This one makes the flower shop
+a tea stall in the afternoon and evening:
 
 ```json
 {
-  "shops": [{
-    "target": "flower",
-    "mode": "replace",
-    "name": "Tea Stall",
-    "hours": { "open": "15:00", "close": "01:00" },
-    "greeting": "Welcome in!",
-    "stock_line": "Fresh fruit on every table.",
-    "stock": [{ "item": "0x2800", "price": 600 }]
-  }]
+  "shops": {
+    "flower": {
+      "when": { "hours": { "from": "15:00", "to": "01:00" } },
+      "open": true,
+      "own_goods": false,
+      "goods": [{ "item": "0x2800", "price": 600 }],
+      "name": "Tea Stall",
+      "lines": { "greeting": "Welcome to the tea stall!" }
+    }
+  }
 }
 ```
 
-- `target`: `"flower"` or `"nook"`. A file has at most one entry per target,
-  so at most 2.
-- `mode`: required, `"add"` or `"replace"`, on every shop.
-  - `"add"` puts your goods in at most half of the spots of their kind,
-    rounded up. The shop's own goods keep the rest.
-  - `"replace"` makes your goods the shop's whole stock. Each spot of a kind
-    you list takes one of your goods, and every other spot is bare.
-  - With more goods of a kind than spots, the date picks which show.
-- `hours`: optional, `"HH:MM"` 24-hour times. The same on every shop.
-  - Your entry applies only inside them: your goods, your lines, your prices.
-    Outside them the shop is its own.
-  - Inside them the shop is open, also when the game has it shut for the
-    night.
-  - `open` and `close` must differ. `close` can be past midnight.
-  - Leave `hours` out and your entry applies all day, in the shop's own hours.
-- `stock`: the goods, no item twice. The flower shop takes 1 to 6, Nook's 1
-  to 16.
+The shop ids:
+
+| id | shop | fields |
+|---|---|---|
+| `nook` | Nook's store | `when`, `open`, `own_goods`, `goods` (1 to 16), `price_percent`, `buy_back_percent` |
+| `flower` | the flower shop | `when`, `open`, `own_goods`, `goods` (1 to 6), `price_percent`, `name`, `lines` |
+| `redd` | Crazy Redd's tent | `when`, `own_goods`, `goods` (1 to 6), `price_percent` |
+| `saharah` | Saharah | `when`, `own_goods`, `goods` (1 to 6), `price_percent` |
+| `fireworks` | the fireworks stall | `when`, `own_goods`, `goods` (1 to 6), `price_percent` |
+| `able` | Able Sisters | `when`, `services` (`design`) |
+| `barber` | the barber shop | `when`, `open`, `services` (`haircut`) |
+| `dream` | the Dream Suite | `when`, `open`, `services` (`dream`) |
+| `katrina` | Katrina's tent | `when`, `services` (`fortune`) |
+
+The guide says where each shop puts its goods and when `open` works:
+https://playaconline.com/modding/guides/shops/#table.
+
+- A key that is not a shop id is refused. The message names the closest id.
+- A shop takes one block, or a list of 1 to 8 blocks.
+- A block's keys go in this order: `when`, `open`, `own_goods`, `goods`,
+  `price_percent`, `buy_back_percent`, `services`, `name`, `lines`. Each one
+  means the same on every shop.
+- A block needs at least one key besides `when`.
+- A field a shop does not have is left out, not refused. The rest of the
+  block applies, and the mod's row in the Mods tab names the shop and the
+  field.
+- Delete the key of a shop you do not change.
+
+### The fields
+
+- `when`: the block applies only while every key in it holds. Leave it out
+  and the block applies always.
+  - `hours`: `{ "from": "HH:MM", "to": "HH:MM" }`, 24-hour times. `from` and
+    `to` must differ. `to` can be past midnight.
+  - `time`: `"morning"` (5 to 12), `"day"` (12 to 17), `"evening"` (17 to
+    midnight) or `"night"` (midnight to 5).
+  - `season`: `"spring"`, `"summer"`, `"fall"` or `"winter"`.
+  - `weather`: `"clear"`, `"rain"` or `"snow"`.
+  - `weekday`: a list of days, `"monday"` to `"sunday"`.
+  - `month`: a list of months, 1 (January) to 12.
+  - `setting`: the name of one of your own settings of type `bool` with scope
+    world. The block applies while it is on.
+- `open`: `true` opens the shop while the block applies, also when its own
+  hours have it shut. `false` shuts it. Leave it out for the shop's own hours.
+- `own_goods`: `true` is the default. Your goods go in at most half of the
+  spots of their kind, rounded up, and the shop's own goods keep the rest.
+  `false` makes your goods the shop's whole stock while the block applies:
+  each spot of a kind you list takes one of them, and every other spot is
+  bare.
+- `goods`: the goods, each `{ "item", "price", "when" }`. Only `item` is
+  required. No item twice in a block.
   - `item` is a string: `"0x"` and 4 hex digits.
   - It must be an item the shop can show. Money, turnips, tickets, fossils
     and special items cannot be stocked. The Mods tab says which item was
     refused.
   - `price` is optional, a whole number of Bells from 1 to 99999. Without it
-    the good has its usual price. A price below what Nook pays for the item is
-    raised to that.
-  - A good can be one of your own items: `"item": "you.my-mod:ghost-lantern"` (see
-    Items). A mod item stands as its base piece. Two goods of a shop may not be
-    the same piece of furniture.
-- A field a shop does not have is refused, and the message names the shop and
-  the field. Only the flower shop has these three:
-  - `name`: 1 to 40 characters. It is on the door sign while the shop is shut,
-    with the hours your shop is on.
-  - `greeting`: it replaces the keeper's hello before her "what can I do for
-    you?" menu.
-  - `stock_line`: it replaces her answer to "What's in stock?".
-  - `greeting` and `stock_line` are each 1 to 160 characters with at most 3
-    line breaks.
+    the good has the shop's price. A price below what Nook pays for the item
+    is raised to that.
+  - At Nook's and the flower shop a good can be one of your own items:
+    `"item": "you.my-mod:ghost-lantern"` (see Items). A mod item stands as its
+    base piece. Two goods of a block may not be the same piece of furniture.
+  - A good's own `when` keeps that good to its own times, inside its block's.
+  - With more goods of a kind than spots, the date picks which show.
+- `price_percent`: 1 to 1000. The shop asks this percent of its own price for
+  every good with no price of its own. 100 is the game's price.
+- `buy_back_percent`: 1 to 1000. Nook pays this percent of what he would pay,
+  never more than he asks for the item. Not for turnips.
+- `services`: a service's price in Bells, 1 to 99999, by its name in the table:
+  `{ "haircut": 2000 }`.
+- `name`: 1 to 40 characters on one line. The flower shop's name, on its door
+  sign while it is shut.
+- `lines`: what the keeper says, by slot. The flower shop's slots are
+  `greeting`, her hello before her "what can I do for you?" menu, and
+  `stock`, her answer to "What's in stock?". A slot is one line, or a list of
+  1 to 8 lines the keeper picks from each time. Each line is 1 to 160
+  characters with at most 3 line breaks.
 
-### The flower shop
+### Blocks together
 
-- It has six table spots, all of one kind. `"replace"` puts your goods in
-  them in order. `"add"` gives you up to three, and the day's own goods keep
-  the rest.
-- Inside your hours it opens through its 2 AM to 7 AM shut. On a Sunday
-  morning the keeper is out selling turnips, and it stays shut.
-
-### Nook's store
-
-This entry adds goods to Nook's store every day, in every store size:
+A list of blocks changes a shop at different times. This flower shop sells
+your goods among its own all day, and on rainy days says something else:
 
 ```json
 {
-  "shops": [{
-    "target": "nook",
-    "mode": "add",
-    "stock": [
-      { "item": "0x1110", "price": 1800 },
-      { "item": "0x2205", "price": 900 },
-      { "item": "0x2605" }
+  "shops": {
+    "flower": [
+      { "goods": [{ "item": "0x2900", "price": 500 }] },
+      {
+        "when": { "weather": "rain" },
+        "lines": { "greeting": ["Come in out of the rain!", "Wet day for flowers, isn't it?"] }
+      }
     ]
-  }]
+  }
+}
+```
+
+- Every block whose `when` holds applies. Their goods are sold together. A
+  good in two of them takes the later block's price.
+- For a single value (`open`, `own_goods`, a percent, a service, a line
+  slot) the last applying block that sets it counts.
+- `name` is the last applying block's, or else the last block's with a name.
+- A script can add one more block after yours, for the rest of the game day:
+  `cmd.set_shop_goods(shop, goods)` and `cmd.set_shop_open(shop, on)`. Each
+  needs its name in `permissions`.
+
+### The flower shop
+
+- It has six table spots, all of one kind. With `"own_goods": false` your
+  goods take them in order. Otherwise you get up to three, and the day's own
+  goods keep the rest.
+- `"open": true` opens it through its 2 AM to 7 AM shut. On a Sunday morning
+  the keeper is out selling turnips, and it stays shut.
+
+### Nook's store
+
+This block adds goods to Nook's store every day, in every store size:
+
+```json
+{
+  "shops": {
+    "nook": {
+      "goods": [
+        { "item": "0x1110", "price": 1800 },
+        { "item": "0x2205", "price": 900 },
+        { "item": "0x2605" }
+      ]
+    }
+  }
 }
 ```
 
@@ -442,38 +513,52 @@ This entry adds goods to Nook's store every day, in every store size:
   paint, saplings and flower bags.
 - Fruit, the signboard and anything without a spot are refused. So are money,
   turnips, tickets and fossils. The Mods tab says which.
-- `"replace"` leaves the kinds you do not list bare, and the rare piece and
-  the plants too.
+- `"own_goods": false` leaves the kinds you do not list bare, and the rare
+  piece and the plants too.
 - `price` is what Nook asks for the good off the floor. Catalogue orders stay
   at the usual price.
-- Without `hours`, the goods show from the next morning's restock.
-- In The City, Nook's is the game's own.
+- A block with no `when`, on it or on any of its goods, shows from the next
+  morning's restock, the first time the town is played on a day at or after
+  6:00 AM.
 
-With `hours`, your entry applies only inside them and never touches the day's
+A block with a `when` applies only while it holds and never touches the day's
 stock. This one opens the shop at night with only your goods:
 
 ```json
 {
-  "shops": [{
-    "target": "nook",
-    "mode": "replace",
-    "hours": { "open": "01:00", "close": "03:00" },
-    "stock": [
-      { "item": "0x1768" },
-      { "item": "0x1738" },
-      { "item": "0x16E4" }
-    ]
-  }]
+  "shops": {
+    "nook": {
+      "when": { "hours": { "from": "01:00", "to": "03:00" } },
+      "open": true,
+      "own_goods": false,
+      "goods": [
+        { "item": "0x1768" },
+        { "item": "0x1738" },
+        { "item": "0x16E4" }
+      ]
+    }
+  }
 }
 ```
 
-- If the shop is shut for the night then, it opens for your hours. It does
-  not open in the hour before its morning opening, on a renovation day or in
+- `"open": true` opens the shop when it is shut for the night. It does not
+  open it in the hour before its morning opening, on a renovation day or in
   a sale's hours.
-- The day's own stock is never changed: it is back when your hours end.
-- Your goods bought inside the hours stay sold out until the game restarts.
+- The day's own stock is never changed: it is back when the block stops
+  applying.
+- Your goods bought while the block applies stay sold out until the game
+  restarts.
 - The After Hours example does this: from 1 AM to 3 AM, only gyroids, a
-  different few each night, and now and then its own Ghost Lantern.
+  different few each night, and now and then its own Ghost Lantern. The
+  cookbook shows it:
+  https://playaconline.com/modding/cookbook/#example.after-hours.
+
+### Every shop
+
+- In The City, every shop is the game's own.
+- When two mods change the same shop, the later one in load order has it
+  whole. The earlier mod's row in the Mods tab says its change to that shop
+  is not used. Two mods that change different shops both apply.
 
 ## Items
 
@@ -504,11 +589,11 @@ of a real piece of furniture, its `base`. `mod.json` names the file:
     carries as an item (umbrellas, fish, bugs, tools, balloons, fans,
     pinwheels and diaries). The item list on the site has a filter for the
     pieces that can be a base. The Mods tab names a refused one.
-- `price`: optional, 1 to 99999 Bells. A shop asks it when its stock entry
-  sets no price.
+- `price`: optional, 1 to 99999 Bells. A shop asks it when the good sets no
+  price.
 
-Players get an item in two ways. Your flower shop or Nook's store entry sells
-it by its full id (see Shops). Or your script gives it with `cmd.give_item`.
+Players get an item in two ways. Your block for the flower shop or Nook's
+store sells it by its full id (see Shops). Or your script gives it with `cmd.give_item`.
 
 In the save, a mod item is its base piece. Which pieces are your items is kept
 beside the save. So:
@@ -957,6 +1042,8 @@ a cutscene or walking through a door. Each command needs its name in
 | `cmd.ask{ text, choices }` | Asks a question with 2 to 4 answers. The pick comes back as a `question_answered` event. |
 | `cmd.take_item{ item, count? }` | Asks the player to hand over items from their pockets. The game writes the question and takes only on yes. |
 | `cmd.take_bells{ amount }` | Asks the player to pay Bells from their wallet. The game writes the question and takes only on yes. |
+| `cmd.set_shop_goods(shop, goods)` | Sets a shop's goods for the rest of the game day, as one more block after your shops.json blocks for it. `goods` is a list of `{ item, price? }`, or `{ goods = <list>, own_goods = false }`. `nil` clears. Needs scope world. |
+| `cmd.set_shop_open(shop, open)` | Opens (`true`) or shuts (`false`) a shop for the rest of the game day, as one more block after your shops.json blocks for it. `nil` clears. Needs scope world. |
 
 Each call returns the command's number. When the command is refused it returns
 `nil`, a message and a code.
@@ -1133,7 +1220,7 @@ every change.
 | You change | What happens |
 |---|---|
 | lines | the next time the line is said |
-| the shop | name, sign, hours and greeting at once, goods the next time you go in |
+| the shop | name, sign, opening and lines at once, goods the next time you go in |
 | the script | it starts again with the new code, and its `store` is kept |
 | textures | drawn again from the new files |
 | talk, letters, calendar | read again at once: the next talk, the next letter, the board |
