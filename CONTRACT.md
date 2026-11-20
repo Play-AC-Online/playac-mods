@@ -456,7 +456,7 @@ shop, and a field a shop does not have is left out by one rule.
   | `fireworks` | the fireworks stall | `when`, `own_goods`, `goods`, `price_percent` | 1..6 (visitors.stock) |
   | `able` | Able Sisters | `when`, `services` (`design`) | |
   | `barber` | the barber shop | `when`, `open`, `services` (`haircut`) | |
-  | `dream` | the Dream Suite | `when`, `open`, `services` (`dream`) | |
+  | `dream` | the Dream Suite | `when`, `services` (`dream`) | |
   | `katrina` | Katrina's tent | `when`, `services` (`fortune`) | |
 
   The table is read from the game itself: a shop has a field exactly where the
@@ -530,6 +530,10 @@ shop, and a field a shop does not have is left out by one rule.
   refused (`shop-line-slot`), listing its slots. One line of a list is picked
   each time the keeper says it. The flower shop: `greeting`, the keeper's hello
   before her menu; `stock`, her answer to "What's in stock?".
+- A piece of furniture the game has no model for (it draws a placeholder sign
+  that says "dummy", such as the kadomatsu 0x1220) is refused as a good at every
+  shop, by every layer (`shop-item-no-model`). The list is read from the game's
+  own furniture table.
 - Only C knows the item tables: C refuses items with no shelf model, money bags,
   turnips, tickets, fossils, reserve/dummy ids (0xF000-0xFFFF band), and any
   non ITEM1/FTR name type, reporting the error on the Mods tab (`shop-item-refused`,

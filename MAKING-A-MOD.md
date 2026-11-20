@@ -388,7 +388,7 @@ The shop ids:
 | `fireworks` | the fireworks stall | `when`, `own_goods`, `goods` (1 to 6), `price_percent` |
 | `able` | Able Sisters | `when`, `services` (`design`) |
 | `barber` | the barber shop | `when`, `open`, `services` (`haircut`) |
-| `dream` | the Dream Suite | `when`, `open`, `services` (`dream`) |
+| `dream` | the Dream Suite | `when`, `services` (`dream`) |
 | `katrina` | Katrina's tent | `when`, `services` (`fortune`) |
 
 The guide says where each shop puts its goods and when `open` works:
@@ -489,6 +489,8 @@ your goods among its own all day, and on rainy days says something else:
   goods keep the rest.
 - `"open": true` opens it through its 2 AM to 7 AM shut. On a Sunday morning
   the keeper is out selling turnips, and it stays shut.
+- `"open": false` shuts it while the block applies. Its door sign says until
+  when ("Shut until 1:00 PM."), the end of the block's `when.hours`.
 
 ### Nook's store
 
