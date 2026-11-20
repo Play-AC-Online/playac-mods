@@ -619,7 +619,7 @@ of an event. A pool's `place` puts its lines in one of five places:
 |---|---|---|
 | `before` | in front of the hello | all of it |
 | `hello` | instead of an everyday hello (one with news, such as a bee sting, is kept) | the menu and the topic |
-| `topic` (default) | instead of the topic the game picked, when it is one of `topics` | the hello and the menu; the talk ends after the line |
+| `topic` | instead of the topic the game picked, when it is one of `topics` | the hello and the menu; the talk ends after the line |
 | `after` | after the topic, as a chat's last message | everything, then the line |
 | `conversation` | the whole talk | nothing: no hello, no menu, no topic |
 
@@ -628,7 +628,7 @@ No script is needed:
 ```json
 {
   "pools": [
-    { "personality": "cranky", "lines": ["Hmph. Another day of\nyou walking around.", "What now? I was just\ngetting comfortable."] },
+    { "place": "topic", "personality": "cranky", "lines": ["Hmph. Another day of\nyou walking around.", "What now? I was just\ngetting comfortable."] },
     { "place": "hello", "weather": "rain", "lines": [["Oh, hi! Isn't the rain\nlovely?", "The flowers think so."]] },
     { "place": "topic", "topics": ["trade", "small_talk"], "chance": 30, "lines": ["No deals today. Let's\njust talk."] },
     { "place": "after", "time": "evening", "lines": ["Getting late. Get home\nsafe!"] }
@@ -637,8 +637,8 @@ No script is needed:
 ```
 
 - A file holds 1 to 32 pools.
-- `place`: `before`, `hello`, `topic` (the default), `after` or
-  `conversation`.
+- `place`: required, with no default: `before`, `hello`, `topic`, `after`
+  or `conversation`. A pool without one is refused (`talk-no-place`).
 - `topics`: only with `topic`. The topics the line may stand in for:
   `small_talk` (the default), `trade`, `letter`, `memory`, `hint` and `news`,
   each once, or `"any"`. A trade your line replaces does not happen. A
@@ -715,7 +715,7 @@ strings. A `cmd.*` call takes a number, `"0x2800"` or your mod's own
 
 | event | `e` | return |
 |---|---|---|
-| `villager_talked` | `{ villager }` | a string: the villager says it, then their usual hello; or a talk table, or a list of them (see below) |
+| `villager_talked` | `{ villager }` | a talk table, or a list of them (see below) |
 | `day_started` | `{ year, month, day, weekday }` | nothing |
 | `item_picked_up` | `{ item, mod_item }` | nothing |
 | `scene_entered` | `{ scene, name }` | nothing |
@@ -787,9 +787,10 @@ No event runs in the title screen demo.
   load order. The first line returned for a place takes it; a later one for
   that place is written to the Mod log. A conversation takes the whole talk,
   and the mods after it are not asked.
-- A handler returns a string (said before the hello), a talk table
-  `{ place, line, topics, ask }`, or a list of talk tables, one a place.
-  `place` is required in a table: `before`, `hello`, `topic`, `after` or
+- A handler returns a talk table `{ place, line, topics, ask }`, or a list
+  of talk tables, one a place. Every line names its place: a plain string
+  is refused and written to the Mod log, with nothing said. `place` is
+  `before`, `hello`, `topic`, `after` or
   `conversation`, as in Talk pools. `line` is a string or a list of 1 to 8
   pages, each 1 to 400 bytes. `topics` goes only with `topic`.
 - `ask = { text, choices }` goes only with `conversation`: its last page asks

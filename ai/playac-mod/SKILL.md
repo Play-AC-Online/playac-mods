@@ -133,7 +133,7 @@ Install it with the line on https://playaconline.com/modding/cli/#install, which
 
 Can:
 - Replace any texture the game draws with your own art, as `.dds` or `.png`.
-- Add villager lines: a line goes in one of five places in a talk, the same in a talk pool's `"place"` and a script's talk table: `before` the hello, as the `hello` (an everyday hello only), as the `topic` after a chat answer (the default for a pool; its `topics` name which: `small_talk` by default, `trade`, `letter`, `memory`, `hint`, `news` or `"any"`), `after` the topic, or the whole `conversation`. With no code, talk pools (`content.talk`) keep a line to a personality or villager, a season, a time of day, the weather or a calendar `day`. A script's `villager_talked` returns a string (said before the hello), a talk table `{ place, line, topics, ask }` or a list of them; a conversation's `ask` sends the pick to `villager_answered`. A line is a string or a list of up to 8 pages.
+- Add villager lines: a line goes in one of five places in a talk, the same in a talk pool's `"place"` and a script's talk table: `before` the hello, as the `hello` (an everyday hello only), as the `topic` after a chat answer (its `topics` name which: `small_talk` by default, `trade`, `letter`, `memory`, `hint`, `news` or `"any"`), `after` the topic, or the whole `conversation`. Every pool and every script line names its place: there is no default, and a pool or a plain string return without one is refused. With no code, talk pools (`content.talk`) keep a line to a personality or villager, a season, a time of day, the weather or a calendar `day`. A script's `villager_talked` returns a talk table `{ place, line, topics, ask }` or a list of them; a conversation's `ask` sends the pick to `villager_answered`. A line is a string or a list of up to 8 pages.
 - Change the flower shop and Nook's store with one entry shape: goods and prices, `mode` add or replace, and hours of your own (the flower shop also takes a name, a greeting and a stock line).
 - Add new furniture on a game piece's model (`content.items`), sold in your shops or given by a script.
 - Letter templates (`content.letters`), calendar days with a bulletin board notice, villager lines and a letter.
@@ -171,7 +171,7 @@ Texture facts: names are `tex1_<w>x<h>_<texture hash>_<palette hash>_<format>.dd
 ### 2. Writer (lines, shops, letters, calendar days; a text editor)
 
 1. Make a folder with `mod.json` (template below) and the content file.
-2. Villager lines, no script: a talk pools file (`content.talk`): lines by personality or by villager, optionally kept to a `season` (spring, summer, fall, winter), a `time` (morning, day, evening, night), the `weather` (clear, rain, snow) or a calendar `day`, with a `chance` in 100 talks it fits (default 100), and a `place` (before, hello, topic, after, conversation; default topic, for small talk unless `topics` says more). A topic line is said whenever the game picks one of its topics, so a villager can say several a day. See `reference/api.md` and the Springtime Town example. Use this first for lines by personality, season, time or weather; a script only for lines that depend on something else (an item in the pockets, a count the script keeps).
+2. Villager lines, no script: a talk pools file (`content.talk`): lines by personality or by villager, optionally kept to a `season` (spring, summer, fall, winter), a `time` (morning, day, evening, night), the `weather` (clear, rain, snow) or a calendar `day`, with a `chance` in 100 talks it fits (default 100), and a required `place` (before, hello, topic, after, conversation; a topic line is small talk unless `topics` says more). A topic line is said whenever the game picks one of its topics, so a villager can say several a day. See `reference/api.md` and the Springtime Town example. Use this first for lines by personality, season, time or weather; a script only for lines that depend on something else (an item in the pockets, a count the script keeps).
 3. Lines a script says: `messages/en.json` (one file) and a tiny script (the talk example below). Every player sees a mod's texts as written, whatever the game's language: there are no translations.
 4. A shop: `shops.json` (template below), `"scope": "world"`. Themed goods that are furniture (lanterns, a tea set) need the mod's own items (`content.items`), which the flower shop and Nook's both sell; the flower shop cannot show the game's own furniture.
 5. A letter: `content.letters` with `id`, `header` (`{player}` for the name), `body` (6 lines), `footer` (the sign-off, up to 32 characters) and an optional `sender` (up to 8, the name in the mailbox list, which otherwise shows the footer cut to 8: "The Lantern Keepers" reads "The Lant"; `check` warns), `item`, `paper`. A script mails it with `cmd.send_letter`, a calendar day with `letter`.
@@ -267,8 +267,8 @@ Ids 1 to 48 of `a-z 0-9 _ . -`; at most 256 lines; each 1 to 400 bytes. Lines wr
 on("villager_talked", function(e)   -- e.villager = { id, name, species, personality }
   if store.get("met_" .. e.villager.id) then return nil end
   store.set("met_" .. e.villager.id, true)
-  return message("greet")           -- the villager says this, then their usual hello
-  -- or a place: return { place = "after", line = { "Page one.", "Page two." } }
+  return { place = "before", line = message("greet") }  -- said before their usual hello
+  -- another place: return { place = "after", line = { "Page one.", "Page two." } }
 end)
 
 on("day_started", function(e)       -- e = { year, month, day, weekday }

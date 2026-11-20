@@ -6,9 +6,9 @@ hello). They pick a topic, the way they always do: a trade, a letter, a
 hint, or small talk about the weather and the day. When they pick small
 talk, one of your lines can be what they say.
 
-That is a pool's place in the talk when it names none. A pool's "place"
-can put its lines elsewhere: "before" the hello, as the "hello", as the
-"topic" (the default), "after" the topic, or as the whole "conversation".
+That is "place": "topic", which every pool in this kit names. Every pool
+must name its place, and there are five: "before" the hello, as the
+"hello", as the "topic", "after" the topic, or the whole "conversation".
 A "topic" pool's "topics" says which topics it may stand in for:
 small_talk (the default), trade, letter, memory, hint, news, or "any".
 

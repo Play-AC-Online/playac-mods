@@ -1,6 +1,7 @@
 {
   "pools": [
     {
+      "place": "topic",
       "lines": [
         "Did you hear? The river was extra sparkly this morning.",
         "I've been practising my whistling. Want to hear? Maybe later.",
@@ -8,18 +9,21 @@
       ]
     },
     {
+      "place": "topic",
       "weather": "rain",
       "lines": [
         "Rain, rain, rain! The puddles are perfect for stomping."
       ]
     },
     {
+      "place": "topic",
       "time": "evening",
       "lines": [
         "The sky goes all orange this time of day. I love it."
       ]
     },
     {
+      "place": "topic",
       "personality": "peppy",
       "lines": [
         "Ooh, it's you! Today is going to be amazing, I can tell!",
@@ -27,12 +31,14 @@
       ]
     },
     {
+      "place": "topic",
       "personality": "lazy",
       "lines": [
         "I had a snack, then a nap, then another snack. Busy day."
       ]
     },
     {
+      "place": "topic",
       "personality": "cranky",
       "lines": [
         "Hmph. You again. Well, I suppose that's fine.",
@@ -40,6 +46,7 @@
       ]
     },
     {
+      "place": "topic",
       "personality": "cranky",
       "season": "winter",
       "lines": [
@@ -47,6 +54,7 @@
       ]
     },
     {
+      "place": "topic",
       "villager": "Bob",
       "chance": 80,
       "lines": [

@@ -92,11 +92,12 @@ end
 -- "notice" is a setting in mod.json, which the player turns on or off on
 -- the Mods tab. settings.get reads it. This is a Just you mod, so a setting's
 -- "scope" changes nothing a visit sees, and it is left out.
--- A string the handler returns is said before the villager's hello. A talk
--- table puts it elsewhere: { place = "hello", line = ... } instead of the
--- hello, "topic" or "after" when you chat, "conversation" for the whole talk
--- (with an ask, the player's pick comes to villager_answered). A line can be
--- a list of pages: line = { "Page one.", "Page two." }.
+-- The handler returns a talk table, and every line names its place: here
+-- "before", said before the villager's hello. The others are "hello" (instead
+-- of the hello), "topic" and "after" (when you chat), and "conversation" for
+-- the whole talk (with an ask, the player's pick comes to villager_answered).
+-- A plain string with no place is refused. A line can be a list of pages:
+-- line = { "Page one.", "Page two." }.
 on("villager_talked", function(e)
   if not settings.get("notice") then return nil end
   if noticed_on ~= game.day_number() then
@@ -104,7 +105,7 @@ on("villager_talked", function(e)
   end
   if noticed[e.villager.id] or not holding(APPLE) then return nil end
   noticed[e.villager.id] = true
-  return message("apple")
+  return { place = "before", line = message("apple") }
 end)
 
 -- A command: every resident of the town gets one apple, once. A handler

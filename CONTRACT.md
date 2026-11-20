@@ -667,8 +667,9 @@ an entry is a "day". The game's own festivals are "the game's festivals".
 - `{ "pools": [ ... ] }`, 1..32 pools. Each: `lines` (1..32 lines; a line is a
   page, 1..160 characters with at most 3 newlines, UTF-8 allowed, or a list of
   1..8 such pages; the game wraps a page and starts each page of a list on a
-  clean window), optionally `place` (`before`, `hello`, `topic`, `after`,
-  `conversation`; default `topic`; anything else `talk-place`), optionally
+  clean window), `place` (required, no default: `before`, `hello`, `topic`,
+  `after`, `conversation`; missing `talk-no-place`, anything else
+  `talk-place`), optionally
   `topics` (only with `topic`, else `talk-topics`: `"any"` or a list of 1..6
   different names from `small_talk`, `trade`, `letter`, `memory`, `hint`,
   `news`; default `small_talk`), and optionally ONE of `personality`
