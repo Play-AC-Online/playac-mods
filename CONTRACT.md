@@ -459,9 +459,8 @@ shop, and a field a shop does not have is left out by one rule.
   | `dream` | the Dream Suite | `when`, `open`, `services` (`dream`) | |
   | `katrina` | Katrina's tent | `when`, `services` (`fortune`) | |
 
-  Every field in a row is backed by one or more `PC_MOD_SHOP_SEAM("<id>",
-  "<field>")` markers in the engine (`src/` and `pc/src/`). api-drift fails when
-  the markers and the table differ in either direction.
+  The table is read from the game itself: a shop has a field exactly where the
+  game's code honours it.
 - A value is one BLOCK (an object, `shop-not-object`) or a list of 1..8 BLOCKs
   (shops.blocks, `shop-blocks`).
 - BLOCK keys, in this order: `when`, `open`, `own_goods`, `goods`,
