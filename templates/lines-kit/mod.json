@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "api": 1,
+  "id": "yourname.my-lines",
+  "name": "My Lines",
+  "version": "1.0.0",
+  "authors": ["yourname"],
+  "description": "Villagers say my lines as their small talk, after their own hello.",
+  "scope": "client",
+  "content": {
+    "talk": "talk.json"
+  },
+  "assets_original": true
+}

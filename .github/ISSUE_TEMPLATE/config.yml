@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: A question about making a mod
+    url: https://discord.gg/7CrPXyX97m
+    about: Ask on the game's Discord.
+  - name: A bug in the game
+    url: https://playaconline.com
+    about: Use the feedback button on the site.
+  - name: A security problem
+    url: https://github.com/Play-AC-Online/playac-mods/security
+    about: Report it privately. See SECURITY.md.

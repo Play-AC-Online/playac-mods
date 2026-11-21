@@ -1,0 +1,23 @@
+name: A broken example or kit
+description: An example or a starter kit does not work as described.
+labels: [example]
+body:
+  - type: input
+    id: which
+    attributes:
+      label: Which one
+      description: Its name or folder, like the After Hours example or templates/shop-kit.
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you saw, and the message if there was one.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and system
+      description: Like Chrome on Windows 11.

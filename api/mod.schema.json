@@ -1,0 +1,675 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://playaconline.com/schemas/mod.schema.json",
+  "title": "Play AC Online mod.json",
+  "description": "A mod's manifest, mod API level 1. Generated from the mod API spec (https://playaconline.com/schemas/api.json). Do not edit by hand. Reference: https://playaconline.com/modding/reference/manifest/",
+  "type": "object",
+  "required": [
+    "schema",
+    "api",
+    "id",
+    "name",
+    "version",
+    "authors",
+    "scope",
+    "assets_original"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "description": "Optional. The JSON Schema an editor checks mod.json against, for autocomplete and errors as you type. The game ignores it.",
+      "type": "string",
+      "examples": [
+        "https://playaconline.com/schemas/mod.schema.json"
+      ]
+    },
+    "schema": {
+      "description": "The manifest format. Always 1.",
+      "const": 1,
+      "examples": [
+        1
+      ]
+    },
+    "api": {
+      "description": "The mod API level the mod is made for. The game checks a mod by the rules of its own level. It runs an older level through shims while that level is supported. Use the newest level.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1,
+      "examples": [
+        1
+      ]
+    },
+    "id": {
+      "description": "author.mod-name, in lowercase letters, digits and dashes, with one dot. The author parts playaconline, official, admin and example are reserved for the site's own mods in the mod list. The mod list also refuses an author part that passes for one of them (official-, examples, playaconline-official).",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}$",
+      "maxLength": 81,
+      "examples": [
+        "yourname.tea-stall"
+      ]
+    },
+    "name": {
+      "description": "The name players see, 1 to 60 characters after trimming spaces. The mod list also refuses a name with a line break, another control character or a hidden text-direction character.",
+      "type": "string",
+      "pattern": "^\\s*\\S(?:[\\s\\S]{0,58}\\S)?\\s*$",
+      "examples": [
+        "Tea Stall"
+      ]
+    },
+    "version": {
+      "description": "x.y.z, each part 1 to 9 digits with no leading zero. Every upload needs a version number this mod has not used yet. The number of a refused upload can be used again.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$",
+      "examples": [
+        "1.0.0"
+      ]
+    },
+    "authors": {
+      "description": "1 to 8 names, each 1 to 40 characters. The mod list also refuses a name with a line break, another control character or a hidden text-direction character.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "pattern": "^\\s*\\S(?:[\\s\\S]{0,38}\\S)?\\s*$"
+      },
+      "examples": [
+        [
+          "Your Name"
+        ]
+      ]
+    },
+    "description": {
+      "description": "Optional text of at most 500 characters. null is refused. Leave the key out instead.",
+      "type": "string",
+      "maxLength": 500,
+      "examples": [
+        "The flower shop becomes a tea stall in the evening."
+      ]
+    },
+    "tags": {
+      "description": "Optional. The mod list's filters: at most 5 different tags from a fixed list, lower case. Players filter the mod list by them. The game never reads them. Anything else is refused (manifest-tags).",
+      "type": "array",
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "textures",
+          "clothing",
+          "furniture",
+          "scenery",
+          "villagers",
+          "dialogue",
+          "shops",
+          "seasonal",
+          "holidays",
+          "quality-of-life",
+          "humor",
+          "accessibility",
+          "scripts"
+        ]
+      },
+      "examples": [
+        [
+          "textures",
+          "seasonal"
+        ]
+      ]
+    },
+    "scope": {
+      "description": "client is a Just you mod, which only you see. world is a World mod, which changes what a visitor to your town would see. Only a World mod may hold a shop (content.shops) or a calendar file with a board notice. A friend visit needs the same World mods that count (see visit_scope) on both sides.",
+      "enum": [
+        "client",
+        "world"
+      ],
+      "examples": [
+        "client"
+      ]
+    },
+    "content": {
+      "description": "What the mod adds, each a path inside the mod: textures, messages, shops, items, letters, calendar and talk. Anything else is refused. textures names a folder, and every other key names one file. Every text shows as written.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "textures": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A folder with at least one texture file."
+        },
+        "messages": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The messages file: one .json file of lines, called messages.json by convention."
+        },
+        "shops": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The shops file. Needs scope world."
+        },
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The items file."
+        },
+        "letters": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The letters file."
+        },
+        "calendar": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The calendar file. A board notice needs scope world."
+        },
+        "talk": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The talk pools file."
+        }
+      },
+      "examples": [
+        {
+          "messages": "messages.json"
+        }
+      ]
+    },
+    "scripts": {
+      "description": "A Lua script and the events it listens to. events may list data_migrated only with a data_version.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "main",
+        "events"
+      ],
+      "properties": {
+        "main": {
+          "type": "string",
+          "pattern": "\\.lua$",
+          "description": "The script file, ending in lowercase .lua."
+        },
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/event"
+          },
+          "description": "Every event the script handles, each once."
+        }
+      },
+      "examples": [
+        {
+          "main": "main.lua",
+          "events": [
+            "villager_talked",
+            "day_started"
+          ]
+        }
+      ]
+    },
+    "permissions": {
+      "description": "The commands the mod's script may queue, each once. The game refuses any command the list leaves out. The Mods tab and the moderators' review show what the list lets the mod do. take_item and take_bells let the mod ask the player for items or Bells. The game itself shows the question with the true item and amount, and nothing is taken unless the player says yes. set_shop_goods and set_shop_open change a shop for the day and need scope world. Needs scripts.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "send_letter",
+          "give_item",
+          "show_line",
+          "ask",
+          "take_item",
+          "take_bells",
+          "set_shop_goods",
+          "set_shop_open"
+        ]
+      },
+      "examples": [
+        [
+          "send_letter"
+        ]
+      ]
+    },
+    "exports": {
+      "description": "A library's remote functions by name, each with a one-line description. These are what other mods may remote.call. At most 32 names, each 1 to 32 of a-z 0-9 _. Each description is 1 to 120 characters on one line. When exports is declared, the game lets remote.add offer only these names. The Mod log says when a listed name was never offered. Needs scripts.",
+      "type": "object",
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[a-z0-9_]{1,32}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120,
+        "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+      },
+      "examples": [
+        {
+          "count_pieces": "How many workshop pieces the player bought, as a whole number."
+        }
+      ]
+    },
+    "assets_original": {
+      "description": "Must be true. It is your promise that the mod holds only work its authors made, never files taken from the game.",
+      "const": true,
+      "examples": [
+        true
+      ]
+    },
+    "renames": {
+      "description": "Maps an old full item id of this mod to the full id of an item in this mod's items file. At most 64. Needs content.items. Each rename runs once per save, and mod-items.json records it. A renamed item already in a house therefore keeps working.",
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^([a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}):([a-z0-9][a-z0-9-]{0,31})$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^([a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}):([a-z0-9][a-z0-9-]{0,31})$"
+      },
+      "examples": [
+        {
+          "yourname.tea-stall:old-cup": "yourname.tea-stall:cup"
+        }
+      ]
+    },
+    "depends": {
+      "description": "Mods this one needs, as mod id to version range. A range is \"*\", or up to 4 comparisons (>= <= > < = and a version) split by one space. At most 16. This mod loads after them. It does not load when one is missing, off, out of range or not loading. The game checks again when it starts: a mod whose dependency is not loaded before it, in range, is not loaded at all.",
+      "type": "object",
+      "maxProperties": 16,
+      "propertyNames": {
+        "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^(\\*|((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))( ((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))){0,3})$"
+      },
+      "examples": [
+        {
+          "yourname.tea-lib": ">=1.0.0 <2.0.0"
+        }
+      ]
+    },
+    "optional_depends": {
+      "description": "Mods this one can use but does not need, as mod id to version range. Ranges are written as in depends. At most 16. This mod always loads. An optional dependency is present when it is installed, switched on, loading and inside the range. A present one loads before this mod. One that is missing, off, not loading or outside the range is absent, and nothing waits for it. A script asks with remote.version(id). remote.call to an absent one returns nil, a message and a code. It is not an error. A mod id may be in only one of depends, optional_depends and conflicts.",
+      "type": "object",
+      "maxProperties": 16,
+      "propertyNames": {
+        "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^(\\*|((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))( ((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))){0,3})$"
+      },
+      "examples": [
+        {
+          "yourname.tea-lib": ">=1.0.0 <2.0.0"
+        }
+      ]
+    },
+    "conflicts": {
+      "description": "Mods this one cannot run with, as mod id to version range. At most 16. A mod id may be in only one of depends, optional_depends and conflicts. This mod stays off while a matching one is on.",
+      "type": "object",
+      "maxProperties": 16,
+      "propertyNames": {
+        "pattern": "^[a-z0-9][a-z0-9-]{0,31}\\.[a-z0-9][a-z0-9-]{0,47}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^(\\*|((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))( ((>=|<=|>|<|=)?(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8}))){0,3})$"
+      },
+      "examples": [
+        {
+          "someone.other-shop": "*"
+        }
+      ]
+    },
+    "data_version": {
+      "description": "A whole number 1 to 1000000 for the shape of what the scripts save. When it changes, the data_migrated event runs once per town. Listing data_migrated in scripts.events needs it.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000,
+      "examples": [
+        1
+      ]
+    },
+    "settings": {
+      "description": "At most 16 settings the player sets on the Mods tab and scripts read with settings.get. The types are bool, number (whole, with min and max), choice (2 to 16 choices) and text (max_length 1 to 200). A setting may say \"scope\". \"world\" is the default: the value is part of the town, a friend visit compares it, and a visitor lent the mod runs the host's value. \"client\" is the player's own: it is never compared or sent, and each player keeps theirs on a visit. Use client for a choice that only changes what its own player sees or hears.",
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "label",
+              "default"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,31}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60,
+                "description": "1 to 60 characters, trimmed, on one line. No control, format (zero width, text-direction) or blank filler character."
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "At most 200 characters. Line breaks are allowed. No other control, format (zero width, text-direction) or blank filler character."
+              },
+              "scope": {
+                "enum": [
+                  "world",
+                  "client"
+                ],
+                "description": "Whose the value is on a friend visit. world (the default): the host's. client: each player's own."
+              },
+              "type": {
+                "const": "bool"
+              },
+              "default": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "label",
+              "default",
+              "min",
+              "max"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,31}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60,
+                "description": "1 to 60 characters, trimmed, on one line. No control, format (zero width, text-direction) or blank filler character."
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "At most 200 characters. Line breaks are allowed. No other control, format (zero width, text-direction) or blank filler character."
+              },
+              "scope": {
+                "enum": [
+                  "world",
+                  "client"
+                ],
+                "description": "Whose the value is on a friend visit. world (the default): the host's. client: each player's own."
+              },
+              "type": {
+                "const": "number"
+              },
+              "default": {
+                "type": "integer",
+                "minimum": -1000000000,
+                "maximum": 1000000000
+              },
+              "min": {
+                "type": "integer",
+                "minimum": -1000000000,
+                "maximum": 1000000000
+              },
+              "max": {
+                "type": "integer",
+                "minimum": -1000000000,
+                "maximum": 1000000000
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "label",
+              "default",
+              "choices"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,31}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60,
+                "description": "1 to 60 characters, trimmed, on one line. No control, format (zero width, text-direction) or blank filler character."
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "At most 200 characters. Line breaks are allowed. No other control, format (zero width, text-direction) or blank filler character."
+              },
+              "scope": {
+                "enum": [
+                  "world",
+                  "client"
+                ],
+                "description": "Whose the value is on a friend visit. world (the default): the host's. client: each player's own."
+              },
+              "type": {
+                "const": "choice"
+              },
+              "default": {
+                "type": "string"
+              },
+              "choices": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 16,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "type",
+              "label",
+              "default",
+              "max_length"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,31}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60,
+                "description": "1 to 60 characters, trimmed, on one line. No control, format (zero width, text-direction) or blank filler character."
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "At most 200 characters. Line breaks are allowed. No other control, format (zero width, text-direction) or blank filler character."
+              },
+              "scope": {
+                "enum": [
+                  "world",
+                  "client"
+                ],
+                "description": "Whose the value is on a friend visit. world (the default): the host's. client: each player's own."
+              },
+              "type": {
+                "const": "text"
+              },
+              "default": {
+                "type": "string"
+              },
+              "max_length": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 200
+              }
+            }
+          }
+        ]
+      },
+      "examples": [
+        [
+          {
+            "name": "greet",
+            "type": "bool",
+            "label": "Say hello",
+            "default": true,
+            "scope": "client"
+          }
+        ]
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "description": "game, save: Top-level keys reserved for planned features. Each is refused, even when null, so no mod carries one a later game would start obeying.",
+      "not": {
+        "description": "\"game\", \"save\" are not built yet: take them out",
+        "anyOf": [
+          {
+            "required": [
+              "game"
+            ]
+          },
+          {
+            "required": [
+              "save"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "content.shops changes what visitors see, so scope must be \"world\".",
+      "if": {
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "required": [
+              "shops"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "scope": {
+            "const": "world"
+          }
+        }
+      }
+    },
+    {
+      "description": "scripts.events may list data_migrated only with a data_version.",
+      "if": {
+        "required": [
+          "scripts"
+        ],
+        "properties": {
+          "scripts": {
+            "required": [
+              "events"
+            ],
+            "properties": {
+              "events": {
+                "not": {
+                  "items": {
+                    "not": {
+                      "const": "data_migrated"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "data_version"
+        ]
+      }
+    },
+    {
+      "description": "permissions requires scripts: only a script can use a command.",
+      "if": {
+        "required": [
+          "permissions"
+        ]
+      },
+      "then": {
+        "required": [
+          "scripts"
+        ]
+      }
+    },
+    {
+      "description": "exports requires scripts: only a script offers functions.",
+      "if": {
+        "required": [
+          "exports"
+        ]
+      },
+      "then": {
+        "required": [
+          "scripts"
+        ]
+      }
+    }
+  ],
+  "definitions": {
+    "event": {
+      "description": "A script event.",
+      "enum": [
+        "villager_talked",
+        "day_started",
+        "item_picked_up",
+        "scene_entered",
+        "data_migrated",
+        "hour_changed",
+        "item_bought",
+        "item_sold",
+        "fish_caught",
+        "bug_caught",
+        "letter_read",
+        "villager_moved_in",
+        "visitor_arrived",
+        "command_finished",
+        "question_answered",
+        "timer_fired",
+        "villager_answered"
+      ]
+    }
+  }
+}

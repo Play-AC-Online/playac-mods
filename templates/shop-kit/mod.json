@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "api": 1,
+  "id": "yourname.my-shop",
+  "name": "My Shop",
+  "version": "1.0.0",
+  "authors": ["yourname"],
+  "description": "The flower shop with my own name, lines and goods from 9:00 to 21:00, and two goods of my own at Nook's.",
+  "scope": "world",
+  "content": {
+    "shops": "shops.json"
+  },
+  "assets_original": true
+}
