@@ -3,8 +3,6 @@
 Starter kits, the mod API and the `playac-mod` tool for
 [Play AC Online](https://playaconline.com). The docs at https://playaconline.com/modding/ are the full guide.
 
-**The docs site goes live with the game's next release. Until then the links to playaconline.com/modding/ do not work yet. Every download is here on GitHub and works now.**
-
 The guides, the starter kits, the mod contract and the AI skill are written
 here. The rest is generated from the game's sources on every release. It
 matches mod API level 1.
@@ -39,11 +37,11 @@ it, or fork it to start from it.
 Every download is a file of a release of a public repository on GitHub. The
 site links them and serves none of them.
 
-- Starter kits, one ZIP each, ready to install: [playac-lines-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-4944cce6b524/playac-lines-kit.zip), [playac-script-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-4944cce6b524/playac-script-kit.zip), [playac-shop-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-4944cce6b524/playac-shop-kit.zip), [playac-texture-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-4944cce6b524/playac-texture-kit.zip). They are
+- Starter kits, one ZIP each, ready to install: [playac-lines-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-284ba07b7c5f/playac-lines-kit.zip), [playac-script-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-284ba07b7c5f/playac-script-kit.zip), [playac-shop-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-284ba07b7c5f/playac-shop-kit.zip), [playac-texture-kit.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-284ba07b7c5f/playac-texture-kit.zip). They are
   the folders in [`templates/`](templates/), zipped.
-- The AI pack: [playac-mod-ai.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-4944cce6b524/playac-mod-ai.zip), for
+- The AI pack: [playac-mod-ai.zip](https://github.com/Play-AC-Online/playac-mods/releases/download/downloads-284ba07b7c5f/playac-mod-ai.zip), for
   [an AI assistant](setup/ai-assistant.md).
-- Both are in the release [downloads-4944cce6b524](https://github.com/Play-AC-Online/playac-mods/releases/tag/downloads-4944cce6b524).
+- Both are in the release [downloads-284ba07b7c5f](https://github.com/Play-AC-Online/playac-mods/releases/tag/downloads-284ba07b7c5f).
 - The `playac-mod` tool: release 1.0.0 is
   [playac-mod-1.0.0.tgz](https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v1.0.0/playac-mod-1.0.0.tgz), in the release
   [cli-v1.0.0](https://github.com/Play-AC-Online/playac-mods/releases/tag/cli-v1.0.0).
