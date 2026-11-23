@@ -1004,7 +1004,8 @@ and `c_right` (the C stick is the four `c_` buttons).
 -- mod.json: "events": ["button_pressed"], "permissions": ["show_line"]
 on("button_pressed", function(e)
   -- Z while L is held: a hotkey that the game itself does not use
-  if e.button == "z" and game.input().l then
+  local input = game.input() -- nil while the text editor is open
+  if e.button == "z" and input and input.l then
     cmd.show_line("Hotkey!")
   end
 end)
@@ -1012,7 +1013,7 @@ end)
 
 - `button_pressed` and `button_released` come once a frame, releases first,
   each in the order above. A button already held when play starts, or held
-  through a change of scene, is not a press.
+  through a change of scene or the text editor, is not a press.
 - `game.input()` answers `{ a, b, ..., c_right, stick_x, stick_y }`: each
   button `true` while held, and the main stick from -1 to 1 (`stick_x` right,
   `stick_y` up). The keyboard's movement keys tilt it fully.
@@ -1020,7 +1021,8 @@ end)
   it always does too, so pick a combination the player does not use for
   anything else, or a moment where the button does nothing.
 - Your script never sees which key was typed. Nothing reaches it while the
-  player types text, such as a chat message.
+  game's text editor is open, such as writing a letter or a name, by keyboard
+  or by controller. `game.input()` answers `nil` then.
 
 ### Timers
 
