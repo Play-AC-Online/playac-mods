@@ -127,7 +127,7 @@ A mod that changes the flower shop is a World mod:
   `question_answered`, `timer_fired` and `villager_answered`, each once.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, `set_shop_goods` and `set_shop_open`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
+  `take_bells`, `set_shop_goods`, `set_shop_open` and `set_hat`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -1052,6 +1052,7 @@ a cutscene or walking through a door. Each command needs its name in
 | `cmd.take_bells{ amount }` | Asks the player to pay Bells from their wallet. The game writes the question and takes only on yes. |
 | `cmd.set_shop_goods(shop, goods)` | Sets a shop's goods for the rest of the game day, as one more block after your shops.json blocks for it. `goods` is a list of `{ item, price? }`, or `{ goods = <list>, own_goods = false }`. `nil` clears. Needs scope world. |
 | `cmd.set_shop_open(shop, open)` | Opens (`true`) or shuts (`false`) a shop for the rest of the game day, as one more block after your shops.json blocks for it. `nil` clears. Needs scope world. |
+| `cmd.set_hat(picture)` | Puts a 32 x 32 PNG from your mod (at most 16 colours, no see-through pixels) on the player's hat. `nil` takes it off. Only the player's own screen draws it and nothing is saved: keep the pick in `store.player` and set it again from `scene_entered`. |
 
 Each call returns the command's number. When the command is refused it returns
 `nil`, a message and a code.

@@ -561,6 +561,23 @@ shop, and a field a shop does not have is left out by one rule.
   (or a restart). Refused (`nil, message, code`) when the shop is not in the
   table, does not have the field, or a mod later in load order has the shop.
 
+## The hat
+- Lua: `set_hat(picture)` puts a picture from the mod's own files on the hat of
+  the player playing now; `set_hat(nil)` takes it off. Permission `set_hat`; any
+  scope. Set at the call (no queue, no daily cap, no `command_finished`), from
+  the next frame. `picture` is a path inside the mod (the ZIP path rules) of a
+  PNG of exactly 32 x 32 pixels, every pixel opaque, at most 16 colours: an
+  Able Sisters design's size. Refused `command-args` for a path that breaks the
+  rules or no player loaded, `command-picture` for a file that is missing or not
+  such a PNG (more than 64 KB, another size, more colours, a see-through pixel).
+- The picture becomes the hat's 32x32 CI4 texture and 16 colour palette, the
+  same pair a design on the hat binds. A mod's hat beats a design, which beats
+  the shirt. Between mods the one later in load order wins.
+- The hat belongs to the resident who set it in that town, and only their own
+  screen draws it: no other player sees it, and nothing is saved. A script keeps
+  the pick in `store.player` and sets it again from `scene_entered`. It is gone
+  when the game restarts or the script reloads.
+
 ## Mod items
 New furniture a mod names, piloted on house furniture. In the save a mod item is
 its `base`, a real furniture id, so vanilla code, visitors without the mod, the

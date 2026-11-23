@@ -128,19 +128,19 @@ current one, in your home folder, with no `sudo`.
 ## 4. Install playac-mod
 
 ```bash
-npm install -g https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v1.0.1/playac-mod-1.0.1.tgz
+npm install -g https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v1.1.0/playac-mod-1.1.0.tgz
 ```
 
-This installs release 1.0.1 of the tool from its GitHub release in this repository. `npm` comes with Node.js.
+This installs release 1.1.0 of the tool from its GitHub release in this repository. `npm` comes with Node.js.
 
-The SHA-256 of that file is `daec750ce7c2321b5ba8dd3d200d92377d7028e32b0e4a0dec3124c27e46ad4b`. To check it yourself, download
+The SHA-256 of that file is `8137463789a6841a3703099fec8e6b577f793ca94b756a6ab4c3c4bd6ce95d53`. To check it yourself, download
 the file, compare, and install the file you checked:
 
 ```bash
-curl -fLO https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v1.0.1/playac-mod-1.0.1.tgz
-shasum -a 256 playac-mod-1.0.1.tgz                  # macOS, Linux
-certutil -hashfile playac-mod-1.0.1.tgz SHA256      # Windows
-npm install -g ./playac-mod-1.0.1.tgz
+curl -fLO https://github.com/Play-AC-Online/playac-mods/releases/download/cli-v1.1.0/playac-mod-1.1.0.tgz
+shasum -a 256 playac-mod-1.1.0.tgz                  # macOS, Linux
+certutil -hashfile playac-mod-1.1.0.tgz SHA256      # Windows
+npm install -g ./playac-mod-1.1.0.tgz
 ```
 
 **Install it only from that address.** A package named `playac-mod` on the npm
@@ -153,7 +153,7 @@ playac-mod --version
 ```
 
 It prints a line like
-`playac-mod 1.0.1, build 1a2b3c4d5e6f, API level 1`. That is the
+`playac-mod 1.1.0, build 1a2b3c4d5e6f, API level 1`. That is the
 tool's version, its build and the mod API level it checks.
 
 Each release's changes are at
