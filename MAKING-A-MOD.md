@@ -127,7 +127,7 @@ A mod that changes the flower shop is a World mod:
   `question_answered`, `timer_fired` and `villager_answered`, each once.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, `set_shop_goods` and `set_shop_open`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
+  `take_bells`, `save`, `set_shop_goods` and `set_shop_open`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -1050,6 +1050,7 @@ a cutscene or walking through a door. Each command needs its name in
 | `cmd.ask{ text, choices }` | Asks a question with 2 to 4 answers. The pick comes back as a `question_answered` event. |
 | `cmd.take_item{ item, count? }` | Asks the player to hand over items from their pockets. The game writes the question and takes only on yes. |
 | `cmd.take_bells{ amount }` | Asks the player to pay Bells from their wallet. The game writes the question and takes only on yes. |
+| `cmd.save()` | Saves the game, where the player could save at Gyroid: outdoors in their own town, in free control. See "Saving the game" below. |
 | `cmd.set_shop_goods(shop, goods)` | Sets a shop's goods for the rest of the game day, as one more block after your shops.json blocks for it. `goods` is a list of `{ item, price? }`, or `{ goods = <list>, own_goods = false }`. `nil` clears. Needs scope world. |
 | `cmd.set_shop_open(shop, open)` | Opens (`true`) or shuts (`false`) a shop for the rest of the game day, as one more block after your shops.json blocks for it. `nil` clears. Needs scope world. |
 
@@ -1060,7 +1061,8 @@ What happened later comes back as a `command_finished` event, to your mod
 only:
 
 - When it worked: `{ id, command, ok = true, via }`. `via` is `"mailbox"`,
-  `"post_office"`, `"pockets"`, `"mail"`, `"shown"` or `"taken"`.
+  `"post_office"`, `"pockets"`, `"mail"`, `"shown"`, `"taken"`, `"saved"` or
+  `"unchanged"`.
 - When it did not: `{ id, command, ok = false, code, message }`.
 
 A `question_answered` event is `{ id, choice, text }`, with `choice` counted
@@ -1083,6 +1085,12 @@ The code says whether to try again:
 | `command-not-shown` | never | the line or question cannot be drawn |
 | `command-not-held` | later | a take the player cannot meet: too few of the item in plain pocket slots, or too few Bells in the wallet |
 | `command-declined` | later | the player said no to a take's question, or closed it. Nothing was taken |
+| `command-not-ready` | later | a save before the player's save has loaded, or while the page is replacing it |
+| `command-indoors` | later | a save anywhere but the town outdoors |
+| `command-busy` | later | a save while the player is not in free control |
+| `command-dream` | later | a save in a dream town |
+| `command-too-soon` | later | a save within 10 seconds of any mod's last save |
+| `command-save-failed` | later | the save file could not be written; the town in play is unchanged |
 
 Mark a reward as given only when the game says it arrived:
 
@@ -1124,8 +1132,9 @@ end)
   - The caps are per town, for every resident together. They are a safety
     limit, not a game rule.
 - In The City every command is refused.
-- On a visit to a friend, a letter, an item or a take is refused, because only
-  the town's owner changes a town or a save. Lines and questions still work.
+- On a visit to a friend, a letter, an item, a take or a save is refused,
+  because only the town's owner changes a town or a save. Lines and questions
+  still work.
 - The script of `example.harvest-post` is a whole working example that sends
   each resident a letter with a fruit once a game day. A letter that found no
   room is tried again by a timer. On its fair day it asks a question
@@ -1162,6 +1171,42 @@ agrees each time.
 - Both are refused on a visit and in The City. A mod lent for a visit can
   never take anything.
 - Every take that happened is written to the Mod log.
+
+#### Saving the game
+
+`cmd.save()` saves the player's town, as the Autosave setting does, from any
+event. It takes no arguments.
+
+```lua
+-- permissions: ["save", "show_line"]; events: scene_entered, command_finished
+on("scene_entered", function(e)
+  if e.name == "town" then cmd.save() end   -- each time the player steps outside
+end)
+on("command_finished", function(e)
+  if e.command == "save" and e.ok and e.via == "saved" then cmd.show_line("Saved!") end
+end)
+```
+
+- The game saves only where the player could save at Gyroid: outdoors in
+  their own town, walking or standing, with no menu, talk, cutscene or door.
+  The save waits until the player is free, like every command.
+- It never changes the town being played: the game writes a settled copy of
+  the town, so a save cannot lose or double an item, however often it runs.
+- `via = "saved"` when the game wrote the town, `via = "unchanged"` when
+  nothing changed since the last save (nothing is written).
+- Inside a house it is refused with `command-indoors`: the furniture still
+  holds what is kept in its drawers, so that house would be saved with its
+  storage empty. `command-busy`: not in free control. `command-dream`: a dream
+  town. `command-not-ready`: no save loaded yet. `command-save-failed`: the
+  write failed.
+- Two saves by mods, all mods together, are at least 10 seconds apart, and one
+  of your saves waits at a time; sooner is `command-too-soon` at the call.
+- Each game day, per mod and per town, the game writes 32 saves. Only a save
+  that wrote the town counts. Every save also uploads the town to the cloud,
+  so do not save on a timer of your own: the Autosave setting does that.
+- Refused on a visit and in The City.
+- A villager's mood and clothes reach the save at the next change of scene, as
+  with the Autosave. The player still saves and quits at Gyroid.
 
 ### What a script cannot do
 
