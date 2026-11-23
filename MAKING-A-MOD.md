@@ -124,7 +124,8 @@ A mod that changes the flower shop is a World mod:
   `item_picked_up`, `scene_entered`, `data_migrated`, `hour_changed`,
   `item_bought`, `item_sold`, `fish_caught`, `bug_caught`, `letter_read`,
   `villager_moved_in`, `visitor_arrived`, `command_finished`,
-  `question_answered`, `timer_fired` and `villager_answered`, each once.
+  `question_answered`, `timer_fired`, `villager_answered`, `button_pressed`
+  and `button_released`, each once.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
   `take_bells`, `set_shop_goods` and `set_shop_open`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
@@ -820,6 +821,8 @@ strings. A `cmd.*` call takes a number, `"0x2800"` or your mod's own
 | `command_finished` | `{ id, command, ok, via, code, message }` (see Commands) | nothing |
 | `question_answered` | `{ id, choice, text }` (see Commands) | nothing |
 | `timer_fired` | `{ id, name, data }`, when a timer you set is due (see Timers) | nothing |
+| `button_pressed` | `{ button }`, when the player presses a button (see The player's buttons) | nothing |
+| `button_released` | `{ button }`, when the player lets go of one | nothing |
 
 No event runs in the title screen demo.
 
@@ -975,6 +978,7 @@ end)
 | `game.villagers()` | `{ { id, name, species, personality }, ... }` |
 | `game.player()` | `{ name, id }`: `id` stays the same for that resident in that town |
 | `game.calendar_today()` | the ids of your own calendar file's days on the town's date today, `{}` when none |
+| `game.input()` | the buttons held now and the main stick (see The player's buttons) |
 | `rng()`, `rng(n)`, `rng(m, n)` | random numbers: a fraction from 0 up to 1, a whole number 1 to `n`, or `m` to `n` |
 
 `game.bells()`, `game.town()` and `game.player()` answer `nil` when no town is
@@ -986,6 +990,37 @@ on from where it was, so it cannot reroll. A new game day starts new numbers.
 
 `math.random` and `math.randomseed` are not available. Calling one stops the
 script with an error that says to use `rng()`.
+
+### The player's buttons
+
+Your script can read the controls the player plays with. A keyboard key, a
+controller button and the on-screen touch pad all reach the game as the same
+controller, with the player's own key settings applied, so one handler covers
+all three. The buttons are `a`, `b`, `x`, `y`, `z`, `l`, `r`, `start`,
+`dpad_up`, `dpad_down`, `dpad_left`, `dpad_right`, `c_up`, `c_down`, `c_left`
+and `c_right` (the C stick is the four `c_` buttons).
+
+```lua
+-- mod.json: "events": ["button_pressed"], "permissions": ["show_line"]
+on("button_pressed", function(e)
+  -- Z while L is held: a hotkey that the game itself does not use
+  if e.button == "z" and game.input().l then
+    cmd.show_line("Hotkey!")
+  end
+end)
+```
+
+- `button_pressed` and `button_released` come once a frame, releases first,
+  each in the order above. A button already held when play starts, or held
+  through a change of scene, is not a press.
+- `game.input()` answers `{ a, b, ..., c_right, stick_x, stick_y }`: each
+  button `true` while held, and the main stick from -1 to 1 (`stick_x` right,
+  `stick_y` up). The keyboard's movement keys tilt it fully.
+- The game still gets every press. A button your handler listens to does what
+  it always does too, so pick a combination the player does not use for
+  anything else, or a moment where the button does nothing.
+- Your script never sees which key was typed. Nothing reaches it while the
+  player types text, such as a chat message.
 
 ### Timers
 
