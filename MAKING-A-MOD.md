@@ -979,10 +979,22 @@ end)
 | `game.player()` | `{ name, id }`: `id` stays the same for that resident in that town |
 | `game.calendar_today()` | the ids of your own calendar file's days on the town's date today, `{}` when none |
 | `game.input()` | the buttons held now and the main stick (see The player's buttons) |
+| `game.weather()` | `{ kind, intensity }`: `kind` is `clear`, `rain` or `snow`, `intensity` is `light`, `normal` or `heavy` (`none` when clear) |
+| `game.place()` | `{ scene, name, island, acre, acre_x, acre_z, unit_x, unit_z }`: where the player is, the acre fields only outdoors |
 | `rng()`, `rng(n)`, `rng(m, n)` | random numbers: a fraction from 0 up to 1, a whole number 1 to `n`, or `m` to `n` |
 
-`game.bells()`, `game.town()` and `game.player()` answer `nil` when no town is
-loaded.
+`game.bells()`, `game.town()`, `game.player()`, `game.weather()` and
+`game.place()` answer `nil` when no town is loaded.
+
+`game.weather()` uses the words shops and talk pools use: cherry blossom petals
+and falling leaves count as `clear`. Indoors it is the weather outside, and on
+the island it is the island's. `game.place()` names the acre as the town map
+does, `"A-1"` to `"F-5"`, or `"island-1"` and `"island-2"`. `acre_x` is the
+column, `acre_z` the row (1 for A), and `unit_x`, `unit_z` the square inside
+the acre, 0 to 15 from the north-west corner. A place is never finer than one
+square and only ever the player's own, so a mod cannot track anyone's exact
+position. On a visit both describe the town being visited. Neither needs a
+permission.
 
 `rng()` counts how many numbers your mod has drawn in this town on this game
 day. Each call gives the next one, so calls in a day differ. A reload carries
