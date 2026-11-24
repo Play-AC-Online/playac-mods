@@ -209,7 +209,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   the engine's contract test judges those codes by `pc_mod_refused`, not by text).
 - `permissions`: optional; if present a non-empty array, no duplicates,
   each one of `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, `save`, `set_shop_goods`, `set_shop_open`, and the manifest must have `scripts`. Matched case-sensitively (`Permissions` is an
+  `take_bells`, `save`, `play_sound`, `set_shop_goods`, `set_shop_open`, and the manifest must have `scripts`. Matched case-sensitively (`Permissions` is an
   unknown key, refused). The engine's mod loader does
   not check the shape (mods.js keeps a mod with a bad list out of index.json); the
   engine's script host grants only the known names and refuses every command a
@@ -835,10 +835,10 @@ an entry is a "day". The game's own festivals are "the game's festivals".
     one), and
   - `permissions` (the Phase 2 command list) is absent, or an array whose every
     entry is one of `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-    `take_bells`, `save` (a letter or item is vanilla save state,
+    `take_bells`, `save`, `play_sound` (a letter or item is vanilla save state,
     a line or a question is read only by its player and the answer goes back to
     the mod; a take and a save are refused on a visit and in The City, so a
-    visitor never meets one). api.json `visit_scope` lists the same seven; the drift test holds
+    visitor never meets one; a sound is heard only by its own player). api.json `visit_scope` lists the same eight; the drift test holds
     mods.js `VANILLA_OUTPUT_COMMANDS` and Go `VanillaOutputCommands` to it.
   - So a world mod with ONLY `messages`, `letters`, `calendar` or `talk` content
     and such commands does not count, and one with `textures`, `shops` or
@@ -956,6 +956,21 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   unchanged or failed one does). A save is not in the client-setting rule: it
   decides nothing about what the town gets. Each save that wrote is a Mod log
   line.
+- Sounds: `cmd.play_sound(name)` plays one of the game's own sound effects by
+  its name in `sounds.json` (the engine's one sound table; a name
+  never changes, a number is never accepted). Every listed sound is a one-shot
+  the game starts with its own system sound call and that ends on its own: never
+  a looping (level) sound, never one a scene's state machine starts and stops.
+  Only the game that runs the mod plays it (the system sound call is not one of
+  the sounds sent to peers), so it is allowed on a visit and heard only by the
+  visitor; it is refused in The City. It changes nothing, so it does not wait
+  for free control: every sound waiting when a frame's boundary begins plays at
+  that boundary, in a talk or a menu, and never waits behind a line. Caps: 2 per
+  event (inside the 4 commands), 10 per mod in any 60 seconds of the real clock
+  (the waiting ones counted; `command-sound-cap`), no daily cap and nothing in
+  the day file. While an NES game holds the sound engine it is refused with
+  `command-no-sound`, uncounted. A wrong name or argument is `command-args`.
+  Result: `via = "played"`.
 - Timers: `timer.after(minutes, name, data?)` returns an id or
   `nil, message, code` (api.json `timer_codes`: timer-args, timer-limit,
   timer-no-town, timer-no-clock, timer-store-full); `timer.cancel(id)` answers true or false;

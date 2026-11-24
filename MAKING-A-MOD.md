@@ -128,7 +128,7 @@ A mod that changes the flower shop is a World mod:
   and `button_released`, each once.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, `save`, `set_shop_goods` and `set_shop_open`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
+  `take_bells`, `save`, `play_sound`, `set_shop_goods` and `set_shop_open`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -1100,6 +1100,7 @@ a cutscene or walking through a door. Each command needs its name in
 | `cmd.take_item{ item, count? }` | Asks the player to hand over items from their pockets. The game writes the question and takes only on yes. |
 | `cmd.take_bells{ amount }` | Asks the player to pay Bells from their wallet. The game writes the question and takes only on yes. |
 | `cmd.save()` | Saves the game, where the player could save at Gyroid: outdoors in their own town, in free control. See "Saving the game" below. |
+| `cmd.play_sound(name)` | Plays one of the game's own sound effects, by its name in `sounds.json`, heard only by this player. See "Sounds" below. |
 | `cmd.set_shop_goods(shop, goods)` | Sets a shop's goods for the rest of the game day, as one more block after your shops.json blocks for it. `goods` is a list of `{ item, price? }`, or `{ goods = <list>, own_goods = false }`. `nil` clears. Needs scope world. |
 | `cmd.set_shop_open(shop, open)` | Opens (`true`) or shuts (`false`) a shop for the rest of the game day, as one more block after your shops.json blocks for it. `nil` clears. Needs scope world. |
 
@@ -1110,8 +1111,8 @@ What happened later comes back as a `command_finished` event, to your mod
 only:
 
 - When it worked: `{ id, command, ok = true, via }`. `via` is `"mailbox"`,
-  `"post_office"`, `"pockets"`, `"mail"`, `"shown"`, `"taken"`, `"saved"` or
-  `"unchanged"`.
+  `"post_office"`, `"pockets"`, `"mail"`, `"shown"`, `"taken"`, `"saved"`,
+  `"unchanged"` or `"played"`.
 - When it did not: `{ id, command, ok = false, code, message }`.
 
 A `question_answered` event is `{ id, choice, text }`, with `choice` counted
@@ -1140,6 +1141,8 @@ The code says whether to try again:
 | `command-dream` | later | a save in a dream town |
 | `command-too-soon` | later | a save within 10 seconds of any mod's last save |
 | `command-save-failed` | later | the save file could not be written; the town in play is unchanged |
+| `command-sound-cap` | later | more than 10 sounds from this mod in a minute |
+| `command-no-sound` | later | a sound while an NES game holds the game's sound |
 
 Mark a reward as given only when the game says it arrived:
 
@@ -1182,8 +1185,8 @@ end)
     limit, not a game rule.
 - In The City every command is refused.
 - On a visit to a friend, a letter, an item, a take or a save is refused,
-  because only the town's owner changes a town or a save. Lines and questions
-  still work.
+  because only the town's owner changes a town or a save. Lines, questions and
+  sounds still work.
 - The script of `example.harvest-post` is a whole working example that sends
   each resident a letter with a fruit once a game day. A letter that found no
   room is tried again by a timer. On its fair day it asks a question
@@ -1256,6 +1259,28 @@ end)
 - Refused on a visit and in The City.
 - A villager's mood and clothes reach the save at the next change of scene, as
   with the Autosave. The player still saves and quits at Gyroid.
+
+### Sounds
+
+`cmd.play_sound(name)` plays one of the game's own sound effects: the jingle
+of getting an item, the menu cursor's tick, a page turning. Name it from
+`sounds.json` (https://playaconline.com/schemas/sounds.json), never by number.
+
+```lua
+-- mod.json: "permissions": ["play_sound"]
+on("fish_caught", function(e)
+  local id, why, code = cmd.play_sound("item_get")
+  if not id then log("no sound:", why, code) end
+end)
+```
+
+- Every sound in the list plays once and stops on its own. None loops.
+- Only this player hears it, on a visit too. In The City it is refused.
+- It does not wait for the player to be free: it plays at the end of the next
+  frame's update, in a talk or a menu too.
+- At most 2 sounds in one event and 10 a minute for each mod
+  (`command-sound-cap`). There is no daily limit.
+- `command_finished` says `via = "played"`.
 
 ### What a script cannot do
 
