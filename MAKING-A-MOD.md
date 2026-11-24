@@ -128,7 +128,7 @@ A mod that changes the flower shop is a World mod:
   each once.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, `set_shop_goods`, `set_shop_open`, `set_hat` and `react`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
+  `take_bells`, `set_shop_goods`, `set_shop_open`, `set_hat`, `set_shirt` and `react`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -1081,9 +1081,10 @@ a cutscene or walking through a door. Each command needs its name in
 | `cmd.set_shop_goods(shop, goods)` | Sets a shop's goods for the rest of the game day, as one more block after your shops.json blocks for it. `goods` is a list of `{ item, price? }`, or `{ goods = <list>, own_goods = false }`. `nil` clears. Needs scope world. |
 | `cmd.set_shop_open(shop, open)` | Opens (`true`) or shuts (`false`) a shop for the rest of the game day, as one more block after your shops.json blocks for it. `nil` clears. Needs scope world. |
 | `cmd.set_hat(picture)` | Puts a 32 x 32 PNG from your mod (at most 16 colours, no see-through pixels) on the player's hat. `nil` takes it off. Only the player's own screen draws it and nothing is saved: keep the pick in `store.player` and set it again from `scene_entered`. |
+| `cmd.set_shirt(picture)` | Puts a 32 x 32 PNG from your mod on the player's shirt, by the same rules as `cmd.set_hat`. `nil` takes it off. It beats the clothes the player wears, and the hat matches it unless the hat has a picture of its own. |
 | `cmd.react(name)` | Plays a reaction from the reactions bar on your own character: `hooray`, `dance`, `hug`, `thanks`, `ouch`, `trip`, `spin`, `hide` or `pose`. Set at the call, returns `true`. Only while you are free and standing, walking or running (`command-busy`, `command-cannot-react`), and at most 10 a minute (`command-minute-cap`). Works on a visit and in The City. |
 
-Each call returns the command's number (the shop commands, `cmd.set_hat` and `cmd.react`
+Each call returns the command's number (the shop commands, `cmd.set_hat`, `cmd.set_shirt` and `cmd.react`
 return `true`). When the command is refused it returns
 `nil`, a message and a code.
 

@@ -596,6 +596,19 @@ shop, and a field a shop does not have is left out by one rule.
   the pick in `store.player` and sets it again from `scene_entered`. It is gone
   when the game restarts or the script reloads.
 
+## The shirt
+- Lua: `set_shirt(picture)` puts a picture from the mod's own files on the
+  shirt of the player playing now; `set_shirt(nil)` takes it off. Permission
+  `set_shirt`; any scope. Every rule of `set_hat` holds: set at the call, the
+  same picture rules and refusals (`command-args`, `command-picture`), later in
+  load order wins, this resident in this town only, nothing saved.
+- The picture becomes the shirt's 32x32 CI4 texture and 16 colour palette, the
+  pair a design worn as clothing binds, so it wraps the body and sleeves the way
+  a design does. It beats the clothes the player wears: a change of clothes
+  changes what is underneath, and the save keeps the real clothes.
+- The hat matches the shirt the player draws: with no design and no mod hat on
+  it, the hat wears the shirt picture too.
+
 ## Mod items
 New furniture a mod names, piloted on house furniture. In the save a mod item is
 its `base`, a real furniture id, so vanilla code, visitors without the mod, the
@@ -939,9 +952,9 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   there for the player who has them, with two limits: every mod command is refused
   (below), and mod items are neither named nor recorded (the flower shop is off and
   the engine holds the City lock, see "Mod items"). Docs must say exactly this.
-- Mod commands (cmd.*) but `set_hat` and `react` are refused in The City
-  (`nil, message, "command-city"`). Those two change only the player's own
-  character and run there and on a visit. Visiting a friend's town, the commands that change a
+- Mod commands (cmd.*) but `set_hat`, `set_shirt` and `react` are refused in
+  The City (`nil, message, "command-city"`). Those three change only the
+  player's own character and run there and on a visit. Visiting a friend's town, the commands that change a
   town or a save (`send_letter`, `give_item`, `take_item`, `take_bells`) are refused (`command-visiting`); only the town owner's game runs them.
 - Taking: `cmd.take_item{ item, count? }` and `cmd.take_bells{ amount }`
   never take on the script's word. The ENGINE writes the question
