@@ -200,7 +200,8 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   `villager_talked`, `day_started`, `item_picked_up`, `scene_entered`,
   `data_migrated`, `hour_changed`, `item_bought`, `item_sold`, `fish_caught`,
   `bug_caught`, `letter_read`, `villager_moved_in`, `visitor_arrived`,
-  `command_finished`, `question_answered`, `timer_fired`, `villager_answered`: every event api.json lists;
+  `command_finished`, `question_answered`, `timer_fired`, `villager_answered`,
+  `button_pressed`, `button_released`: every event api.json lists;
   `data_migrated` needs a `data_version`). Unknown keys inside `scripts` refused.
   In all three layers an unknown `scripts.*` or `content.*` key refuses the
   WHOLE mod (the engine only said so, loaded the content and ran the
