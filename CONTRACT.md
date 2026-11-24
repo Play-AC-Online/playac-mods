@@ -200,7 +200,8 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   `villager_talked`, `day_started`, `item_picked_up`, `scene_entered`,
   `data_migrated`, `hour_changed`, `item_bought`, `item_sold`, `fish_caught`,
   `bug_caught`, `letter_read`, `villager_moved_in`, `visitor_arrived`,
-  `command_finished`, `question_answered`, `timer_fired`, `villager_answered`: every event api.json lists;
+  `command_finished`, `question_answered`, `timer_fired`, `villager_answered`,
+  `player_acted`: every event api.json lists;
   `data_migrated` needs a `data_version`). Unknown keys inside `scripts` refused.
   In all three layers an unknown `scripts.*` or `content.*` key refuses the
   WHOLE mod (the engine only said so, loaded the content and ran the
@@ -560,6 +561,23 @@ shop, and a field a shop does not have is left out by one rule.
   mod's JSON blocks for that shop, from the next frame until the game day changes
   (or a restart). Refused (`nil, message, code`) when the shop is not in the
   table, does not have the field, or a mod later in load order has the shop.
+- Lua: `react(name)`, permission `react`, any scope: one of the reactions bar's
+  nine (`hooray`, `dance`, `hug`, `thanks`, `ouch`, `trip`, `spin`, `hide`,
+  `pose`) on the player's own character, through the bar's own request (no
+  write to the actor). Set at the call: `true`, or `nil, message, code`:
+  `command-args` (not one of the nine), `command-minute-cap`
+  (`commands.reacts_per_minute` per mod per game-clock minute; refused calls do
+  not count), `command-busy` (the player is not free: the same gate as the
+  queue, which also holds during an action just started and a reaction
+  playing), `command-cannot-react` (the game refused: only from standing,
+  walking or running). Allowed on a visit and in The City; in visit_scope.
+- Player: `game.player` adds `x, y, z` (world units), `angle` (degrees, 0
+  south, 90 east), `acre { x, z }` (town only), `scene` (scenes.json name),
+  `tool` (axe, net, rod, shovel, umbrella or nil) and `state` (standing,
+  walking, running, sitting, lying, wading, busy), each nil while the scene
+  is being built. `player_acted { action, item?, reaction? }` fires from the one
+  line the player actor's action changes, the local player only, for an
+  allowlist of actions (api.json lists them); never walk, run or wait.
 
 ## The hat
 - Lua: `set_hat(picture)` puts a picture from the mod's own files on the hat of
@@ -921,8 +939,9 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   there for the player who has them, with two limits: every mod command is refused
   (below), and mod items are neither named nor recorded (the flower shop is off and
   the engine holds the City lock, see "Mod items"). Docs must say exactly this.
-- Mod commands (cmd.*) are all refused in The City (`nil, message,
-  "command-city"`). Visiting a friend's town, the commands that change a
+- Mod commands (cmd.*) but `set_hat` and `react` are refused in The City
+  (`nil, message, "command-city"`). Those two change only the player's own
+  character and run there and on a visit. Visiting a friend's town, the commands that change a
   town or a save (`send_letter`, `give_item`, `take_item`, `take_bells`) are refused (`command-visiting`); only the town owner's game runs them.
 - Taking: `cmd.take_item{ item, count? }` and `cmd.take_bells{ amount }`
   never take on the script's word. The ENGINE writes the question

@@ -124,10 +124,11 @@ A mod that changes the flower shop is a World mod:
   `item_picked_up`, `scene_entered`, `data_migrated`, `hour_changed`,
   `item_bought`, `item_sold`, `fish_caught`, `bug_caught`, `letter_read`,
   `villager_moved_in`, `visitor_arrived`, `command_finished`,
-  `question_answered`, `timer_fired` and `villager_answered`, each once.
+  `question_answered`, `timer_fired`, `villager_answered` and `player_acted`,
+  each once.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, `set_shop_goods`, `set_shop_open` and `set_hat`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
+  `take_bells`, `set_shop_goods`, `set_shop_open`, `set_hat` and `react`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -820,6 +821,7 @@ strings. A `cmd.*` call takes a number, `"0x2800"` or your mod's own
 | `command_finished` | `{ id, command, ok, via, code, message }` (see Commands) | nothing |
 | `question_answered` | `{ id, choice, text }` (see Commands) | nothing |
 | `timer_fired` | `{ id, name, data }`, when a timer you set is due (see Timers) | nothing |
+| `player_acted` | `{ action, item, reaction }`, when you start an action such as shaking a tree (see The player) | nothing |
 
 No event runs in the title screen demo.
 
@@ -973,12 +975,38 @@ end)
 | `game.bells()` | the wallet |
 | `game.town()` | `{ name, id, year, month, day, hour, minute, weekday, season }` |
 | `game.villagers()` | `{ { id, name, species, personality }, ... }` |
-| `game.player()` | `{ name, id }`: `id` stays the same for that resident in that town |
+| `game.player()` | `{ name, id, x, y, z, angle, acre, scene, tool, state }`: `id` stays the same for that resident in that town; the rest is where you stand and what you do (see The player) |
 | `game.calendar_today()` | the ids of your own calendar file's days on the town's date today, `{}` when none |
 | `rng()`, `rng(n)`, `rng(m, n)` | random numbers: a fraction from 0 up to 1, a whole number 1 to `n`, or `m` to `n` |
 
 `game.bells()`, `game.town()` and `game.player()` answer `nil` when no town is
 loaded.
+
+### The player
+
+`game.player()` reads you as you are now:
+
+- `x`, `y`, `z`: where you stand. A ground tile is 40 across, an acre 640. `x`
+  grows to the east, `z` to the south.
+- `angle`: 0 to 359 degrees, 0 facing south (toward the camera), 90 east.
+- `acre`: `{ x, z }` in the town, column 1 to 5 west to east, row 1 (A, the
+  station's row) to 6 (F, the beach). `nil` in any scene but the town.
+- `scene`: the scene's name, like `"town"`.
+- `tool`: `"axe"`, `"net"`, `"rod"`, `"shovel"`, `"umbrella"` or `nil`.
+- `state`: `"standing"`, `"walking"`, `"running"`, `"sitting"`, `"lying"`,
+  `"wading"` (walking into the next acre while the screen scrolls) or `"busy"`.
+  Treat a word you do not know as `"busy"`.
+
+Everything after `id` is `nil` while the scene is being built.
+
+`player_acted` fires when you START one of these: `axe_swung`, `axe_hit_rock`,
+`axe_broke`, `net_swung`, `rod_cast`, `shovel_dug`, `hole_filled`,
+`tree_shaken`, `sat_down`, `stood_up`, `lay_down`, `stung`, `fell_in_pitfall`,
+`tripped`, `shocked`, `door_entered`, `reacted`. Walking and running are never
+events. `item` is the tool's item number for a tool action; `reaction` names
+the reaction for `reacted`. Only your own game sends it, on a visit and in The
+City too. The player is busy with that action then, so a `cmd.react` in the
+handler is refused with `command-busy`: react later, from a timer.
 
 `rng()` counts how many numbers your mod has drawn in this town on this game
 day. Each call gives the next one, so calls in a day differ. A reload carries
@@ -1053,8 +1081,10 @@ a cutscene or walking through a door. Each command needs its name in
 | `cmd.set_shop_goods(shop, goods)` | Sets a shop's goods for the rest of the game day, as one more block after your shops.json blocks for it. `goods` is a list of `{ item, price? }`, or `{ goods = <list>, own_goods = false }`. `nil` clears. Needs scope world. |
 | `cmd.set_shop_open(shop, open)` | Opens (`true`) or shuts (`false`) a shop for the rest of the game day, as one more block after your shops.json blocks for it. `nil` clears. Needs scope world. |
 | `cmd.set_hat(picture)` | Puts a 32 x 32 PNG from your mod (at most 16 colours, no see-through pixels) on the player's hat. `nil` takes it off. Only the player's own screen draws it and nothing is saved: keep the pick in `store.player` and set it again from `scene_entered`. |
+| `cmd.react(name)` | Plays a reaction from the reactions bar on your own character: `hooray`, `dance`, `hug`, `thanks`, `ouch`, `trip`, `spin`, `hide` or `pose`. Set at the call, returns `true`. Only while you are free and standing, walking or running (`command-busy`, `command-cannot-react`), and at most 10 a minute (`command-minute-cap`). Works on a visit and in The City. |
 
-Each call returns the command's number. When the command is refused it returns
+Each call returns the command's number (the shop commands, `cmd.set_hat` and `cmd.react`
+return `true`). When the command is refused it returns
 `nil`, a message and a code.
 
 What happened later comes back as a `command_finished` event, to your mod
