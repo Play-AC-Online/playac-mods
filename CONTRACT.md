@@ -208,7 +208,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   the engine's contract test judges those codes by `pc_mod_refused`, not by text).
 - `permissions`: optional; if present a non-empty array, no duplicates,
   each one of `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, and the manifest must have `scripts`. Matched case-sensitively (`Permissions` is an
+  `take_bells`, `set_weather`, `set_shop_goods`, `set_shop_open`, and the manifest must have `scripts`. Matched case-sensitively (`Permissions` is an
   unknown key, refused). The engine's mod loader does
   not check the shape (mods.js keeps a mod with a bad list out of index.json); the
   engine's script host grants only the known names and refuses every command a
@@ -366,7 +366,7 @@ A setting is `world` (the default) or `client`.
   may not decide what the town gets. ENFORCED per script run: `settings.get` of
   a client setting marks the run, and in a marked run a command that changes the
   town or what the player has (`send_letter`, `give_item`, `take_item`,
-  `take_bells`: api.json rule `settings_scope`, the engine's `changes_town`) is
+  `take_bells`, `set_weather`: api.json rule `settings_scope`, the engine's `changes_town`) is
   refused at once with `command-client-setting`. `show_line` and `ask` are not.
   `timer.after` is not either: a timer that shows its player a line later is a
   proper use of a client setting, and refusing it would take that away. A run is
@@ -556,7 +556,7 @@ shop, and a field a shop does not have is left out by one rule.
   "author.mod:thing">, price = <int?> }`, 1 to the shop's goods limit, or
   `{ goods = <list>, own_goods = false }`, or nil to clear) and
   `set_shop_open(shop, on)` (true, false, or nil to clear). Permissions
-  `set_shop_goods`, `set_shop_open`; scope world. Each adds one block after the
+  `set_shop_goods`, `set_shop_open`; scope world (as `set_weather`). Each adds one block after the
   mod's JSON blocks for that shop, from the next frame until the game day changes
   (or a restart). Refused (`nil, message, code`) when the shop is not in the
   table, does not have the field, or a mod later in load order has the shop.
@@ -834,10 +834,12 @@ an entry is a "day". The game's own festivals are "the game's festivals".
     one), and
   - `permissions` (the Phase 2 command list) is absent, or an array whose every
     entry is one of `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-    `take_bells` (a letter or item is vanilla save state,
+    `take_bells`, `set_weather` (a letter or item is vanilla save state,
     a line or a question is read only by its player and the answer goes back to
     the mod; a take is refused on a visit and in The City, so a visitor never
-    meets one). api.json `visit_scope` lists the same six; the drift test holds
+    meets one; the weather is the game's own, which a visitor's game takes from
+    the host's with or without the mod). api.json `visit_scope` lists the same
+    seven; the drift test holds
     mods.js `VANILLA_OUTPUT_COMMANDS` and Go `VanillaOutputCommands` to it.
   - So a world mod with ONLY `messages`, `letters`, `calendar` or `talk` content
     and such commands does not count, and one with `textures`, `shops` or
@@ -906,7 +908,7 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   the engine holds the City lock, see "Mod items"). Docs must say exactly this.
 - Mod commands (cmd.*) are all refused in The City (`nil, message,
   "command-city"`). Visiting a friend's town, the commands that change a
-  town or a save (`send_letter`, `give_item`, `take_item`, `take_bells`) are refused (`command-visiting`); only the town owner's game runs them.
+  town or a save (`send_letter`, `give_item`, `take_item`, `take_bells`, `set_weather`) are refused (`command-visiting`); only the town owner's game runs them.
 - Taking: `cmd.take_item{ item, count? }` and `cmd.take_bells{ amount }`
   never take on the script's word. The ENGINE writes the question
   (`pc_mod_fx_take_text`: `Give <count> x <the item's own name> to the mod "<the
@@ -932,6 +934,30 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   on a visit and in The City; a lent mod acts only on a visit, so it never takes.
   A take sends no `question_answered`; its one result is `command_finished` with
   `via = "taken"` or a code. Each take that happened is a line in the Mod log.
+- Weather: `cmd.set_weather(kind, intensity?)`, kind `clear`, `rain` or `snow`,
+  intensity `light` (nil) or `heavy` for rain and snow, nil or `none` for clear;
+  anything else is `command-args` at the call. A queued command, applied at the
+  frame boundary the way the game's own hourly roll changes the weather: the
+  save's weather byte (type << 4 | intensity, which the next weather actor is born
+  from and a reload the same day keeps), the WEATHER renewal flag turned off so a
+  roll not yet run today cannot undo it, then the weather actor's own change
+  request (the last drops fall, then the new weather fades in and sets the shared
+  weather the sky, the light, villagers, fish, bugs and the music read). Nothing
+  else: no rainbow or gyroid on the spot (the next day's roll sees the mod's rain
+  as yesterday's, as after any rainy day). While a change of weather is under way
+  the command waits. Allowed only for weather the game's own date table could
+  roll that day: clear always; rain when the day's term gives rain or a
+  thunderstorm any chance (February 25 to November 15, but not April 1 to 8,
+  April 20 or October 31); snow when it gives snow or a blizzard any chance
+  (November 1 to February 24, but not December 31 or January 1 to 7). On a day
+  whose event fixes the weather, only that kind; on the first job's day, no rain.
+  Those refusals are `command-weather`, at the call and again when applied.
+  Results: `via = "set"`, or `via = "unchanged"` when the town already has that
+  weather. Per mod per game day per town: 4, counted only when the weather
+  changed. Needs scope world (api.json `world_scope`). Refused on a visit and in
+  The City; a visitor already in the town sees the host's change through the
+  game's weather relay, which asks the visitor's weather actor too. Each change
+  is a Mod log line.
 - Timers: `timer.after(minutes, name, data?)` returns an id or
   `nil, message, code` (api.json `timer_codes`: timer-args, timer-limit,
   timer-no-town, timer-no-clock, timer-store-full); `timer.cancel(id)` answers true or false;
