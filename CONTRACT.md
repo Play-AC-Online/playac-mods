@@ -933,7 +933,7 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   A take sends no `question_answered`; its one result is `command_finished` with
   `via = "taken"` or a code. Each take that happened is a line in the Mod log.
 - Sounds: `cmd.play_sound(name)` plays one of the game's own sound effects by
-  its name in `sounds.json` (the engine's one table, `pc_mod_sounds.h`; a name
+  its name in `sounds.json` (the engine's one sound table; a name
   never changes, a number is never accepted). Every listed sound is a one-shot
   the game starts with its own system sound call and that ends on its own: never
   a looping (level) sound, never one a scene's state machine starts and stops.
