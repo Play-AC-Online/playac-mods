@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "api": 1,
+  "api": 2,
   "id": "yourname.my-lines",
   "name": "My Lines",
   "version": "1.0.0",

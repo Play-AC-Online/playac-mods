@@ -75,7 +75,7 @@ A mod that only you see (textures, lines, a script):
 ```jsonc
 {
   "schema": 1,
-  "api": 1,                         // the mod API level the mod is made for
+  "api": 2,                         // the mod API level the mod is made for
   "id": "yourname.my-mod",          // author.mod-name: lowercase, digits, dashes
   "name": "My Mod",                 // 1 to 60 characters
   "version": "1.0.0",               // x.y.z
@@ -99,7 +99,7 @@ A mod that changes the flower shop is a World mod:
 ```json
 {
   "schema": 1,
-  "api": 1,
+  "api": 2,
   "id": "yourname.tea-stall",
   "name": "Tea Stall",
   "version": "1.0.0",
@@ -125,10 +125,12 @@ A mod that changes the flower shop is a World mod:
   `item_bought`, `item_sold`, `fish_caught`, `bug_caught`, `letter_read`,
   `villager_moved_in`, `visitor_arrived`, `command_finished`,
   `question_answered`, `timer_fired`, `villager_answered` and `player_acted`,
-  each once.
+  each once. `player_acted` arrived in API level 2, so a mod that lists it says
+  `"api": 2`.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, `set_shop_goods`, `set_shop_open`, `set_hat`, `set_shirt` and `react`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
+  `take_bells`, `set_shop_goods`, `set_shop_open`, `set_hat`, `set_shirt` and `react`. `set_hat`, `set_shirt`
+  and `react` arrived in API level 2, so a mod that lists one says `"api": 2`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -1080,7 +1082,7 @@ a cutscene or walking through a door. Each command needs its name in
 | `cmd.take_bells{ amount }` | Asks the player to pay Bells from their wallet. The game writes the question and takes only on yes. |
 | `cmd.set_shop_goods(shop, goods)` | Sets a shop's goods for the rest of the game day, as one more block after your shops.json blocks for it. `goods` is a list of `{ item, price? }`, or `{ goods = <list>, own_goods = false }`. `nil` clears. Needs scope world. |
 | `cmd.set_shop_open(shop, open)` | Opens (`true`) or shuts (`false`) a shop for the rest of the game day, as one more block after your shops.json blocks for it. `nil` clears. Needs scope world. |
-| `cmd.set_hat(picture)` | Puts a 32 x 32 PNG from your mod (at most 16 colours, no see-through pixels) on the player's hat. `nil` takes it off. Only the player's own screen draws it and nothing is saved: keep the pick in `store.player` and set it again from `scene_entered`. |
+| `cmd.set_hat(picture)` | Puts a 32 x 32 PNG from your mod (at most 16 colours, no see-through pixels) on the player's hat. `nil` takes it off. It stays on the player who set it, at home, on a visit and in The City. Only their own screen draws it and nothing is saved: keep the pick in `store.player` and set it again from `scene_entered` when the store holds one (away from home `store.player` starts empty). |
 | `cmd.set_shirt(picture)` | Puts a 32 x 32 PNG from your mod on the player's shirt, by the same rules as `cmd.set_hat`. `nil` takes it off. It beats the clothes the player wears, and the hat matches it unless the hat has a picture of its own. |
 | `cmd.react(name)` | Plays a reaction from the reactions bar on your own character: `hooray`, `dance`, `hug`, `thanks`, `ouch`, `trip`, `spin`, `hide` or `pose`. Set at the call, returns `true`. Only while you are free and standing, walking or running (`command-busy`, `command-cannot-react`), and at most 10 a minute (`command-minute-cap`). Works on a visit and in The City. |
 

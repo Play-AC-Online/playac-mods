@@ -207,7 +207,7 @@ Texture facts: names are `tex1_<w>x<h>_<texture hash>_<palette hash>_<format>.dd
 ```json
 {
   "schema": 1,
-  "api": 1,
+  "api": 2,
   "id": "yourname.my-mod",
   "name": "My Mod",
   "version": "1.0.0",
@@ -348,7 +348,7 @@ Common ones: no mod.json at the top of the ZIP (`zip-no-manifest`: zip the folde
 ## How to answer
 
 - Give COMPLETE files, ready to save, never fragments with "...".
-- Check every file against the rules above before you give it: required keys, `"api": 1`, string item ids, `scripts.events` matching `on()` calls, permissions matching `cmd.` calls, scope world for shops, limits.
+- Check every file against the rules above before you give it: required keys, `"api": 2`, string item ids, `scripts.events` matching `on()` calls, permissions matching `cmd.` calls, scope world for shops, limits.
 - Prefer the smallest mod that does what they asked. Say what it cannot do instead of faking it.
 - Remind them to raise `version` when they change a shared mod.
 - No Nintendo names in ids, names or descriptions you write.

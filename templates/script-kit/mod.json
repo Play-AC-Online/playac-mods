@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "api": 1,
+  "api": 2,
   "id": "yourname.my-script",
   "name": "My Script",
   "version": "1.0.0",
