@@ -209,7 +209,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   the engine's contract test judges those codes by `pc_mod_refused`, not by text).
 - `permissions`: optional; if present a non-empty array, no duplicates,
   each one of `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, and the manifest must have `scripts`. Matched case-sensitively (`Permissions` is an
+  `take_bells`, `save`, `set_shop_goods`, `set_shop_open`, and the manifest must have `scripts`. Matched case-sensitively (`Permissions` is an
   unknown key, refused). The engine's mod loader does
   not check the shape (mods.js keeps a mod with a bad list out of index.json); the
   engine's script host grants only the known names and refuses every command a
@@ -835,10 +835,10 @@ an entry is a "day". The game's own festivals are "the game's festivals".
     one), and
   - `permissions` (the Phase 2 command list) is absent, or an array whose every
     entry is one of `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-    `take_bells` (a letter or item is vanilla save state,
+    `take_bells`, `save` (a letter or item is vanilla save state,
     a line or a question is read only by its player and the answer goes back to
-    the mod; a take is refused on a visit and in The City, so a visitor never
-    meets one). api.json `visit_scope` lists the same six; the drift test holds
+    the mod; a take and a save are refused on a visit and in The City, so a
+    visitor never meets one). api.json `visit_scope` lists the same seven; the drift test holds
     mods.js `VANILLA_OUTPUT_COMMANDS` and Go `VanillaOutputCommands` to it.
   - So a world mod with ONLY `messages`, `letters`, `calendar` or `talk` content
     and such commands does not count, and one with `textures`, `shops` or
@@ -907,7 +907,7 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   the engine holds the City lock, see "Mod items"). Docs must say exactly this.
 - Mod commands (cmd.*) are all refused in The City (`nil, message,
   "command-city"`). Visiting a friend's town, the commands that change a
-  town or a save (`send_letter`, `give_item`, `take_item`, `take_bells`) are refused (`command-visiting`); only the town owner's game runs them.
+  town or a save (`send_letter`, `give_item`, `take_item`, `take_bells`, `save`) are refused (`command-visiting`); only the town owner's game runs them.
 - Taking: `cmd.take_item{ item, count? }` and `cmd.take_bells{ amount }`
   never take on the script's word. The ENGINE writes the question
   (`pc_mod_fx_take_text`: `Give <count> x <the item's own name> to the mod "<the
@@ -933,6 +933,29 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   on a visit and in The City; a lent mod acts only on a visit, so it never takes.
   A take sends no `question_answered`; its one result is `command_finished` with
   `via = "taken"` or a code. Each take that happened is a line in the Mod log.
+- Saving: `cmd.save()` (no arguments) asks the game for the save the Autosave
+  setting makes: the game's own gate and its settled writer, never a new save
+  path. It writes only where the player could save at Gyroid: a resident (not a
+  visitor), outdoors in the town field (never a house, whose storage furniture
+  holds its items outside the save while the player is in it, a shop or the
+  train), in free control (walking or standing, no menu, talk, demo, door or
+  scene change), not a dream, a save loaded, and not while the page is
+  replacing the save. It settles a COPY of the field grid and puts the live grid
+  back byte-identical, so it never restores an item twice, however often it
+  runs; after a live restore in the same scene that did not end the scene it is
+  refused until the next scene. Refusals, in `command_finished`:
+  `command-indoors`, `command-busy`, `command-dream`, `command-not-ready`,
+  `command-save-failed` (the write failed; the town in play is unchanged), and at
+  the call `command-visiting` and `command-city`. Results: `via = "saved"`, or
+  `via = "unchanged"` when nothing changed since the last home write (nothing is
+  written). Backups rotate by the Autosave's rule, at most every half hour.
+  Per mod per game day per town: 32 saves, counted only when the game wrote the
+  town. Two saves by mods, all mods together, are at least 10 seconds apart on
+  the real clock, and one of a mod's saves waits at a time: sooner is
+  `command-too-soon` at the call (a refused save does not start the wait; an
+  unchanged or failed one does). A save is not in the client-setting rule: it
+  decides nothing about what the town gets. Each save that wrote is a Mod log
+  line.
 - Timers: `timer.after(minutes, name, data?)` returns an id or
   `nil, message, code` (api.json `timer_codes`: timer-args, timer-limit,
   timer-no-town, timer-no-clock, timer-store-full); `timer.cancel(id)` answers true or false;
