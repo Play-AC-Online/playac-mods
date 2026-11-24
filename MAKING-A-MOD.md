@@ -128,7 +128,7 @@ A mod that changes the flower shop is a World mod:
   and `button_released`, each once.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, `save`, `play_sound`, `set_shop_goods` and `set_shop_open`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
+  `take_bells`, `save`, `set_weather`, `play_sound`, `set_shop_goods` and `set_shop_open`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -162,8 +162,9 @@ Files for your editor and tools:
 - **A Just you mod** (`"scope": "client"`): only you see it. It can hold
   textures, lines, talk pools, letters and scripts.
 - **A World mod** (`"scope": "world"`): it changes your town for anyone
-  visiting. A shop needs it, and so does a calendar day with a `board` notice.
-  A mod with `"scope": "client"` and either of those is refused.
+  visiting. A shop needs it, and so do a calendar day with a `board` notice
+  and a script with the permission `set_weather`, `set_shop_goods` or
+  `set_shop_open`. A mod with `"scope": "client"` and any of those is refused.
 
 In The City, the shops and board notices of World mods are switched off,
 mod items are off, and every command a script sends is refused. Textures,
@@ -258,8 +259,9 @@ The Mods tab lists mods in load order. The arrows change it.
     On a visit each player keeps their own value.
   - Use `client` for a choice that only changes what its own player sees or
     hears. A client setting may not decide what the town gets. In an event
-    that read one, `cmd.send_letter`, `cmd.give_item`, `cmd.take_item` and
-    `cmd.take_bells` are refused with the code `command-client-setting`.
+    that read one, `cmd.send_letter`, `cmd.give_item`, `cmd.take_item`,
+    `cmd.take_bells` and `cmd.set_weather` are refused with the code
+    `command-client-setting`.
   - The game checks that rule one event at a time. Do not keep a client
     setting's value in a variable, in `store` or in a timer's `data` and use
     it later to send, give or take. Nothing stops that, and nothing warns.
@@ -1100,6 +1102,7 @@ a cutscene or walking through a door. Each command needs its name in
 | `cmd.take_item{ item, count? }` | Asks the player to hand over items from their pockets. The game writes the question and takes only on yes. |
 | `cmd.take_bells{ amount }` | Asks the player to pay Bells from their wallet. The game writes the question and takes only on yes. |
 | `cmd.save()` | Saves the game, where the player could save at Gyroid: outdoors in their own town, in free control. See "Saving the game" below. |
+| `cmd.set_weather(kind, intensity?)` | Sets the town's weather for the rest of the game day: `"clear"`, `"rain"` or `"snow"`, `"light"` or `"heavy"`. Needs scope world. See "The weather" below. |
 | `cmd.play_sound(name)` | Plays one of the game's own sound effects, by its name in `sounds.json`, heard only by this player. See "Sounds" below. |
 | `cmd.set_shop_goods(shop, goods)` | Sets a shop's goods for the rest of the game day, as one more block after your shops.json blocks for it. `goods` is a list of `{ item, price? }`, or `{ goods = <list>, own_goods = false }`. `nil` clears. Needs scope world. |
 | `cmd.set_shop_open(shop, open)` | Opens (`true`) or shuts (`false`) a shop for the rest of the game day, as one more block after your shops.json blocks for it. `nil` clears. Needs scope world. |
@@ -1112,7 +1115,7 @@ only:
 
 - When it worked: `{ id, command, ok = true, via }`. `via` is `"mailbox"`,
   `"post_office"`, `"pockets"`, `"mail"`, `"shown"`, `"taken"`, `"saved"`,
-  `"unchanged"` or `"played"`.
+  `"set"`, `"unchanged"` or `"played"`.
 - When it did not: `{ id, command, ok = false, code, message }`.
 
 A `question_answered` event is `{ id, choice, text }`, with `choice` counted
@@ -1141,6 +1144,7 @@ The code says whether to try again:
 | `command-dream` | later | a save in a dream town |
 | `command-too-soon` | later | a save within 10 seconds of any mod's last save |
 | `command-save-failed` | later | the save file could not be written; the town in play is unchanged |
+| `command-weather` | later | a weather the game would not have today: out of its season, against an event day's weather, or rain on the first day of work |
 | `command-sound-cap` | later | more than 10 sounds from this mod in a minute |
 | `command-no-sound` | later | a sound while an NES game holds the game's sound |
 
@@ -1184,9 +1188,9 @@ end)
   - The caps are per town, for every resident together. They are a safety
     limit, not a game rule.
 - In The City every command is refused.
-- On a visit to a friend, a letter, an item, a take or a save is refused,
-  because only the town's owner changes a town or a save. Lines, questions and
-  sounds still work.
+- On a visit to a friend, a letter, an item, a take, a save or the weather is
+  refused, because only the town's owner changes a town or a save. Lines,
+  questions and sounds still work.
 - The script of `example.harvest-post` is a whole working example that sends
   each resident a letter with a fruit once a game day. A letter that found no
   room is tried again by a timer. On its fair day it asks a question
@@ -1259,6 +1263,39 @@ end)
 - Refused on a visit and in The City.
 - A villager's mood and clothes reach the save at the next change of scene, as
   with the Autosave. The player still saves and quits at Gyroid.
+
+#### The weather
+
+`cmd.set_weather(kind, intensity)` sets your town's weather for the rest of the
+game day: a rainy festival, a snow day, a sunny contest. `kind` is `"clear"`,
+`"rain"` or `"snow"`. For rain or snow, `intensity` is `"light"` (when left
+out) or `"heavy"`: heavy rain is a storm, heavy snow a blizzard.
+
+```lua
+-- scope: "world"; permissions: ["set_weather"]; events: hour_changed
+on("hour_changed", function(e)
+  if e.hour == 8 then cmd.set_weather("rain") end    -- a rainy morning
+  if e.hour == 12 then cmd.set_weather("clear") end  -- clear by noon
+end)
+```
+
+- The game changes the weather as it does on its own: the last drops or flakes
+  fall, then the new weather fades in with its light and sound. Villagers, fish
+  and bugs follow it as on any rainy or snowy day.
+- It lasts until the day changes, and a reload that day keeps it. Then the game
+  picks its own weather again, and a day after rain can bring a rainbow.
+- Only weather the game itself could have on that date is allowed. Clear always.
+  Rain from February 25 to November 15 and snow from November 1 to February 24,
+  but neither on the days the game keeps clear: January 1 to 7, April 1 to 8,
+  April 20, October 31 and December 31. On an event day the event's weather
+  holds, and the first day of work for Nook never rains. Those are refused with
+  `command-weather`.
+- `via = "set"` when the weather changed, `via = "unchanged"` when the town
+  already had it. While a change of weather is under way, the command waits.
+- 4 changes per mod per game day per town. Only a change counts.
+- It needs `"scope": "world"`. It is refused on a visit and in The City: a
+  visitor sees the host's weather through the game itself, with or without
+  your mod, so a mod that only sets the weather never has to match on a visit.
 
 ### Sounds
 
