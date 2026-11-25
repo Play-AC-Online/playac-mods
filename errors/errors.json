@@ -5164,11 +5164,10 @@
           "We couldn't check the images in your mod just now. Nothing was uploaded. Try again in a few minutes."
         ]
       },
-      "api": [
-        "image_check_unavailable"
-      ],
-      "meaning": "Every image is checked before an upload is accepted, and the check did not answer. Nothing was uploaded.",
-      "fix": "Try again in a few minutes."
+      "api": [],
+      "meaning": "The registry does not send this message. A moderator looks at every image of an upload before it is listed.",
+      "fix": "Nothing to do.",
+      "retired": "A moderator reviews every image by hand; the registry sends no such message."
     },
     {
       "code": "upload-refused",
@@ -5183,7 +5182,6 @@
         ]
       },
       "api": [
-        "upload_refused",
         "banned",
         "forbidden_origin"
       ],
@@ -5319,14 +5317,13 @@
       ],
       "messages": {
         "registry": [
-          "Your mod has more than 500 different pictures. Split it into smaller mods.",
           "Your mod's pictures add up to more than 67 million pixels, or are too slow to check. Split it into smaller mods."
         ]
       },
       "api": [
         "too_many_images"
       ],
-      "meaning": "One upload may hold at most 500 different pictures and about 67 million pixels in all, which is 16 textures of 2048 by 2048. The same file used many times counts once.",
+      "meaning": "One upload may hold about 67 million pixels of pictures in all, which is 16 textures of 2048 by 2048. The same file used many times counts once.",
       "fix": "Split the mod into smaller mods, or make the large textures smaller."
     },
     {

@@ -4702,7 +4702,7 @@ How to fix it: Wait a minute and try again, on a steadier connection if it was t
 
 ### upload-image-check
 
-**The images could not be checked**
+**The images could not be checked** (retired)
 
 Seen in: Share a mod, when you upload.
 
@@ -4710,11 +4710,9 @@ From the mod list (upload):
 
     We couldn't check the images in your mod just now. Nothing was uploaded. Try again in a few minutes.
 
-Registry codes: `image_check_unavailable`
+What it means: The registry does not send this message. A moderator looks at every image of an upload before it is listed.
 
-What it means: Every image is checked before an upload is accepted, and the check did not answer. Nothing was uploaded.
-
-How to fix it: Try again in a few minutes.
+How to fix it: Nothing to do.
 
 ### upload-refused
 
@@ -4726,7 +4724,7 @@ From the mod list (upload):
 
     This upload can't be accepted.
 
-Registry codes: `upload_refused`, `banned`, `forbidden_origin`
+Registry codes: `banned`, `forbidden_origin`
 
 What it means: The upload was refused without a reason being given, or the account cannot share right now.
 
@@ -4845,12 +4843,11 @@ Seen in: Share a mod, when you upload.
 
 From the mod list (upload):
 
-    Your mod has more than 500 different pictures. Split it into smaller mods.
     Your mod's pictures add up to more than 67 million pixels, or are too slow to check. Split it into smaller mods.
 
 Registry codes: `too_many_images`
 
-What it means: One upload may hold at most 500 different pictures and about 67 million pixels in all, which is 16 textures of 2048 by 2048. The same file used many times counts once.
+What it means: One upload may hold about 67 million pixels of pictures in all, which is 16 textures of 2048 by 2048. The same file used many times counts once.
 
 How to fix it: Split the mod into smaller mods, or make the large textures smaller.
 
