@@ -343,14 +343,14 @@ function cmd.send_letter(t) end
 ---@return playac.CommandCode? code The refusal's stable code (command_codes).
 function cmd.give_item(item) end
 
----Queues a line in the player's own thought window, shown once the player is free. One line or question at a time.
+---Queues a line shown in a message box with no one speaking, like the game's own "My pockets are full!", once the player is free. One line or question at a time.
 ---@param text string 1 to 400 bytes.
 ---@return integer? id The command's id. When it is refused at once: nil, then a message and a code.
 ---@return string? message Why it was refused, in words.
 ---@return playac.CommandCode? code The refusal's stable code (command_codes).
 function cmd.show_line(text) end
 
----Queues a question with 2 to 4 answers in the player's thought window. The pick comes back as a question_answered event.
+---Queues a question with 2 to 4 answers in that same speakerless message box. The pick comes back as a question_answered event.
 ---@param t table { text, choices }. text is 1 to 120 characters. choices is 2 to 4 answers of 1 to 16 characters.
 ---@return integer? id The command's id. When it is refused at once: nil, then a message and a code.
 ---@return string? message Why it was refused, in words.

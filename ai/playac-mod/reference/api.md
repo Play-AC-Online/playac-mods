@@ -775,8 +775,8 @@ Schema:
 - `remote.version`(mod: string): Whether a mod this one names in depends or optional_depends is present, and at what version. Returns its version, such as "1.2.0", when it loaded inside the range. Returns nil, a message and a code from dependency_codes when it did not. Ask in an event. In the main chunk an optional dependency that the cycle rule placed after this mod has loaded no script yet.
 - `cmd.send_letter`(t: table): Queues a letter in the player's own mailbox. The post office keeps it when the mailbox is full. The save holds an ordinary letter, so it loads without the mod.
 - `cmd.give_item`(item: integer|string|table): Queues an item into the first empty pocket. With full pockets it comes by letter. Also takes this mod's own new item by its full id (author.mod:thing). A mod item is given with its identity, as a shop sells it, and full pockets refuse it.
-- `cmd.show_line`(text: string): Queues a line in the player's own thought window, shown once the player is free. One line or question at a time.
-- `cmd.ask`(t: table): Queues a question with 2 to 4 answers in the player's thought window. The pick comes back as a question_answered event.
+- `cmd.show_line`(text: string): Queues a line shown in a message box with no one speaking, like the game's own "My pockets are full!", once the player is free. One line or question at a time.
+- `cmd.ask`(t: table): Queues a question with 2 to 4 answers in that same speakerless message box. The pick comes back as a question_answered event.
 - `cmd.take_item`(t: table): Asks the player to hand over items from their pockets. The game shows its own question, which names the item, the count and this mod. The mod's name stands between quotes, and a mod item is named as the pockets show it. A script cannot change that text. On yes the items leave the pockets and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the pockets do not hold that many. Only plain pocket slots count. A wrapped present or an item held for a villager's errand is never taken. Items a command cannot give cannot be taken either (money bags, turnips, tickets, grab bags, fossils). It is refused on a visit and in The City, so a lent mod can never take anything.
 - `cmd.take_bells`(t: table): Asks the player to pay Bells from their wallet. The game shows its own question, which names the amount and this mod. The mod's name stands between quotes. A script cannot change that text. On yes the Bells leave the wallet and command_finished says via taken. On no, or when the window closes with no pick, nothing is taken and command_finished carries command-declined. It is refused with command-not-held when the wallet holds less than the amount, so the wallet never goes below zero. The bank account and money bags in the pockets are never touched. It is refused on a visit and in The City, so a lent mod can never take anything.
 - `cmd.set_shop_goods`(shop: string, goods: table|nil): Sets a shop's goods for the rest of the game day, as one more block after the mod's shops.json blocks for that shop. It is set at the call, with no queue, no daily cap and no command_finished, and applies from the next frame, also when the shop is shut, and is gone when the day changes or the game restarts, so set it again in day_started. nil clears it. Only for a shop with goods in the shop table, and refused when a mod later in the load order changes that shop. Needs scope world.
@@ -833,7 +833,7 @@ Returns integer|nil: The command's id. When it is refused at once: nil, then a m
 
 ### cmd.show_line(text)
 
-Queues a line in the player's own thought window, shown once the player is free. One line or question at a time. (since api 1; permission `show_line`)
+Queues a line shown in a message box with no one speaking, like the game's own "My pockets are full!", once the player is free. One line or question at a time. (since api 1; permission `show_line`)
 
 | argument | type | what |
 |---|---|---|
@@ -843,7 +843,7 @@ Returns integer|nil: The command's id. When it is refused at once: nil, then a m
 
 ### cmd.ask(t)
 
-Queues a question with 2 to 4 answers in the player's thought window. The pick comes back as a question_answered event. (since api 1; permission `ask`)
+Queues a question with 2 to 4 answers in that same speakerless message box. The pick comes back as a question_answered event. (since api 1; permission `ask`)
 
 | argument | type | what |
 |---|---|---|
