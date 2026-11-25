@@ -133,7 +133,7 @@ npm install -g https://github.com/Play-AC-Online/playac-mods/releases/download/c
 
 This installs release 1.1.0 of the tool from its GitHub release in this repository. `npm` comes with Node.js.
 
-The SHA-256 of that file is `357c968e06bb91a361d951911c78522ef32f890d4a600dd5315f1a5068fe16a2`. To check it yourself, download
+The SHA-256 of that file is `65ad16c0144279e1435dc64459e56f3b177354c6be2c70194f4d84c25cba80c7`. To check it yourself, download
 the file, compare, and install the file you checked:
 
 ```bash
