@@ -75,7 +75,7 @@ A mod that only you see (textures, lines, a script):
 ```jsonc
 {
   "schema": 1,
-  "api": 2,                         // the mod API level the mod is made for
+  "api": 1,                         // the mod API level the mod is made for
   "id": "yourname.my-mod",          // author.mod-name: lowercase, digits, dashes
   "name": "My Mod",                 // 1 to 60 characters
   "version": "1.0.0",               // x.y.z
@@ -99,7 +99,7 @@ A mod that changes the flower shop is a World mod:
 ```json
 {
   "schema": 1,
-  "api": 2,
+  "api": 1,
   "id": "yourname.tea-stall",
   "name": "Tea Stall",
   "version": "1.0.0",
@@ -126,12 +126,12 @@ A mod that changes the flower shop is a World mod:
   `villager_moved_in`, `visitor_arrived`, `command_finished`,
   `question_answered`, `timer_fired`, `villager_answered`, `button_pressed`,
   `button_released` and `player_acted`, each once. `button_pressed`,
-  `button_released` and `player_acted` arrived in API level 2, so a mod that
-  lists one says `"api": 2`.
+  `button_released` and `player_acted` arrived in API 1.1: a playac-mod older
+  than 1.1.0 does not know them.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
   `take_bells`, `save`, `set_weather`, `play_sound`, `set_shop_goods`, `set_shop_open`, `set_hat`, `set_shirt` and `react`. `save`, `set_weather`, `play_sound`, `set_hat`, `set_shirt`
-  and `react` arrived in API level 2, so a mod that lists one says `"api": 2`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
+  and `react` arrived in API 1.1: a playac-mod older than 1.1.0 does not know them. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -1045,7 +1045,7 @@ all three. The buttons are `a`, `b`, `x`, `y`, `z`, `l`, `r`, `start`,
 and `c_right` (the C stick is the four `c_` buttons).
 
 ```lua
--- mod.json: "api": 2, "events": ["button_pressed"], "permissions": ["show_line"]
+-- mod.json: "events": ["button_pressed"], "permissions": ["show_line"]
 on("button_pressed", function(e)
   -- Z while L is held: a hotkey that the game itself does not use
   local input = game.input() -- nil while the text editor is open
@@ -1268,7 +1268,7 @@ agrees each time.
 event. It takes no arguments.
 
 ```lua
--- "api": 2; permissions: ["save", "show_line"]; events: scene_entered, command_finished
+-- permissions: ["save", "show_line"]; events: scene_entered, command_finished
 on("scene_entered", function(e)
   if e.name == "town" then cmd.save() end   -- each time the player steps outside
 end)
@@ -1306,7 +1306,7 @@ game day: a rainy festival, a snow day, a sunny contest. `kind` is `"clear"`,
 out) or `"heavy"`: heavy rain is a storm, heavy snow a blizzard.
 
 ```lua
--- "api": 2; scope: "world"; permissions: ["set_weather"]; events: hour_changed
+-- scope: "world"; permissions: ["set_weather"]; events: hour_changed
 on("hour_changed", function(e)
   if e.hour == 8 then cmd.set_weather("rain") end    -- a rainy morning
   if e.hour == 12 then cmd.set_weather("clear") end  -- clear by noon
@@ -1338,7 +1338,7 @@ of getting an item, the menu cursor's tick, a page turning. Name it from
 `sounds.json` (https://playaconline.com/schemas/sounds.json), never by number.
 
 ```lua
--- mod.json: "api": 2, "permissions": ["play_sound"]
+-- mod.json: "permissions": ["play_sound"]
 on("fish_caught", function(e)
   local id, why, code = cmd.play_sound("item_get")
   if not id then log("no sound:", why, code) end

@@ -138,14 +138,13 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
 - `schema`: a number equal to 1.
 - `api`: required, a whole JSON number (`1.0` counts as 1; `"1"`, `null`,
   `1.5` refused): the mod API level the mod was written for. The game reads the
-  range API_MIN..API_MAX, today 1..2. Level 1 is the first release whole (the
-  API was never public before it). Level 2 is level 1's rules plus names a
-  level 1 game would refuse: the permissions `set_hat`, `set_shirt` and `react`
-  and the event `player_acted`. A level 1 mod that lists one is refused with
-  the level it needs (`"permissions" lists "set_hat", which needs "api": 2 or
-  later`, codes `scripts-permissions` and `scripts-events`); an older game
-  skips a level 2 mod as needing a newer game. A name a mod.json lists is never
-  added inside a level that has shipped. The range is held in four
+  range API_MIN..API_MAX, today 1..1. Level 1 is the first release whole (the
+  API was never public before it). A level only changes for a breaking change.
+  Names added with nothing removed or changed are a minor version of the level
+  (api.json `api.minor`, mods.js `API_MINOR`, Go `APIMinor`; today 1.1, and an
+  entry's `since_minor`): a mod that uses them still says `"api": 1`, and the
+  playac-mod CLI, which knows the API version it was built for, says a name it
+  does not know may be newer than the tool. The range is held in four
   places that change together: api.json `api.min`/`api.max`, mods.js
   `API_MIN`/`API_MAX`, Go `APIMin`/`APIMax`, and the engine's
   `PC_MOD_API_MIN`/`MAX`, which is generated from api.json, never typed. A drift
@@ -159,7 +158,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   The engine's mod loader does not read `api`: mods.js keeps a mod it cannot read out of
   index.json. The engine's script host does: it does not start a script whose mod.json
   has no whole-number `api` in PC_MOD_API_MIN..MAX, and the mod's log says
-  `mod.json needs "api": 2` (the newest level).
+  `mod.json needs "api": 1` (the newest level).
 - `game`, `save` at the top level: refused ("is not built yet", code
   `manifest-unbuilt-key`), even when null, until each is built. `depends` and
   `conflicts` are ordinary built keys (below).
