@@ -75,7 +75,7 @@ A mod that only you see (textures, lines, a script):
 ```jsonc
 {
   "schema": 1,
-  "api": 1,                         // the mod API level the mod is made for
+  "api": 2,                         // the mod API level the mod is made for
   "id": "yourname.my-mod",          // author.mod-name: lowercase, digits, dashes
   "name": "My Mod",                 // 1 to 60 characters
   "version": "1.0.0",               // x.y.z
@@ -99,7 +99,7 @@ A mod that changes the flower shop is a World mod:
 ```json
 {
   "schema": 1,
-  "api": 1,
+  "api": 2,
   "id": "yourname.tea-stall",
   "name": "Tea Stall",
   "version": "1.0.0",
@@ -124,11 +124,14 @@ A mod that changes the flower shop is a World mod:
   `item_picked_up`, `scene_entered`, `data_migrated`, `hour_changed`,
   `item_bought`, `item_sold`, `fish_caught`, `bug_caught`, `letter_read`,
   `villager_moved_in`, `visitor_arrived`, `command_finished`,
-  `question_answered`, `timer_fired`, `villager_answered`, `button_pressed`
-  and `button_released`, each once.
+  `question_answered`, `timer_fired`, `villager_answered`, `button_pressed`,
+  `button_released` and `player_acted`, each once. `button_pressed`,
+  `button_released` and `player_acted` arrived in API level 2, so a mod that
+  lists one says `"api": 2`.
 - `permissions` (optional): the commands your script may use, each once, from
   `send_letter`, `give_item`, `show_line`, `ask`, `take_item`,
-  `take_bells`, `save`, `set_weather`, `play_sound`, `set_shop_goods` and `set_shop_open`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
+  `take_bells`, `save`, `set_weather`, `play_sound`, `set_shop_goods`, `set_shop_open`, `set_hat`, `set_shirt` and `react`. `save`, `set_weather`, `play_sound`, `set_hat`, `set_shirt`
+  and `react` arrived in API level 2, so a mod that lists one says `"api": 2`. The game refuses any command the list leaves out. The Mods tab shows players what the list lets
   your mod do. A mod with `permissions` needs `scripts`. Without `permissions`
   your script can change nothing.
 - `$schema` (optional): add
@@ -825,6 +828,7 @@ strings. A `cmd.*` call takes a number, `"0x2800"` or your mod's own
 | `timer_fired` | `{ id, name, data }`, when a timer you set is due (see Timers) | nothing |
 | `button_pressed` | `{ button }`, when the player presses a button (see The player's buttons) | nothing |
 | `button_released` | `{ button }`, when the player lets go of one | nothing |
+| `player_acted` | `{ action, item, reaction }`, when you start an action such as shaking a tree (see The player) | nothing |
 
 No event runs in the title screen demo.
 
@@ -978,7 +982,7 @@ end)
 | `game.bells()` | the wallet |
 | `game.town()` | `{ name, id, year, month, day, hour, minute, weekday, season }` |
 | `game.villagers()` | `{ { id, name, species, personality }, ... }` |
-| `game.player()` | `{ name, id }`: `id` stays the same for that resident in that town |
+| `game.player()` | `{ name, id, x, y, z, angle, acre, scene, tool, state }`: `id` stays the same for that resident in that town; the rest is where you stand and what you do (see The player) |
 | `game.calendar_today()` | the ids of your own calendar file's days on the town's date today, `{}` when none |
 | `game.input()` | the buttons held now and the main stick (see The player's buttons) |
 | `game.weather()` | `{ kind, intensity }`: `kind` is `clear`, `rain` or `snow`, `intensity` is `light`, `normal` or `heavy` (`none` when clear) |
@@ -998,6 +1002,32 @@ square and only ever the player's own, so a mod cannot track anyone's exact
 position. On a visit both describe the town being visited. Neither needs a
 permission.
 
+### The player
+
+`game.player()` reads you as you are now:
+
+- `x`, `y`, `z`: where you stand. A ground tile is 40 across, an acre 640. `x`
+  grows to the east, `z` to the south.
+- `angle`: 0 to 359 degrees, 0 facing south (toward the camera), 90 east.
+- `acre`: `{ x, z }` in the town, column 1 to 5 west to east, row 1 (A, the
+  station's row) to 6 (F, the beach). `nil` in any scene but the town.
+- `scene`: the scene's name, like `"town"`.
+- `tool`: `"axe"`, `"net"`, `"rod"`, `"shovel"`, `"umbrella"` or `nil`.
+- `state`: `"standing"`, `"walking"`, `"running"`, `"sitting"`, `"lying"`,
+  `"wading"` (walking into the next acre while the screen scrolls) or `"busy"`.
+  Treat a word you do not know as `"busy"`.
+
+Everything after `id` is `nil` while the scene is being built.
+
+`player_acted` fires when you START one of these: `axe_swung`, `axe_hit_rock`,
+`axe_broke`, `net_swung`, `rod_cast`, `shovel_dug`, `hole_filled`,
+`tree_shaken`, `sat_down`, `stood_up`, `lay_down`, `stung`, `fell_in_pitfall`,
+`tripped`, `shocked`, `door_entered`, `reacted`. Walking and running are never
+events. `item` is the tool's item number for a tool action; `reaction` names
+the reaction for `reacted`. Only your own game sends it, on a visit and in The
+City too. The player is busy with that action then, so a `cmd.react` in the
+handler is refused with `command-busy`: react later, from a timer.
+
 `rng()` counts how many numbers your mod has drawn in this town on this game
 day. Each call gives the next one, so calls in a day differ. A reload carries
 on from where it was, so it cannot reroll. A new game day starts new numbers.
@@ -1015,7 +1045,7 @@ all three. The buttons are `a`, `b`, `x`, `y`, `z`, `l`, `r`, `start`,
 and `c_right` (the C stick is the four `c_` buttons).
 
 ```lua
--- mod.json: "events": ["button_pressed"], "permissions": ["show_line"]
+-- mod.json: "api": 2, "events": ["button_pressed"], "permissions": ["show_line"]
 on("button_pressed", function(e)
   -- Z while L is held: a hotkey that the game itself does not use
   local input = game.input() -- nil while the text editor is open
@@ -1106,8 +1136,12 @@ a cutscene or walking through a door. Each command needs its name in
 | `cmd.play_sound(name)` | Plays one of the game's own sound effects, by its name in `sounds.json`, heard only by this player. See "Sounds" below. |
 | `cmd.set_shop_goods(shop, goods)` | Sets a shop's goods for the rest of the game day, as one more block after your shops.json blocks for it. `goods` is a list of `{ item, price? }`, or `{ goods = <list>, own_goods = false }`. `nil` clears. Needs scope world. |
 | `cmd.set_shop_open(shop, open)` | Opens (`true`) or shuts (`false`) a shop for the rest of the game day, as one more block after your shops.json blocks for it. `nil` clears. Needs scope world. |
+| `cmd.set_hat(picture)` | Puts a 32 x 32 PNG from your mod (at most 16 colours, no see-through pixels) on the player's hat. `nil` takes it off. It stays on the player who set it, at home, on a visit and in The City. Only their own screen draws it and nothing is saved: keep the pick in `store.player` and set it again from `scene_entered` when the store holds one (away from home `store.player` starts empty). |
+| `cmd.set_shirt(picture)` | Puts a 32 x 32 PNG from your mod on the player's shirt, by the same rules as `cmd.set_hat`. `nil` takes it off. It beats the clothes the player wears, and the hat matches it unless the hat has a picture of its own. |
+| `cmd.react(name)` | Plays a reaction from the reactions bar on your own character: `hooray`, `dance`, `hug`, `thanks`, `ouch`, `trip`, `spin`, `hide` or `pose`. Set at the call, returns `true`. Only while you are free and standing, walking or running (`command-busy`, `command-cannot-react`), and at most 10 a minute (`command-minute-cap`). Works on a visit and in The City. |
 
-Each call returns the command's number. When the command is refused it returns
+Each call returns the command's number (the shop commands, `cmd.set_hat`, `cmd.set_shirt` and `cmd.react`
+return `true`). When the command is refused it returns
 `nil`, a message and a code.
 
 What happened later comes back as a `command_finished` event, to your mod
@@ -1234,7 +1268,7 @@ agrees each time.
 event. It takes no arguments.
 
 ```lua
--- permissions: ["save", "show_line"]; events: scene_entered, command_finished
+-- "api": 2; permissions: ["save", "show_line"]; events: scene_entered, command_finished
 on("scene_entered", function(e)
   if e.name == "town" then cmd.save() end   -- each time the player steps outside
 end)
@@ -1272,7 +1306,7 @@ game day: a rainy festival, a snow day, a sunny contest. `kind` is `"clear"`,
 out) or `"heavy"`: heavy rain is a storm, heavy snow a blizzard.
 
 ```lua
--- scope: "world"; permissions: ["set_weather"]; events: hour_changed
+-- "api": 2; scope: "world"; permissions: ["set_weather"]; events: hour_changed
 on("hour_changed", function(e)
   if e.hour == 8 then cmd.set_weather("rain") end    -- a rainy morning
   if e.hour == 12 then cmd.set_weather("clear") end  -- clear by noon
@@ -1304,7 +1338,7 @@ of getting an item, the menu cursor's tick, a page turning. Name it from
 `sounds.json` (https://playaconline.com/schemas/sounds.json), never by number.
 
 ```lua
--- mod.json: "permissions": ["play_sound"]
+-- mod.json: "api": 2, "permissions": ["play_sound"]
 on("fish_caught", function(e)
   local id, why, code = cmd.play_sound("item_get")
   if not id then log("no sound:", why, code) end

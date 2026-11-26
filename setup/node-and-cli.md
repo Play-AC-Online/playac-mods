@@ -133,7 +133,7 @@ npm install -g https://github.com/Play-AC-Online/playac-mods/releases/download/c
 
 This installs release 1.1.0 of the tool from its GitHub release in this repository. `npm` comes with Node.js.
 
-The SHA-256 of that file is `4ab1a1bbb2afb5905dda02714e3988099324558874d7c308e8352b3868834d12`. To check it yourself, download
+The SHA-256 of that file is `353c680378b23081c14d60f40ab377a3a25604b82597442b5c88872943238a9f`. To check it yourself, download
 the file, compare, and install the file you checked:
 
 ```bash
@@ -153,8 +153,8 @@ playac-mod --version
 ```
 
 It prints a line like
-`playac-mod 1.1.0, build 1a2b3c4d5e6f, API level 1`. That is the
-tool's version, its build and the mod API level it checks.
+`playac-mod 1.1.0, build 1a2b3c4d5e6f, API levels 1 to 2`. That is the
+tool's version, its build and the mod API levels it checks.
 
 Each release's changes are at
 https://playaconline.com/modding/cli/#changelog.

@@ -138,8 +138,14 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
 - `schema`: a number equal to 1.
 - `api`: required, a whole JSON number (`1.0` counts as 1; `"1"`, `null`,
   `1.5` refused): the mod API level the mod was written for. The game reads the
-  range API_MIN..API_MAX, today 1..1: ONE level (the API was never public
-  before it, so the first release is level 1 whole). The range is held in four
+  range API_MIN..API_MAX, today 1..2. Level 1 is the first release whole (the
+  API was never public before it). Level 2 is level 1's rules plus names a
+  level 1 game would refuse: the permissions `set_hat`, `set_shirt` and `react`
+  and the event `player_acted`. A level 1 mod that lists one is refused with
+  the level it needs (`"permissions" lists "set_hat", which needs "api": 2 or
+  later`, codes `scripts-permissions` and `scripts-events`); an older game
+  skips a level 2 mod as needing a newer game. A name a mod.json lists is never
+  added inside a level that has shipped. The range is held in four
   places that change together: api.json `api.min`/`api.max`, mods.js
   `API_MIN`/`API_MAX`, Go `APIMin`/`APIMax`, and the engine's
   `PC_MOD_API_MIN`/`MAX`, which is generated from api.json, never typed. A drift
@@ -153,7 +159,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   The engine's mod loader does not read `api`: mods.js keeps a mod it cannot read out of
   index.json. The engine's script host does: it does not start a script whose mod.json
   has no whole-number `api` in PC_MOD_API_MIN..MAX, and the mod's log says
-  `mod.json needs "api": 1`.
+  `mod.json needs "api": 2` (the newest level).
 - `game`, `save` at the top level: refused ("is not built yet", code
   `manifest-unbuilt-key`), even when null, until each is built. `depends` and
   `conflicts` are ordinary built keys (below).
@@ -201,7 +207,7 @@ as text or as bytes, and mods.js, the registry and the engine each read it. Add 
   `data_migrated`, `hour_changed`, `item_bought`, `item_sold`, `fish_caught`,
   `bug_caught`, `letter_read`, `villager_moved_in`, `visitor_arrived`,
   `command_finished`, `question_answered`, `timer_fired`, `villager_answered`,
-  `button_pressed`, `button_released`: every event api.json lists;
+  `button_pressed`, `button_released`, `player_acted`: every event api.json lists;
   `data_migrated` needs a `data_version`). Unknown keys inside `scripts` refused.
   In all three layers an unknown `scripts.*` or `content.*` key refuses the
   WHOLE mod (the engine only said so, loaded the content and ran the
@@ -561,6 +567,57 @@ shop, and a field a shop does not have is left out by one rule.
   mod's JSON blocks for that shop, from the next frame until the game day changes
   (or a restart). Refused (`nil, message, code`) when the shop is not in the
   table, does not have the field, or a mod later in load order has the shop.
+- Lua: `react(name)`, permission `react` (api 2), any scope: one of the reactions bar's
+  nine (`hooray`, `dance`, `hug`, `thanks`, `ouch`, `trip`, `spin`, `hide`,
+  `pose`) on the player's own character, through the bar's own request (no
+  write to the actor). Set at the call: `true`, or `nil, message, code`:
+  `command-args` (not one of the nine), `command-minute-cap`
+  (`commands.reacts_per_minute` per mod per game-clock minute; refused calls do
+  not count), `command-busy` (the player is not free: the same gate as the
+  queue, which also holds during an action just started and a reaction
+  playing), `command-cannot-react` (the game refused: only from standing,
+  walking or running). Allowed on a visit and in The City; in visit_scope.
+- Player: `game.player` adds `x, y, z` (world units), `angle` (degrees, 0
+  south, 90 east), `acre { x, z }` (town only), `scene` (scenes.json name),
+  `tool` (axe, net, rod, shovel, umbrella or nil) and `state` (standing,
+  walking, running, sitting, lying, wading, busy), each nil while the scene
+  is being built. `player_acted { action, item?, reaction? }` (api 2) fires from the one
+  line the player actor's action changes, the local player only, for an
+  allowlist of actions (api.json lists them); never walk, run or wait.
+
+## The hat
+- Lua: `set_hat(picture)` puts a picture from the mod's own files on the hat of
+  the player playing now; `set_hat(nil)` takes it off. Permission `set_hat`
+  (api 2); any scope. Set at the call (no queue, no daily cap, no `command_finished`), from
+  the next frame. `picture` is a path inside the mod (the ZIP path rules) of a
+  PNG of exactly 32 x 32 pixels, every pixel opaque, at most 16 colours: an
+  Able Sisters design's size. Refused `command-args` for a path that breaks the
+  rules or no player loaded, `command-picture` for a file that is missing or not
+  such a PNG (more than 64 KB, another size, more colours, a see-through pixel).
+- The picture becomes the hat's 32x32 CI4 texture and 16 colour palette, the
+  same pair a design on the hat binds. A mod's hat beats a design, which beats
+  the shirt. Between mods the one later in load order wins.
+- The hat belongs to the player who set it, by their own identity and home town
+  (the save's player id, name and home town), never the town loaded: a hat set
+  at home stays on for a visit and in The City. Only their own screen draws it:
+  no other player sees it, and nothing is saved. A script keeps the pick in
+  `store.player` and sets it again from `scene_entered`; away from home
+  `store.player` starts empty, so a nil there is no reason to take it off. It
+  is gone when the game restarts. A developer-mode reload of the same mod keeps
+  it; a different mod taking the slot drops it.
+
+## The shirt
+- Lua: `set_shirt(picture)` puts a picture from the mod's own files on the
+  shirt of the player playing now; `set_shirt(nil)` takes it off. Permission
+  `set_shirt` (api 2); any scope. Every rule of `set_hat` holds: set at the call,
+  the same picture rules and refusals (`command-args`, `command-picture`), later
+  in load order wins, the player who set it wherever they go, nothing saved.
+- The picture becomes the shirt's 32x32 CI4 texture and 16 colour palette, the
+  pair a design worn as clothing binds, so it wraps the body and sleeves the way
+  a design does. It beats the clothes the player wears: a change of clothes
+  changes what is underneath, and the save keeps the real clothes.
+- The hat matches the shirt the player draws: with no design and no mod hat on
+  it, the hat wears the shirt picture too.
 
 ## Mod items
 New furniture a mod names, piloted on house furniture. In the save a mod item is
@@ -907,8 +964,9 @@ an entry is a "day". The game's own festivals are "the game's festivals".
   there for the player who has them, with two limits: every mod command is refused
   (below), and mod items are neither named nor recorded (the flower shop is off and
   the engine holds the City lock, see "Mod items"). Docs must say exactly this.
-- Mod commands (cmd.*) are all refused in The City (`nil, message,
-  "command-city"`). Visiting a friend's town, the commands that change a
+- Mod commands (cmd.*) but `set_hat`, `set_shirt` and `react` are refused in
+  The City (`nil, message, "command-city"`). Those three change only the
+  player's own character and run there and on a visit. Visiting a friend's town, the commands that change a
   town or a save (`send_letter`, `give_item`, `take_item`, `take_bells`, `save`, `set_weather`) are refused (`command-visiting`); only the town owner's game runs them.
 - Taking: `cmd.take_item{ item, count? }` and `cmd.take_bells{ amount }`
   never take on the script's word. The ENGINE writes the question

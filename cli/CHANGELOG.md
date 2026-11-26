@@ -7,6 +7,15 @@ A version is MAJOR.MINOR.PATCH. The middle number goes up when the rules, the
 API level or a command changes. The last number goes up for fixes. A release
 never changes after it is listed.
 
+## 1.0.1
+
+Fixes, no rule changes.
+
+- Carries the game's newer rules file, which talks to the page through its
+  bridge. What `check` accepts and refuses is unchanged.
+- The API notes for `show_line` and `ask` now say what the player sees: a
+  message box with no one speaking, like the game's own "My pockets are full!".
+
 ## 1.0.0
 
 First release.

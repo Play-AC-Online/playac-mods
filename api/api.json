@@ -3890,7 +3890,7 @@
           "name": "show_line",
           "kind": "function",
           "since": 1,
-          "description": "Queues a line in the player's own thought window, shown once the player is free. One line or question at a time.",
+          "description": "Queues a line shown in a message box with no one speaking, like the game's own \"My pockets are full!\", once the player is free. One line or question at a time.",
           "params": [
             {
               "name": "text",
@@ -3919,7 +3919,7 @@
           "name": "ask",
           "kind": "function",
           "since": 1,
-          "description": "Queues a question with 2 to 4 answers in the player's thought window. The pick comes back as a question_answered event.",
+          "description": "Queues a question with 2 to 4 answers in that same speakerless message box. The pick comes back as a question_answered event.",
           "params": [
             {
               "name": "t",
@@ -5000,7 +5000,7 @@
       "name": "show_line",
       "kind": "function",
       "since": 1,
-      "description": "Queues a line in the player's own thought window, shown once the player is free. One line or question at a time.",
+      "description": "Queues a line shown in a message box with no one speaking, like the game's own \"My pockets are full!\", once the player is free. One line or question at a time.",
       "params": [
         {
           "name": "text",
@@ -5030,7 +5030,7 @@
       "name": "ask",
       "kind": "function",
       "since": 1,
-      "description": "Queues a question with 2 to 4 answers in the player's thought window. The pick comes back as a question_answered event.",
+      "description": "Queues a question with 2 to 4 answers in that same speakerless message box. The pick comes back as a question_answered event.",
       "params": [
         {
           "name": "t",

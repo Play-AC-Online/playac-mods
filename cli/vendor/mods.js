@@ -2358,17 +2358,16 @@
   }
 
   function notifyChanged() {
-    const wins = [root];
-    try { if (root.parent && root.parent !== root) wins.push(root.parent); } catch (_) {   }
-    const st = typeof root.setTimeout === 'function' ? root.setTimeout : null;
-    for (const w of wins) {
-      let hook = null;
-      try { hook = typeof w._acwebHostModsChanged === 'function' ? w._acwebHostModsChanged : null; } catch (_) { hook = null; }
-      if (!hook) continue;
-      const call = function () { try { hook.call(w, api); } catch (_) {   } };
-      if (st) st(call, 0); else call();
-      return;
-    }
+    const hook = typeof root._acwebHostModsChanged === 'function' ? root._acwebHostModsChanged : null;
+    const call = hook
+      ? function () { try { hook.call(root, api); } catch (_) {   } }
+      : function () {
+          try {
+            if (typeof root._hostSendSoon === 'function') root._hostSendSoon('mods.changed', []);
+          } catch (_) {   }
+        };
+
+    if (typeof root.setTimeout === 'function') root.setTimeout(call, 0); else call();
   }
 
   function setOrder(ids) {
@@ -2634,10 +2633,13 @@
 
   function statusTransport() {
     if (typeof root._acwebModsStatusFetch === 'function') return root._acwebModsStatusFetch;
-    try {
-      const p = root.parent;
-      if (p && p !== root && typeof p._acwebHostModStatus === 'function') return p._acwebHostModStatus;
-    } catch (_) {   }
+
+    if (typeof root._hostServes === 'function' && typeof root._hostCall === 'function') {
+      return function (body) {
+        if (!root._hostServes('mods.status')) return Promise.reject(new Error('the page does not serve mods.status'));
+        return root._hostCall('mods.status', [body]);
+      };
+    }
     return null;
   }
 
@@ -4134,7 +4136,8 @@
 
   function devEngine() {
     const m = root.Module;
-    if (!m || !m.calledRun || !m.HEAP32 || typeof m.ccall !== 'function') return null;
+    if (typeof root.acCall !== 'function') return null;
+    if (!m || !m.calledRun || !m.HEAP32) return null;
     if (typeof m._pc_mod_dev_reload !== 'function') return null;
     const at = m._g_pc_scene_ready;
     if (typeof at === 'number' && m.HEAP32[at >> 2] !== 1) return null;
@@ -4144,12 +4147,15 @@
   function devFlush() {
     devTimer = null;
     if (!devPending || !devCurrent) return null;
-    const m = devEngine();
-    if (!m) { devTimer = root.setTimeout(devFlush, 500); return null; }
+    if (!devEngine()) { devTimer = root.setTimeout(devFlush, 500); return null; }
     const what = devPending;
     devPending = 0;
     let out;
-    try { out = JSON.parse(m.ccall('pc_mod_dev_reload', 'string', ['string', 'number'], [devCurrent.id, what])); } catch (e) {
+    try {
+      out = JSON.parse(root.acCall('pc_mod_dev_reload', 'string', ['string', 'number'], [devCurrent.id, what], { scene: true }));
+    } catch (e) {
+
+      if (e && e.acCallRefused) { devPending |= what; devTimer = root.setTimeout(devFlush, 500); return null; }
       out = { ok: 0, why: (e && e.message) || String(e) };
     }
     if (!out.ok) logPush('refused', devCurrent.id, 'reload refused: ' + out.why);
