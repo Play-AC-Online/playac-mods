@@ -49,7 +49,7 @@ left.
 How the codes are used:
 
 - When you upload, the site asks for a code from the app.
-- That code opens a 15-minute window in that browser. In
+- That code opens a 30-day window in that browser. In
   that window you can upload or import.
 
 ## 3. Get the mod ready
