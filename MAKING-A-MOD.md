@@ -437,6 +437,9 @@ https://playaconline.com/modding/guides/shops/#table.
   `false` makes your goods the shop's whole stock while the block applies:
   each spot of a kind you list takes one of them, and every other spot is
   bare.
+- On the game's event days at Nook's the event stays, with every mod: the
+  grab bag sale's bags and Halloween's candy stand beside your goods, and on
+  the last day of the month the raffle takes the whole shop.
 - `goods`: the goods, each `{ "item", "price", "when" }`. Only `item` is
   required. No item twice in a block.
   - `item` is a string: `"0x"` and 4 hex digits.
@@ -563,7 +566,9 @@ opens the shop at night with only your goods:
 - Your goods bought while the block applies stay sold out until the game
   restarts.
 - The After Hours example does this: from 1 AM to 3 AM, only gyroids, a
-  different few each night, and now and then its own Ghost Lantern. The
+  different few each night, and now and then its own Ghost Lantern. On a
+  grab bag sale day the bags stand beside them, and when the shelves are a
+  raffle day's, the raffle takes the shop. The
   cookbook shows it:
   https://playaconline.com/modding/cookbook/#example.after-hours.
 

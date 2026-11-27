@@ -724,10 +724,19 @@ reinstalling restores the name.
   day's roll. While it holds the shop's list is built from the day's goods by
   `own_goods` into memory of its own (a spot already sold that day counts as its
   kind's) and never written to the save, so the day's stock is back as it was
-  when it stops holding. With `own_goods` true, a good of the day's own bought
-  inside it is sold in the day's list too. A mod's good bought inside it stays
-  sold out until the game restarts; a restart sets the goods out again. No grab
-  bags and no raffle inside it, and a sale's goods beat the mod's.
+  when it stops holding. Only goods (or `own_goods` false) from a block or good
+  with a `when` make that list: a block of only `open`, prices or lines does not.
+  With `own_goods` true, a good of the day's own bought inside it is sold in the
+  day's list too, a mod good with no `when` included (it is in the day's roll).
+  A good of the block's own bought inside it stays sold out until the game
+  restarts; a restart sets the goods out again. A sale's goods beat the mod's.
+- Nook's, the game's event days: no mod changes the kind of day. The grab bag
+  sale's bags fill the spots of the kinds that day has none of, and Halloween's
+  candy the flower spots, also with `own_goods` false; the raffle takes the whole
+  shop on its day (the last of the month), whatever the mod. The kind of day is
+  that of the day's roll, not the clock's: open after midnight, the shop is the
+  day before's until Nook restocks at 6 AM. Grab bags and candy keep the game's
+  price, whatever `price_percent` says.
 - Price: the mod's price for a good it lists, raised to at least what any Nook
   pays back for it; no price is the shop's own, times `price_percent` when one
   applies. At Nook's only for goods bought off the floor (a catalog order pays
